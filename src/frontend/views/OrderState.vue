@@ -751,7 +751,10 @@ export default {
                         "ModelFrom": "Catering",
                          "StaffName": this.order.StaffName                    
                    }
+                   if(res.method !== 'Credit')
                     await Api.postIn('allpayments', paymentEntry); 
+                   else
+                        Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
                 })
                 .catch(e => {  
                     let msg = e;
@@ -870,7 +873,10 @@ export default {
                         "ModelFrom": "Catering",
                          "StaffName": this.order.StaffName                    
                    }
-                   await Api.postIn('allpayments', paymentEntry);
+                   if(res.method !== 'Credit')
+                    await Api.postIn('allpayments', paymentEntry);
+                   else
+                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
             }            
             } catch (error) {            
                 console.log(error)
@@ -961,10 +967,13 @@ export default {
         },
 
         allOrder: function(){
-        if(this.fromMyAccount === '')
-            return this.$router.push({ name: 'ListOrder', params: {customerId: this.order.ClientId, CustomerName: this.CustomerName, currentPageOrder: this.currentPageOrder} })    
-        else 
-            return this.$router.push({ name: 'Myaccount', params: { fromMyAccount: this.fromMyAccount, currentPageOrder: this.currentPageOrder } })    
+            if(this.fromMyAccount === 'Credit')
+                return this.$router.push({ name: 'ListCredit' })    
+        
+            if(this.fromMyAccount === '')
+                return this.$router.push({ name: 'ListOrder', params: {customerId: this.order.ClientId, CustomerName: this.CustomerName, currentPageOrder: this.currentPageOrder} })    
+            else 
+                return this.$router.push({ name: 'Myaccount', params: { fromMyAccount: this.fromMyAccount, currentPageOrder: this.currentPageOrder } })    
    
         },
 

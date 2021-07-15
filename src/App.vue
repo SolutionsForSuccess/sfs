@@ -74,7 +74,8 @@
               <ion-item v-if="restaurantSelected && $store.state.allTickets.length > 0"  @click="showTickets()"> {{$t('frontend.menu.ticketMenu')}} <ion-badge v-if="$store.state.allTickets.length > 0" slot="end" color="secondary">{{$store.state.allTickets.length}}</ion-badge></ion-item>  
               <ion-item v-if="restaurantSelected && $store.state.configuration.viewReservation && $store.state.configuration.viewCustomerReservation && hasCardPayRes()"  @click="getReservation()"> {{$t('frontend.menu.reservation')}} <ion-badge v-if="$store.state.allReservations.length >0" slot="end" color="secondary">{{$store.state.allReservations.length}}</ion-badge></ion-item> 
               <ion-item v-if="restaurantSelected"  @click="getOrderList"> {{$t('frontend.menu.orders')}} <ion-badge v-if="$store.state.allOrders.length >0" slot="end" color="secondary">{{$store.state.allOrders.length}}</ion-badge> </ion-item>  
-              <ion-item v-if="restaurantSelected && hasAds()"  @click="goAds">  {{$t('frontend.menu.ads')}}</ion-item>
+              <ion-item v-if="restaurantSelected"  @click="getCreditList"> {{$t('frontend.menu.credit')}} <ion-badge v-if="$store.state.allCustomerCredit.length >0" slot="end" color="secondary">{{$store.state.allCustomerCredit.length}}</ion-badge> </ion-item>  
+              <ion-item v-if="restaurantSelected && hasAds() && $store.state.configuration.viewDigitalSigned"  @click="goAds">  {{$t('frontend.menu.ads')}}</ion-item>
       
                  <Language />
 
@@ -166,10 +167,12 @@
                                     hasPermission('canViewRole') || hasPermission('canViewOccupation') 
                                         || hasPermission('canViewCustomer') || hasPermission('canViewDriver'))">{{ $t('backoffice.menu.staffOccupationsCustomersDrivers') }}</ion-item>
               <a @click="showStaffList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewUser') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" color="primary" data-icon="simple-icons:codechef" data-inline="false"></span>{{ $t('backoffice.options.manageUsers') }}</ion-item></a>
+              <a @click="showDriverList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewDriver') && staffoccupationscustomers"><span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>Drivers</ion-item></a>
               <router-link to="/role" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewRole') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>{{ $t('backoffice.options.manageRoles') }}</ion-item></router-link>
               <router-link to="/occupation" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOccupation') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>{{ $t('backoffice.options.manageOccupation') }}</ion-item></router-link>
               <router-link to="/customer" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCustomer') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="raphael:people" data-inline="false"></span>{{ $t('backoffice.options.manageCustomers') }}</ion-item></router-link>
-              <a @click="showDriverList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewDriver') && staffoccupationscustomers"><span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>Drivers</ion-item></a>
+              <router-link to="/credit" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCredit') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>{{ $t('backoffice.options.manageCredits') }}</ion-item></router-link>
+              
 
           <ion-item color='light' @click="marketing = !marketing" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewSuscriptor'))">{{ $t('backoffice.menu.marketing') }}</ion-item>
               <router-link to="/suscriptor" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSuscriptor') && marketing" @click="closeEnd()"><span class="iconify" data-icon="mdi:email-newsletter" data-inline="false"></span>{{ $t('backoffice.titles.suscriptors') }}</ion-item></router-link>
@@ -467,14 +470,17 @@ export default {
     });
 
      EventBus.$on('changeRoute', async (value)   =>  { 
-       console.log(value)  
+       // console.log(value)  
       if(value ==='reservation') {
         return this.$router.push({ name: 'Reservation' })
       }        
       if(value ==='yourOrdersList')
       {
         return this.$router.push({ name: 'ListOrder' })
-      }    
+      }  
+      if(value ==='yourListCredit')  {
+        return this.$router.push({ name: 'ListCredit' })
+      }
     });
 
     EventBus.$on('editInfoClient', (value) => {   
@@ -551,7 +557,7 @@ export default {
       configuration: {},
       idleTracker: new IdleTracker(
             {timeout: 600000, // Cierra sesion tras 10 min de inactividad. 600000
-            onIdleCallback: () =>{console.log('iddle end: ' + this.idleTracker.state.idle);
+            onIdleCallback: () =>{// console.log('iddle end: ' + this.idleTracker.state.idle);
             if (!this.idleTracker.state.idle) return  this.alertSesionExpired(); },
             throttle: 500
             }
@@ -568,9 +574,9 @@ export default {
       ),
       idleTrackerRestartFront: new IdleTracker(
             {timeout: 2700000,  //Reload from tras 45 min de inactividad. 600000
-            onIdleCallback: () =>{console.log('iddle end front: ' + this.idleTrackerRestartFront.state.idle);
+            onIdleCallback: () =>{// console.log('iddle end front: ' + this.idleTrackerRestartFront.state.idle);
               if (!this.idleTrackerRestartFront.state.idle){
-                console.log('pasaron 45 minutos de inactividad')
+                // console.log('pasaron 45 minutos de inactividad')
                 return this.changeRestaurant(this.restaurantSelectedId);
               } 
             },
@@ -626,7 +632,7 @@ export default {
     //         //Sean del mismo día
     //         attendanceDay = attendanceDay.filter(att => Moment(att.DateTime).format('YYYYMMDD') == Moment().format('YYYYMMDD'))
 
-    //         console.log(attendanceDay.length)
+    //         // console.log(attendanceDay.length)
     //         if (attendanceDay.length == 0)
     //         {
     //             if (!this.hasPermission('canIgnoreClockin'))
@@ -638,7 +644,7 @@ export default {
     //         return true
     //     }
     //     catch(e){
-    //         console.log(e)
+    //         // console.log(e)
     //         return false
     //     }
     // },
@@ -665,6 +671,8 @@ export default {
                             roles.push(response.data);
                         })
                     });
+                    const {Commons} = require('./frontend/commons');
+                    Commons.changeRestaurant(this.userLoginRestaurantId);
                     this.$store.commit("setRoles", roles);
                     this.$router.push({
                         path: "/controlPanel"
@@ -673,7 +681,7 @@ export default {
                   this.spinner = false
             })
             .catch(e => {
-                console.log(e)
+                // console.log(e)
                 this.spinner = false
             });
     },
@@ -690,7 +698,7 @@ export default {
               }
           })
           .catch(e => {
-          console.log(e)
+          // console.log(e)
           });
     },
 
@@ -786,6 +794,9 @@ export default {
                       case 'canViewSpecialPrices':
                           res = roles[index].canViewSpecialPrices;
                           break;
+                      case 'canViewCredit':
+                          res = roles[index].canViewCredit;
+                          break;
                       default:
                           break;
                 }
@@ -879,7 +890,7 @@ export default {
                 }
             })
             .catch(e => {
-            console.log(e)
+            // console.log(e)
             });
         },
    
@@ -904,7 +915,7 @@ export default {
                 }
             })
             .catch(e => {
-            console.log(e)
+            // console.log(e)
             });
         },
    
@@ -1124,7 +1135,7 @@ export default {
                 this.$router.push({ name: 'AboutFront', params: {url: this.$store.state.restaurantActive.restaurantUrl, key: this.key}})
                 this.$forceUpdate();
               } catch (error) {
-                  console.log(error)
+                  // console.log(error)
                   loading.dismiss();
                 
               }
@@ -1190,6 +1201,15 @@ export default {
         return this.$router.push({ name: 'ListOrder', params: {customerId:this.clientId, CustomerName: this.CustomerName} })
       else
         return this.logIng('','yourOrdersList');      
+
+    },    
+    
+    getCreditList: async function(){  
+      this.closeStart();   
+      if(this.ClientId !='' && this.CustomerName !='') 
+        return this.$router.push({ name: 'ListCredit' })
+      else
+        return this.logIng('','yourListCredit');      
 
     },
 
@@ -1281,7 +1301,7 @@ export default {
             }
           )
           .catch(e => {
-          console.log(e)
+          // console.log(e)
           this.spinner = false
 
           });
@@ -1342,7 +1362,7 @@ export default {
         
       )
       .catch(e => {
-        console.log(e)
+        // console.log(e)
         this.spinner = false
         
       });
@@ -1513,6 +1533,7 @@ export default {
           await Commons.getOrders();
           await Commons.getListReservation();
           await Commons.getTickets();
+          await Commons.getCredit();
           // //SUBSCRIPTION
           Commons.alertSubscription(this.email,this.CustomerName, this.phone);  
            EventBus.$emit('updateCustomerGuess', true);         
@@ -1542,7 +1563,7 @@ export default {
           });
 
       } catch (error) {        
-         console.log(error)
+         // console.log(error)
          this.getError(error);
         
       }

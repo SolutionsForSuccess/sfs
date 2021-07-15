@@ -225,14 +225,14 @@ export default {
        
 
     viewOrder: function(specialsPrice){
-        console.log('Open specialsprice type con ID '+ specialsPrice);
+        // console.log('Open specialsprice type con ID '+ specialsPrice);
         return this.$router.push({ name: 'SpecialsPriceDetail', params: {specialsPrice: specialsPrice} })
     },
 
     
     async deleteOrder(id){
 
-      console.log('delete specialsprice: ' + id)
+      // console.log('delete specialsprice: ' + id)
       try {
         this.spinner = true;
         const response = await Api.deleteById('specialsprice', id);

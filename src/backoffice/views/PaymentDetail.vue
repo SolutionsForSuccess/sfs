@@ -156,6 +156,7 @@ export default {
       },
 
        viewOrder: async function(from, id){
+          
            if(from ==='Order' || from ==='Catering'){
                 this.$router.push({
                 name: 'OrderDetails', 
@@ -172,13 +173,19 @@ export default {
                     name: 'ReservationDetails',
                     params: {reservation: reservation.data }
                     }) 
-                
+                       
               } catch (error) {
                   this.spinner1 = false;
-                  console.log(error);
-                  
+                  console.log(error);                  
               }                 
-           }      
+           }   
+            else if(from==='Credit'){ 
+                 console.log(from, id);            
+                this.$router.push({
+                name: 'Credit-Form',
+                params: {creditId: id }
+                }) 
+            }       
     },
 
   }, 

@@ -288,9 +288,17 @@ export default {
                 // console.log(payMethodTable)
 
                 if (payMethodTable.data.length > 0){
-                    this.DeviceIdPayFabric = payMethodTable.data[0].DeviceIdPayFabric,
-                    this.SetupIdIdPayFabric = payMethodTable.data[0].SetupIdIdPayFabric,
+                    this.DeviceIdPayFabric = payMethodTable.data[0].DeviceIdPayFabric
+                    this.SetupIdIdPayFabric = payMethodTable.data[0].SetupIdIdPayFabric
                     this.EndPointUrlPayFabric = payMethodTable.data[0].EndPointUrlPayFabric
+
+                    this.DeviceIDtSYS = payMethodTable.data[0].DeviceIDtSYS
+                    this.TransactionKeytSYS = payMethodTable.data[0].TransactionKeytSYS
+                    this.DeveloperIDtSYS = payMethodTable.data[0].TransactionKeytSYS
+
+                    this.EndPointUrlNAB = payMethodTable.data[0].EndPointUrlNAB
+                    this.EpiIdNAB = payMethodTable.data[0].EpiIdNAB
+                    this.EpiKeyNAB = payMethodTable.data[0].EpiKeyNAB
                 }
             }
             catch(e){

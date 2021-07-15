@@ -10,7 +10,7 @@
             <v-breakpoint v-if="!spinner">
                 <div slot-scope="scope">
 
-                    <div>
+                    <!-- <div>
                         <ion-list>
                             <ion-item>
                                 <ion-label>{{$t('frontend.menu.restaurant')}}</ion-label>
@@ -20,7 +20,7 @@
                                 </ion-select>
                             </ion-item>
                         </ion-list>
-                    </div>
+                    </div> -->
 
                     <ion-title v-if="!online" style="color: rgb(172 127 14)">
                         <span class="iconify" data-icon="twemoji:warning" data-inline="false" style="margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
@@ -88,6 +88,11 @@
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageUsers') }}</ion-label>   
                                 </ion-chip>
                                 <br>
+                                <ion-chip v-tooltip="$t('backoffice.controlPanel.driver')" v-if="hasPermission('canViewDriver')"  @click="manageDriver()" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                        <span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>
+                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageDriver') }}</ion-label>   
+                                </ion-chip>
+                                <br>
                                 <ion-chip v-tooltip="$t('backoffice.controlPanel.roles')" v-if="hasPermission('canViewRole')"  @click="$router.push('/role')" color="secondary" style=" width: 70%;border: 1px solid grey;">
                                         <span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageRoles') }}</ion-label>   
@@ -103,10 +108,10 @@
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageCustomers') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.driver')" v-if="hasPermission('canViewDriver')"  @click="manageDriver()" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                        <span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>
-                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageDriver') }}</ion-label>   
-                                </ion-chip>
+                                <ion-chip v-tooltip="$t('backoffice.controlPanel.credit')" v-if="hasPermission('canViewCredit')" @click="$router.push('/credit')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                        <span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>
+                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageCredits') }}</ion-label>   
+                                </ion-chip>                  
 
                                 <div v-if="hasPermission('canViewTable') || hasPermission('canViewTax') ||
                                     hasPermission('canViewShipping') || hasPermission('canViewOtherCharge') ||
@@ -335,11 +340,11 @@ export default {
         }
     },
     created: async function(){
-        console.log(this.$store.state.user._id)
+        // console.log(this.$store.state.user._id)
         this.init()
         this.vClockin = await this.verifyClockin()
         EventBus.$emit('clockIn', this.vClockin);
-        console.log(this.vClockin)
+        // console.log(this.vClockin)
     }, 
     components: {
         vChart: ECharts ,
@@ -367,7 +372,7 @@ export default {
                 return true
             }
             catch(e){
-                console.log(e)
+                // console.log(e)
                 return false
             }
         },
@@ -398,13 +403,13 @@ export default {
                 // "TransactionId": 123
             // }
             // var hash = SHA256(endpoint+payload, epiKey)
-            // console.log("SIGNATURE")
-            // console.log(hash.toString())
+            // // console.log("SIGNATURE")
+            // // console.log(hash.toString())
 
             this.initData()
             this.fetchAllRestaurant()
-            //console.log("RESTAURANTES")
-            //console.log(this.$store.state.user.RestaurantId)
+            //// console.log("RESTAURANTES")
+            //// console.log(this.$store.state.user.RestaurantId)
             if(this.$store.state.user.RestaurantId){
                 this.restaurantId = this.$store.state.user.RestaurantId
                 let oneStart = 0;              
@@ -423,14 +428,14 @@ export default {
                             });
                         }              
               })
-              .catch(e => {
-                console.log(e)
+              .catch(() => {
+                // console.log(e)
                 
                
               });
 
                 Api.fetchById("Restaurant",  this.restaurantId).then(response => {
-                    //console.log(0)                        
+                    //// console.log(0)                        
                     if(response.status === 200){ 
                         const rating =  response.data.rating 
                         this.online = response.data.Online; 
@@ -440,7 +445,7 @@ export default {
                             rating.forEach(r =>{
                                 this.options.xAxis.data.push(Moment(r.date).format('YYYY-MM-DD')),
                                 this.options.series[0].data.push(r.rating) ;
-                                //console.log(r.rating >=4 && r.rating <=5)
+                                //// console.log(r.rating >=4 && r.rating <=5)
                                 if( r.rating >=1 && r.rating <=1.9) oneStart++;
                                 if(r.rating >=2 && r.rating <=2.9) twoStart++;
                                 if(r.rating >=3 && r.rating <=3.9) threeStart++;
@@ -455,15 +460,15 @@ export default {
                         this.options2.series[0].data['4'].value = fiveStart
 
                         //Load modal set device
-                        //console.log("PASA")
+                        //// console.log("PASA")
                         // if (this.$route.params.firstLogin)
                         //     this.showSetDeviceModal();
 
                         this.spinner = false;           
                     }  
                 })
-                .catch(e => {
-                    console.log(e)
+                .catch(() => {
+                    // console.log(e)
                     this.spinner = false
                 });
             } 
@@ -544,12 +549,12 @@ export default {
                             this.allRestaurant.push(restaurant)
                     });
 
-                    //console.log("AllRestaurant")
-                    //console.log(this.allRestaurant)
+                    //// console.log("AllRestaurant")
+                    //// console.log(this.allRestaurant)
                 }
             })
-            .catch(e => {
-                console.log(e)
+            .catch(() => {
+                // console.log(e)
             });
         },
         changeRestaurant(value){
@@ -579,8 +584,8 @@ export default {
                     this.$store.commit("setRoles", roles);
                     this.init();
             })
-            .catch(e => {
-                console.log(e)
+            .catch(() => {
+                // console.log(e)
                 this.spinner = false
             });
         },
@@ -595,8 +600,8 @@ export default {
 
                 }
             })
-            .catch(e => {
-            console.log(e)
+            .catch(() => {
+            // console.log(e)
             });
         },
         hasPermission(permission){
@@ -673,6 +678,9 @@ export default {
                         case 'canViewSpecialPrices':
                             res = roles[index].canViewSpecialPrices;
                             break;
+                        case 'canViewCredit':
+                            res = roles[index].canViewCredit;
+                            break;
                         default:    
                             break;
                     }
@@ -720,7 +728,7 @@ export default {
         },
         manageFunSettings(){
             Api.fetchAll('Setting').then(response => {
-            // console.log(response.data)
+            // // console.log(response.data)
                 let funSettings = [];
                 funSettings = response.data;
                 if (funSettings.length > 0)
@@ -738,13 +746,13 @@ export default {
                     });
                 }
             })
-            .catch(e => {
-            console.log(e)
+            .catch(() => {
+            // console.log(e)
             });
         },
         manageColourSettings(){
             Api.fetchAll('Setting').then(response => {
-            // console.log(response.data)
+            // // console.log(response.data)
                 let colSettings = [];
                 colSettings = response.data;
                 if (colSettings.length > 0)
@@ -763,8 +771,8 @@ export default {
                     });
                 }
             })
-            .catch(e => {
-            console.log(e)
+            .catch(() => {
+            // console.log(e)
             });
         },
         manageSupportSettings(){

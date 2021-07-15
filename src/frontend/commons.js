@@ -47,6 +47,8 @@ export var Commons = {
             await this.getOrders();
             await this.getListReservation();
             await this.getTickets();
+            await this.getCredit();
+           
         }
 
         if(store.state.guess.Name && store.state.guess.Phone && store.state.guess.EmailAddress ){
@@ -110,6 +112,63 @@ export var Commons = {
          }       
       },
 
+      async getAllCredit(){
+        if(this.clientId =='')
+          return false;
+       
+         try {
+           const response = await Api.getAllCustomerCredit(this.clientId)         
+            if(response.status === 200 && response.data.length > 0){
+              store.commit('setAllCustomerCredit', response.data)            
+            } 
+            else store.commit('setAllCustomerCredit', {});         
+         } catch (error) {         
+            error
+         }
+      },
+
+      async getCredit(){
+        if(this.clientId =='')
+          return false;
+       
+         try {
+          await this.getAllCredit();
+           const response = await Api.getActiveCustomerCredit(this.clientId)
+           console.log('getCredit')
+           console.log(JSON.parse(JSON.stringify(response.data)));
+          if(response.status === 200 && response.data.length > 0){
+            store.commit('setCustomerCredit', response.data[0])            
+          } 
+          else store.commit('setCustomerCredit', {})           ;
+         } catch (error) {         
+            error
+         }
+      },
+
+      async updateCustomerCredit(debt, model, modelId){
+        store.state.customerCredit.Debt += debt;
+
+        console.log(model, modelId)
+       if(model && modelId){
+          const used = {
+            'Model': model,
+            'ModelId': modelId,
+            'Total': debt,
+          }
+          console.log(used)
+          store.state.customerCredit.UsedIn.push(used)
+          console.log(store.state.customerCredit)
+       }
+        try {
+          await Api.putIn('customercredit', store.state.customerCredit);  
+          console.log(JSON.parse(JSON.stringify(store.state.customerCredit)))  
+          await this.getAllCredit();      
+        } catch (error) {
+          error
+        }
+      },
+
+
       getListReservation: async function(){
         if(this.clientId =='')
           return false;       
@@ -130,6 +189,8 @@ export var Commons = {
         store.commit('setAllReservations', []) 
         store.commit('setConfiguration', {})
         store.commit('setAllTickets', [])  
+        store.commit('setCustomerCredit', {})
+        store.commit('setAllCustomerCredit', [])        
         store.commit('setMenuSinCatering', []) 
         store.commit('setMenuConCatering', [])        
         store.commit('setCategoryMenuListSinCatering', []) 
@@ -195,6 +256,7 @@ export var Commons = {
               zipCodesExcludes : response.data[0].ZipCodesExcludes || [],
               cateringEvents : response.data[0].CateringEvents || [],
               viewReservation : response.data[0].ViewReservation || false,
+              viewDigitalSigned : response.data[0].ViewDigitalSigned || false,
               viewCustomerReservation : response.data[0].ViewCustomerReservation || false,
               minDayToReservation : parseInt(response.data[0].MinDayToReservation) || 0,
               reservationDaysAndTime : response.data[0].ReservationDaysAndTime || [],

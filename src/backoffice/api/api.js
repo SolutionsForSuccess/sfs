@@ -467,6 +467,18 @@ export var Api = {
         return await axios.post(this.endPointURL + 'payment?voidNAB='+invoice, data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
     },
 
+    getServerDate: async function(){       
+        return await axios.get(this.endPointURL + 'imenusupport?getServerHour=1', {headers: { 'Authorization':this.defaultToken }})
+    },
+
+    getAllCustomerCredit: async function(customerId){       
+        return await axios.get(this.endPointURL + 'customercredit?customer='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+    },
+
+    getActiveCustomerCredit: async function(customerId){       
+        return await axios.get(this.endPointURL + 'customercredit?customerActive='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+    },
+
 
 
 

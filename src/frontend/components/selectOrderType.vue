@@ -560,6 +560,7 @@ methods: {
           await Commons.getOrders();
           await Commons.getListReservation();
           await Commons.getTickets();
+          await Commons.getCredit();
            EventBus.$emit('changeRoute', this.newRoute);
         }
         

@@ -228,6 +228,13 @@
                 @click="goInit()">
                 {{$t('frontend.home.cancel')}}
             </ion-button>
+             <ion-button 
+                 :disabled="spinner || !isValidForm()? true: false"
+                @click="showTrialDate()">
+                 {{$t('frontend.createNew.trialDate')}}
+                <ion-spinner v-if="spinnerDate"></ion-spinner>
+               
+            </ion-button>
            <ion-button 
                 :disabled="spinner || !isValidForm()? true: false"                
                 @click="paySpinner = true"
@@ -273,6 +280,7 @@ import RestaurantTypeShow from './RestaurantTypeShow.vue'
 import TermAndConditions from './TermsAndCondition.vue'
 import { VBreakpoint } from 'vue-breakpoint-component'
 import Language from '../../backoffice/views/Locale.vue'
+import Moment from 'moment'
 
 export default {
     name: 'NewRestaurant',
@@ -298,7 +306,7 @@ export default {
             const response = JSON.parse(value);
             if(response.event === 'success'){
                 console.log('Obtener el valor del response.trace_number y guardar restaurante');
-                this.makePayment(response.trace_number);
+                this.makePayment(response.trace_number, null);
             }
             if(response.event === 'failure'){
                 console.log('Obtener el valor del response.response_description y guardar restaurante');
@@ -344,6 +352,7 @@ export default {
            restaurantType: [],
            restaurantTypeSelected: -1,
            termAndCondition: false,
+           spinnerDate: false,
         }
     },  
     methods:{
@@ -361,12 +370,54 @@ export default {
                 return false;
             return true;
         },
+        async showTrialDate(){
+          try {
+            this.spinnerDate = true;
+            const date = await Api.getServerDate();
+            this.spinnerDate = false;
+            const dateIn = Moment(date.data)
+            const dateOut = Moment(date.data).add(14, 'days')
+            const dateInSave = dateIn.toISOString();
+            const dateOutSave = dateOut.toISOString();         
+            return  this.$ionic.alertController
+            .create({
+                cssClass: 'my-custom-class',
+                header: this.$t('frontend.createNew.trialMss'),
+                message: dateIn.format('LL LT') + ' - ' +  dateOut.format('LL LT'),
+                buttons: [                   
+                    {
+                        text: this.$t('frontend.home.cancel'),
+                        handler: () => {                                                            
+                        },
+                    },
+                    {
+                        text: this.$t('frontend.home.acept'),
+                        handler: () => {
+                            const tryNew = {                           
+                                isForTest : true,
+                                dateTestFrom : dateInSave,
+                                dateTestTo : dateOutSave,
+                            }                        
+                        return this.makePayment(null, tryNew); 
+                        },
+                    },
+                ],
+            })
+            .then(a => a.present())
+                  
+  
 
-        async makePayment(traceNumber){
+          } catch (error) {
+              error;
+              this.spinnerDate = false;
+              
+          }
+        },
 
+        async makePayment(traceNumber, tryNew){
+           
             if(!this.isValidForm())
               return this.openMs(this.$t('frontend.home.errorRequired'), 'danger');
-
             this.spinner = true;
 
             const res = {
@@ -374,8 +425,7 @@ export default {
                 "Address": this.restaurantAddres,
                 "Phone": this.restaurantPhone,
                 "Email": this.restaurantEmail,               
-                "ZipCode": this.restaurantZipcode, 
-                "TraceNumber" : traceNumber,              
+                "ZipCode": this.restaurantZipcode,             
                 "UserSettings": {
                     "FirstName": this.merchantName,
                     "LastName": this.merchantLastName,
@@ -385,11 +435,16 @@ export default {
                     "ServerId": this.merchantClerk
                     }
                 }
+            if(traceNumber) res.TraceNumber = traceNumber;
             if(this.restaurantFax !== '') res.Fax = this.restaurantFax;
             if(this.restaurantWeb !== '') res.Web = this.restaurantWeb;
             if(this.restaurantTypeSelected !==-1)
                 res.defaultData = this.restaurantType[this.restaurantTypeSelected]._id;
-            
+            if(tryNew){
+              res.isForTest = tryNew.isForTest;
+              res.dateTestFrom = tryNew.dateTestFrom
+              res.dateTestTo = tryNew.dateTestTo
+            }
 
             // AQUI ENLAZAR EL PAGO CON FORTE Y AL OBTENER LA RESPUESTA QUE SE GUARDE EL RESTAURANTE.
 

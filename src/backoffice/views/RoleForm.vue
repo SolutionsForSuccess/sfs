@@ -1,8 +1,6 @@
 <template>
     <div class="screen">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-    <router-link to="/role"><ion-button expand="full" color="tertiary"><ion-icon name="arrow-round-back"></ion-icon>{{$t('backoffice.form.buttons.backToRolesList')}}</ion-button></router-link> -->
 
     <ion-header>
           <ion-toolbar>
@@ -35,11 +33,7 @@
           v-bind:value="description">
           </ion-textarea>
         </ion-item>
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.fields.permissions')}}</p>
-            <ion-checkbox color="danger" slot="end" @ionChange="selectDeselectAll($event.target.checked)" 
-            ></ion-checkbox>
-        </ion-item> -->
+       
         <ion-item>
             <p>{{$t('backoffice.form.fields.permissions')}}</p>
             <ion-chip slot="end" :color="all_color" @click="selectDeselectAll()">
@@ -48,11 +42,6 @@
             </ion-chip>
         </ion-item>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionMenu')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectMenu($event.target.checked)"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionMenu')}}</p>
             <ion-chip slot="end" :color="menu_color" @click="selectDeselectMenu()">
@@ -71,11 +60,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionCategory')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectCategory($event.target.checked)"
-                :checked="category"></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionCategory')}}</p>
             <ion-chip slot="end" :color="category_color" @click="selectDeselectCategory()">
@@ -94,11 +78,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionProduct')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectProduct($event.target.checked)"
-                :checked="product"></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionProduct')}}</p>
             <ion-chip slot="end" :color="product_color" @click="selectDeselectProduct()">
@@ -152,12 +131,7 @@
             </ion-checkbox>
             </ion-item>
         </ion-list>
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionVariantGroup')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectVariantGroup($event.target.checked)"
-                :checked="variantGroup"
-            ></ion-checkbox>
-        </ion-item> -->
+        
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionVariantGroup')}}</p>
             <ion-chip slot="end" :color="variant_color" @click="selectDeselectVariantGroup()">
@@ -177,12 +151,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionCustomer')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectCustomer($event.target.checked)"
-                :checked="customer"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionCustomer')}}</p>
             <ion-chip slot="end" :color="customer_color" @click="selectDeselectCustomer()">
@@ -192,6 +160,25 @@
         </ion-item>
         <ion-list>
             <ion-item v-for="permission in customerPermissions" v-bind:key="permission.val">
+            <ion-label>{{permission.val}}</ion-label>
+            <ion-checkbox
+                slot="end"
+                @ionChange="permission.isChecked=$event.target.checked"
+                :checked="permission.isChecked"
+                >
+            </ion-checkbox>
+            </ion-item>
+        </ion-list>
+
+        <ion-item>
+            <p>{{$t('backoffice.form.permissionsGroup.permissionCredit')}}</p>
+            <ion-chip slot="end" :color="customer_color" @click="selectDeselectCredit()">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <ion-label>{{credit_title}}</ion-label>
+            </ion-chip>
+        </ion-item>
+        <ion-list>
+            <ion-item v-for="permission in creditPermissions" v-bind:key="permission.val">
             <ion-label>{{permission.val}}</ion-label>
             <ion-checkbox
                 slot="end"
@@ -221,11 +208,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionTable')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectTable($event.target.checked)"
-                :checked="table"></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionTable')}}</p>
             <ion-chip slot="end" :color="table_color" @click="selectDeselectTable()">
@@ -245,12 +227,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionTax')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectTax($event.target.checked)"
-                :checked="tax"
-            ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionTax')}}</p>
             <ion-chip slot="end" :color="tax_color" @click="selectDeselectTax()">
@@ -270,12 +246,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionShipping')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectShipping($event.target.checked)"
-                :checked="shipping"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionShipping')}}</p>
             <ion-chip slot="end" :color="shipping_color" @click="selectDeselectShipping()">
@@ -294,12 +264,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOtherCharge')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectOtherCharge($event.target.checked)"
-                :checked="otherCharge"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionOtherCharge')}}</p>
             <ion-chip slot="end" :color="otherCharge_color" @click="selectDeselectOtherCharge()">
@@ -318,12 +282,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionUser')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectUser($event.target.checked)"
-                :checked="user"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionUser')}}</p>
             <ion-chip slot="end" :color="user_color" @click="selectDeselectUser()">
@@ -360,11 +318,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOccupation')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectOccupation($event.target.checked)"
-                :checked="occupation"></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionOccupation')}}</p>
             <ion-chip slot="end" :color="occupation_color" @click="selectDeselectOccupation()">
@@ -383,12 +336,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionRole')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectRole($event.target.checked)"
-                :checked="role"
-                ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionRole')}}</p>
             <ion-chip slot="end" :color="role_color" @click="selectDeselectRole()">
@@ -408,12 +355,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOrder')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectOrder($event.target.checked)"
-                :checked="order"
-            ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionOrder')}}</p>
             <ion-chip slot="end" :color="order_color" @click="selectDeselectOrder()">
@@ -433,12 +374,6 @@
             </ion-item>
         </ion-list>
 
-        <!-- <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionSetting')}}</p>
-            <ion-checkbox color="success" slot="end" @ionChange="selectDeselectSetting($event.target.checked)"
-                :checked="setting"
-            ></ion-checkbox>
-        </ion-item> -->
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionSetting')}}</p>
             <ion-chip slot="end" :color="setting_color" @click="selectDeselectSetting()">
@@ -548,6 +483,12 @@ export default {
         { id: 'canCreateCustomer', val: this.$t('backoffice.form.permissionsGroup.canCreateCustomer'), isChecked: false },
         { id: 'canEditCustomer', val: this.$t('backoffice.form.permissionsGroup.canEditCustomer'), isChecked: false },
         { id: 'canDeleteCustomer', val: this.$t('backoffice.form.permissionsGroup.canDeleteCustomer'), isChecked: false },
+      ],
+      creditPermissions: [
+        { id: 'canViewCredit', val: this.$t('backoffice.form.permissionsGroup.canViewCredit'), isChecked: false },
+        { id: 'canCreateCredit', val: this.$t('backoffice.form.permissionsGroup.canCreateCredit'), isChecked: false },
+        { id: 'canEditCredit', val: this.$t('backoffice.form.permissionsGroup.canEditCredit'), isChecked: false },
+        { id: 'canDeleteCredit', val: this.$t('backoffice.form.permissionsGroup.canDeleteCredit'), isChecked: false },
       ],
       suscriptorPermissions: [
         { id: 'canCreateSuscriptor', val: this.$t('backoffice.form.permissionsGroup.canCreateSuscriptor'), isChecked: false },
@@ -692,6 +633,10 @@ export default {
         customer_color: 'success',
         customer_title: 'Select all',
 
+        credit: false,
+        credit_color: 'success',
+        credit_title: 'Select all',
+
         suscriptor: false,
         suscriptor_color: 'success',
         suscriptor_title: 'Select all',
@@ -729,126 +674,6 @@ export default {
         title() {
             return this.id ? this.$t('backoffice.form.titles.roleEditTitle') :  this.$t('backoffice.form.titles.roleNewTitle');
         },
-        // menu(){
-        //     for (let index = 0; index < this.menuPermissions.length; index++) {
-        //         if (!this.menuPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // category(){
-        //     for (let index = 0; index < this.categoryPermissions.length; index++) {
-        //         if (!this.categoryPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // product(){
-        //     for (let index = 0; index < this.productPermissions.length; index++) {
-        //         if (!this.productPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // customer(){
-        //     for (let index = 0; index < this.customerPermissions.length; index++) {
-        //         if (!this.customerPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // table(){
-        //     for (let index = 0; index < this.tablePermissions.length; index++) {
-        //         if (!this.tablePermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // tax(){
-        //     for (let index = 0; index < this.taxPermissions.length; index++) {
-        //         if (!this.taxPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // shipping(){
-        //     for (let index = 0; index < this.shippingPermissions.length; index++) {
-        //         if (!this.shippingPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // otherCharge(){
-        //     for (let index = 0; index < this.otherChargePermissions.length; index++) {
-        //         if (!this.otherChargePermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // user(){
-        //     for (let index = 0; index < this.userPermissions.length; index++) {
-        //         if (!this.userPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // occupation(){
-        //     for (let index = 0; index < this.occupationPermissions.length; index++) {
-        //         if (!this.occupationPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // role(){
-        //     for (let index = 0; index < this.rolePermissions.length; index++) {
-        //         if (!this.rolePermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // variantGroup(){
-        //     for (let index = 0; index < this.variantGroupPermissions.length; index++) {
-        //         if (!this.variantGroupPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // order(){
-        //     for (let index = 0; index < this.orderPermissions.length; index++) {
-        //         if (!this.orderPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // setting(){
-        //     for (let index = 0; index < this.settingPermissions.length; index++) {
-        //         if (!this.settingPermissions[index].isChecked){
-        //             return false
-        //         }
-        //     }
-        //     return true;
-        // },
-        // all(){
-        //     if (this.menu && this.order && this.category && this.product && this.customer && this.table 
-        //             && this.tax && this.shipping && this.otherCharge && this.user && this.occupation
-        //                  && this.role && this.variantGroup && this.setting)
-        //             return true;
-        //     else
-        //         return false;
-        // },
   },
   methods: {
     init(){
@@ -897,6 +722,11 @@ export default {
                             this.customerPermissions[1].isChecked = response.data.canCreateCustomer;
                             this.customerPermissions[2].isChecked = response.data.canEditCustomer;
                             this.customerPermissions[3].isChecked = response.data.canDeleteCustomer;
+
+                            this.creditPermissions[0].isChecked = response.data.canViewCredit;
+                            this.creditPermissions[1].isChecked = response.data.canCreateCredit;
+                            this.creditPermissions[2].isChecked = response.data.canEditCredit;
+                            this.creditPermissions[3].isChecked = response.data.canDeleteCredit;
 
                             this.suscriptorPermissions[0].isChecked = response.data.canCreateSuscriptor;
                             this.suscriptorPermissions[1].isChecked = response.data.canViewSuscriptor;
@@ -1130,6 +960,25 @@ export default {
 
         this.customerPermissions.forEach(permission => {
             if (this.customer)
+                permission.isChecked = true;
+            else
+                permission.isChecked = false;
+        });
+    },
+    selectDeselectCredit(){
+        this.credit = !this.credit;
+        if (this.credit_color == 'success')
+        {
+            this.credit_color = 'danger'
+            this.credit_title = 'Deselect all'
+        }  
+        else{
+            this.credit_color = 'success'
+            this.credit_title = 'Select All'
+        }
+
+        this.creditPermissions.forEach(permission => {
+            if (this.credit)
                 permission.isChecked = true;
             else
                 permission.isChecked = false;
@@ -1419,6 +1268,7 @@ export default {
         this.selectDeselectProduct(this.all);
         this.selectDeselectSpecialPrice(this.all);
         this.selectDeselectCustomer(this.all);
+        this.selectDeselectCredit(this.all);
         this.selectDeselectSuscriptor(this.all);
         this.selectDeselectTable(this.all);
         this.selectDeselectTax(this.all);
@@ -1490,6 +1340,10 @@ export default {
                 "canCreateCustomer": this.customerPermissions[1].isChecked,
                 "canEditCustomer": this.customerPermissions[2].isChecked,
                 "canDeleteCustomer": this.customerPermissions[3].isChecked,
+                "canViewCredit": this.creditPermissions[0].isChecked,
+                "canCreateCredit": this.creditPermissions[1].isChecked,
+                "canEditCredit": this.creditPermissions[2].isChecked,
+                "canDeleteCredit": this.creditPermissions[3].isChecked,
                 "canCreateSuscriptor": this.suscriptorPermissions[0].isChecked,
                 "canViewSuscriptor": this.suscriptorPermissions[1].isChecked,
                 "canEditSuscriptor": this.suscriptorPermissions[2].isChecked,
@@ -1549,10 +1403,6 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccesRole'), 
-                        //         this.$t('backoffice.list.messages.titleEditRole'));
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccesRole'), "success");
                         this.spinner = false;
                         this.$router.push({
@@ -1572,9 +1422,6 @@ export default {
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                    //   this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //          this.$t('backoffice.list.messages.messageCreateSuccessRole'), 
-                    //             this.$t('backoffice.list.messages.titleCreateRole'));
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessRole'), "success");
                       this.spinner = false;
                       this.$router.push({

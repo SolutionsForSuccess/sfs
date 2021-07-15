@@ -419,10 +419,10 @@
                     <div v-if="segmentValue==='table'" style="    text-align: center;" :key="keyForceUpdate+'T'+2">
                     
                         <ion-button  class="button-ordertype-parent"
-                          v-if="configuration.viewDelivery && restaurantActive.hasPaymentCardConfig && $store.state.allTickets.length === 0" 
+                          v-if="isCatering && configuration.viewDelivery && restaurantActive.hasPaymentCardConfig && $store.state.allTickets.length === 0 && configuration.zipCodes.length > 0 " 
                           :style="isDelivery? 'opacity: 1;' : 'opacity: 0.65;'" 
                           color="secondary" 
-                          @click="!isCatering? showDeliver() : showDeliveryCatering()" 
+                          @click="showDeliver()" 
                           v-tooltip="$t('frontend.app.deliver')"> 
                           <div class="button-ordertype">   
                             {{$t('frontend.app.deliver')}}                         
@@ -430,6 +430,17 @@
                           </div>                           
                         </ion-button>
 
+                        <ion-button  class="button-ordertype-parent"
+                          v-if="!isCatering && configuration.viewDelivery && restaurantActive.hasPaymentCardConfig && $store.state.allTickets.length === 0 && configuration.cateringStates.length > 0" 
+                          :style="isDelivery? 'opacity: 1;' : 'opacity: 0.65;'" 
+                          color="secondary" 
+                          @click="showDeliveryCatering()" 
+                          v-tooltip="$t('frontend.app.deliver')"> 
+                          <div class="button-ordertype">   
+                            {{$t('frontend.app.deliver')}}                         
+                            <span class="iconify" data-icon="emojione-monotone:delivery-truck" data-inline="false" style="margin: 0;"></span>
+                          </div>                           
+                        </ion-button>
                         
                         <ion-button class="button-ordertype-parent"
                           :style="isPick? 'opacity: 1;' : 'opacity: 0.65;'"  
@@ -589,10 +600,14 @@
                
               
                 <ion-fab 
-                 v-if="$store.state.cart.length > 0 "
+                
                 :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-4 card-categories'"
                 vertical="bottom" horizontal="end" slot="fixed" style="position: fixed;width: 100%;bottom: 52px;">
-                  <div style="display:flex;justify-content: center;background: white;flex-direction: column;align-items: center;">
+
+                    <p style="text-align: center;font-weight: 500;margin: 0;background: white;"
+                     v-if="hasCreditAmount()">Credit Active {{getCreditAmount()}}</p>
+
+                  <div  v-if="$store.state.cart.length > 0 " style="display:flex;justify-content: center;background: white;flex-direction: column;align-items: center;">
                   
                     <div style="padding: 10px 0 0; text-align: center" v-if="$store.state.allTickets.length === 0 && !isCatering">
                       <div style="display: flex;justify-content: flex-start;align-items: center;" 
@@ -1739,7 +1754,10 @@ export default {
                         "ModelFrom": "Order",
                         "StaffName": this.order.StaffName,                    
                 }
-              await Api.postIn('allpayments', paymentEntry);                 
+              if(res.method !== 'Credit')
+                await Api.postIn('allpayments', paymentEntry);  
+              else
+                  Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
               await this.finishPayment(this.order, true); 
               await Commons.getTickets();
                this.spinner = false ; 
@@ -1775,8 +1793,11 @@ export default {
                         "ModelFrom": "Catering",
                         "StaffName": this.order.StaffName                    
                    }
-                   await Api.postIn('allpayments', paymentEntry);  
-                    this.spinner = false;   
+                  if(res.method !== 'Credit')
+                    await Api.postIn('allpayments', paymentEntry); 
+                  else
+                      Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id);  
+                  this.spinner = false;   
                    if (this.staffName !== '') return this.$router.push({ name: ' Order' })  
                     return this.$router.push({ name: 'ListOrder' })  
                 }
@@ -1844,7 +1865,10 @@ export default {
                 "ModelFrom": "Order",
                 "StaffName": this.order.StaffName,               
             }
-            await Api.postIn('allpayments', paymentEntry);
+            if(res.method !== 'Credit')
+              await Api.postIn('allpayments', paymentEntry);
+            else
+              Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id);            
             this.spinner = false ;    
             return this.finishPayment(response.data, true);
         }
@@ -2286,6 +2310,22 @@ export default {
       let name = '| ';
       this.allTaxes.forEach(t => { name += t.Name + ' | '});
       return name;
+    },
+
+    hasCreditAmount(){     
+      if(this.$store.state.customerCredit)
+        if(this.$store.state.customerCredit.CreditAmount){
+          if(this.$store.state.customerCredit.CreditAmount - this.$store.state.customerCredit.Debt > 0)
+           return true;
+        }   
+      return false;
+    },
+    getCreditAmount(){     
+      if(this.$store.state.customerCredit)
+        if(this.$store.state.customerCredit.CreditAmount){
+          const value = this.$store.state.customerCredit.CreditAmount - this.$store.state.customerCredit.Debt;
+          return this.getFormatPrice(value);
+        }      
     }
 
   },

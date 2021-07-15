@@ -371,7 +371,10 @@ export default {
                         "ModelId": response.data._id,
                         "ModelFrom": "Reservation"                   
                    }
-                   await Api.postIn('allpayments', paymentEntry);
+                   if(res.method !== 'Credit')
+                    await Api.postIn('allpayments', paymentEntry);
+                    else
+                        Commons.updateCustomerCredit(parseFloat(res.total), 'Reservation', response.data._id); 
                 }
                 
             } catch (error) {            

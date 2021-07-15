@@ -35,7 +35,7 @@
         </ion-item>
         <ion-item>
             <div>
-                <ion-label><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
+                <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
             </div>
           <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
         </ion-item>
@@ -440,26 +440,10 @@ export default {
                 return false
             }
         }
-        if (this.serverId.toString().length > 4)
+        if (this.serverId.toString().length > 4 && this.serverId.toString().length < 4)
             return false
 
         return true
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'), message,
-        //     //                           this.$t('backoffice.form.validate.validateUser'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
     },
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){

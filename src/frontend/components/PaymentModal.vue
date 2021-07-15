@@ -88,6 +88,8 @@
         <div v-if="!split" >
             
          <ion-toolbar style="display: flow-root;padding: 5px;" color="primary" :key="keyShare">
+            <p style="text-align: center;font-weight: 500;margin: 0" v-if="hasCreditAmount()">Credit Active {{getCreditAmount()}}</p>
+            
             <ion-button @click="changePayment(), cardPay = true" :style="cardPay? 'float: left;border: solid' : 'float: left'" 
               :disabled="spinner"
               v-if="payMethod!=='PayFabric'"
@@ -103,6 +105,17 @@
               :class="fabricPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
               <span class="iconify" data-icon="ion:card-outline" data-inline="false"></span>            
             </ion-button>  
+
+           
+            <ion-button @click="responseCreditPayment(true)" :style="creditPay? 'float: left;border: solid' : 'float: left'" 
+              :disabled="spinner"
+              v-if="enoughCredit()"
+              v-tooltip="i18n.t('frontend.payment.creditPayment')"
+              :class="creditPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+              <span class="iconify" data-icon="akar-icons:credit-card" data-inline="false"></span>            
+            </ion-button> 
+
+
             <ion-button @click="changePayment(), devicePay = true" :style="devicePay? 'float: left;border: solid' : 'float: left'" 
               :disabled="spinner"
                v-tooltip="i18n.t('frontend.payment.devicePayment')"
@@ -576,6 +589,7 @@ export default {
         cashPay: false,
         swipePay: false,
         fabricPay: false,
+        creditPay: false,
         staffName: '',
         hasQrPayment: '',
         spinnerShare: false,
@@ -1002,6 +1016,43 @@ export default {
 
     },
 
+     async responseCreditPayment(response){
+      if(response){         
+        this.$ionic.loadingController
+        .create({
+          cssClass: 'my-custom-class',
+          message: this.i18n.t('frontend.payment.doingPayment'),
+          backdropDismiss: false
+        })
+        .then ( loading =>{
+            loading.present()
+            setTimeout( async() => {
+                try {
+                  const invoiceSequence = await Api.getInvoiceSequence(this.restaurantId)
+                  const response1 = {
+                          "total": parseFloat(this.Total),
+                          "transId": invoiceSequence.data,
+                          "accountNumber": '',
+                          "expirationCard": '',
+                          "accountType": '',
+                          "method": 'Credit',
+                          "moto": false,
+                      }                
+                  response1.returnTo = this.returnTo;
+                  await this.parent.recivePayment(response1);
+                  this.dismissModal();						
+                  loading.dismiss();
+                  
+                } catch (error) {
+                  loading.dismiss();
+                    return this.errorPaymentDetail(error);                   
+                }
+            })
+          })
+        }
+
+    },
+
     sendPayment: async function(dataToken){ 
       var data =  {}    
       
@@ -1254,7 +1305,11 @@ export default {
                         "StaffName": this.order.StaffName, 
                         "DeliveryPayment": flag,                 
                    }
-              await Api.postIn('allpayments', paymentEntry);   
+              if(value.method !== 'Credit')
+                await Api.postIn('allpayments', paymentEntry);   
+              else
+               Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response.data._id); 
+                
             this.dismissModal();
             return this.parent.finishPayment(response.data);
         }
@@ -1275,7 +1330,10 @@ export default {
                         "StaffName": this.order.StaffName,
                         "DeliveryPayment": flag,                 
                    }
-              await Api.postIn('allpayments', paymentEntry); 
+              if(value.method !== 'Credit')
+                await Api.postIn('allpayments', paymentEntry); 
+              else
+                Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response1.data._id); 
               
             EventBus.$emit('chargeOrder', this.order);  
             return true;
@@ -1364,6 +1422,7 @@ export default {
       this.cashPay = false;
       this.swipePay = false;
       this.fabricPay = false;
+      this.creditPay = false;
     },
 
     shareQrPayment: async function(){
@@ -1621,7 +1680,31 @@ export default {
         this.spinner = false
         
       }
-   }
+   },
+
+    hasCreditAmount(){     
+      if(store.state.customerCredit)
+        if(store.state.customerCredit.CreditAmount){
+          if(store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt > 0)
+           return true;
+        }   
+      return false;
+    },
+    enoughCredit(){
+       if(store.state.customerCredit)
+        if(store.state.customerCredit.CreditAmount){
+          if(store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt > parseFloat(this.Total))
+           return true;
+        }   
+      return false;
+    },
+    getCreditAmount(){     
+      if(store.state.customerCredit)
+        if(store.state.customerCredit.CreditAmount){
+          const value = store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt;
+          return this.getFormatPrice(value);
+        }      
+    }
 
 }, 
   

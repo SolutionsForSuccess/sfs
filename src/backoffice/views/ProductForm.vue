@@ -56,6 +56,30 @@
             </ion-item>
 
             <ion-item>
+            <ion-label position="floating">SKU</ion-label>
+            <ion-input type="text" name="sku"
+            @input="sku = $event.target.value" 
+            v-bind:value="sku">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('frontend.reservation.code')}}</ion-label>
+            <ion-input type="text" name="code"
+            @input="code = $event.target.value" 
+            v-bind:value="code">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.shortDescription')}}</ion-label>
+            <ion-input type="text" name="shortDescription"
+            @input="shortDescription = $event.target.value" 
+            v-bind:value="shortDescription">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
             <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
             <ion-textarea rows="10" name="description" 
             @input="description = $event.target.value" 
@@ -120,6 +144,96 @@
                     </ion-select>
                 </ion-item>
             </ion-list>
+
+            <ion-list>
+                <ion-list-header>
+                    <ion-label>
+                        <router-link to="/tax">{{$t('backoffice.form.fields.tax')}}</router-link>
+                    </ion-label>
+                </ion-list-header>
+
+                <ion-item>
+                    <ion-label>{{$t('backoffice.form.titles.selectATax')}}</ion-label>
+                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                    @ionChange="taxId = $event.target.value" v-bind:value="taxId">
+                        <ion-select-option :key="null" value="" >None</ion-select-option>
+                        <ion-select-option v-for="tax in taxes" v-bind:key="tax.Id" v-bind:value="tax._id" >{{tax.Name}}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.stockQuantity')}}</ion-label>
+            <ion-input type="number" name="stockQuantity"
+            @input="stockQuantity = $event.target.value" 
+            v-bind:value="stockQuantity">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.minReorderPoint')}}</ion-label>
+            <ion-input type="number" name="minReorderPoint"
+            @input="minReorderPoint = $event.target.value" 
+            v-bind:value="minReorderPoint">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.maxReorderPoint')}}</ion-label>
+            <ion-input type="number" name="maxReorderPoint"
+            @input="maxReorderPoint = $event.target.value" 
+            v-bind:value="maxReorderPoint">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.vendorName')}}</ion-label>
+            <ion-input type="text" name="vendorName"
+            @input="vendorName = $event.target.value" 
+            v-bind:value="vendorName">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.vendorCode')}}</ion-label>
+            <ion-input type="text" name="vendorCode"
+            @input="vendorCode = $event.target.value" 
+            v-bind:value="vendorCode">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.keywords')}}</ion-label>
+            <ion-input type="text" name="keywords"
+            @input="keywords = $event.target.value" 
+            v-bind:value="keywords">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.tags')}}</ion-label>
+            <ion-input type="text" name="tags"
+            @input="tags = $event.target.value" 
+            v-bind:value="tags">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.binNumber')}}</ion-label>
+            <ion-input type="text" name="binNumber"
+            @input="binNumber = $event.target.value" 
+            v-bind:value="binNumber">
+            </ion-input>
+            </ion-item>
+
+            <ion-item>
+            <ion-label position="floating">{{$t('backoffice.form.fields.addSerialNumber')}}</ion-label>
+            <ion-input type="text" name="addSerialNumber"
+            @input="addSerialNumber = $event.target.value" 
+            v-bind:value="addSerialNumber">
+            </ion-input>
+            </ion-item>
+
             <ion-item>
               <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
               <ion-checkbox slot="end" name="available" 
@@ -388,11 +502,27 @@ export default {
        /****** Form Data ******/
       id: null,
       name: '',
+      sku: '',
+      code: '',
       description: '',
       barCode: "",
       costPrice: 0,
       salePrice: 0,
       specialPrice: null,
+
+      stockQuantity: 0,
+      minReorderPoint: 0,
+      maxReorderPoint: 0,
+
+      vendorName: '',
+      vendorCode: '',
+      shortDescription: '',
+      addSerialNumber: '',
+      tags: '',
+      keywords: '',
+      binNumber: '',
+
+
       available: false,
       epos: null,
 
@@ -400,6 +530,9 @@ export default {
 
       categoryId: null,
       categories: [],
+
+      taxId: null,
+      taxes: [],
 
     //   variantGroupId: null,
     //   variantGroups: [],
@@ -650,6 +783,7 @@ export default {
         //console.log(this.cType);
 
         this.fetchCategories();
+        this.fetchTaxes();
         // this.fetchVariantGroups();
         
         if (this.id){
@@ -667,11 +801,27 @@ export default {
                     .then(response => {
                         console.log(response.data)
                         this.name = response.data.Name;
+                        this.sku = response.data.Sku;
+                        this.code = response.data.Code;
                         this.description = response.data.Description;
                         this.costPrice = response.data.CostPrice;
                         this.salePrice = response.data.SalePrice;
                         this.specialPrice = response.data.SpecialPrice;
+                        this.stockQuantity = response.data.StockQuantity;
+                        this.minReorderPoint = response.data.MinReorderPoint,
+                        this.maxReorderPoint = response.data.MaxReorderPoint,
+
+                        this.vendorName = response.data.VendorName;
+                        this.vendorCode = response.data.VendorCode;
+                        this.shortDescription = response.data.ShortDescription,
+
+                        this.addSerialNumber = response.data.AddSerialNumber,
+                        this.tags = response.data.Tags,
+                        this.keywords = response.data.Keywords,
+                        this.binNumber = response.data.BinNumber,
+
                         this.categoryId = response.data.CategoryId;
+                        this.taxId = response.data.TaxId;
                         this.barCode = response.data.BarCode;
                         this.file = response.data.ImageUrl;
                         this.available = response.data.Available;
@@ -972,6 +1122,14 @@ export default {
           console.log(e)
         });
     },
+    fetchTaxes: function(){
+        Api.fetchAll('Tax').then(response => {
+            this.taxes = response.data
+        })
+        .catch(e =>{
+           console.log(e) 
+        })
+    },
     // fetchVariantGroups: function(){
     //     Api.fetchAll('VariantGroup').then(response => {
     //       // console.log(response.data)
@@ -993,10 +1151,25 @@ export default {
             this.isBackdrop = true;
             let item = {
             "Name": this.name,
+            "Sku": this.sku,
+            "Code": this.code,
             "Description": this.description,
             "CostPrice": this.costPrice,
             "SalePrice": this.salePrice,
+            "StockQuantity": this.stockQuantity,
+            "MinReorderPoint": this.minReorderPoint,
+            "MaxReorderPoint": this.maxReorderPoint,
+            "VendorName": this.vendorName,
+            "VendorCode": this.vendorCode,
+            "ShortDescription": this.shortDescription,
+
+            "AddSerialNumber": this.addSerialNumber,
+            "Tags": this.tags,
+            "Keywords": this.keywords,
+            "BinNumber": this.binNumber,
+
             "CategoryId": this.categoryId,
+            "TaxId": this.taxId,
             "ImageUrl": "",
             "Available": this.available,
             "BarCode": "",
@@ -1135,10 +1308,23 @@ export default {
         //             this.$t('backoffice.list.messages.titleCreateProduct'));
             this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessProduct'), "success");
             this.name = '';
+            this.sku = '';
+            this.code = '';
             this.description = '';
             this.salePrice = 0;
             this.costPrice = 0;
+            this.stockQuantity = 0;
+            this.maxReorderPoint = 0;
+            this.vendorName = '';
+            this.vendorCode = '';
+            this.shortDescription = '';
+            this.addSerialNumber = '';
+            this.tags = '';
+            this.keywords = '';
+            this.binNumber = '';
+            this.minReorderPoint = 0;
             this.categoryId = null;
+            this.taxId = null;
             this.file = null;
             this.barCode = '';
             this.available = false;
@@ -1180,10 +1366,23 @@ export default {
             //         this.$t('backoffice.list.messages.titleEditProduct'));
             this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessProduct'), "success");
             this.name = '';
+            this.sku = '';
+            this.code = '';
             this.description = '';
             this.salePrice = 0;
             this.costPrice = 0;
+            this.stackQuantity = 0;
+            this.maxReorderPoint = 0;
+            this.vendorName = '';
+            this.vendorCode = '';
+            this.shortDescription = '';
+            this.addSerialNumber = '';
+            this.tags = '';
+            this.keywords = '';
+            this.binNumber = '';
+            this.minReorderPoint = 0;
             this.categoryId = null;
+            this.taxId = null;
             this.file = null;
             this.barCode = '';
             this.available = false;

@@ -950,7 +950,10 @@ export default {
                             "ModelFrom": "Order",
                              "StaffName": this.order.StaffName,                    
                     }
-                    await Api.postIn('allpayments', paymentEntry);
+                  if(res.method !== 'Credit')
+                      await Api.postIn('allpayments', paymentEntry);
+                  else
+                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
                   if(this.clientId !=='' ) await Commons.getTickets();  
                   this.spinner = false;
                   return this.finishPayment(this.order, true);  
@@ -988,7 +991,10 @@ export default {
                         "ModelFrom": "Catering",
                         "StaffName": this.order.StaffName                    
                    }
-                   await Api.postIn('allpayments', paymentEntry);  
+                   if(res.method !== 'Credit')
+                      await Api.postIn('allpayments', paymentEntry); 
+                  else
+                        Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
                    this.spinner = false;
                    if (this.staffName !== '') return this.$router.push({ name: ' Order' })  
                     return this.$router.push({ name: 'ListOrder' })  
@@ -1040,8 +1046,10 @@ export default {
                         "ModelFrom": "Order",
                         "StaffName": this.order.StaffName,               
                    }
-                
-                   await Api.postIn('allpayments', paymentEntry);                
+                  if(res.method !== 'Credit')
+                   await Api.postIn('allpayments', paymentEntry);   
+                  else
+                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
              }                 
                 this.spinner = false;
                 if(this.order.Payment)

@@ -36,6 +36,9 @@
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
                     <span>{{$t('frontend.createNew.restaurants')}}</span>
                 </ion-segment-button>
+                <ion-segment-button value="restaurantSetting">
+                    <span>{{$t('backoffice.options.manageRestaurantSettings')}}</span>
+                </ion-segment-button>
             </ion-segment>
           </ion-toolbar>
     </ion-header>
@@ -483,6 +486,49 @@
                     </div>
             </div>
         </div>
+        <!-- Restaurant Settings -->
+        <div v-if="restaurantSetting">
+
+            <ion-list>
+                <ion-list-header>
+                    <ion-label>
+                    {{$t('backoffice.options.manageBasicSettings')}}
+                    </ion-label>
+                </ion-list-header>
+
+                <!-- <ion-item>
+                    <ion-label>{{$t('backoffice.form.titles.selectARestaurant')}}</ion-label>
+                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                    @ionChange="restaurantId = changeRestaurant($event.target.value)" v-bind:value="restaurantId">
+                        <ion-select-option v-for="restaurant in restaurants" v-bind:key="restaurant.Id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
+                    </ion-select>
+                </ion-item> -->
+            </ion-list>
+
+            <div v-if="restaurantS">
+                <ion-item>
+                    <ion-label >ViewReservation
+                    <ion-toggle name="ViewReservation" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewReservation=$event.target.checked" 
+                        :checked ="restaurantS.ViewReservation">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >ViewDigitalSigned
+                    <ion-toggle name="ViewDigitalSigned" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewDigitalSigned=$event.target.checked" 
+                        :checked ="restaurantS.ViewDigitalSigned">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <br/>
+                <ion-button expand="full" color="primary"  @click="saveRestaurantData()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+            </div>
+
+        </div>
     </div>
     </div>
 </template>
@@ -603,6 +649,7 @@ export default {
       payments: false,
       capcha: false,
       user: false,
+      restaurantSetting: false,
 
       //Payments segments
       shift4: true,
@@ -611,6 +658,12 @@ export default {
       //Users
       users: [],
       filterUsers: [],
+
+      //Restaurants Data
+    //   settings: [],
+    //   restaurants: [],
+    //   restaurantId: null,
+      restaurantS: null,
 
       paginate: ['languages'],
 
@@ -636,6 +689,9 @@ export default {
         this.segmentChanged(this.$route.params.segmentValue)
       
       await this.getAllRestaurant();
+    //   await this.fetchRestaurant();
+      await this.fetchSettings();
+    //   this.changeSetting();
       this.imgRestaurant = this.allRestaurant[0].ImageUrl;
       this.init();
   },
@@ -763,6 +819,7 @@ export default {
             this.payments = false
             this.capcha = false
             this.user = false
+            this.restaurantSetting = false
         }
         if(value === 'sms'){
             this.email = false
@@ -770,20 +827,23 @@ export default {
             this.payments = false
             this.capcha = false
             this.user = false
+            this.restaurantSetting = false
         }
         if(value === 'payments'){
             this.email = false
             this.sms = false
             this.payments = true
             this.capcha = false
-            this.user = false          
+            this.user = false  
+            this.restaurantSetting = false        
         }
         if(value === 'capcha'){
             this.email = false
             this.sms = false
             this.payments = false
             this.capcha = true
-            this.user = false          
+            this.user = false     
+            this.restaurantSetting = false     
         }
         if(value === 'user'){
             this.email = false
@@ -791,8 +851,18 @@ export default {
             this.payments = false
             this.capcha = false
             this.user = true
+            this.restaurantSetting = false
         }
         if(value === 'restaurants'){
+            this.email = false
+            this.sms = false
+            this.payments = false
+            this.capcha = false
+            this.user = false
+            this.restaurantSetting = false
+        }
+        if (value === 'restaurantSetting'){
+            this.restaurantSetting = true
             this.email = false
             this.sms = false
             this.payments = false
@@ -846,6 +916,55 @@ export default {
                 });
             })
         })
+    },
+    fetchRestaurant: async function(){
+        try{
+            let response = await Api.fetchAll('Restaurant')
+            this.restaurants = response.data
+            this.restaurantId = this.$store.state.user.RestaurantId
+        }
+        catch(e){
+            console.log(e)
+        }
+    },
+    async fetchSettings(){
+        try{
+            //Aquí van los datos del restaurante que se van a cargar.
+            let response = await Api.fetchAll('Setting')
+            this.restaurantS = response.data[0]
+        }
+        catch(e){
+            console.log(e)
+        }
+    },
+    // changeRestaurant(val){
+    //     console.log("Change")
+    //     this.restaurantId = val
+    //     this.changeSetting()
+    // },
+    // changeSetting(){
+    //     Api.setRestaurantId(this.restaurantId)
+    //     Api.fetchAll('Setting')
+    //     .then(response => {
+    //         this.restaurantS = response.data[0]
+    //         Api.setRestaurantId(this.$store.state.user.RestaurantId)
+    //     })
+    //     .catch(() => {
+    //         Api.setRestaurantId(this.$store.state.user.RestaurantId)
+    //     })
+    // },
+    async saveRestaurantData(){
+        try{
+            this.spinner = true
+            await Api.putIn('Setting', this.restaurantS)
+            this.showToastMessage('The setting was change successfully', 'success')
+            this.spinner = false
+        }
+        catch(e){
+            console.log(e)
+            this.spinner = false
+            this.showToastMessage('There was an error saved settings.', 'danger')
+        }
     },
     newUser: function(){
         this.$router.push({

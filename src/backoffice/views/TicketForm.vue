@@ -401,6 +401,7 @@ import { EventBus } from '../../frontend/event-bus';
 // import Moment from 'moment';
 import { payAuthorizeNet } from '../api/payments.js';
 import PaymentModal from '../../frontend/components/PaymentModal'
+import { Commons } from '../../frontend/commons'
 
 export default {
 
@@ -1116,7 +1117,10 @@ export default {
                             "ModelFrom": "Order" ,
                              "StaffName": this.order.StaffName                  
                     }
-                    await Api.postIn('allpayments', paymentEntry);
+                    if(res.method !== 'Credit')
+                        await Api.postIn('allpayments', paymentEntry);
+                    else
+                        Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
             }    
         } 
         catch (error) {            

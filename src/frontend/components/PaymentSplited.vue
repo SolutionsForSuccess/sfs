@@ -12,6 +12,8 @@
         </p>      
       </ion-toolbar>
       <ion-toolbar style="display: flow-root;padding: 5px;" color="primary" v-if="!spinner">
+
+        <p style="text-align: center;font-weight: 500;margin: 0" v-if="hasCreditAmount() && returnTo !=='CreditDetail'">Credit Active {{getCreditAmount()}}</p>
        
             <ion-button @click="changePayment(), cardPay = true" :style="cardPay? 'float: left;border: solid' : 'float: left'"
              v-tooltip="i18n.t('frontend.payment.tjtPayment')"
@@ -26,6 +28,14 @@
             :class="fabricPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
             <span class="iconify" data-icon="ion:card-outline" data-inline="false"></span>
             </ion-button>
+
+            <ion-button @click="responseCreditPayment(true)" :style="creditPay? 'float: left;border: solid' : 'float: left'" 
+              :disabled="spinner"
+              v-if="enoughCredit()"
+              v-tooltip="i18n.t('frontend.payment.creditPayment')"
+              :class="creditPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+              <span class="iconify" data-icon="akar-icons:credit-card" data-inline="false"></span>            
+            </ion-button> 
 
             <ion-button @click="changePayment(), devicePay = true" :style="devicePay? 'float: left;border: solid' : 'float: left'"
               :disabled="spinner"
@@ -248,6 +258,7 @@ import { Plugins } from '@capacitor/core';
  import {i18n} from '@/plugins/i18n'
  import { Commons } from '../commons';
  import PayFabricPayment from './PayFabricPayment.vue'
+ import store from '../../main'
 
 export default {
    name: 'PaymentSplitedModal',
@@ -308,6 +319,7 @@ export default {
         idtechPay: false,
         cashPay: false,
         fabricPay: false,
+        creditPay: false,
         spinnerShare: false, 
         hasQrPayment: '',
         googleKey: 0,
@@ -682,6 +694,45 @@ export default {
 
     },
 
+     async responseCreditPayment(response){
+        if(response){
+         
+        this.$ionic.loadingController
+        .create({
+          cssClass: 'my-custom-class',
+          message:  this.i18n.t('frontend.payment.doingPayment'),
+          backdropDismiss: false
+        })
+        .then ( loading =>{
+            loading.present()
+            setTimeout( async() => {
+                try {
+                   const invoiceSequence = await Api.getInvoiceSequence(this.restaurantId)
+                  const response1 = {
+                          "total": parseFloat(this.Total),
+                          "transId": invoiceSequence.data,
+                          "accountNumber": '',
+                          "expirationCard": '',
+                          "accountType": '',
+                          "method": 'Credit',
+                          "moto": false,
+                      }                
+                  response1.returnTo = this.returnTo;
+                  this.parent.makeSplitPayment(response1)
+                  this.dismissModal();						
+                  loading.dismiss();
+                  
+                } catch (error) {
+                  loading.dismiss();
+                  return this.errorPaymentDetail(error); 
+                  
+                }
+            })
+          })
+        }
+
+    },
+
     sendPayment: async function(googleToken){  
       const partOfTotal = this.order.Total / this.Total
       const taxGeneral = (parseFloat(this.order.Taxe) * parseFloat(this.order.SubTotal) )/ 100;
@@ -758,6 +809,7 @@ export default {
       this.idtechPay= false;
       this.cashPay = false;
       this.fabricPay = false;
+      this.creditPay = false;
     },
 
     shareQrPayment: async function(){
@@ -932,7 +984,31 @@ export default {
         this.spinner = false
         
       }
-   }
+   },
+
+    hasCreditAmount(){     
+      if(store.state.customerCredit)
+        if(store.state.customerCredit.CreditAmount){
+          if(store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt > 0)
+           return true;
+        }   
+      return false;
+    },
+    enoughCredit(){
+       if(store.state.customerCredit && this.returnTo !=='CreditDetail')
+        if(store.state.customerCredit.CreditAmount){
+          if(store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt >= parseFloat(this.Total))
+           return true;
+        }   
+      return false;
+    },
+    getCreditAmount(){     
+      if(store.state.customerCredit)
+        if(store.state.customerCredit.CreditAmount){
+          const value = store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt;
+          return this.getFormatPrice(value);
+        }      
+    }
 
    
 

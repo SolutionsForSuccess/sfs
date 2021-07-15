@@ -266,6 +266,32 @@ Vue.use(VueRouter)
     }
   },
   {
+    path: '/credit',
+    name: 'Credit',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CustomerCredit.vue'),
+    beforeEnter: (to, from, next) =>{
+      if (store.state.authenticated == false)
+      {
+        next("/");
+      } else {
+        next();
+      }
+    }
+  },
+  {
+    path: '/credit/:creditId?',
+    name: 'Credit-Form',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CustomerCreditForm.vue'),
+    beforeEnter: (to, from, next) =>{
+      if (store.state.authenticated == false)
+      {
+        next("/");
+      } else {
+        next();
+      }
+    }
+  },
+  {
     path: '/tax',
     name: 'Tax',
     // route level code-splitting
@@ -903,7 +929,18 @@ Vue.use(VueRouter)
     name: 'Unsubscribe',
     component: () => import(/* webpackChunkName: "about" */ '../../frontend/views/Unsubscribe.vue')
    },
-   
+   {
+    // path: '/listCredit',   
+      path: '/:url', 
+     name: 'ListCredit',
+     component: () => import(/* webpackChunkName: "about" */ '../../frontend/views/ListCredit.vue')
+   }, 
+   {
+    // path: '/listCreditDetail',   
+      path: '/:url', 
+     name: 'ListCreditDetail',
+     component: () => import(/* webpackChunkName: "about" */ '../../frontend/views/ListCreditDetail.vue')
+   }, 
 
 ]
 

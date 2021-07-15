@@ -1,6 +1,6 @@
 {
-  "appId": "net.imenuapps.imenuapps",
-  "appName": "imenuapps",
+  "appId": "net.imenuapps.apps",
+  "appName": "iMenuApps",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "dist",

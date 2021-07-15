@@ -164,9 +164,10 @@ const store = new Vuex.Store({
     restaurantId: '',  
     walletConfig: {},
     subscriptors: [],
+    customerCredit:{},
+    allCustomerCredit: [],
   },
-  mutations: { 
-   
+  mutations: {    
     setAuthentication(state, status) {
       state.authenticated = status;
     },
@@ -258,6 +259,12 @@ const store = new Vuex.Store({
     },
     setAllTaxes(state, allTaxes) {
       state.allTaxes = allTaxes;
+    },
+    setCustomerCredit(state, customerCredit) {
+      state.customerCredit = customerCredit;
+    },
+    setAllCustomerCredit(state, allCustomerCredit) {
+      state.allCustomerCredit = allCustomerCredit;
     },
   
   }

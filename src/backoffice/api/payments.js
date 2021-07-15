@@ -749,9 +749,10 @@ export var payAuthorizeNet = {
                 },
             }
                       
-            const response = await Api.payNAB(items);
-            if(response.status === 200){
-                const response1 = {
+           try {
+                const response = await Api.payNAB(items);
+                if(response.status === 200){
+                    const response1 = {
                     "total": datas.total,
                     "transId": response.data.bric,
                     "accountNumber": '',
@@ -763,7 +764,13 @@ export var payAuthorizeNet = {
                 }
                return response1;
             }
-            return false;
+               
+           } catch (error) {
+            console.log(error)
+            throw new Error("Try another payment method");
+               
+           }
+            
         }
         return true;
     },
