@@ -479,8 +479,9 @@ export var Api = {
         return await axios.get(this.endPointURL + 'customercredit?customerActive='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
     },
 
-
-
+    customerCreditForAll: async function(data){       
+        return await axios.post(this.endPointURL + 'customercredit?createForAll=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+    },
 
 
 }

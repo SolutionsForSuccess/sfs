@@ -1,8 +1,8 @@
 <template>
-    <div class="screen">
+    <div :class="!externalProp ? 'screen' : ''">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
 
-    <ion-header>
+    <ion-header v-if="!externalProp">
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Role'})"></ion-back-button>
@@ -19,7 +19,7 @@
         <ion-spinner name="lines" class="spinner"></ion-spinner>
     </div>
     <div v-else>
-        <ion-item v-if="canEdit">
+        <ion-item v-if="canEdit || id==null">
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
           @input="name = $event.target.value"
@@ -669,6 +669,9 @@ export default {
   created: function(){
       this.init();
     
+  },
+  props: {
+      externalProp: {type: Boolean, default: false}
   },
   computed: {
         title() {
@@ -1424,10 +1427,14 @@ export default {
                   .then(response => {
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessRole'), "success");
                       this.spinner = false;
-                      this.$router.push({
-                        name: 'Role', 
-                      });
-                    return response;
+                      
+                      if (!this.externalProp){
+                            this.$router.push({
+                                name: 'Role', 
+                            });
+                      }
+                      
+                      return response;
                   })
                   .catch(e => {
                       this.isBackdrop = false;

@@ -36,6 +36,18 @@
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.ingredients')}}</span>
                 </ion-segment-button>
+                <ion-segment-button value="category">
+                    <span>{{$t('backoffice.form.fields.category')}}</span>
+                </ion-segment-button>
+            </ion-segment>
+
+            <ion-segment v-if="cType == 'service'" scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
+                <ion-segment-button v-if="cType == 'service'" value="general">
+                    <span>{{$t('backoffice.form.titles.genaral')}}</span>
+                </ion-segment-button>
+                <ion-segment-button value="category">
+                    <span>{{$t('backoffice.form.fields.category')}}</span>
+                </ion-segment-button>
             </ion-segment>
           </ion-toolbar>
     </ion-header>
@@ -134,9 +146,13 @@
                     <ion-label>
                         <span style="color: red">*</span><router-link to="/category">{{$t('backoffice.form.fields.category')}}</router-link>
                     </ion-label>
+                    <ion-label>
+                        <ion-button class="" @click="segmentChanged('category')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
+                    </ion-label>
                 </ion-list-header>
 
                 <ion-item>
+                    
                     <ion-label>{{$t('backoffice.form.titles.selectACategory')}}</ion-label>
                     <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
                     @ionChange="categoryId = $event.target.value" v-bind:value="categoryId">
@@ -241,6 +257,8 @@
                 :checked="available"  >    
               </ion-checkbox>
             </ion-item>
+
+            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
         <div v-if="variants">
             <div v-if="!addVariant">
@@ -347,7 +365,7 @@
                     </ion-select>
                 </ion-item>
             </ion-list> -->
-
+            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
 
             <!-- <ion-item > -->
@@ -442,6 +460,7 @@
                       </ion-list>
                   </div>
             </div>
+            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
 
         <div v-if="ingredientsB">
@@ -476,8 +495,12 @@
             </div>
 
             <br/>
+            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
-        <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+        <!-- Create category -->
+        <div v-if="categoryTab">
+            <Categ :externalProp="true" :categTypeProp="cType" />
+        </div>
 
             <!-- <div v-if="spinner">
               <ion-spinner  name="lines" class="spinner"></ion-spinner>
@@ -491,6 +514,7 @@
 
 import { Api } from '../api/api.js';
 // import QrcodeVue from 'qrcode.vue';
+import Categ from './CategoryForm.vue'
 
 export default {
 
@@ -567,6 +591,7 @@ export default {
       variants: false,
       sides: false,
       ingredientsB: false,
+      categoryTab: false,
 
       //screenwidth
       screenWidth: 0,
@@ -597,6 +622,9 @@ export default {
   created: function(){
       this.init();
   },
+  components:{
+      Categ
+  },
   computed: {
         title() {
             if (this.cType != 'product')
@@ -607,30 +635,43 @@ export default {
   },
   methods: {
     segmentChanged(value){            
-        //console.log(value)
+        console.log(value)
         if(value === 'general'){
             this.general = true
             this.variants = false
             this.sides = false
             this.ingredientsB = false
+            this.categoryTab = false
+
+            this.fetchCategories()
         }
         if(value === 'variants'){
             this.general = false
             this.variants = true
             this.sides = false
             this.ingredientsB = false
+            this.categoryTab = false
         }  
         if(value === 'sides'){
             this.general = false
             this.variants = false
             this.sides = true
-            this.ingredientsB = false            
+            this.ingredientsB = false
+            this.categoryTab = false         
         }
         if(value === 'ingredients'){
             this.general = false
             this.variants = false
             this.sides = false
-            this.ingredientsB = true              
+            this.ingredientsB = true 
+            this.categoryTab = false             
+        }
+        if(value === 'category'){
+            this.general = false
+            this.variants = false
+            this.sides = false
+            this.ingredientsB = false 
+            this.categoryTab = true             
         }
         this.segmentValue = value;
     },

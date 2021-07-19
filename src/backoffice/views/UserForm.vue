@@ -13,6 +13,18 @@
               <h1>{{title}}</h1>            
             </ion-label>
           </ion-toolbar>
+
+          <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
+              <ion-segment-button value="general">
+                  <span>{{$t('backoffice.form.titles.genaral')}}</span>
+              </ion-segment-button>
+              <ion-segment-button value="occupation">
+                  <span>{{$t('backoffice.form.fields.occupation')}}</span>
+              </ion-segment-button>
+              <ion-segment-button value="roles">
+                  <span>{{$t('backoffice.form.fields.roles')}}</span>
+              </ion-segment-button>
+          </ion-segment>
     </ion-header>
     <br/>
 
@@ -21,130 +33,146 @@
     </div>
     <div v-else>
       <!-- <ion-card> -->
-        <ion-item>
-            <ion-card v-if="checkImage()" >
-                <ion-img :src="file"></ion-img>
-            </ion-card>
-            <ion-card v-else>
-              {{ $t('backoffice.form.titles.imageText')}}
-            </ion-card>
-            <!-- <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
-            <ion-input type="file" accept=".jpg,.png,.gif" name="file"
-            @change="handleImage">
-            </ion-input> -->
-        </ion-item>
-        <ion-item>
-            <div>
-                <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
-            </div>
-          <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.firstName')}}</ion-label>
-            <ion-input type="text" name="firstName"
-            @input="firstName = $event.target.value" 
-            v-bind:value="firstName">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.lastName')}}</ion-label>
-            <ion-input type="text" name="lastName"
-            @input="lastName = $event.target.value" 
-            v-bind:value="lastName">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.address')}}</ion-label>
-          <ion-textarea name="address" 
-          @input="address = $event.target.value" 
-          v-bind:value="address">
-          </ion-textarea>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
-            <ion-input type="text" name="phone"
-            @input="phone = $event.target.value" 
-            v-bind:value="phone">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-          <ion-input type="email" name="email"
-          @input="email = $event.target.value" 
-          v-bind:value="email">
-          </ion-input>
-        </ion-item>
-        <ion-item v-if="!id">
-            <ion-label position="floating"><span style="color: red">*</span>Service Id</ion-label>
-            <ion-input type="number" name="serverId"
-            @input="serverId = $event.target.value"
-            v-bind:value="serverId">
-            </ion-input>
-        </ion-item>
-        <ion-list v-if="!isForDriversSupervisor">
-            <ion-list-header>
-                <ion-label>
-                    <span style="color: red">*</span><router-link to="/occupation">{{$t('backoffice.form.fields.occupation')}}</router-link>
-                </ion-label>
-            </ion-list-header>
-
+        <div v-if="general">
             <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.selectAnOccupation')}}</ion-label>
-                <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                @ionChange="occupationId = $event.target.value" v-bind:value="occupationId">
-                    <ion-select-option v-for="occupation in occupations" v-bind:key="occupation.Id" v-bind:value="occupation._id" >{{occupation.Name}}</ion-select-option>
-                </ion-select>
+                <ion-card v-if="checkImage()" >
+                    <ion-img :src="file"></ion-img>
+                </ion-card>
+                <ion-card v-else>
+                  {{ $t('backoffice.form.titles.imageText')}}
+                </ion-card>
+                <!-- <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
+                <ion-input type="file" accept=".jpg,.png,.gif" name="file"
+                @change="handleImage">
+                </ion-input> -->
             </ion-item>
-
-        </ion-list>
-        <ion-item v-if="!isForDriversSupervisor">
-            <ion-label>{{$t('backoffice.form.fields.isDriver')}}</ion-label>
-            <ion-checkbox slot="end" name="isDriver" 
-                  @ionChange="isDriver=$event.target.checked" 
-                  :checked="isDriver">
-            </ion-checkbox>
-        </ion-item>
-
-        <div v-if="id==null">
             <ion-item>
-              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
-              <ion-input type="password" name="password"
-              @input="password = $event.target.value" 
-              v-bind:value="password">
+                <div>
+                    <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
+                </div>
+              <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.firstName')}}</ion-label>
+                <ion-input type="text" name="firstName"
+                @input="firstName = $event.target.value" 
+                v-bind:value="firstName">
               </ion-input>
             </ion-item>
             <ion-item>
-              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.confirmPassword')}}</ion-label>
-              <ion-input type="password" name="confirmPassword"
-              @input="confirmPassword = $event.target.value" 
-              v-bind:value="confirmPassword">
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.lastName')}}</ion-label>
+                <ion-input type="text" name="lastName"
+                @input="lastName = $event.target.value" 
+                v-bind:value="lastName">
               </ion-input>
             </ion-item>
-        </div>
-        <div v-else>
-          <ion-item>
-            <ion-button expand="full" color="secondary" @click="changePassword()">Change password</ion-button>
-          </ion-item>
-        </div>
-
-        <div v-if="!isForDriversSupervisor">
             <ion-item>
-                <p><router-link to="/role">{{$t('backoffice.form.fields.roles')}}</router-link></p>
+              <ion-label position="floating">{{$t('backoffice.form.fields.address')}}</ion-label>
+              <ion-textarea name="address" 
+              @input="address = $event.target.value" 
+              v-bind:value="address">
+              </ion-textarea>
             </ion-item>
-            <ion-list>
-                <ion-item v-for="rol in allRoles" v-bind:key="rol._id">
-                <ion-label>{{rol.Name}}</ion-label>
-                <ion-checkbox
-                    slot="end"
-                    @ionChange="addDeleteRole($event.target.checked, rol._id)"
-                    :checked="hasUserRole(rol._id)">
-                </ion-checkbox>
+            <ion-item>
+              <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
+                <ion-input type="text" name="phone"
+                @input="phone = $event.target.value" 
+                v-bind:value="phone">
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
+              <ion-input type="email" name="email"
+              @input="email = $event.target.value" 
+              v-bind:value="email">
+              </ion-input>
+            </ion-item>
+            <ion-item v-if="!id">
+                <ion-label position="floating"><span style="color: red">*</span>Service Id</ion-label>
+                <ion-input type="number" name="serverId"
+                @input="serverId = $event.target.value"
+                v-bind:value="serverId">
+                </ion-input>
+            </ion-item>
+            <ion-list v-if="!isForDriversSupervisor">
+                <ion-list-header>
+                    <ion-label>
+                        <span style="color: red">*</span><router-link to="/occupation">{{$t('backoffice.form.fields.occupation')}}</router-link>
+                    </ion-label>
+                    <ion-label>
+                        <ion-button class="" @click="segmentChanged('occupation')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
+                    </ion-label>
+                </ion-list-header>
+
+                <ion-item>
+                    <ion-label>{{$t('backoffice.form.titles.selectAnOccupation')}}</ion-label>
+                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                    @ionChange="occupationId = $event.target.value" v-bind:value="occupationId">
+                        <ion-select-option v-for="occupation in occupations" v-bind:key="occupation.Id" v-bind:value="occupation._id" >{{occupation.Name}}</ion-select-option>
+                    </ion-select>
                 </ion-item>
-            </ion-list>
-        </div>
-      <br/>
-      <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveUser()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
 
+            </ion-list>
+            <ion-item v-if="!isForDriversSupervisor">
+                <ion-label>{{$t('backoffice.form.fields.isDriver')}}</ion-label>
+                <ion-checkbox slot="end" name="isDriver" 
+                      @ionChange="isDriver=$event.target.checked" 
+                      :checked="isDriver">
+                </ion-checkbox>
+            </ion-item>
+
+            <div v-if="id==null">
+                <ion-item>
+                  <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
+                  <ion-input type="password" name="password"
+                  @input="password = $event.target.value" 
+                  v-bind:value="password">
+                  </ion-input>
+                </ion-item>
+                <ion-item>
+                  <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.confirmPassword')}}</ion-label>
+                  <ion-input type="password" name="confirmPassword"
+                  @input="confirmPassword = $event.target.value" 
+                  v-bind:value="confirmPassword">
+                  </ion-input>
+                </ion-item>
+            </div>
+            <div v-else>
+              <ion-item>
+                <ion-button expand="full" color="secondary" @click="changePassword()">Change password</ion-button>
+              </ion-item>
+            </div>
+
+            <div v-if="!isForDriversSupervisor">
+                <ion-item>
+                    <p><router-link to="/role">{{$t('backoffice.form.fields.roles')}}</router-link></p>
+                    <ion-item-group slot="end">
+                        <ion-label>
+                            <ion-button class="" @click="segmentChanged('roles')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
+                        </ion-label>    
+                    </ion-item-group>
+                    
+                </ion-item>
+                <ion-list>
+                    <ion-item v-for="rol in allRoles" v-bind:key="rol._id">
+                    <ion-label>{{rol.Name}}</ion-label>
+                    <ion-checkbox
+                        slot="end"
+                        @ionChange="addDeleteRole($event.target.checked, rol._id)"
+                        :checked="hasUserRole(rol._id)">
+                    </ion-checkbox>
+                    </ion-item>
+                </ion-list>
+            </div>
+          <br/>
+          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveUser()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+        </div>
+        <div v-if="occupation">
+             <Occup :externalProp="true"/>
+        </div>
+        <div v-if="roles">
+            <Roles :externalProp="true"/>
+        </div>
     </div>
     </div>
 </template>
@@ -153,6 +181,8 @@
 
 import { Api } from '../api/api.js';
 import Modal from './ChangePasswordModal.vue';
+import Roles from './RoleForm.vue';
+import Occup from './OccupationForm.vue';
 
 export default {
 
@@ -191,6 +221,12 @@ export default {
 
       isForDriversSupervisor: false,
       isDriver: false,
+
+      //Segments
+      segmentValue: 'general',
+      general: true,
+      occupation: false,
+      roles: false,
     }
   },
   created: function(){
@@ -198,6 +234,9 @@ export default {
       this.init();
       //console.log("SUPERVISOR")
       //console.log(this.isForDriversSupervisor)
+  },
+  components: {
+      Occup, Roles
   },
   computed: {
         title() {
@@ -217,6 +256,28 @@ export default {
         }
   },
   methods: {
+    segmentChanged(value){
+
+        if(value === 'general'){
+            this.general = true
+            this.occupation = false
+            this.roles = false
+
+            this.fetchRoles();
+            this.fetchOccupations();
+        }
+        if(value === 'occupation'){
+            this.general = false
+            this.occupation = true
+            this.roles = false
+        }
+        if(value === 'roles'){
+            this.general = false
+            this.occupation = false
+            this.roles = true
+        }  
+        this.segmentValue = value; 
+    },
     init(){
         this.fetchRoles();
         this.fetchOccupations();

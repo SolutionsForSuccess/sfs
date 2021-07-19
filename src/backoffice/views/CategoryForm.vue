@@ -1,8 +1,8 @@
 <template>
-    <div class="screen">
+    <div :class="!externalProp ? 'screen' : ''">
 
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <ion-header>
+    <ion-header v-if="!externalProp">
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Category'})"></ion-back-button>
@@ -19,7 +19,7 @@
         <ion-spinner name="lines" class="spinner"></ion-spinner>
     </div>
     <div v-else>
-          <ion-item>
+          <ion-item v-if="!externalProp">
            <ion-label>{{$t('backoffice.form.fields.service')}}</ion-label>
            <ion-checkbox slot="end" name="service" 
             @ionChange="service = $event.target.checked"
@@ -128,8 +128,15 @@ export default {
             return this.id ? this.$t('backoffice.form.titles.categoryEditTitle') :  this.$t('backoffice.form.titles.categoryNewTitle');
         }
   },
+  props: {
+      externalProp: {type: Boolean, default: false},
+      categTypeProp: {type: String, default: 'product'}
+  },
   methods: {
     init(){
+
+        console.log(this.categTypeProp)
+
         this.fetchParentId();
 
         this.id = this.$route.params.categoryId;
@@ -331,6 +338,12 @@ export default {
 
             this.isBackdrop = true;
 
+            //Si el formulario de categoría está embebido.
+            if (this.externalProp){
+                if (this.categTypeProp == 'service') //Si se indica en el componente que viene de un servicio
+                  this.service = true //se crea la categoría de servicio
+            }
+
             let item = {
               "Name": this.name,
               "Description": this.description,
@@ -368,9 +381,11 @@ export default {
                         this.id = null;
                         this.file = null;
                         this.spinner = false;
+                      
                         this.$router.push({
                           name: 'Category', 
                         });
+
                         return response;
                   })
                   .catch(e => {
@@ -393,9 +408,13 @@ export default {
                       this.description = '';
                       this.file = null;
                       this.spinner = false;
-                      this.$router.push({
-                        name: 'Category', 
-                      });
+
+                      if (!this.externalProp){
+                          this.$router.push({
+                            name: 'Category', 
+                          });
+                      }
+
                       return response;
                   })
                   .catch(e => {

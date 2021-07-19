@@ -51,6 +51,15 @@
                       <ion-segment-button value="active">
                             {{$t('backoffice.form.fields.active')}}
                       </ion-segment-button>
+                      <ion-segment-button value="requested">
+                            Requested
+                      </ion-segment-button>
+                      <ion-segment-button value="accepted">
+                            Accepted
+                      </ion-segment-button>
+                      <ion-segment-button value="closed">
+                            Closed
+                      </ion-segment-button>
                       <ion-segment-button value="state6">
                             {{$t('frontend.order.state6')}}
                       </ion-segment-button>
@@ -70,17 +79,18 @@
                   <ion-item-sliding  v-for="credit in paginated('languages')" v-bind:key="credit._id">
                     <ion-item
                         @click="viewCredit(credit._id)"
-                        :color="credit.State == 3 ? 'danger' : 'light'">
+                        :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
+                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'">
                         <ion-label class="menu-col-4 elipsis-menu">
-                            <h6>{{ credit.Name }}</h6>
-                            <h6 v-if="credit.CustomerId">{{ getCustomerById(credit.CustomerId).Name }}</h6>           
+                            <h6><span style="color: white;">{{ credit.Name }}</span></h6>
+                            <h6 v-if="credit.CustomerId"><span style="color: white;">{{ getCustomerById(credit.CustomerId).Name }}</span></h6>           
                         </ion-label>
                         <ion-label class="menu-col-4 elipsis-menu">                   
-                            <h6><span style="color: red;"><b>{{ getFormatedDate(credit.DateFrom) }}/{{ getFormatedDate(credit.DateTo) }}</b></span></h6>
+                            <h6><span style="color: white;"><b>{{ getFormatedDate(credit.DateFrom) }}/{{ getFormatedDate(credit.DateTo) }}</b></span></h6>
                         </ion-label>
                         <ion-label class="menu-col-4 elipsis-menu">
-                            <h6><span style="color: green"><b>{{ getTotalPayed(credit) }}</b></span></h6>
-                            <h6><span style="color: red"><b>{{ getFormatPrice(credit.Debt) }}</b></span></h6>
+                            <h6><span style="color: darkblue"><b>{{ getTotalPayed(credit) }}</b></span></h6>
+                            <h6><span style="color: darkblue"><b>{{ getFormatPrice(credit.Debt) }}</b></span></h6>
                             <h6><span><b>{{ getFormatPrice(credit.CreditAmount) }}</b></span></h6>                 
                         </ion-label>                
                     </ion-item>
@@ -129,11 +139,14 @@
                             :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
                                 
                               <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                                :color="credit.State == 3 ? 'danger' : 'primary'">
+                                 :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
+                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'"
+                                >
                                 {{ getFormatedDate(credit.DateFrom) }} - {{ getFormatedDate(credit.DateTo) }}
                               </ion-chip>
                             <ion-card style="text-align: left;"   
-                            :color="credit.State == 3 ? 'danger' : 'primary'">
+                            :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
+                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'">
                                 <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
                                   <ion-card-title  style="color: black;">{{ credit.Name }}
                                   </ion-card-title>
@@ -395,6 +408,18 @@ export default {
         if (value == 'state6')
         {
             status = 3
+        }
+        if (value == 'requested')
+        {
+            status = 0
+        }
+        if (value == 'accepted')
+        {
+            status = 1
+        }
+        if (value == 'closed')
+        {
+            status = 2
         }
         requestAnimationFrame(() => {
           let cat2 = this.credits.filter(item => item.State == status)

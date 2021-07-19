@@ -1,7 +1,8 @@
 <template>
-    <div class="screen">
+    <div :class="!externalProp ? 'screen' : ''">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <ion-header>
+
+    <ion-header v-if="!externalProp">
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Occupation'})"></ion-back-button>
@@ -87,6 +88,9 @@ export default {
           })
       })   
     }
+  },
+  props: {
+      externalProp: {type: Boolean, default: false}
   },
   computed: {
         title() {
@@ -207,9 +211,15 @@ export default {
                       //           this.$t('backoffice.list.messages.titleCreateOccupation'));
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessOccupation'), "success");
                       this.spinner = false;
-                      this.$router.push({
-                        name: 'Occupation', 
-                      });
+
+                      if (!this.externalProp){
+
+                          this.$router.push({
+                            name: 'Occupation', 
+                          });
+
+                      }
+                      
                       return response;
                   })
                   .catch(e => {

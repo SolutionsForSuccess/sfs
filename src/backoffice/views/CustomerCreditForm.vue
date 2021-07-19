@@ -18,6 +18,11 @@
         <ion-spinner name="lines" class="spinner"></ion-spinner>
     </div>
     <div v-else>
+        <!-- States -->
+        <div v-if="state == 0" style="height:45px; width:100%; background-color:#bb6d09; padding:10px; color:white">State: Requested</div>
+        <div v-if="state == 1" style="height:45px; width:100%; background-color:#49750a; padding:10px; color:white">State: Accepted</div>
+        <div v-if="state == 2" style="height:45px; width:100%; background-color:#2f2f31; padding:10px; color:white">State: Closed</div>
+        <div v-if="state == 3" style="height:45px; width:100%; background-color:#b70808; padding:10px; color:white">State: Canceled</div>
 
         <ion-item>
            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
@@ -83,13 +88,15 @@
             </ion-datetime>
         </ion-item>
 
-      <br/>
+        <ion-item v-if="state == 0 && othersRestaurants.length > 1">
+            <ion-label>Extend for All Restaurants</ion-label>
+                <ion-checkbox slot="end" name="active" 
+                @ionChange="extendAll = $event.target.checked"
+                :checked="extendAll"  >    
+            </ion-checkbox>
+        </ion-item>
 
-      <!-- States -->
-      <div v-if="state == 0" style="height:45px; width:100%; background-color:#bb6d09; padding:10px; color:white">State: Requested</div>
-      <div v-if="state == 1" style="height:45px; width:100%; background-color:#49750a; padding:10px; color:white">State: Accepted</div>
-      <div v-if="state == 2" style="height:45px; width:100%; background-color:#2f2f31; padding:10px; color:white">State: Closed</div>
-      <div v-if="state == 3" style="height:45px; width:100%; background-color:#b70808; padding:10px; color:white">State: Canceled</div>
+      <br/>
 
       <ion-card v-if="state == 1">
           <ion-item>
@@ -131,7 +138,7 @@
       <div v-if="state != 1">
           <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCredit()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
       </div>
-        <!-- <ion-button expand="full" color="tertiary" @click="pendingAmount()">{{ $t('backoffice.form.buttons.save') }}</ion-button> -->
+        <!-- <ion-button expand="full" color="tertiary" @click="getAnothersRestaurants()">test</ion-button> -->
     </div>
     </div>
 </template>
@@ -166,6 +173,11 @@ export default {
       dateLimit: '',
       Payed: [],
 
+      extendAll: false,
+      othersRestaurants: [],
+
+      creditSetting: null,
+
       customers: [],
       parentId: null,
 
@@ -187,10 +199,11 @@ export default {
   },
   methods: {
     init(){
-
         this.id = this.$route.params.creditId;
         this.fetchCustomers();
         this.fetchAllCredits();
+        this.getCreditConfig();
+        this.getAnothersRestaurants();
         if (this.id){
           this.$ionic.loadingController
           .create({
@@ -227,7 +240,25 @@ export default {
           })
 
           }
-
+    },
+    getAnothersRestaurants(){
+        const user = this.$store.state.user
+        var restaurants = user.AllRestaurant
+        // restaurants.splice(restaurants.indexOf(user.RestaurantId), 1)
+        console.log(user.RestaurantId)
+        this.othersRestaurants = restaurants
+        console.log(this.othersRestaurants)
+        console.log(this.$store.state.user.AllRestaurant)
+    },
+    getCreditConfig(){
+        Api.fetchAll('Setting')
+        .then(response => {
+            this.creditSetting = response.data[0]
+            console.log(this.creditSetting)
+        })
+        .catch(e => {
+            console.log(e)
+        })
     },
     getFormatPrice: function(price){
         return Utils.getFormatPrice(price);         
@@ -396,24 +427,53 @@ export default {
                       })
                 }
                 else{
-                  //Else, I am created a new category
-                  this.spinner = true;
-                  item["State"] = 1;
-                  item["Debt"] = 0;
-                  Api.postIn(this.modelName, item)
+                  //Else, I am created a new categor
+                  if (this.extendAll && this.othersRestaurants.length > 0){
+                      this.spinner = true;
+                      const data= {
+                            "credit": {
+                                "CreditAmount": this.creditAmount,
+                                "Debt": this.debt,
+                                "Amount": 0,
+                                "Name": this.creditName,
+                                "CustomerId": this.customerId
+                            },
+                            "restaurants": this.othersRestaurants
+                      }
+                      Api.customerCreditForAll(data)
                       .then(response => {
                           this.spinner = false;
-                          this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessCategory'), "success");
-                          this.$router.push({
-                            name: 'Credit-Form', 
-                          });
-                          return response;
+                            this.showToastMessage('The credit was created successfully', "success");
+                            this.$router.push({
+                                name: 'Credit-Form', 
+                            });
+                            return response;
                       })
-                      .catch(e => {
-                          console.log(e);
-                          this.spinner = false;
-                          this.ifErrorOccured(this.saveCredit)
-                      })
+                     .catch(e => {
+                        console.log(e);
+                        this.spinner = false;
+                        this.ifErrorOccured(this.saveCredit)
+                     })
+                  }
+                  else{
+                        this.spinner = true;
+                        item["State"] = 1;
+                        item["Debt"] = 0;
+                        Api.postIn(this.modelName, item)
+                        .then(response => {
+                            this.spinner = false;
+                            this.showToastMessage('The credit was created successfully', "success");
+                            this.$router.push({
+                                name: 'Credit-Form', 
+                            });
+                            return response;
+                        })
+                        .catch(e => {
+                            console.log(e);
+                            this.spinner = false;
+                            this.ifErrorOccured(this.saveCredit)
+                        })
+                    }
                 }
 
             // }
@@ -423,8 +483,69 @@ export default {
     payCredit(){
         this.openPayment()
     },
+    getAmountToPay(payDatas){
+        /*
+       payDatas = {
+
+            feeType: "Fixed" || "Percent" (Viene de la conf),
+            feeFrecuency: "Monthy" || "Anual" (Viene de la conf),
+            feeValue: 11 (Viene de la conf),
+            limitDate: this.dateLimit (Fecha límite de pago del crédito),
+            amountToPay: 200 (Monto que se pretende pagar),
+       }
+       */
+
+       const payDate = moment() //Fecha actual
+       const limitDate = moment(payDatas.limitDate)
+       const dayDiff = payDate.diff(limitDate, "minutes") //Si dayDiff > 0 entonces se pasó de la fecha límite
+       let totalAmountToPay = payDatas.amountToPay
+
+       if (dayDiff > 0){
+           const months = payDate.diff(limitDate, "months")
+           if (months > 0){
+               //Ver si la frecuencia es mensual o anual
+               let valFee = payDatas.feeValue // Asumiendo que es mensual
+               if (payDatas.feeFrecuency == "Anual")
+               {
+                   //Si es anual
+                   valFee = payDatas.feeValue / 12
+               }
+
+               let countM = 1
+               let feeArr = [payDatas.amountToPay]
+               console.log("FeeArr", feeArr)
+               let lastFee = 0
+               while (countM <= months){
+                   if (payDatas.feeType === 'Percent'){
+                       lastFee = feeArr[feeArr.length - 1]
+                       feeArr.push(lastFee + (lastFee * valFee / 100))
+                   }
+                   if (payDatas.feeType === 'Fixed'){
+                       lastFee = feeArr[feeArr.length - 1]
+                       feeArr.push(lastFee + valFee)
+                   }
+                   countM++
+               }
+               totalAmountToPay = feeArr[feeArr.length - 1]  
+           }
+       }
+
+       console.log("Amount to pay: ", totalAmountToPay.toFixed(2))
+       return totalAmountToPay.toFixed(2)
+
+    },
     //Este es el metodo que abre el modal de pago 
     async openPayment(){
+
+        const payDatas = {
+            feeType: this.creditSetting.feeType || "Percent",
+            feeFrecuency: this.creditSetting.feeFrecuency || "Monthy",
+            feeValue: this.creditSetting.feeAmount || 0,
+            limitDate: this.dateLimit,
+            amountToPay: this.amountToPay,
+        }
+
+        const amountForPay = this.getAmountToPay(payDatas)
        
         return this.$ionic.modalController
             .create({
@@ -437,13 +558,13 @@ export default {
                 propsData: {  
                     parent:this,
                     order: {
-                        Total: this.amountToPay, // monto a pagar.
+                        Total: amountForPay, // monto a pagar.
                         Taxe: "1.00",
                         Tip: 0,
-                        SubTotal: this.amountToPay, // monto a pagar.
+                        SubTotal: amountForPay, // monto a pagar.
                         Products: []
                     }, 
-                    Total: this.amountToPay,
+                    Total: amountForPay,
                     Tax:  "1.00",
                     TaxName: '',     
                     restaurantId:  this.$store.state.restaurantActive.restaurantId, // id del restaurante
@@ -454,7 +575,7 @@ export default {
                     deviceTransactionType: '01',
                     deviceData: {
                         'amountInformation': {
-                                'TransactionAmount': this.amountToPay, // monto a pagar.
+                                'TransactionAmount': amountForPay, // monto a pagar.
                                 'TipAmount': 0,
                                 'TaxAmount': "1.00",
                             },
