@@ -13,7 +13,7 @@
 
      
 
-        
+        <!-- {{orderQrCode}} -->
 
         <div style="padding: 20px 15px; text-align: center">
 
@@ -51,12 +51,18 @@ import { payAuthorizeNet } from '../../backoffice/api/payments.js';
 import Moment from 'moment';
 import QrcodeVue from 'qrcode.vue';
 import { Commons } from '../commons';
+import store from '../../main'
 
 export default {
    name: 'PaymentModal',
    created: function(){
      this.i18n = i18n;  
-      this.getQrPayment();    
+     if(this.orderQrCode !=='')
+        this.hasQrPayment = this.orderQrCode;
+      else
+        this.getQrPayment();    
+
+      console.log(JSON.parse(JSON.stringify(this.order)));
    },
    props: { 
     splitOrder: {type: Boolean, default: false},    
@@ -65,6 +71,7 @@ export default {
     parent: {type: Object, default:() => {} },       
     order: {type: Object, default:() => {} },
     
+    orderQrCode:  {type: String, default:"" } ,
     Total:  {type: String, default:"" } ,
     Tax:  {type: String, default:"" } ,
     TaxName:  {type: String, default:"" } ,
@@ -150,10 +157,15 @@ export default {
          return this.$ionic.modalController.dismiss()
     },
 
+    async setOrderQrCode(qrCode){     
+       this.order.OrderQrCode = qrCode; 
+       store.commit('setOrder', this.order)  
+       console.log(JSON.parse(JSON.stringify(this.order)));
+    },
+
     getQrPayment: async function(){
 
       this.spinner1 = true;
-
       const data = {
           total: this.Total,
           tax: (parseFloat(this.order.Taxe) * parseFloat(this.order.SubTotal) )/ 100,
@@ -161,84 +173,77 @@ export default {
           payMethod: this.payMethod,
           restaurantId: this.restaurantId,
       }
-
       data.saleFlag = 'S'
-      if(this.isTicket) data.saleFlag = 'A'
-     
-     
-     try {
-       
+      if(this.isTicket) data.saleFlag = 'A' 
+      try {       
         var response = await payAuthorizeNet.payQrOrder(data); 
         if(response !=='Error')  {
           this.hasQrPayment = response;
-          this.spinner1 = false;  
+          this.spinner1 = false; 
+          this.setOrderQrCode(this.hasQrPayment) ;
         } 
         else{
            this.spinner1 = false;
            this.paymentError('Try another payment method.')
-        }   
-          
-       
+        } 
      } catch (error) {
       this.spinner1 = false;
-       console.log(error)
-       
+       console.log(error)       
      }
   },
 
-  validateQrPayment: async function(){
+    validateQrPayment: async function(){
 
-    this.spinner1 = true;
+      this.spinner1 = true;
 
-    const data = {
-        qrCode: this.hasQrPayment,
-        payMethod: this.payMethod,
-        restaurantId: this.restaurantId,
-    }  
-     try {  
+      const data = {
+          qrCode: this.hasQrPayment,
+          payMethod: this.payMethod,
+          restaurantId: this.restaurantId,
+      }  
+      try {  
 
-      var response = await payAuthorizeNet.validateStatusQrOrder(data);
-       let mss = 'Paid: '+ this.getFormatPrice(response.total);
-       mss += ' TransId: ' + response.transId;        
-      this.paymentSuccessfull(mss)     
-      this.spinner1 = false; 
-      response.returnTo = this.returnTo;
-      if(!this.splitOrder) this.parent.recivePayment(response);
-      else this.parent.makeSplitPayment(response)
-      return this.dismissModal();
+        var response = await payAuthorizeNet.validateStatusQrOrder(data);
+        let mss = 'Paid: '+ this.getFormatPrice(response.total);
+        mss += ' TransId: ' + response.transId;        
+        this.paymentSuccessfull(mss)     
+        this.spinner1 = false; 
+        response.returnTo = this.returnTo;
+        if(!this.splitOrder) this.parent.recivePayment(response);
+        else this.parent.makeSplitPayment(response)
+        return this.dismissModal();
 
-    } catch (error) {
-      this.spinner1 = false;
-      this.paymentError(error);
-    }
-  },
+      } catch (error) {
+        this.spinner1 = false;
+        this.paymentError(error);
+      }
+    },
 
-  cancelQrPayment: async function(){
+    cancelQrPayment: async function(){
 
-    this.spinner1 = true;
+      this.spinner1 = true;
 
-    const data = {
-        qrCode: this.hasQrPayment,
-        payMethod: this.payMethod,
-        restaurantId: this.restaurantId,
-    }  
-     try {  
+      const data = {
+          qrCode: this.hasQrPayment,
+          payMethod: this.payMethod,
+          restaurantId: this.restaurantId,
+      }  
+      try {  
 
-      await payAuthorizeNet.cancelStatusQrOrder(data);   
-      this.paymentSuccessfull('cancelado correctamente')     
-      this.spinner1 = false;      
-      return this.dismissModal();
+        await payAuthorizeNet.cancelStatusQrOrder(data);   
+        this.paymentSuccessfull('ok')  
+        this.setOrderQrCode('') ;   
+        this.spinner1 = false;      
+        return this.dismissModal();
 
-    } catch (error) {
-      this.spinner1 = false;
-      this.paymentError(error);
-    }
-  },
+      } catch (error) {
+        this.spinner1 = false;
+        this.paymentError(error);
+      }
+    },
 
   async paymentSuccessfull(message) {
-    return this.$ionic.toastController
-    
-     
+    return this.$ionic.toastController   
         .create({
           message: message,
           // duration: 2000,
@@ -280,8 +285,6 @@ export default {
      
     },
 
-
-
    async printOrder(order){
         
          var html = Commons.htmlToSendEmailOrder(order);
@@ -293,7 +296,6 @@ export default {
           winimp.focus();
           winimp.print();
           winimp.close();
-
    },
       
 }, 

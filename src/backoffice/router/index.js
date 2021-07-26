@@ -292,6 +292,32 @@ Vue.use(VueRouter)
     }
   },
   {
+    path: '/workSheet',
+    name: 'WorkSheet',
+    component: () => import(/* webpackChunkName: "about" */ '../views/WorkSheet.vue'),
+    beforeEnter: (to, from, next) =>{
+      if (store.state.authenticated == false)
+      {
+        next("/");
+      } else {
+        next();
+      }
+    }
+  },
+  {
+    path: '/workSheetForm/workSheetId',
+    name: 'WorkSheet-Form',
+    component: () => import(/* webpackChunkName: "about" */ '../views/WorkSheetForm.vue'),
+    beforeEnter: (to, from, next) =>{
+      if (store.state.authenticated == false)
+      {
+        next("/");
+      } else {
+        next();
+      }
+    }
+  },
+  {
     path: '/tax',
     name: 'Tax',
     // route level code-splitting
@@ -874,7 +900,7 @@ Vue.use(VueRouter)
    },
    {
     // path: '/home', 
-    path: '/:url',   
+     path: '/:url',   
      name: 'Ads',
      component: () => import(/* webpackChunkName: "about" */ '../../frontend/views/Ads.vue')
    },

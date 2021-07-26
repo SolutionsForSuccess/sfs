@@ -13,7 +13,7 @@
             </p>
             <ion-item color="primary" v-if="canSplitPayment && !hasDeliverySplitPayment()"  style="display: inline-block;">
               <strong v-if="!spinner" style="color: white;">{{i18n.t('frontend.payment.splitPayment')}}</strong>                              
-              <ion-toggle  v-if="!spinner" color="secondary" @ionChange="changeSplit()"  :checked ="split"></ion-toggle>    
+              <ion-toggle  v-if="!spinner" color="secondary" @ionChange="changeSplit($event.target.checked)"  :checked ="split"></ion-toggle>    
             </ion-item>
             
           </ion-toolbar>          
@@ -106,6 +106,24 @@
               <span class="iconify" data-icon="ion:card-outline" data-inline="false"></span>            
             </ion-button>  
 
+             <ion-button  @click="changePayment(), qrPay = true"  
+              :disabled="spinner"
+               v-if="payMethod==='SHIFT4' && staffName!== '' && !hasDeliverySplitPayment()"
+               v-tooltip="i18n.t('frontend.payment.qrPayment')"
+              :style="qrPay? 'float: left;border: solid' : 'float: left'"
+              :class="qrPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+                <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>              
+            </ion-button>
+            
+            <ion-button  @click="shareQrPayment()"  
+                v-if="payMethod==='SHIFT4' && staffName==='' && !isCatering && !hasDeliverySplitPayment()"                
+                :disabled="spinner"
+                v-tooltip="i18n.t('frontend.payment.sharePayment')"
+               :style="sharePay? 'float: left;border: solid' : 'float: left'"
+                :class="sharePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+                <ion-spinner v-if="spinnerShare" name="lines"></ion-spinner>
+                <span v-if="!spinnerShare" class="iconify" data-icon="fe:share" data-inline="false" ></span> 
+            </ion-button>
            
             <ion-button @click="responseCreditPayment(true)" :style="creditPay? 'float: left;border: solid' : 'float: left'" 
               :disabled="spinner"
@@ -115,11 +133,10 @@
               <span class="iconify" data-icon="akar-icons:credit-card" data-inline="false"></span>            
             </ion-button> 
 
-
             <ion-button @click="changePayment(), devicePay = true" :style="devicePay? 'float: left;border: solid' : 'float: left'" 
               :disabled="spinner"
                v-tooltip="i18n.t('frontend.payment.devicePayment')"
-               v-if="(payMethod==='SHIFT4' || payMethod==='TSYS' ) && staffName !=='' && !hasDeliverySplitPayment()"
+               v-if="['SHIFT4','TSYS','NAB'].includes(payMethod) && staffName !=='' && !hasDeliverySplitPayment()"
               :class="devicePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
               <span class="iconify" data-icon="emojione-monotone:mobile-phone" data-inline="false"></span>            
             </ion-button> 
@@ -141,32 +158,22 @@
                 <span class="iconify" data-icon="ic:baseline-attach-money" data-inline="false"></span>          
             </ion-button> 
 
-            <ion-button @click="changePayment(), swipePay = true" :style="swipePay? 'float: left;border: solid' : 'float: left'"
+            <ion-button @click="changePayment(), homePay = true" :style="homePay? 'float: left;border: solid' : 'float: left'"
+                :disabled="spinner"
+                v-tooltip="i18n.t('frontend.payment.housePayment')"
+                v-if="staffName !=='' && staffHouseAccount"
+                :class="homePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+                <span class="iconify" data-icon="dashicons:admin-home" data-inline="false"></span>         
+            </ion-button> 
+            <!-- <ion-button @click="changePayment(), swipePay = true" :style="swipePay? 'float: left;border: solid' : 'float: left'"
               :disabled="spinner"
                v-tooltip="i18n.t('frontend.payment.swipePayment')"
                v-if="payMethod==='TSYS' && staffName !==''"
               :class="swipePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
               <span class="iconify" data-icon="wpf:bank-cards" data-inline="false"></span>
             </ion-button> 
-            
-            <ion-button  @click="changePayment(), qrPay = true"  
-              :disabled="spinner"
-               v-if="payMethod==='SHIFT4' && staffName!== '' && !hasDeliverySplitPayment()"
-               v-tooltip="i18n.t('frontend.payment.qrPayment')"
-              :style="qrPay? 'float: left;border: solid' : 'float: left'"
-              :class="qrPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
-                <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>              
-            </ion-button>
-            
-            <ion-button  @click="shareQrPayment()"  
-                v-if="payMethod==='SHIFT4' && staffName==='' && !isCatering && !hasDeliverySplitPayment()"                
-                :disabled="spinner"
-                v-tooltip="i18n.t('frontend.payment.sharePayment')"
-               :style="sharePay? 'float: left;border: solid' : 'float: left'"
-                :class="sharePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
-                <ion-spinner v-if="spinnerShare" name="lines"></ion-spinner>
-                <span v-if="!spinnerShare" class="iconify" data-icon="fe:share" data-inline="false" ></span> 
-            </ion-button>
+             -->
+           
             
             <ion-button   @click="changePayment(), checkPay = true" 
                 v-if="isCatering"
@@ -177,8 +184,7 @@
                 :class="checkPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
                 <span class="iconify" data-icon="la:money-check-alt" data-inline="false" style="width: 40px;height: 40px;"></span>
             </ion-button>
-          
-          
+                    
              <google-pay   v-if="payMethod==='SHIFT4' && staffName==='' && googleData.merchantId"
               @click="changePayment()"
                 :keyGoogle="this.keyGoogle"
@@ -191,7 +197,6 @@
                 :restaurantId="this.restaurantId"
               ></google-pay>
        
-
              <apple-pay   
               @click="changePayment()"
               :disabled="spinner"  
@@ -291,7 +296,7 @@
 
             <ion-card  v-if="devicePay"  class="scroll" style="height: auto">                 
                 <device-payment
-                v-if="payMethod==='SHIFT4'"
+                  v-if="payMethod==='SHIFT4'"
                   :datas="this.deviceData"
                   :grandfather="this.parent"
                   :parent="this"
@@ -300,7 +305,7 @@
                 </device-payment>    
                   
                 <olapay-device
-                 v-if="payMethod==='TSYS'"
+                 v-if="['TSYS','NAB'].includes(payMethod)"
                   :datas="this.olapayData"                 
                   :parent="this"                 
                   :isTicket="isTicket"
@@ -326,6 +331,13 @@
                :parent="this"
                ></UsbCashDoor> 
             </ion-card>
+
+            <ion-card v-if="homePay"  class="scroll" style="height: auto">
+              <HousePayment
+              :parent="this">
+              </HousePayment>
+            </ion-card>
+
           
             <ion-card  v-if="qrPay " class="scroll" style="height: auto" >
               <qr-modal
@@ -342,6 +354,7 @@
                 :RestaurantName="this.RestaurantName"
                 :order="this.order"
                 :isTicket="this.isTicket"
+                :orderQrCode="this.order.OrderQrCode || ''"
               ></qr-modal>
             </ion-card>
 
@@ -424,6 +437,7 @@ import UsbCardReader from './UsbCardReader'
 
 import UsbCashDoor from './UsbCashDoor'
 import UsbCardSwipe from './UsbCardSwipe'
+import HousePayment from './HousePayment.vue'
 
 addIcons({
   "ios-eye": eye.ios,
@@ -457,6 +471,8 @@ export default {
    name: 'PaymentModal',   
    created: async function(){   
      this.order = store.state.order;
+
+     this.staffHouseAccount = store.state.staffHouseAccount;
     
     this.i18n = i18n;  
     if(this.order.StaffName)
@@ -520,10 +536,7 @@ export default {
             'subtotal': this.order.SubTotal,
             'tax': this.order.Taxe,  
             'device': store.state.device 
-        };
-
-      
-     
+        }; 
    },
 
    props: {  
@@ -549,7 +562,8 @@ export default {
      UsbCardReader,
      UsbCashDoor,
      UsbCardSwipe,
-     PayFabricPayment
+     PayFabricPayment,
+     HousePayment
   },
    data () {
     return {    
@@ -587,6 +601,7 @@ export default {
         devicePay: false,
         idtechPay: false,
         cashPay: false,
+        homePay: false,
         swipePay: false,
         fabricPay: false,
         creditPay: false,
@@ -603,12 +618,13 @@ export default {
         urlPayFabric: '',
         
         deviceData: {},
-          olapayData: {},
+        olapayData: {},
         deviceTransactionType: '01',
         shareText1: ' ',
         shareText2: '',
         allTypeOrder: {},
-        modalKey: 0
+        modalKey: 0,
+        staffHouseAccount: false
     }
   }, 
 
@@ -1016,6 +1032,44 @@ export default {
 
     },
 
+    async responseHousePayment(response){
+      if(response){         
+        this.$ionic.loadingController
+        .create({
+          cssClass: 'my-custom-class',
+          message: this.i18n.t('frontend.payment.doingPayment'),
+          backdropDismiss: false
+        })
+        .then ( loading =>{
+            loading.present()
+            setTimeout( async() => {
+                try {
+                  const invoiceSequence = await Api.getInvoiceSequence(this.restaurantId)
+                  const response1 = {
+                          "total": this.Total,
+                          "transId": invoiceSequence.data,
+                          "accountNumber": '',
+                          "expirationCard": '',
+                          "accountType": '',
+                          "method": 'HouseAccount',
+                          "moto": false,
+                      }                
+                  response1.returnTo = this.returnTo;
+                  await this.parent.recivePayment(response1);
+                  this.dismissModal();						
+                  loading.dismiss();
+                  
+                } catch (error) {
+                  loading.dismiss();
+                    return this.errorPaymentDetail(error); 
+                  
+                }
+            })
+          })
+        }
+
+    },
+
      async responseCreditPayment(response){
       if(response){         
         this.$ionic.loadingController
@@ -1060,6 +1114,7 @@ export default {
          data =  dataToken
       }
       else{
+      
          if(this.cardNumber ==='' || this.expirationCard === '' || this.cardCode=== ''||
         this.firstName ==='' || this.lastName === '' || this.zipCode=== '' || this.address === '')
             return this.alertRequiredDatas();
@@ -1080,8 +1135,10 @@ export default {
           cardExpirationDateF1: moment(this.expirationCard).format('MMYY'),
           cardExpirationDateF2: moment(this.expirationCard).format('YYYY-MM'),
           cardExpirationDateF3: moment(this.expirationCard).format('YYMM'),
+          cardExpirationDateF4: moment(this.expirationCard).format('MM/YY'),
           products: this.order.Products,
         }
+          
       }  
       data.tax = data.tax.toFixed(2);
       data.tip = data.tip.toFixed(2)
@@ -1093,6 +1150,8 @@ export default {
           data.tax = 1;
           data.tip = 0;
         }
+
+        console.log('11112')
 
       this.$ionic.loadingController
       .create({
@@ -1116,6 +1175,7 @@ export default {
                     return this.errorPaymentDetail(this.i18n.t('frontend.payment.insuficientFunds')); 
                    }  
                    else{
+                     console.log('0000')
                       response.returnTo = this.returnTo;
                       await this.parent.recivePayment(response);
                       this.dismissModal();						
@@ -1136,6 +1196,7 @@ export default {
                 }
                 
               } catch (error) {
+                console.log(error);
                 loading.dismiss();
                   return this.errorPaymentDetail(error); 
                 
@@ -1296,19 +1357,30 @@ export default {
         if(response.status === 200 && response.statusText === "OK"){ 
           store.commit('setOrder', response.data)  
             this.arraySplit[this.indexForPay].state = 1      
-              const paymentEntry = {                       
+             
+             if(value.method === 'Credit')
+                      Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response.data._id); 
+                    else if(value.method === 'HouseAccount'){
+                      const houseAccount = { 
+                        "ServerName": this.order.StaffName, 
+                        "CustomerName": this.order.CustomerName,                 
+                          "Amount": value.total,    
+                          "Model": "Order",
+                          "ModelId": response.data._id,
+                        }
+                      await Api.postIn('houseAccount', houseAccount); 
+                    }             
+                    else{
+                      const paymentEntry = {                       
                         "Method": value.method,
                         "Payment": value.total,
                         "InvoiceNumber": value.transId,
                         "ModelId": response.data._id,
-                        "ModelFrom": "Order"  ,
-                        "StaffName": this.order.StaffName, 
-                        "DeliveryPayment": flag,                 
-                   }
-              if(value.method !== 'Credit')
-                await Api.postIn('allpayments', paymentEntry);   
-              else
-               Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response.data._id); 
+                        "ModelFrom": "Order",
+                        "StaffName": this.order.StaffName,               
+                        }
+                      await Api.postIn('allpayments', paymentEntry);
+                    }  
                 
             this.dismissModal();
             return this.parent.finishPayment(response.data);
@@ -1321,19 +1393,29 @@ export default {
            if(response1.status === 200 && response1.statusText === "OK"){
             store.commit('setOrder', response1.data)             
             this.arraySplit[this.indexForPay].state = 1;
-            const paymentEntry = {                       
-                        "Method": value.method,
-                        "Payment": value.total,
-                        "InvoiceNumber": value.transId,
-                        "ModelId": response1.data._id,
-                        "ModelFrom": "Order",
-                        "StaffName": this.order.StaffName,
-                        "DeliveryPayment": flag,                 
-                   }
-              if(value.method !== 'Credit')
-                await Api.postIn('allpayments', paymentEntry); 
-              else
-                Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response1.data._id); 
+            if(value.method === 'Credit')
+              Commons.updateCustomerCredit(parseFloat(value.total), 'Order', response1.data._id); 
+            else if(value.method === 'HouseAccount'){
+              const houseAccount = { 
+                "ServerName": this.order.StaffName, 
+                "CustomerName": this.order.CustomerName,                 
+                  "Amount": value.total,    
+                  "Model": "Order",
+                  "ModelId": response1.data._id,
+                }
+              await Api.postIn('houseAccount', houseAccount); 
+            }             
+            else{
+              const paymentEntry = {                       
+                "Method": value.method,
+                "Payment": value.total,
+                "InvoiceNumber": value.transId,
+                "ModelId": response1.data._id,
+                "ModelFrom": "Order",
+                "StaffName": this.order.StaffName,               
+                }
+              await Api.postIn('allpayments', paymentEntry);
+            }  
               
             EventBus.$emit('chargeOrder', this.order);  
             return true;
@@ -1412,6 +1494,8 @@ export default {
 
     },
 
+ 
+
     changePayment(){
       this.cardPay = false;
       this.qrPay = false;
@@ -1423,6 +1507,7 @@ export default {
       this.swipePay = false;
       this.fabricPay = false;
       this.creditPay = false;
+      this.homePay = false;
     },
 
     shareQrPayment: async function(){
@@ -1456,6 +1541,7 @@ export default {
         var response = await payAuthorizeNet.payQrOrder(data);        
         if(response !=='Error'){
           this.hasQrPayment = response; 
+          this.setOrderQrCode(this.hasQrPayment) ;
           await Share.share({
             title: `${this.order.CustomerName}${this.shareText1}${this.RestaurantName} (${this.getFormatPrice(this.Total)})${this.shareText2}`,
             url: this.hasQrPayment,
@@ -1513,7 +1599,8 @@ export default {
       try {  
 
         await payAuthorizeNet.cancelStatusQrOrder(data);       
-        this.paymentSuccessfull('cancelado correctamente')     
+        this.paymentSuccessfull('cancelado correctamente') 
+        this.setOrderQrCode('') ;    
         this.spinner = false;      
         return this.dismissModal();
 
@@ -1657,8 +1744,8 @@ export default {
 
    },
 
-   changeSplit(){
-     this.split= !this.split;
+   changeSplit(value){
+     this.split= value;
    },
 
    async getUrlPayFabric(){
@@ -1704,7 +1791,13 @@ export default {
           const value = store.state.customerCredit.CreditAmount - store.state.customerCredit.Debt;
           return this.getFormatPrice(value);
         }      
-    }
+    },
+
+    async setOrderQrCode(qrCode){     
+       this.order.OrderQrCode = qrCode; 
+       store.commit('setOrder', this.order)  
+       console.log(JSON.parse(JSON.stringify(this.order)));
+    },
 
 }, 
   

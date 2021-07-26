@@ -2,11 +2,10 @@ import axios from 'axios';
 
 export var Api = {
 
-    // token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',      
-    // endPointURL: 'http://localhost:7071/api/',
-
-    token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',      
-    endPointURL: 'https://sls-eus-dev-serverless-succes-api.azurewebsites.net/api/',
+   token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',      
+    // endPointURL: 'http://localhost:7071/api/',   //LOCAL      
+    endPointURL: 'https://sls-eus-dev-serverless-succes-api.azurewebsites.net/api/', //PROD
+    // endPointURL: 'https://sls-eus-dev-serverless-succes-api-dev.azurewebsites.net/api/', //DEVELOp
 
     defaultToken: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',
 
@@ -16,8 +15,7 @@ export var Api = {
     // token: 'Basic UDNQVUFONkw3QkZSSlNSWVE3Sk5NRzNDS1pVT1pSVVg6S0NBSFhUMUlWNFlITEw2Qjc5VDFWUkJDN0tET0VFMDQ=',
     // endPointURL: 'https://api.eposnowhq.com/api/v4/',
 
-    //Azure token
-    //token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',
+    
 
     restaurantId: '',
     restaurant: null,
@@ -479,6 +477,9 @@ export var Api = {
         return await axios.get(this.endPointURL + 'customercredit?customerActive='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
     },
 
+    getRestaurantCustomer: async function(){       
+        return await axios.get(this.endPointURL + 'order?allCustomer=1', {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+    },
     customerCreditForAll: async function(data){       
         return await axios.post(this.endPointURL + 'customercredit?createForAll=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
     },

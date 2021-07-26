@@ -211,24 +211,24 @@
                     </ion-col>
                     
                     <ion-col size="4" v-if="pay.paymentInfo">
-                        <div v-if="pay.state == 1" >
-                            <div style="float: left; text-align: center;"> <!-- v-if="pay.paymentInfo.method != 'Device'"--> 
-                                <ion-input type="number" :value="count=pay.total" @ionChange="count= $event.target.value"></ion-input>
-                                <ion-button color="danger" @click="setRefund(pay, order.Payment.indexOf(pay), count)">Refund</ion-button>
+                        <div v-if="pay.PaymentMethod != 'Credit '">|{{pay.PaymentMethod}}|
+                            <div v-if="pay.state == 1" >
+                                <div style="float: left; text-align: center;"> <!-- v-if="pay.paymentInfo.method != 'Device'"--> 
+                                    <ion-input type="number" :value="count=pay.total" @ionChange="count= $event.target.value"></ion-input>
+                                    <ion-button color="danger" @click="setRefund(pay, order.Payment.indexOf(pay), count)">Refund</ion-button>
+                                </div>
+                                <div style="text-align: center;padding-top: 38.75px;">
+                                    <ion-button color="danger" @click="setVoid(pay, order.Payment.indexOf(pay), count)">Void</ion-button>
+                                </div>
                             </div>
-                            <div style="text-align: center;padding-top: 38.75px;">
-                                <ion-button color="danger" @click="setVoid(pay, order.Payment.indexOf(pay), count)">Void</ion-button>
+                            <div v-if="pay.state == 2">
+                                <span class="title" v-if="pay.refundValue">{{$t('frontend.home.state')}}: Refund: {{getFormateNumber(pay.refundValue)}}</span> 
+                                <span class="title" v-else>{{$t('frontend.home.state')}}: Refund: {{getFormateNumber(pay.total)}}</span> 
                             </div>
-
-                
-                        </div>
-                        <div v-if="pay.state == 2">
-                            <span class="title" v-if="pay.refundValue">{{$t('frontend.home.state')}}: Refund: {{getFormateNumber(pay.refundValue)}}</span> 
-                            <span class="title" v-else>{{$t('frontend.home.state')}}: Refund: {{getFormateNumber(pay.total)}}</span> 
-                        </div>
-                        <div v-if="pay.state == 3">
-                            <span class="title" v-if="pay.voidValue">{{$t('frontend.home.state')}}: Void: {{getFormateNumber(pay.voidValue)}}</span>
-                            <span class="title" v-else>{{$t('frontend.home.state')}}: Void: {{getFormateNumber(pay.total)}}</span>
+                            <div v-if="pay.state == 3">
+                                <span class="title" v-if="pay.voidValue">{{$t('frontend.home.state')}}: Void: {{getFormateNumber(pay.voidValue)}}</span>
+                                <span class="title" v-else>{{$t('frontend.home.state')}}: Void: {{getFormateNumber(pay.total)}}</span>
+                            </div>
                         </div>
                     </ion-col>
                 </ion-row>

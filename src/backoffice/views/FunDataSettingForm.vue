@@ -24,11 +24,14 @@
                  <ion-segment-button value="payments">
                     <span>{{$t('backoffice.options.managePaymentSettings')}}</span>
                 </ion-segment-button>
-                <ion-segment-button value="catering">
+                <ion-segment-button v-if="viewCatering" value="catering">
                     <span>{{$t('backoffice.form.fields.catering')}}</span>
                 </ion-segment-button>
-                <ion-segment-button value="reservation">
+                <ion-segment-button v-if="viewReservation" value="reservation">
                     <span>{{$t('backoffice.form.fields.reservation')}}</span>
+                </ion-segment-button>
+                <ion-segment-button v-if="viewLoyalty" value="loyalty">
+                    <span>{{$t('backoffice.form.fields.loyalty')}}</span>
                 </ion-segment-button>
                 <ion-segment-button value="tip">
                     <span>{{$t('backoffice.form.titles.tip')}}</span>
@@ -186,13 +189,13 @@
            <Payments/>
         </div>
         <div v-if="catering">
-        <ion-item>
+        <!-- <ion-item>
            <ion-label>{{$t('backoffice.form.fields.viewCatering')}}</ion-label>
            <ion-checkbox slot="end" name="viewCatering" 
                 @ionChange="viewCatering=$event.target.checked"
                 :checked="viewCatering">
           </ion-checkbox>
-        </ion-item>
+        </ion-item> -->
         <div v-if="viewCatering" style="margin-left: 30px">
 
               <ion-item>
@@ -298,18 +301,18 @@
                   </ion-list>
               </div>
 
-          </div>
+        </div>
         <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
         <!-- Reservation -->
         <div v-if="reservation">
-            <ion-item>
+            <!-- <ion-item>
               <ion-label>{{$t('backoffice.form.fields.viewReservation')}}</ion-label>
               <ion-checkbox slot="end" name="viewReservation" 
                     @ionChange="viewReservation=$event.target.checked"
                     :checked="viewReservation">
               </ion-checkbox>
-            </ion-item>
+            </ion-item> -->
             <div v-if="viewReservation" style="margin-left: 30px">
                 <ion-item>
                     <h1>{{$t('backoffice.form.fields.reservation')}}</h1>
@@ -479,6 +482,40 @@
                 </div>
             </div>
             <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+        </div>
+        <!-- Loyalty Program -->
+        <div v-if="loyalty">
+            <!-- <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.viewLoyalty')}}</ion-label>
+                <ion-checkbox slot="end" name="viewLoyalty" 
+                        @ionChange="viewLoyalty=$event.target.checked"
+                        :checked="viewLoyalty">
+                </ion-checkbox>
+            </ion-item> -->
+            <div v-if="viewLoyalty">
+                <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyMinPointToBuy')}}</ion-label>
+                    <ion-input type="number" name="loyaltyMinPointToBuy"
+                        @input="loyaltyMinPointToBuy = $event.target.value" 
+                        v-bind:value="loyaltyMinPointToBuy">
+                    </ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyExpirationMonths')}}</ion-label>
+                    <ion-input type="number" name="loyaltyExpirationMonths"
+                        @input="loyaltyExpirationMonths = $event.target.value" 
+                        v-bind:value="loyaltyExpirationMonths">
+                    </ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyPointMoney')}}</ion-label>
+                    <ion-input type="number" name="loyaltyPointMoney"
+                        @input="loyaltyPointMoney = $event.target.value" 
+                        v-bind:value="loyaltyPointMoney">
+                    </ion-input>
+                </ion-item>
+                <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+            </div>
         </div>
         <!-- Tip -->
         <div v-if="tip">
@@ -683,6 +720,15 @@ export default {
       cateringMarginDays: 0,
       //**************************/
 
+      /**Loyalty Program *****************/
+
+      viewLoyalty: false,
+      loyaltyExpirationMonths: 0, //0 is no expiration
+      loyaltyMinPointToBuy: 0,
+      loyaltyPointMoney: 0,
+    
+      /**********************************/
+
       //Reservation **************/
       viewReservation: false,
       viewCustomerReservation: false,
@@ -734,6 +780,7 @@ export default {
       general: false,
       catering: false,
       reservation: false,
+      loyalty: false,
       tip: false,
       zipCode: false,
       devices: false,
@@ -785,6 +832,7 @@ export default {
             this.payments = false;
             this.poskey = false;
             this.ads = false;
+            this.loyalty = false;
         }
         if(value === 'about'){
             this.about = true;
@@ -800,6 +848,7 @@ export default {
             this.payments = false;
             this.poskey = false;
             this.ads = false;
+            this.loyalty = false;
         }
         if(value === 'general'){
             this.general = true
@@ -814,7 +863,8 @@ export default {
             this.colors = false;
             this.payments = false;  
             this.poskey = false;
-            this.ads = false;       
+            this.ads = false;
+            this.loyalty = false;     
         }
         if(value === 'payments'){
             this.payments = true;
@@ -830,8 +880,9 @@ export default {
             this.colors = false;
             this.poskey = false;
             this.ads = false;
+            this.loyalty = false;
         }
-           if(value === 'colors'){
+        if(value === 'colors'){
             this.colors = true;
             this.payments = false;
             this.basic = false;
@@ -845,6 +896,7 @@ export default {
             this.backup = false
             this.poskey = false;
             this.ads = false;
+            this.loyalty = false;
         }
         if(value === 'catering'){
             this.general = false
@@ -860,6 +912,7 @@ export default {
             this.payments = false;
             this.poskey = false;
             this.ads = false;
+            this.loyalty = false;
         }  
         if(value === 'reservation'){
             this.general = false
@@ -874,7 +927,24 @@ export default {
             this.colors = false;
             this.payments = false; 
             this.poskey = false; 
-            this.ads = false;      
+            this.ads = false;
+            this.loyalty = false;    
+        }
+        if(value === 'loyalty'){
+            this.basic = false;
+            this.about = false
+            this.general = false
+            this.catering = false
+            this.reservation = false
+            this.tip = false
+            this.zipCode = false
+            this.devices = false
+            this.backup = false
+            this.colors = false;
+            this.payments = false;
+            this.poskey = false;
+            this.ads = false;
+            this.loyalty = true;
         }
         if(value === 'tip'){
             this.general = false
@@ -889,7 +959,8 @@ export default {
             this.colors = false;
             this.payments = false; 
             this.poskey = false;  
-            this.ads = false;          
+            this.ads = false; 
+            this.loyalty = false;         
         }
         if(value === 'ads'){
             this.about = false;
@@ -905,6 +976,7 @@ export default {
             this.payments = false;
             this.poskey = false;
             this.ads = true;
+            this.loyalty = false;
         }
         if(value === 'zipCodes'){
             this.general = false
@@ -920,6 +992,7 @@ export default {
             this.payments = false;   
             this.poskey = false;          
             this.ads = false;
+            this.loyalty = false;
         }
         if(value === 'backup'){
             this.general = false
@@ -934,7 +1007,8 @@ export default {
             this.colors = false;
             this.payments = false;  
             this.poskey = false;    
-            this.ads = false;              
+            this.ads = false; 
+            this.loyalty = false;             
         }
         if(value === 'devices'){
             this.general = false
@@ -949,7 +1023,8 @@ export default {
             this.colors = false;
             this.payments = false; 
             this.poskey = false;  
-            this.ads = false;                   
+            this.ads = false; 
+            this.loyalty = false;                  
         }
          if(value === 'poskey'){
             this.general = false
@@ -964,7 +1039,8 @@ export default {
             this.colors = false;
             this.payments = false;   
             this.poskey = true;  
-            this.ads = false;               
+            this.ads = false;  
+            this.loyalty = false;             
         }
         if(value === 'backup'){
             this.general = false
@@ -979,7 +1055,8 @@ export default {
             this.colors = false;
             this.payments = false;   
             this.poskey = false;   
-            this.ads = false;              
+            this.ads = false;
+            this.loyalty = false;           
         }
         this.segmentValue = value;
     },
@@ -1043,6 +1120,14 @@ export default {
                         this.payForReservarionQuotation = response.data.HasReservationQuotation;
                         this.amountPayForReservarionQuotation  = response.data.PayForReservationQuotation; 
                         this.setReservationDateAndTime(response.data.ReservationDaysAndTime);
+                    }
+
+                    //Loyalty Program
+                    this.viewLoyalty = response.data.ViewLoyalty
+                    if (this.viewLoyalty){
+                        this.loyaltyExpirationMonths = response.data.LoyaltyExpirationMonths
+                        this.loyaltyMinPointToBuy = response.data.LoyaltyMinPointToBuy
+                        this.loyaltyPointMoney = response.data.LoyaltyPointMoney
                     }
 
                     if (this.$route.params.tab == 'about')
@@ -1444,6 +1529,14 @@ export default {
               item["HasReservationQuotation"] = this.payForReservarionQuotation
               item["PayForReservationQuotation"] = this.amountPayForReservarionQuotation
               item["ReservationDaysAndTime"] = this.saveReservationDateAndTime()
+            }
+
+            if (this.viewLoyalty)
+            {
+                item["ViewLoyalty"] = this.viewLoyalty
+                item["LoyaltyExpirationMonths"] = this.loyaltyExpirationMonths
+                item["LoyaltyMinPointToBuy"] = this.loyaltyMinPointToBuy
+                item["LoyaltyPointMoney"] = this.loyaltyPointMoney
             }
 
             //If I am editing

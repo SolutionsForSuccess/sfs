@@ -47,6 +47,8 @@ import { checkmarkCircle} from "ionicons/icons"
 import { car} from "ionicons/icons"
 import { skipBackward} from "ionicons/icons"
 import { arrowDropleft} from "ionicons/icons"
+import { arrowDropdown} from "ionicons/icons"
+import { arrowDropup} from "ionicons/icons"
 
 
 
@@ -111,6 +113,12 @@ addIcons({
   "md-arrowDropleft": arrowDropleft.md,
   "ios-arrowDropleft" : arrowDropleft.ios,
 
+  "md-arrowDropdown": arrowDropdown.md,
+  "ios-arrowDropdown" : arrowDropdown.ios,
+
+  "md-arrowDropup": arrowDropup.md,
+  "ios-arrowDropup" : arrowDropup.ios,
+
   "md-skipBackward": skipBackward.md,
   "ios-skipBackward" : skipBackward.ios,
 
@@ -134,9 +142,10 @@ Vue.use(VueGoogleMaps, {
 const store = new Vuex.Store({
   state: {
     authenticated: false,
-    user: null,
+    user: null,   
     roles: [],
     // FRONTEND STATE
+
     customer: {},
     guess:{},
     allRestaurant: [],   
@@ -166,8 +175,11 @@ const store = new Vuex.Store({
     subscriptors: [],
     customerCredit:{},
     allCustomerCredit: [],
+    staffHouseAccount: false,
+    restaurantCustomers: [],
   },
-  mutations: {    
+  mutations: {
+   
     setAuthentication(state, status) {
       state.authenticated = status;
     },
@@ -266,6 +278,12 @@ const store = new Vuex.Store({
     setAllCustomerCredit(state, allCustomerCredit) {
       state.allCustomerCredit = allCustomerCredit;
     },
+    setStaffHouseAccount(state, staffHouseAccount) {
+      state.staffHouseAccount = staffHouseAccount;
+    },
+    setRestaurantCustomers(state, restaurantCustomers) {
+      state.restaurantCustomers = restaurantCustomers;
+    },  
   
   }
 });

@@ -53,6 +53,18 @@
           </ion-input>
         </ion-item>
 
+        <ion-list>
+              <ion-item>
+                  <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
+                  @ionChange="shape = $event.target.value" v-bind:value="shape">
+                      <ion-select-option key="Square" value="Square">{{$t('backoffice.form.tableShape.square')}}</ion-select-option>
+                      <ion-select-option key="Rectangular" value="Rectangular">{{$t('backoffice.form.tableShape.rectangular')}}</ion-select-option>
+                      <ion-select-option key="Circle" value="Circle">{{$t('backoffice.form.tableShape.circle')}}</ion-select-option>
+                      <ion-select-option key="Oval" value="Oval">{{$t('backoffice.form.tableShape.oval')}}</ion-select-option>
+                  </ion-select>
+              </ion-item>
+          </ion-list>
+
         <ion-item>
           <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
           <strong>
@@ -140,6 +152,7 @@ export default {
       barcode: '',
       state: '',
       available: true,
+      shape: 'Square',
       
       qr: '',
 
@@ -192,6 +205,7 @@ export default {
                     this.name = response.data.Name;
                     this.description = response.data.Description;
                     this.tableNumber = response.data.TableNumber;
+                    this.shape = response.data.Shape;
                     this.type = response.data.Type;
                     this.seats = response.data.Seats;
                     this.available = response.data.Available;
@@ -536,6 +550,7 @@ export default {
               "State": this.state,
               "Available": this.available,
               "TableNumber": this.tableNumber,
+              "Shape": this.shape,
               "Seats": this.seats,
               "Type": this.type,
             }

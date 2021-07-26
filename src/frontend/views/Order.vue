@@ -302,7 +302,7 @@
                           @click="goHome()">{{$t('frontend.home.cancel')}}
                         </ion-button> 
                          <ion-button 
-                         :disabled="clientId ==='' || !order.OrderType ||
+                         :disabled="((clientId ==='' || !order.OrderType) && staffName === '') ||
                          (order.OrderType=='Delivery' && configuration.minAmountCateringDelivery > 0 && configuration.minAmountCateringDelivery > order.Total) ||
                          (order.OrderType=='PickUp' && configuration.minAmoutCatering > 0 && configuration.minAmoutCatering > order.Total)"
                             @click="sendOrderCatering()">{{$t('frontend.order.sendRequest')}}
@@ -631,11 +631,11 @@ export default {
       let mss = '';
       let flag = 1;
 
-      if(this.isCatering && !this.$store.state.guess._id){
+      if((this.isCatering && !this.$store.state.guess._id) && (this.isCatering && this.staffName === '')){
          mss += this.$t('frontend.order.requiredCustomer') +'. ';
           flag = 0;
       }
-      else if(this.order.OrderType !== 'On Table'){ 
+      else if(this.order.OrderType !== 'On Table' && !this.isCatering){ 
          this.clientId= this.$store.state.guess._id || '';
          this.CustomerName= this.$store.state.guess.Name || '';
          this.email= this.$store.state.guess.EmailAddress || '';
@@ -766,10 +766,20 @@ export default {
     },
 
     updateAuthorization: async function(){
-     const autho =  await this.generalAuthorization();
-     if(!autho)        
-      return this.noAuthorizedPayment()
+     try {
+       this.spinner = true;
+        const autho =  await this.generalAuthorization();
+        if(!autho)   {   
+            this.spinner = false;  
+            return this.noAuthorizedPayment()
+        }
+          this.spinner = false;
+        } catch (error) {
+          error;
+           return this.noAuthorizedPayment();       
+     }
     },
+
 
      generalAuthorization: async function(){
        this.order = this.$store.state.order;
@@ -916,7 +926,8 @@ export default {
                     this.$store.commit('setOrder', {}); 
                     await this.getOrders();
                     this.goodPaymentToast();  
-                    this.spinner = false;                                          
+                    this.spinner = false;   
+                     if (this.staffName !== '') return this.$router.push({ name: ' CateringOrder' })                                         
                     return this.$router.push({ name: 'ListOrder'})                                                                             
                 }            
             } 
@@ -942,18 +953,29 @@ export default {
             const response = await Api.putIn('Order', this.order)
             if(response.status === 200 && response.statusText === "OK"){
                   
-                  const paymentEntry = {                       
-                            "Method": res.method,
-                            "Payment": res.total,
-                            "InvoiceNumber": res.transId,
-                            "ModelId": response.data._id,
-                            "ModelFrom": "Order",
-                             "StaffName": this.order.StaffName,                    
+                if(res.method === 'Credit')
+                  Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                else if(res.method === 'HouseAccount'){
+                  const houseAccount = { 
+                    "ServerName": this.order.StaffName, 
+                    "CustomerName": this.order.CustomerName,                 
+                      "Amount": res.total,    
+                      "Model": "Order",
+                      "ModelId": response.data._id,
                     }
-                  if(res.method !== 'Credit')
-                      await Api.postIn('allpayments', paymentEntry);
-                  else
-                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                  await Api.postIn('houseAccount', houseAccount); 
+                }             
+                else{
+                  const paymentEntry = {                       
+                    "Method": res.method,
+                    "Payment": res.total,
+                    "InvoiceNumber": res.transId,
+                    "ModelId": response.data._id,
+                    "ModelFrom": "Order",
+                    "StaffName": this.order.StaffName,               
+                    }
+                  await Api.postIn('allpayments', paymentEntry);
+                }  
                   if(this.clientId !=='' ) await Commons.getTickets();  
                   this.spinner = false;
                   return this.finishPayment(this.order, true);  
@@ -982,21 +1004,33 @@ export default {
                     this.$store.commit('setOrder', {});  
                     await this.getOrders();
                     this.goodPaymentToast();  
-                    
-                     const paymentEntry = {                       
+
+                    if(res.method === 'Credit')
+                      Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                    else if(res.method === 'HouseAccount'){
+                      const houseAccount = { 
+                        "ServerName": this.order.StaffName, 
+                        "CustomerName": this.order.CustomerName,                 
+                          "Amount": res.total,    
+                          "Model": "Order",
+                          "ModelId": response.data._id,
+                        }
+                      await Api.postIn('houseAccount', houseAccount); 
+                    }             
+                    else{
+                      const paymentEntry = {                       
                         "Method": res.method,
                         "Payment": res.total,
                         "InvoiceNumber": res.transId,
                         "ModelId": response.data._id,
                         "ModelFrom": "Catering",
-                        "StaffName": this.order.StaffName                    
-                   }
-                   if(res.method !== 'Credit')
-                      await Api.postIn('allpayments', paymentEntry); 
-                  else
-                        Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
-                   this.spinner = false;
-                   if (this.staffName !== '') return this.$router.push({ name: ' Order' })  
+                        "StaffName": this.order.StaffName,               
+                        }
+                      await Api.postIn('allpayments', paymentEntry);
+                    }  
+                    
+                      this.spinner = false;
+                    if (this.staffName !== '') return this.$router.push({ name: ' CateringOrder' })   
                     return this.$router.push({ name: 'ListOrder' })  
                 }
                 
@@ -1038,18 +1072,29 @@ export default {
            if(response.status === 200 && response.statusText === "OK"){
 
              if(!this.order.isTicket){
-               const paymentEntry = {                       
-                        "Method": res.method,
-                        "Payment": res.total,
-                        "InvoiceNumber": res.transId,
-                        "ModelId": response.data._id,
-                        "ModelFrom": "Order",
-                        "StaffName": this.order.StaffName,               
-                   }
-                  if(res.method !== 'Credit')
-                   await Api.postIn('allpayments', paymentEntry);   
-                  else
-                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                if(res.method === 'Credit')
+                  Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                else if(res.method === 'HouseAccount'){
+                  const houseAccount = { 
+                    "ServerName": this.order.StaffName, 
+                    "CustomerName": this.order.CustomerName,                 
+                      "Amount": res.total,    
+                      "Model": "Order",
+                      "ModelId": response.data._id,
+                    }
+                  await Api.postIn('houseAccount', houseAccount); 
+                }             
+                else{
+                  const paymentEntry = {                       
+                    "Method": res.method,
+                    "Payment": res.total,
+                    "InvoiceNumber": res.transId,
+                    "ModelId": response.data._id,
+                    "ModelFrom": "Order",
+                    "StaffName": this.order.StaffName,               
+                    }
+                  await Api.postIn('allpayments', paymentEntry);
+                }  
              }                 
                 this.spinner = false;
                 if(this.order.Payment)

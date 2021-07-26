@@ -209,13 +209,15 @@ export default {
               //console.log(this.userLogin.Roles);
               let roles = [];
               this.userLogin.Roles.forEach(rol_id => {
-                  Api.fetchById("rol", rol_id).then(response => {
+                   Api.fetchById("rol", rol_id).then(response => {
                       roles.push(response.data);
                   })
               });
               //console.log("Estos son los roles");
               //console.log(roles);
               this.$store.commit("setRoles", roles);
+              //Pass Can Create House Account
+
               document.querySelector('ion-menu-controller').close('end')
               EventBus.$emit('blockScreen', 'true')
               EventBus.$emit('staffName', this.userLogin.FirstName + ' ' + this.userLogin.LastName)

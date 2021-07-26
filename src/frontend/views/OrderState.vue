@@ -743,18 +743,29 @@ export default {
                     this.chargeOrder();    
                     this.getOrders();                    
                     this.spinner1 = false;
-                     const paymentEntry = {                       
-                        "Method": res.method,
-                        "Payment": res.total,
-                        "InvoiceNumber": res.transId,
-                        "ModelId": response.data._id,
-                        "ModelFrom": "Catering",
-                         "StaffName": this.order.StaffName                    
-                   }
-                   if(res.method !== 'Credit')
-                    await Api.postIn('allpayments', paymentEntry); 
-                   else
+                    if(res.method === 'Credit')
                         Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                    else if(res.method === 'HouseAccount'){
+                        const houseAccount = { 
+                            "ServerName": this.order.StaffName, 
+                            "CustomerName": this.order.CustomerName,                 
+                            "Amount": res.total,    
+                            "Model": "Catering",
+                            "ModelId": response.data._id,
+                            }
+                        await Api.postIn('houseAccount', houseAccount); 
+                    }             
+                    else{
+                        const paymentEntry = {                       
+                            "Method": res.method,
+                            "Payment": res.total,
+                            "InvoiceNumber": res.transId,
+                            "ModelId": response.data._id,
+                            "ModelFrom": "Catering",
+                            "StaffName": this.order.StaffName,               
+                            }
+                        await Api.postIn('allpayments', paymentEntry);
+                    }  
                 })
                 .catch(e => {  
                     let msg = e;
@@ -865,18 +876,29 @@ export default {
                 this.sendEmail(response.data);                 
                 this.spinner1 = false;
 
-                const paymentEntry = {                       
-                        "Method": res.method,
-                        "Payment": res.total,
-                        "InvoiceNumber": res.transId,
-                        "ModelId": response.data._id,
-                        "ModelFrom": "Catering",
-                         "StaffName": this.order.StaffName                    
-                   }
-                   if(res.method !== 'Credit')
-                    await Api.postIn('allpayments', paymentEntry);
-                   else
-                    Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                if(res.method === 'Credit')
+                  Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                else if(res.method === 'HouseAccount'){
+                  const houseAccount = { 
+                    "ServerName": this.order.StaffName, 
+                    "CustomerName": this.order.CustomerName,                 
+                      "Amount": res.total,    
+                      "Model": "Catering",
+                      "ModelId": response.data._id,
+                    }
+                  await Api.postIn('houseAccount', houseAccount); 
+                }             
+                else{
+                  const paymentEntry = {                       
+                    "Method": res.method,
+                    "Payment": res.total,
+                    "InvoiceNumber": res.transId,
+                    "ModelId": response.data._id,
+                    "ModelFrom": "Catering",
+                    "StaffName": this.order.StaffName,               
+                    }
+                  await Api.postIn('allpayments', paymentEntry);
+                }  
             }            
             } catch (error) {            
                 console.log(error)

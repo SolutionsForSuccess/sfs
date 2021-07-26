@@ -364,18 +364,30 @@ export default {
                     this.sendReservationEmail(this.reservation);
                     this.spinner2 = false;
                    
-                   const paymentEntry = {                       
+                    if(res.method === 'Credit')
+                        Commons.updateCustomerCredit(parseFloat(res.total), 'Reservation', response.data._id); 
+                    else if(res.method === 'HouseAccount'){
+                    const houseAccount = { 
+                        "ServerName": this.order.StaffName, 
+                        "CustomerName": this.order.CustomerName,                 
+                        "Amount": res.total,    
+                        "Model": "Reservation",
+                        "ModelId": response.data._id,
+                        }
+                    await Api.postIn('houseAccount', houseAccount); 
+                    }             
+                    else{
+                    const paymentEntry = {                       
                         "Method": res.method,
                         "Payment": res.total,
                         "InvoiceNumber": res.transId,
                         "ModelId": response.data._id,
-                        "ModelFrom": "Reservation"                   
-                   }
-                   if(res.method !== 'Credit')
+                        "ModelFrom": "Reservation",
+                        "StaffName": this.order.StaffName,               
+                        }
                     await Api.postIn('allpayments', paymentEntry);
-                    else
-                        Commons.updateCustomerCredit(parseFloat(res.total), 'Reservation', response.data._id); 
-                }
+                    }  
+                    }
                 
             } catch (error) {            
                 console.log(error)

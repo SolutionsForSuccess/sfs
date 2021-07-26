@@ -506,6 +506,16 @@
             </ion-list>
 
             <div v-if="restaurantS">
+
+                <ion-item>
+                    <ion-label >ViewCatering
+                    <ion-toggle name="ViewCatering" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewCatering=$event.target.checked" 
+                        :checked ="restaurantS.ViewCatering">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
                 <ion-item>
                     <ion-label >ViewReservation
                     <ion-toggle name="ViewReservation" style="top: 12px;" Key="other"
@@ -520,6 +530,15 @@
                     <ion-toggle name="ViewDigitalSigned" style="top: 12px;" Key="other"
                         @ionChange="restaurantS.ViewDigitalSigned=$event.target.checked" 
                         :checked ="restaurantS.ViewDigitalSigned">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >ViewLoyaltyProgram
+                    <ion-toggle name="ViewLoyalty" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewLoyalty=$event.target.checked" 
+                        :checked ="restaurantS.ViewLoyalty">
                     </ion-toggle>
                     </ion-label>
                 </ion-item>

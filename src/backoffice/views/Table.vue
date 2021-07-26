@@ -9,7 +9,7 @@
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
             </ion-buttons>           
-
+XXXX
             <ion-label slot="end">
             <router-link to="/table-form">
                 <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateTable')">
@@ -34,8 +34,11 @@
         <ion-segment-button value="table">
               {{$t('backoffice.titles.tables')}}                   
         </ion-segment-button>
-        <ion-segment-button value="orderTable">
+        <!-- <ion-segment-button value="orderTable">
               {{$t('backoffice.titles.tables')}} - Order           
+        </ion-segment-button> -->
+        <ion-segment-button value="maket">
+              {{$t('backoffice.titles.tables')}} - Maketa           
         </ion-segment-button>
     </ion-segment>
 
@@ -152,10 +155,7 @@
             prev: '« ' }"
         ></paginate-links> 
       </div>
-
     </div>
-
-
 
     <div  v-if="!spinner && orderTable">
 
@@ -175,36 +175,7 @@
                         <ion-badge slot="start" style="padding: 10px; margin: 10px;position: absolute;left: 0;" @click="getOrdersDetails(table.Name)"
                             color="light">{{getListOrder(table.Name).length}} / {{table.Seats.length}}
                         </ion-badge> 
-
-
-                <!-- <ion-fab horizontal="end" vertical="top" slot="fixed" style="overflow: visible;top: 0; right: 0;z-index: 10;">
-                  <ion-fab-button color="primary">
-                    <span class="iconify" data-icon="icon-park-outline:config" data-inline="false"></span>
-                  </ion-fab-button>
-                  <ion-fab-list side="top">
-                    <ion-fab-button color="primary" @click="seeQrCode(table.Seats)" >
-                        <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>  
-                    </ion-fab-button>
-                  </ion-fab-list>
-                  
-                  <ion-fab-list side="bottom">
-                    <ion-fab-button color="primary" @click="editTable(table._id)">
-                        <span class="iconify" data-icon="akar-icons:edit" data-inline="false"></span>
-                    </ion-fab-button>
-                  </ion-fab-list>
-                  <ion-fab-list side="start" v-if="(table.State=='Busy' || table.State=='Dirty') ">
-                    <ion-fab-button color="primary" @click="setAvailable(table)">
-                      <span class="iconify" data-icon="eva:checkmark-fill" data-inline="false" ></span>
-                    </ion-fab-button>
-                  </ion-fab-list>
-                  <ion-fab-list side="start" v-if="table.State=='Free'">
-                    <ion-fab-button color="primary" @click="setBusy(table)">
-                      <span class="iconify" data-icon="eva:close-fill" data-inline="false" ></span>
-                    </ion-fab-button>
-                  </ion-fab-list>        
-                </ion-fab> -->
-
-                                  
+        
                         <ion-fab  vertical="top" horizontal="end" slot="fixed" style="overflow: visible;top: 0; right: 0;z-index: 10;">
                           <ion-fab-button color="success">
                             <span v-if="table.Shape==='Square'" class="iconify" data-icon="akar-icons:square" data-inline="false"></span>
@@ -251,6 +222,109 @@
 
         
     </div>
+
+    <div v-if="maket">
+        <div style="display: flex;justify-content: flex-end;" :key="editMaket+keyRow">
+           <div  v-if="editMaket" style="display: flex;align-items: center;"> 
+                <ion-label> {{$t('frontend.order.culumnNumber')}}    </ion-label>            
+                  <ion-input type="number" value="1" style="    width: 80px;" @input.stop="rowC=$event.target.value"></ion-input>
+                  <ion-button @click="addRowColumn(rowC)" :disabled="keyEdit?'true': 'false'">                    
+                    Add Fila ff</ion-button>
+            </div>
+          <ion-button v-if="editMaket" @click="saveSetting()" :disabled="keyEdit?'true': 'false'">
+              <ion-spinner v-if="keyEdit" ></ion-spinner>
+             <div v-if="!keyEdit"> <span class="iconify" data-icon="ant-design:save-outlined" data-inline="false" style="margin: 0;"></span></div>
+          </ion-button>
+           <ion-button v-if="!editMaket" @click="editMaket=true">
+              <span class="iconify" data-icon="ant-design:edit-outlined" data-inline="false" style="margin: 0;"></span>
+          </ion-button>
+        </div>
+        <div class="menu-col-12">            
+            <div class="menu-col-12" style="float: left;" :key="keyRow+'R'">
+              <div v-for="(r, index ) in restaurantSetting.TableDesign" :key="index" 
+              class="menu-col-12" style="display: flex;position: relative;">
+              
+                  <div v-for="(r1, index1 ) in r.length" :key="index1" 
+                    :style="' display: flex; flex-direction: column; align-items: center;justify-content: center;width:'+100/r.length+'%;'" 
+                    :class="!editMaket? 'menu-grid':'menu-grid-edit' ">  
+                   
+                      <ion-select interface="popover" icon="add"
+                      v-if="editMaket"
+                        :key="index1+'J'"
+                        style="    position: absolute;margin-top: -55px;"
+                        :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                        :value="restaurantSetting.TableDesign[index][index1].table"
+                        :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                       
+                        :placeholder="'Select table'"
+                        @ionChange="addTable(index, index1, $event.target.value)">
+                            <ion-select-option v-for="t in filterTables"                    
+                              :key="t._id" 
+                              :value="t._id" > {{t.Name}}
+                            </ion-select-option>                          
+                      </ion-select>
+
+                    
+                     
+                      <ion-select interface="popover" icon="add"
+                      v-if="editMaket && restaurantSetting.TableDesign[index][index1].table!==''"
+                         style="    position: absolute;margin-top: -10px;"
+                        :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                        :value="findTable(restaurantSetting.TableDesign[index][index1].table).Shape"
+                        :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" 
+                          @ionChange="setTableShape(findTable(restaurantSetting.TableDesign[index][index1].table) , $event.target.value)">
+                            <ion-select-option v-for="t in ['Square','Rectangular', 'Circle', 'Oval' ]"                    
+                              :key="t" 
+                              :value="t" > {{t}}
+                            </ion-select-option>                          
+                      </ion-select>
+                       
+
+                      <ion-chip v-if="editMaket" :disabled="keyEdit?'true': 'false'" @click.stop="deleteColRow(index, index1)" style="position: absolute;margin-top: 50px;z-index: 10;">
+                        <span class="iconify" data-icon="fluent:delete-24-regular" data-inline="false" style="margin: 0;"></span>
+                      </ion-chip>
+
+                    
+
+                      <div v-if="!editMaket && restaurantSetting.TableDesign[index][index1].table!=='' " style="position: absolute;font-weight: 700;">
+                         {{findTable(restaurantSetting.TableDesign[index][index1].table).Name}}</div>
+                      <div v-if="!editMaket && restaurantSetting.TableDesign[index][index1].table!==''" style="position: absolute;margin-top: 50px;">
+                        Total: {{ getAmoutByTable(findTable(restaurantSetting.TableDesign[index][index1].table).Name) }}</div>
+                      
+                           
+                      <ion-card :key="keyShape" v-if="restaurantSetting.TableDesign[index][index1].table !=='' "
+                        :class="findTable(restaurantSetting.TableDesign[index][index1].table).Shape==='Square'?'square':
+                        findTable(restaurantSetting.TableDesign[index][index1].table).Shape==='Circle'?'circle' :
+                        findTable(restaurantSetting.TableDesign[index][index1].table).Shape==='Rectangular'? 'rectangle':
+                        'oval'"
+                        :style="findTable(restaurantSetting.TableDesign[index][index1].table).State=='Free' ?
+                        '--background:#76fb3838;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible' :
+                        '--background:#ff00001f;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible'"
+                        @click="getIdTable(restaurantSetting.TableDesign[index][index1].table)"
+                      > 
+                        <div v-if="!editMaket" style="position: absolute;">                      
+                            <ion-badge slot="start" style="padding: 10px; margin: 10px;position: absolute;left: 0;" 
+                            @click="getOrdersDetails(findTable(restaurantSetting.TableDesign[index][index1].table).Name)"
+                                color="light">
+                                {{getListOrder(findTable(restaurantSetting.TableDesign[index][index1].table).Name).length}} / 
+                                {{findTable(restaurantSetting.TableDesign[index][index1].table).Seats.length}}
+                            </ion-badge> 
+                        </div>     
+                          
+                      </ion-card> 
+                  
+                  </div>
+
+               <ion-chip v-if="editMaket" :disabled="keyEdit?'true': 'false'" @click.stop="deleteRow(index)" style="    top: -0;position: absolute;right: -18px;padding: 0;">
+                 <span class="iconify" data-icon="fluent:delete-24-regular" data-inline="false" style="margin: 0;"></span>
+               </ion-chip>
+              </div>
+             
+            </div>
+        </div>
+          
+   
+
+    </div>
   </div>
 </template>
 
@@ -261,16 +335,21 @@ import Modal from './QrModal.vue';
 import TableOrderModal from './TableOrderModal';
  import { VBreakpoint } from 'vue-breakpoint-component'
 
+
 export default {
 
   name: 'table',
   created: function(){
     this.screenWidth = screen.width;
    this.fetchTables();
+
+   this.getRestaurantSetting();
+  
   },
    components:{   
     VBreakpoint: VBreakpoint,  
-  }, 
+  },
+ 
   data () {
     return {
       modelName: 'Table',
@@ -284,24 +363,37 @@ export default {
       screenWidth: 0,
       table: true,
       orderTable: false,
+      maket: false,
       segmentValue: 'table',
       orders: [],
       keyShape: 0,
+      keyRow: 0,
+      restaurantSetting: {},
+      rowC:1,
+      editMaket: false,
+      keyEdit: false
     }
   }, 
   methods: {
      async segmentChanged(value){         
              if(value === 'table'){
                  this.table = true;
-                 this.orderTable = false;                
+                 this.orderTable = false;  
+                 this.maket = false;              
              }
              if(value === 'orderTable'){
                 await this.fetchOrdersTable();
                 this.table = false;
+                 this.maket = false;
                 this.orderTable = true;
                 //console.log('orders');
                 //console.log(this.orders.length);
-             }               
+             }  
+             if(value === 'maket')   {
+               this.table = false;
+                this.orderTable = false;
+                this.maket = true;
+             }          
              this.segmentValue = value;
 
          },
@@ -611,6 +703,95 @@ export default {
             console.log(e)            
         })
     },
+
+
+     addRowColumn(rowC){
+      console.log('addRow  ' + rowC)
+      const array = [];
+      const data = { table: ''  }
+      for(var i=0; i< parseInt(rowC); i++) {
+        array.push(data);
+      }
+     console.log(array)
+      this.restaurantSetting.TableDesign.push(array)
+      console.log(this.restaurantSetting.TableDesign)
+       this.rowC = 1;
+      this.keyRow ++;
+      this.keyShape ++;  
+     
+    },
+
+    getRestaurantSetting(){
+      Api.fetchAll('Setting')
+      .then(response => {
+          if (response.data.length > 0)
+          {                  
+              this.restaurantSetting = response.data[0];     
+              console.log(this.restaurantSetting); 
+              if(!this.restaurantSetting.TableDesign)     
+               this.restaurantSetting.TableDesign = [];        
+          }
+      })
+      .catch(e => {
+          console.log(e)
+      })
+    },
+
+   async saveSetting(){ 
+      this.keyEdit = true;
+        await Api.putIn('Setting', this.restaurantSetting).then(response => {
+            response
+            this.keyEdit = false;
+            this.editMaket = false;
+        })
+        .catch(e => {
+            console.log(e)    
+            this.keyEdit = false;        
+        })
+    },  
+
+    addTable(index, index1, value){ 
+      console.log(index, index1, value)
+      const UJ = JSON.parse(JSON.stringify( this.restaurantSetting.TableDesign))
+
+      for (const tb of UJ) {
+        for (const element of tb) {
+          if(element.table === value){
+            console.log('Existe');   
+            element.table = ''
+          }                
+        }        
+      }   
+     
+      UJ[index][index1].table=value
+      this.restaurantSetting.TableDesign = UJ;      
+        
+      this.keyShape ++;   
+      console.log(JSON.parse(JSON.stringify( this.restaurantSetting.TableDesign)));
+    },
+
+    findTable(id){
+      const index = this.filterTables.findIndex( t => t._id === id)
+      return this.filterTables[index];
+    },
+
+    deleteRow(index){
+      console.log(index)
+      this.restaurantSetting.TableDesign.splice(index, 1);
+      this.keyShape ++; 
+      this.keyRow ++;  
+    },
+    deleteColRow(index, index1){
+      console.log(index, index1)
+      this.restaurantSetting.TableDesign[index].splice(index1, 1);
+       this.keyShape ++; 
+        this.keyRow ++;  
+    },
+
+    getIdTable(value){
+      console.log('Get table Id ' + value);
+    }
+
   },
 
 }
@@ -618,11 +799,76 @@ export default {
 </script>
 
 <style>
-
+.menu-col-1{
+    flex: 0 0 calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-2{
+    flex: 0 0 calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
 .menu-col-3{
     flex: 0 0 calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
     width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
     max-width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-4{
+    flex: 0 0 calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-5{
+    flex: 0 0 calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-6{
+    flex: 0 0 calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-7{
+    flex: 0 0 calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-8{
+    flex: 0 0 calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-9{
+    flex: 0 0 calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-10{
+    flex: 0 0 calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-11{
+    flex: 0 0 calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-12{
+    flex: 0 0 calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
     text-align: left;
 }
   
@@ -686,12 +932,7 @@ li.disabled a {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
-.menu-col-3{
-    flex: 0 0 calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
-    width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
-    max-width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
-    text-align: left;
-}
+
 
   .menu-col-4{
     flex: 0 0 calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
@@ -707,17 +948,23 @@ li.disabled a {
   height: 100%;
 }
 .square {
+  /* width: inherit; */
+  max-height: 200px;
+    max-width: 200px;
   width: 100%;
 }
 
 .square:after {
   content: "";
   display: block;
-  padding-bottom: 80%;
+  padding-bottom: 100%;
 }
 
 .circle{
-    width: 100%;
+   width: 100%;
+   /* width: inherit; */
+   max-height: 200px;
+    max-width: 200px;
   border-radius: 50%;
 }
 .circle:after {
@@ -727,6 +974,9 @@ li.disabled a {
 }
 .rectangle{
     width: 100%; 
+    /* width: inherit; */
+    max-height: 200px;
+    max-width: 200px;
 }
 .rectangle:after {
   content: "";
@@ -734,6 +984,9 @@ li.disabled a {
   padding-bottom: 60%;
 }
 .oval{
+  /* width: inherit; */
+  max-height: 200px;
+    max-width: 200px;
     width: 100%; 
     border-radius: 50%;
 }
@@ -741,6 +994,19 @@ li.disabled a {
   content: "";
   display: block;
   padding-bottom: 60%;
+}
+
+.menu-grid{
+  float: left;
+  height: 220px;
+  border: none;
+  padding: 5px;
+}
+.menu-grid-edit{
+  float: left;
+  height: 220px;
+  border: 1px solid grey;
+  padding: 5px;
 }
 
 @media only screen and (min-width : 1024px){

@@ -65,7 +65,7 @@
                 <ion-item>
                     <ion-label>{{$t('backoffice.form.fields.active')}} PayFabric</ion-label>
                     <ion-toggle color="primary"
-                    @ionChange="changePayMethod($event.target.checked, 'PAYFABRIC')"
+                    @ionChange="changePayMethod($event.target.checked, 'PayFabric')"
                     :checked="payPayFabric"></ion-toggle>
                 </ion-item>
                 <ion-item v-if="payPayFabric">
@@ -362,7 +362,7 @@ export default {
                 else
                     this.payAuth = false
             }
-            if (method === 'PAYFABRIC'){
+            if (method === 'PayFabric'){
                 if (value){
                     this.payShift4 = false
                     this.payAuth = false
@@ -738,7 +738,7 @@ export default {
             }
         },
         save(){
-            if (this.payShift4 || this.payAuth || this.payPayFabric)
+            if (this.payShift4 || this.payAuth || this.payPayFabric || this.payNAB || this.payTsys)
             {
                 //console.log(this.payMethod)
                 const isActive = this.verifyActivePayMethod()

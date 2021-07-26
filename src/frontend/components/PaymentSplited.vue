@@ -29,6 +29,26 @@
             <span class="iconify" data-icon="ion:card-outline" data-inline="false"></span>
             </ion-button>
 
+            <ion-button  
+           @click="changePayment(), qrPay = true"
+           v-if="payMethod==='SHIFT4' && staffName!== ''"
+            :style="qrPay? 'float: left;border: solid' : 'float: left'"
+             v-tooltip="i18n.t('frontend.payment.qrPayment')"
+            :class="qrPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+            <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>
+          </ion-button>
+
+           <ion-button  @click="shareQrPayment()" 
+              v-if="payMethod==='SHIFT4' && staffName==='' && returnTo==='ReservationState'"
+              :key="keyShare+'3'"
+              :disabled="spinner"
+              v-tooltip="'Share Payment'"
+               :style="sharePay? 'float: left;border: solid' : 'float: left'"
+              :class="sharePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+              <ion-spinner v-if="spinnerShare" name="lines"></ion-spinner>
+              <span v-if="!spinnerShare" class="iconify" data-icon="fe:share" data-inline="false" ></span> 
+            </ion-button>
+
             <ion-button @click="responseCreditPayment(true)" :style="creditPay? 'float: left;border: solid' : 'float: left'" 
               :disabled="spinner"
               v-if="enoughCredit()"
@@ -39,7 +59,7 @@
 
             <ion-button @click="changePayment(), devicePay = true" :style="devicePay? 'float: left;border: solid' : 'float: left'"
               :disabled="spinner"
-              v-if="payMethod==='SHIFT4' && staffName !==''"
+              v-if="['SHIFT4','TSYS','NAB'].includes(payMethod) && staffName !==''"
               v-tooltip="'Device'"             
               :class="devicePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
              <span class="iconify" data-icon="emojione-monotone:mobile-phone" data-inline="false"></span>
@@ -51,37 +71,27 @@
               :disabled="spinner"
               v-tooltip="'IDTech'"
               v-if="payMethod==='SHIFT4' && staffName !==''"
-              :class="idtechPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" :key="keyShare+3">
+              :class="idtechPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" :key="keyShare+'4'">
             <span class="iconify" data-icon="gg:usb" data-inline="false"></span>           
             </ion-button> 
 
              <ion-button @click="changePayment(), cashPay = true, printOrder(order)" :style="cashPay? 'float: left;border: solid' : 'float: left'"
               :disabled="spinner"
                v-tooltip="i18n.t('frontend.payment.cashPayment')"
-               v-if="payMethod==='SHIFT4' && staffName !==''"
-              :class="cashPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" :key="keyShare+3">
+               v-if="staffName !==''"
+              :class="cashPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" :key="keyShare+'5'">
             <span class="iconify" data-icon="ic:baseline-attach-money" data-inline="false"></span>          
-            </ion-button> 
-
-          <ion-button  
-           @click="changePayment(), qrPay = true"
-           v-if="payMethod==='SHIFT4' && staffName!== ''"
-            :style="qrPay? 'float: left;border: solid' : 'float: left'"
-             v-tooltip="i18n.t('frontend.payment.qrPayment')"
-            :class="qrPay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
-            <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>
-          </ion-button>
-
-           <ion-button  @click="shareQrPayment()" 
-              v-if="payMethod==='SHIFT4' && staffName==='' && returnTo==='ReservationState'"
-              :key="keyShare+3"
-              :disabled="spinner"
-              v-tooltip="'Share Payment'"
-               :style="sharePay? 'float: left;border: solid' : 'float: left'"
-              :class="sharePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
-              <ion-spinner v-if="spinnerShare" name="lines"></ion-spinner>
-              <span v-if="!spinnerShare" class="iconify" data-icon="fe:share" data-inline="false" ></span> 
             </ion-button>
+
+            <ion-button @click="changePayment(), homePay = true" :style="homePay? 'float: left;border: solid' : 'float: left'"
+                :disabled="spinner"
+                v-tooltip="i18n.t('frontend.payment.housePayment')"
+                v-if="staffName !=='' && staffHouseAccount"
+                :class="homePay? 'button-menu-hover button button-solid ion-activatable ion-focusable hydrated': 'button-menu button button-solid ion-activatable ion-focusable hydrated'" >
+                <span class="iconify" data-icon="dashicons:admin-home" data-inline="false"></span>         
+            </ion-button>  
+
+          
 
           <google-pay-split  style="float: left; margin: 2px" 
           v-if="payMethod==='SHIFT4' && staffName==='' && googleData.merchantId"
@@ -209,12 +219,20 @@
 
         <ion-card  v-if="devicePay"  class="scroll" style="height: auto">                 
             <device-payment
+               v-if="payMethod==='SHIFT4'"
               :datas="this.deviceData"
               :grandfather="this.parent.parent"
               :parent="this"
               :deviceTransactionType="this.deviceTransactionType"
             >
             </device-payment> 
+            <olapay-device
+              v-if="['TSYS','NAB'].includes(payMethod)"
+              :datas="this.olapayData"                 
+              :parent="this"                 
+              :isTicket="isTicket"
+            >
+            </olapay-device>  
         </ion-card>
 
         <ion-card  v-if="idtechPay"  class="scroll" style="height: auto">                 
@@ -229,6 +247,12 @@
                   :parent="this">
                 </UsbCashDoor> 
          </ion-card>
+
+          <ion-card v-if="homePay"  class="scroll" style="height: auto">
+            <HousePayment
+            :parent="this">
+            </HousePayment>
+          </ion-card>
   </div>
 </template>
 
@@ -245,6 +269,7 @@ addIcons({
 
 import { payAuthorizeNet } from '../../backoffice/api/payments.js';
 import DevicePayment from '../../backoffice/views/DevicePayment'
+import OlapayDevice from './OlaPayDevice'
 import LibCodes from 'zipcodes'
 import { parsePhoneNumber } from 'libphonenumber-js'
 import moment from 'moment-timezone';
@@ -258,6 +283,7 @@ import { Plugins } from '@capacitor/core';
  import {i18n} from '@/plugins/i18n'
  import { Commons } from '../commons';
  import PayFabricPayment from './PayFabricPayment.vue'
+ import HousePayment from './HousePayment.vue'
  import store from '../../main'
 
 export default {
@@ -267,6 +293,15 @@ export default {
     if(this.payMethod === 'PayFabric'){
       this.changePayment();
     }
+      this.olapayData = {
+            'tip': this.order.Tip,
+            'total': this.order.Total,
+            'subtotal': this.order.SubTotal,
+            'tax': this.order.Taxe,  
+            'device': store.state.device 
+        }; 
+
+    this.staffHouseAccount = store.state.staffHouseAccount;
    },
    props: {  
     googleData: {type: Object, default: ()=> {}} ,
@@ -290,9 +325,11 @@ export default {
    QrModal,
    GooglePaySplit,
    DevicePayment,
+   OlapayDevice,
    UsbCardReader,
    UsbCashDoor,
-   PayFabricPayment
+   PayFabricPayment,
+   HousePayment,
   },
    data () {
     return {   
@@ -321,10 +358,13 @@ export default {
         fabricPay: false,
         creditPay: false,
         spinnerShare: false, 
+        homePay: false,
         hasQrPayment: '',
         googleKey: 0,
         keyShare: 0,
-        urlPayFabric:''
+        urlPayFabric:'',
+         olapayData: {},
+         staffHouseAccount: false
     }
   }, 
   
@@ -733,6 +773,45 @@ export default {
 
     },
 
+    async responseHousePayment(response){
+        if(response){
+         
+        this.$ionic.loadingController
+        .create({
+          cssClass: 'my-custom-class',
+          message:  this.i18n.t('frontend.payment.doingPayment'),
+          backdropDismiss: false
+        })
+        .then ( loading =>{
+            loading.present()
+            setTimeout( async() => {
+                try {
+                   const invoiceSequence = await Api.getInvoiceSequence(this.restaurantId)
+                  const response1 = {
+                          "total": parseFloat(this.Total),
+                          "transId": invoiceSequence.data,
+                          "accountNumber": '',
+                          "expirationCard": '',
+                          "accountType": '',
+                          "method": 'HouseAccount',
+                          "moto": false,
+                      }                
+                  response1.returnTo = this.returnTo;
+                  this.parent.makeSplitPayment(response1)
+                  this.dismissModal();						
+                  loading.dismiss();
+                  
+                } catch (error) {
+                  loading.dismiss();
+                  return this.errorPaymentDetail(error); 
+                  
+                }
+            })
+          })
+        }
+
+    },
+
     sendPayment: async function(googleToken){  
       const partOfTotal = this.order.Total / this.Total
       const taxGeneral = (parseFloat(this.order.Taxe) * parseFloat(this.order.SubTotal) )/ 100;
@@ -765,6 +844,7 @@ export default {
           cardExpirationDateF1: moment(this.expirationCard).format('MMYY'),
           cardExpirationDateF2: moment(this.expirationCard).format('YYYY-MM'),
           cardExpirationDateF3: moment(this.expirationCard).format('YYMM'),
+          cardExpirationDateF4: moment(this.expirationCard).format('MM/YY'),
           products: this.order.Products,
         }
       } 
@@ -810,6 +890,7 @@ export default {
       this.cashPay = false;
       this.fabricPay = false;
       this.creditPay = false;
+      this.homePay = false;
     },
 
     shareQrPayment: async function(){

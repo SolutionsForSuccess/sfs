@@ -97,6 +97,7 @@
                      class="ion-text-wrap menu-col-3 elipsis-menu"> 
                         <h2>{{ getFormatPrice(cred.CreditAmount) }}</h2>               
                     </ion-label>
+                    
                    <ion-label 
                       class="ion-text-wrap menu-col-3 elipsis-menu"> 
                         <h2 style="display: contents"> {{getDate(cred.CreateDate)}}</h2>     
@@ -186,6 +187,8 @@ export default {
 
     this.credits = JSON.parse(JSON.stringify(this.allCredit));
 
+    console.log(JSON.parse(JSON.stringify(this.allCredit)))
+
     
      EventBus.$on('sendPrint', (value) => {           
       this.printCredit(value);
@@ -254,6 +257,7 @@ export default {
     },
    
     addCredit: function(credit, index){
+      console.log(JSON.parse(JSON.stringify(credit)))  
       return this.$router.push({ name: 'ListCreditDetail', params: {credit: credit, index: index} })  
     },
 

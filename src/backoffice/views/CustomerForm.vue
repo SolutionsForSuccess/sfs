@@ -131,6 +131,13 @@ export default {
               })
           })   
         }
+        if(this.$route.params.customerName)
+          this.name = this.$route.params.customerName;
+        if(this.$route.params.Phone)
+          this.phone = this.$route.params.Phone;
+        if(this.$route.params.EmailAddress)
+          this.emailAddress = this.$route.params.EmailAddress;
+
         //console.log(this.$route.params);
     },
     ifErrorOccured(action){

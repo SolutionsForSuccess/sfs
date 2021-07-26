@@ -97,6 +97,14 @@
                                         <span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageRoles') }}</ion-label>   
                                 </ion-chip>
+
+                                <!-- WorkSheet -->
+                                <!-- v-if="hasPermission('canViewWorkSheet')" -->
+                                <ion-chip v-tooltip="$t('backoffice.controlPanel.workSheet')" @click="$router.push('/workSheet')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                        <span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>
+                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageWorkSheet') }}</ion-label>   
+                                </ion-chip>
+
                                 <br>
                                 <ion-chip v-tooltip="$t('backoffice.controlPanel.occupations')" v-if="hasPermission('canViewOccupation')" @click="$router.push( '/occupation')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
                                     <span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>
@@ -344,13 +352,26 @@ export default {
         this.init()
         this.vClockin = await this.verifyClockin()
         EventBus.$emit('clockIn', this.vClockin);
-        // console.log(this.vClockin)
+        console.log(this.$store.state)
+        this.putHouseAccountPermission(this.$store.state.roles)
     }, 
     components: {
         vChart: ECharts ,
         VBreakpoint: VBreakpoint,
     },
     methods: {
+        putHouseAccountPermission(roles){
+            let value = false
+            // console.log("Roles", roles)
+            // console.log("Lenght", roles.length)
+            roles.forEach(rol => {
+                console.log("Rol", rol)
+                if (rol.canCreateHouseAccount)
+                value = true
+            })
+            // console.log("TIENE PERMISO: ", value)
+            this.$store.commit('setStaffHouseAccount', value)
+        },
         async verifyClockin(){
             
             try{

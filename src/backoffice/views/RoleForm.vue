@@ -189,6 +189,26 @@
             </ion-item>
         </ion-list>
 
+        <!-- Permisos House Account -->
+        <ion-item>
+            <p>{{$t('backoffice.form.permissionsGroup.permissionHouseAccount')}}</p>
+            <ion-chip slot="end" :color="house_color" @click="selectDeselectHouseAccount()">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <ion-label>{{house_title}}</ion-label>
+            </ion-chip>
+        </ion-item>
+        <ion-list>
+            <ion-item v-for="permission in housePermissions" v-bind:key="permission.val">
+            <ion-label>{{permission.val}}</ion-label>
+            <ion-checkbox
+                slot="end"
+                @ionChange="permission.isChecked=$event.target.checked"
+                :checked="permission.isChecked"
+                >
+            </ion-checkbox>
+            </ion-item>
+        </ion-list>
+
         <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionSuscriptors')}}</p>
             <ion-chip slot="end" :color="suscriptor_color" @click="selectDeselectSuscriptor()">
@@ -490,6 +510,10 @@ export default {
         { id: 'canEditCredit', val: this.$t('backoffice.form.permissionsGroup.canEditCredit'), isChecked: false },
         { id: 'canDeleteCredit', val: this.$t('backoffice.form.permissionsGroup.canDeleteCredit'), isChecked: false },
       ],
+      housePermissions: [
+        { id: 'canViewHouseAccount', val: this.$t('backoffice.form.permissionsGroup.canViewHouseAccount'), isChecked: false },
+        { id: 'canCreateHouseAccount', val: this.$t('backoffice.form.permissionsGroup.canCreateHouseAccount'), isChecked: false },
+      ],
       suscriptorPermissions: [
         { id: 'canCreateSuscriptor', val: this.$t('backoffice.form.permissionsGroup.canCreateSuscriptor'), isChecked: false },
         { id: 'canViewSuscriptor', val: this.$t('backoffice.form.permissionsGroup.canViewSuscriptor'), isChecked: false },
@@ -637,6 +661,10 @@ export default {
         credit_color: 'success',
         credit_title: 'Select all',
 
+        house: false,
+        house_color: 'success',
+        house_title: 'Select all',
+
         suscriptor: false,
         suscriptor_color: 'success',
         suscriptor_title: 'Select all',
@@ -730,6 +758,9 @@ export default {
                             this.creditPermissions[1].isChecked = response.data.canCreateCredit;
                             this.creditPermissions[2].isChecked = response.data.canEditCredit;
                             this.creditPermissions[3].isChecked = response.data.canDeleteCredit;
+
+                            this.housePermissions[0].isChecked = response.data.canViewHouseAccount;
+                            this.housePermissions[1].isChecked = response.data.canCreateHouseAccount;
 
                             this.suscriptorPermissions[0].isChecked = response.data.canCreateSuscriptor;
                             this.suscriptorPermissions[1].isChecked = response.data.canViewSuscriptor;
@@ -981,6 +1012,25 @@ export default {
         }
 
         this.creditPermissions.forEach(permission => {
+            if (this.credit)
+                permission.isChecked = true;
+            else
+                permission.isChecked = false;
+        });
+    },
+    selectDeselectHouseAccount(){
+        this.house = !this.house;
+        if (this.house_color == 'success')
+        {
+            this.house_color = 'danger'
+            this.house_title = 'Deselect all'
+        }  
+        else{
+            this.house_color = 'success'
+            this.house_title = 'Select All'
+        }
+
+        this.housePermissions.forEach(permission => {
             if (this.credit)
                 permission.isChecked = true;
             else
@@ -1347,6 +1397,8 @@ export default {
                 "canCreateCredit": this.creditPermissions[1].isChecked,
                 "canEditCredit": this.creditPermissions[2].isChecked,
                 "canDeleteCredit": this.creditPermissions[3].isChecked,
+                "canViewHouseAccount": this.housePermissions[0].isChecked,
+                "canCreateHouseAccount": this.housePermissions[1].isChecked,
                 "canCreateSuscriptor": this.suscriptorPermissions[0].isChecked,
                 "canViewSuscriptor": this.suscriptorPermissions[1].isChecked,
                 "canEditSuscriptor": this.suscriptorPermissions[2].isChecked,

@@ -1108,19 +1108,31 @@ export default {
             const response = await Api.putIn('Order', this.order)
             if(response.status === 200 && response.statusText === "OK")
             {
+                if(res.method === 'Credit')
+                      Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                    else if(res.method === 'HouseAccount'){
+                      const houseAccount = { 
+                        "ServerName": this.order.StaffName, 
+                        "CustomerName": this.order.CustomerName,                 
+                          "Amount": res.total,    
+                          "Model": "Order",
+                          "ModelId": response.data._id,
+                        }
+                      await Api.postIn('houseAccount', houseAccount); 
+                    }             
+                    else{
+                      const paymentEntry = {                       
+                        "Method": res.method,
+                        "Payment": res.total,
+                        "InvoiceNumber": res.transId,
+                        "ModelId": response.data._id,
+                        "ModelFrom": "Order",
+                        "StaffName": this.order.StaffName,               
+                        }
+                      await Api.postIn('allpayments', paymentEntry);
+                    }  
                   this.spinner = false;
-                    const paymentEntry = {                       
-                            "Method": res.method,
-                            "Payment": res.total,
-                            "InvoiceNumber": res.transId,
-                            "ModelId": response.data._id,
-                            "ModelFrom": "Order" ,
-                             "StaffName": this.order.StaffName                  
-                    }
-                    if(res.method !== 'Credit')
-                        await Api.postIn('allpayments', paymentEntry);
-                    else
-                        Commons.updateCustomerCredit(parseFloat(res.total), 'Order', response.data._id); 
+                    
             }    
         } 
         catch (error) {            

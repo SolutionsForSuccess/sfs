@@ -133,9 +133,7 @@ export var Commons = {
        
          try {
           await this.getAllCredit();
-           const response = await Api.getActiveCustomerCredit(this.clientId)
-           console.log('getCredit')
-           console.log(JSON.parse(JSON.stringify(response.data)));
+           const response = await Api.getActiveCustomerCredit(this.clientId)          
           if(response.status === 200 && response.data.length > 0){
             store.commit('setCustomerCredit', response.data[0])            
           } 
@@ -148,20 +146,16 @@ export var Commons = {
       async updateCustomerCredit(debt, model, modelId){
         store.state.customerCredit.Debt += debt;
 
-        console.log(model, modelId)
        if(model && modelId){
           const used = {
             'Model': model,
             'ModelId': modelId,
             'Total': debt,
           }
-          console.log(used)
           store.state.customerCredit.UsedIn.push(used)
-          console.log(store.state.customerCredit)
        }
         try {
           await Api.putIn('customercredit', store.state.customerCredit);  
-          console.log(JSON.parse(JSON.stringify(store.state.customerCredit)))  
           await this.getAllCredit();      
         } catch (error) {
           error
@@ -203,6 +197,11 @@ export var Commons = {
         store.commit('setRestaurantActive', {}) 
         store.commit('setWalletConfig', {}) 
         store.commit('setSubscriptors', []) 
+        store.commit('setAllTaxes', []) 
+        store.commit('setCustomerCredit', {}) 
+        store.commit('setAllCustomerCredit', []) 
+        store.commit('setStaffHouseAccount', false) 
+        store.commit('setRestaurantCustomers', []) 
 
         document.querySelector('style').innerHTML += Utils.defaultStyles;
        
@@ -218,6 +217,8 @@ export var Commons = {
         await this.getShipping();  
         await this.getSubscriptors();
         await this.getAllTaxes();
+
+        if(store.state.staffName) this.getAllRestaurantCustomers();
        
        
         if(store.state.restaurantActive.payMethod === 'SHIFT4'){         
@@ -375,6 +376,17 @@ export var Commons = {
             e
           });
        },
+
+       async getAllRestaurantCustomers(){
+        try {
+            const result = await Api.getRestaurantCustomer();
+            if(result.status === 200){
+              store.commit('setRestaurantCustomers', JSON.parse(JSON.stringify(result.data)))
+            }  
+        } catch (error) {
+            error
+        }
+    },
 
     fetchProducts:async function(){
       

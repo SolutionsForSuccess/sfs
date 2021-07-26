@@ -79,8 +79,8 @@
                   <ion-item-sliding  v-for="credit in paginated('languages')" v-bind:key="credit._id">
                     <ion-item
                         @click="viewCredit(credit._id)"
-                        :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
-                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'">
+                        :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
+                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'">
                         <ion-label class="menu-col-4 elipsis-menu">
                             <h6><span style="color: white;">{{ credit.Name }}</span></h6>
                             <h6 v-if="credit.CustomerId"><span style="color: white;">{{ getCustomerById(credit.CustomerId).Name }}</span></h6>           
@@ -139,14 +139,14 @@
                             :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
                                 
                               <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                                 :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
-                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'"
+                                 :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
+                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'"
                                 >
                                 {{ getFormatedDate(credit.DateFrom) }} - {{ getFormatedDate(credit.DateTo) }}
                               </ion-chip>
                             <ion-card style="text-align: left;"   
-                            :style="credit.State == 0 ? '--background:#bb6d09' : credit.State == 1 ? '--background:#49750a' :
-                        credit.State == 2 ? '--background:#2f2f31' : '--background:#b70808'">
+                            :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
+                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'">
                                 <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
                                   <ion-card-title  style="color: black;">{{ credit.Name }}
                                   </ion-card-title>
@@ -674,6 +674,7 @@ export default {
     cancelCredit(credit){
         console.log(credit)
         credit.State = 3
+        credit.Active = false
         Api.putIn('customercredit', credit)
         .then(() => {
             this.showToastMessage('The credit was canceled sucessfully', 'success')

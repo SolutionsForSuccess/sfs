@@ -12,93 +12,66 @@
       </ion-segment>   
     </ion-toolbar>
 
-    <div v-if="segmentValue==-1">      
-          <ion-slides  pager="true" :options="slideOpts">               
+    <div v-if="segmentValue==-1">   '
 
-                <ion-slide v-for="(ads, index) in adsList" :key="index"  >
-                    <ion-card   style="padding:10px">
-                        <ion-card-header>                           
-                            <ion-card-title>{{ads.Name}}</ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                             <iframe v-if="['url','map'].includes(ads.Type)" :src="ads.Value" autoplay></iframe>
+         <vue-marquee        
+            style="height:400px"  
+            :key="key">
+              <vue-marquee-slide v-for="(ads, index) in adsList" :key="index" class="menu-col-12">
+                  <ion-card>
+                    <ion-card-header>                           
+                        <ion-card-title>{{ads.Name}}</ion-card-title>
+                    </ion-card-header>
+                     <ion-card-content>
+                             <iframe v-if="['url','map'].includes(ads.Type)" :src="ads.Value" autoplay  style="    width: 90%;height: auto;"></iframe>
         
-                              <video v-if="ads.Type=='video'" :src="ads.Value" controls autoplay></video>
+                              <video v-if="ads.Type=='video'" :src="ads.Value" controls autoplay  style="    width: 90%;height: auto;"></video>
 
-                              <img v-if="ads.Type=='image'" :src="ads.Value"/>
+                              <img v-if="ads.Type=='image'" :src="ads.Value"  style="    width: 90%;height: auto;"/>
 
-                              <div v-if="ads.Type=='menu'">
+                              <div v-if="ads.Type=='menu'"  style="    width: 90%;height: auto;">
                                  <menu-ads
                                     :menuId="ads.Value"
                                   ></menu-ads>
                               </div>
                         </ion-card-content>
-                    </ion-card> 
-               
-                </ion-slide>
+                  </ion-card>
+              </vue-marquee-slide>
+         </vue-marquee>   
 
-            </ion-slides> 
+
     </div>
 
     <div v-for="(ads, index) in adsList" :key="index">
       <div v-if="index==segmentValue">
       
-        <iframe v-if="['url','map'].includes(ads.Type)" :src="ads.Value" autoplay></iframe>
+        <iframe v-if="['url','map'].includes(ads.Type)" :src="ads.Value"   style="    width: 90%;height: auto;"></iframe>
         
-        <video v-if="ads.Type=='video'" :src="ads.Value" controls autoplay></video>
+        <video v-if="ads.Type=='video'" :src="ads.Value" controls allow="autoplay"  style="    width: 90%;height: auto;"></video>
 
-        <img v-if="ads.Type=='image'" :src="ads.Value"/>
+        <img v-if="ads.Type=='image'" :src="ads.Value"  style="    width: 90%;height: auto;"/>
 
-        <div v-if="ads.Type=='menu'">         
+        <div v-if="ads.Type=='menu'" style="    width: 90%;height: auto;">         
           <menu-ads
             :menuId="ads.Value"
           ></menu-ads>
         </div>
-
-
-
       </div>
     </div>
-   
-
-  <!-- <div v-if="ads1" >
-    ADS 1   
-     <iframe  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="" frameborder="0" 
-      src="https://www.youtube.com/embed/lZgHntLXIL0" style="width: 100%; height: 90vh;"></iframe>
-
-  </div>
-  
-  <div v-if="ads2">
-    ADS 2
-
-    vuejs-2-the-complete-guide -->
-    <!-- <video src="https://youtu.be/vxobr4A8pSA" width=320  height=240 controls >
-      Lo sentimos. Este vídeo no puede ser reproducido en tu navegador.<br>
-      La versión descargable está disponible en <a href="URL">Enlace</a>. 
-    </video> -->
-
-        
-      <!-- <iframe :src="adsList[1].url" style="width: 100%; height: 90vh;"></iframe>
-        
-  </div>
-
-  <div v-if="ads3">
-      ADS 3
-      <iframe src="https://youtu.be/vxobr4A8pSA" style="width: 100%; height: 90vh;"></iframe>
-
-  </div>
- -->
+ 
 
 </div>
 </template>
 <script>
-
+import { Marquee, Slide } from "vue-marquee-component"
 import MenuAds from './MenuAds.vue'
 
 export default {
     name: 'Reservation',
      components: { 
        MenuAds,  
+      [Marquee.name]: Marquee,
+      [Slide.name]: Slide
   },
      data () {
       return {
@@ -106,9 +79,10 @@ export default {
          ads2: false,
          ads3: false,
          spinner: false,   
-         segmentValue: 'ads1',    
+         segmentValue: -1,    
          adsList: [],
          slideOpts:{ initialSlide: 0, slidesPerView: 1, autoplay:"5000", loop:"true", speed:"300"},
+         key: 1
       }
      },     
      created: function(){

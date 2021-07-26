@@ -4,13 +4,32 @@
 
             <div  v-if="staffName !=''" style="display: flex">                                                 
                 <ion-label > <h2 class="titles-order" style="float: left;">  {{i18n.t('frontend.orderType.worker')}}: {{staffName}} </h2>
-                </ion-label>  
+                </ion-label> 
+
+               
             </div>
+
+             <h2 class="titles-order" style="color: black; font-weight: 500; font-size: 20px;">{{i18n.t('frontend.order.clientInfo')}}</h2>
+              <ion-select interface="popover" icon="add" v-if="restaurantCustomers.length > 0 && staffName !=''"
+                style="font-size: 16px"
+                :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                :value="getSelectEmail()"                                    
+                :placeholder="$t('frontend.createNew.select')"                    
+                @ionChange="changeGuess($event.target.value)"                          
+                >
+                    <ion-select-option v-for="(res, index) in restaurantCustomers"                    
+                    :key="index" 
+                    :value="res.EmailAddress" >{{res.Name}}
+                    </ion-select-option>  
+                </ion-select> 
+
+
                              
             <div>
 
                 <ion-label class="ion-text-wrap menu-col-12" style="display: flex;justify-content: space-between;align-items: center">
-                    <h2 class="titles-order" style="color: black; font-weight: 500; font-size: 20px;">{{i18n.t('frontend.order.clientInfo')}}</h2>
+                   
                     <ion-button  v-if="clientId ==='' && staffName ===''" 
                         v-tooltip="i18n.t('frontend.menu.log')"
                         @click="logIng('')" 
@@ -43,7 +62,7 @@
                 <ion-item :style="clientId ===''? 'border: 1px solid #262626;width: 100%' : 'width: 100%'">                    
                     <ion-label position="floating">{{i18n.t('frontend.orderType.name')}} 
                         <strong v-if="order.OrderType !=='On Table'" style="color: red">*</strong></ion-label>                                                                                                                                
-                    <ion-input :value="CustomerName" :readonly="clientId !='' || isCatering" 
+                    <ion-input :value="CustomerName" :readonly="(clientId !='' || isCatering && staffName ==='')" 
                     @input="CustomerName = $event.target.value" 
                     ></ion-input>
                 </ion-item>
@@ -52,7 +71,7 @@
                     <ion-label position="floating">{{i18n.t('frontend.orderType.email')}} 
                         <strong v-if="order.OrderType !=='On Table' || staffName ===''" style="color: red">*</strong>
                     </ion-label>                                                                                                                                
-                    <ion-input :value="email" :readonly="clientId !='' || isCatering" 
+                    <ion-input :value="email" :readonly="clientId !='' || isCatering && staffName ===''" 
                         @input="email = $event.target.value" 
                         @change="validateEmail()"
                     ></ion-input>
@@ -62,7 +81,7 @@
                     <ion-label position="floating">{{i18n.t('frontend.orderType.phone')}} 
                         <strong v-if="order.OrderType !=='On Table' || staffName ===''" style="color: red">*</strong>
                     </ion-label>                                                                                                                                
-                    <ion-input :value="phone" :readonly="clientId !='' || isCatering" 
+                    <ion-input :value="phone" :readonly="clientId !='' || isCatering && staffName ===''" 
                         @input="phone = $event.target.value" 
                         @change="validatePhone($event.target.value)" 
                     ></ion-input>
@@ -128,12 +147,23 @@
 
                 <div style="    text-align: center;">
                 <ion-button fill="outline" @click="saveEventDetail()" >{{i18n.t('frontend.home.acept')}}</ion-button>
+               
             </div>                       
                 
             </div>
 
             <div style="    text-align: center;">
-                <ion-button fill="outline" @click="saveGuess()" v-if="clientId ==='' && !isCatering">{{i18n.t('frontend.home.acept')}}</ion-button>
+                 <ion-button fill="outline" v-if="staffName !='' && (CustomerName != '' || email != '' || phone != '')"
+                  @click="clearGuess()" >{{i18n.t('frontend.home.clear')}}</ion-button>
+                 <ion-button fill="outline" @click="saveGuess()" v-if="clientId ==='' && !isCatering">{{i18n.t('frontend.home.acept')}}</ion-button>
+                <ion-button fill="outline" 
+                @click="addCustomer()" 
+                v-tooltip="i18n.t('backoffice.list.messages.titleCreateCustomer')"
+                v-if="getSelectEmail() === '' && getGuessEmail() !== '' && staffName !='' ">
+                    <span class="iconify" data-icon="bx:bxs-user-plus" data-inline="false"></span>
+                </ion-button>
+
+
             </div>
          
         </ion-card>
@@ -164,6 +194,7 @@ export default {
     this.order = store.state.order;
     this.configuration = this.$store.state.configuration;
     this.restaurantActive = store.state.restaurantActive;
+    this.restaurantCustomers =  store.state.restaurantCustomers;
     
 
     this.customerUpdated();
@@ -208,6 +239,7 @@ export default {
         eventDate: moment.tz(moment.tz.guess()).format('YYYY-MM-DD'),
         eventTimeStart: '',
         eventTimeEnd: '',
+        restaurantCustomers: [],
     }
   },
   methods: {
@@ -226,6 +258,7 @@ export default {
             this.email = '';
             return this.alertEmailNotValid();
         }
+        return true
                
     },
 
@@ -358,7 +391,63 @@ export default {
 
          store.commit('setOrder', this.order);
         this.openToast();
+    },
+
+    clearGuess(){
+         this.CustomerName= ''
+        this.email= ''
+        this.phone= ''
+        
+        const guess = {
+            _id: '',
+            Name: '',
+            EmailAddress: '',
+            Phone:'',
+        }
+        store.commit('setGuess', guess);
+        this.key ++;   
+    },
+
+    changeGuess(value){
+
+        const index = this.restaurantCustomers.findIndex(  c=> c.EmailAddress === value)
+
+         this.CustomerName= this.restaurantCustomers[index].Name
+        this.email= this.restaurantCustomers[index].EmailAddress
+        this.phone= this.restaurantCustomers[index].Phone       
+        this.key ++;  
+
+        const guess = {
+            _id: '',
+            Name: this.CustomerName,
+            EmailAddress: this.email,
+            Phone: this.phone,
+        }
+
+        store.commit('setGuess', guess);       
+        this.openToast();
+
+         
+    },
+    getSelectEmail(){
+        const index = this.restaurantCustomers.findIndex(  c=> c.EmailAddress === store.state.guess.EmailAddress)
+        if(index !== -1 ) return store.state.guess.EmailAddress;
+        else return '';
+    },
+
+    getGuessEmail(){
+        return store.state.guess.EmailAddress || '';
+    },
+
+    addCustomer(){       
+       return this.$router.push({
+        name: 'CustomerForm',
+        params: { customerName: this.CustomerName, Phone: this.phone, EmailAddress: this.email }
+      });
+   
     }
+
+    
   },
   
   }

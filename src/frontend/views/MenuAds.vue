@@ -14,24 +14,21 @@
           
     </div>    
        
-      <div >      
+      <div >  
+
+    
       
 
         <v-breakpoint>
           <div slot-scope="scope"  v-if="menuId !==''">
-
-            <ion-slides :options="slideOpts">               
-
-                <ion-slide v-for="(category, index) in categoryMenuList" :key="index"  >
-                    <ion-card   style="padding:10px;width: 100%"  v-if="productsByCategory(category._id).length > 0" >
+            <vue-marquee        
+            style="height:400px" 
+            :key="key">
+              <vue-marquee-slide v-for="(category, index) in categoryMenuList" :key="index" class="menu-col-12">
+                <ion-card  v-if="productsByCategory(category._id).length > 0" >
                         <ion-card-header>                           
-                           <div  style="display: flex;"> 
-                                <ion-thumbnail>
-                                  <img :src="category.ImageUrl">
-                                </ion-thumbnail>
-                                <h2  style="margin: 5px;">{{category.Name}}</h2>                                                                                                             
-                          </div>
-                    
+                                <h1  style="    font-weight: bolder;text-align: left">
+                                  {{category.Name}}</h1>                                                                                                             
                         </ion-card-header>    
                          <ion-card-content>
                             <ion-item    v-for="(product, index) in productsByCategory(category._id)" :key="index" 
@@ -41,48 +38,17 @@
                                     <ion-thumbnail>
                                     <img :src="product.ImageUrl">
                                     </ion-thumbnail>
-                                    <h4  class="elipsy-center" style="margin: 5px;">{{product.Name}}</h4>   
+                                    <h2  style="margin: 5px; font-weight: 500;">{{product.Name}}</h2>   
                                   </div>
-                                  <h4>{{getPrice(product.SalePrice)}}</h4>
-                                
+                                  <h2 style="margin: 5px; font-weight: 500;">{{getPrice(product.SalePrice)}}</h2>                                
                                 </div>                                                                                                          
                             </ion-item> 
                          </ion-card-content>                   
                     </ion-card> 
-               
-                </ion-slide>
+              </vue-marquee-slide>
+            </vue-marquee>
 
-            </ion-slides> 
-
-
-              <!-- <div pager="true"  :options="slideOpts" >             
-                <div  v-for="(category,index) in categoryMenuList" :key="index"              
-                    class='menu-col-12 card-categories'>                  
-                      <div   v-if="productsByCategory(category._id).length > 0" style="display: flex;justify-content: flex-start;align-items: center;"> 
-                        <ion-thumbnail>
-                          <img :src="category.ImageUrl">
-                        </ion-thumbnail>
-                        <h3  style="margin: 5px;">{{category.Name}}</h3>                                                                                                             
-                      </div>
-                      
-                      <ion-item    v-for="(product, index) in productsByCategory(category._id)" :key="index" 
-                        :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'"> 
-                        <div style="display: flex;align-items: center;justify-content: space-between;width: 100%;">
-                            <div style="    display: flex; align-items: center;">
-                              <ion-thumbnail>
-                              <img :src="product.ImageUrl">
-                              </ion-thumbnail>
-                              <p  class="elipsy-center" style="margin: 5px;">{{product.Name}}</p>   
-                            </div>
-                            <p>{{getPrice(product.SalePrice)}}</p>
-                          
-                          </div>                                                                                                          
-                      </ion-item>                      
-                </div>
-              </div> 
-               -->
-                        
-          </div>
+              </div>
         </v-breakpoint>
 
           
@@ -94,7 +60,7 @@
 <script>
 
   
-
+import { Marquee, Slide } from "vue-marquee-component"
 import { add } from "ionicons/icons";
 import { addIcons } from "ionicons";
 
@@ -131,10 +97,13 @@ export default {
       spinner: false,
       currency: 'USD',
       slideOpts:{ initialSlide: 0, slidesPerView: 1, autoplay:"5000", loop:"true", speed:"300"},
+      key: 0
     }
   }, 
   components:{
     VBreakpoint: VBreakpoint,
+     [Marquee.name]: Marquee,
+    [Slide.name]: Slide
   }, 
   methods: {
     
@@ -147,6 +116,7 @@ export default {
         if(response.status === 200){
            this.categoryMenuList = response.data
            console.log(this.categoryMenuList);
+           this.key ++;
         }
         this.spinner = false;
       } catch (error) {

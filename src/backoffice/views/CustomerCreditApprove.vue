@@ -34,7 +34,8 @@
       <br/>
 
       <div>
-          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="approve()">{{ parent.$t('backoffice.form.buttons.save') }}</ion-button>
+          <!-- <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="approve()">{{ parent.$t('backoffice.form.buttons.save') }}</ion-button> -->
+          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="approve()">Approve</ion-button>
       </div>
 
     </div>
@@ -59,11 +60,40 @@ export default {
         spinner: false,
         }
     },
+    created(){
+        this.init()
+    },
     props: {
         parent: { type: Object, default: null },
         cId: { type: String},
     },
     methods:{
+        init(){
+            this.$ionic.loadingController
+            .create({
+                cssClass: 'my-custom-class',
+                message: this.parent.$t('backoffice.titles.loading'),
+                backdropDismiss: true
+            })
+            .then(loading => {
+                loading.present()
+                setTimeout(() => {  // Some AJAX call occurs
+                    Api.fetchById('customercredit', this.cId)
+                        .then(response => {
+                        this.dateFrom = response.data.DateFrom;
+                        this.dateTo = response.data.DateTo;
+                        this.dateLimit = response.data.PayLimitDate;
+
+                        loading.dismiss();
+                        return response;
+                        })
+                        .catch(e => {
+                            console.log(e);
+                            loading.dismiss();
+                        })
+                })
+            })  
+        },
         isValidForm(){
             if (this.dateFrom == "")
                 return false

@@ -57,7 +57,7 @@
             <ion-label position="floating">{{$t('frontend.credit.debt')}} <strong style="color: red">*</strong></ion-label>                               
             <ion-input type="number" readonly=true  
             class="menu-col-8" 
-            :value="credit.Debt" @input="credit.Debt = $event.target.value"
+            :value="pendingAmount()"
                 ></ion-input>            
         </ion-item> 
          <ion-item :disabled="spinner? true: false" v-if="credit.State !== 0 && credit.DateFrom"> 
@@ -120,7 +120,7 @@
                         {{$t('frontend.credit.pendingPay')}}  :  {{getFormatPrice(pendingAmount())}}                            
                     </ion-item>
                      <ion-item :disabled="spinner? true: false" v-if="credit.State !== 0 && pendingAmount() > 0"> 
-                        <ion-input :value="amountForPay" 
+                        <ion-input :value="pendingAmount()" 
                         @ionChange="$event.target.value > pendingAmount() || $event.target.value < 1 ? amountForPay=pendingAmount(): amountForPay=$event.target.value"></ion-input>     
                         <ion-button @click="openPayment()">pay</ion-button>
                     </ion-item>
@@ -147,7 +147,8 @@ export default {
   created: function(){  
     
     if(this.$route.params.credit){
-      this.credit = this.$route.params.credit;      
+      this.credit = this.$route.params.credit;    
+      console.log(JSON.parse(JSON.stringify(this.credit)))  
       this.amountForPay = this.pendingAmount();
     }   
     else

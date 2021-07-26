@@ -19,87 +19,142 @@
     </div>
     <div v-else>
         <!-- States -->
-        <div v-if="state == 0" style="height:45px; width:100%; background-color:#bb6d09; padding:10px; color:white">State: Requested</div>
-        <div v-if="state == 1" style="height:45px; width:100%; background-color:#49750a; padding:10px; color:white">State: Accepted</div>
-        <div v-if="state == 2" style="height:45px; width:100%; background-color:#2f2f31; padding:10px; color:white">State: Closed</div>
-        <div v-if="state == 3" style="height:45px; width:100%; background-color:#b70808; padding:10px; color:white">State: Canceled</div>
+        <div v-if="state == 0" style="height:45px; width:100%; background-color:#b38448; padding:10px; color:white">State: Requested</div>
+        <div v-if="state == 1" style="height:45px; width:100%; background-color:#74845e; padding:10px; color:white">State: Accepted</div>
+        <div v-if="state == 2" style="height:45px; width:100%; background-color:#76b6d5; padding:10px; color:white">State: Closed</div>
+        <div v-if="state == 3" style="height:45px; width:100%; background-color:#e37b7b; padding:10px; color:white">State: Canceled</div>
 
-        <ion-item>
-           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-           <ion-input name="creditName" 
-            @input="creditName = $event.target.value"
-            v-bind:value="creditName">    
-            </ion-input>
-        </ion-item>
+        <div v-if="state == 0 || state == -1">
+            <ion-item>
+            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+            <ion-input name="creditName" 
+                @input="creditName = $event.target.value"
+                v-bind:value="creditName">    
+                </ion-input>
+            </ion-item>
 
-        <ion-list>
-            <ion-list-header>
-                <ion-label>
-                   <span style="color: red">*</span>{{$t('backoffice.form.titles.customer')}}
-                </ion-label>
-            </ion-list-header>
+            <ion-list>
+                <ion-list-header>
+                    <ion-label>
+                    <span style="color: red">*</span>{{$t('backoffice.form.titles.customer')}}
+                    </ion-label>
+                </ion-list-header>
+
+                <ion-item>
+                    <ion-label>{{$t('backoffice.form.titles.selectACustomer')}}</ion-label>
+                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                    @ionChange="customerId = $event.target.value" v-bind:value="customerId">
+                        <ion-select-option v-for="customer in customers" v-bind:key="customer.Id" v-bind:value="customer._id" >{{customer.Name}}</ion-select-option>
+                    </ion-select>
+                </ion-item>
+            </ion-list>
 
             <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.selectACustomer')}}</ion-label>
-                <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                @ionChange="customerId = $event.target.value" v-bind:value="customerId">
-                    <ion-select-option v-for="customer in customers" v-bind:key="customer.Id" v-bind:value="customer._id" >{{customer.Name}}</ion-select-option>
-                </ion-select>
+                <span style="color: red">*</span><ion-label position="floating">{{$t('backoffice.form.fields.CreditAmount')}}</ion-label>
+                <ion-input type="number" name="CreditAmount"
+                @input="creditAmount = $event.target.value" 
+                v-bind:value="creditAmount">
+                </ion-input>
             </ion-item>
-        </ion-list>
 
-        <ion-item>
-            <span style="color: red">*</span><ion-label position="floating">{{$t('backoffice.form.fields.CreditAmount')}}</ion-label>
-            <ion-input type="number" name="CreditAmount"
-            @input="creditAmount = $event.target.value" 
-            v-bind:value="creditAmount">
-            </ion-input>
-        </ion-item>
-
-        <ion-item>
-            <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
-            <ion-checkbox slot="end" name="active" 
-            @ionChange="active = $event.target.checked"
-            :checked="active"  >    
-            </ion-checkbox>
-        </ion-item>
-
-        <ion-item>
-            <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateFrom')}}(MM-dd-yyyy)</ion-label>
-            <ion-datetime name="dateFrom" @ionChange="dateFrom = $event.target.value" 
-                            v-bind:value="dateFrom"
-                            :placeholder="$t('backoffice.form.titles.dateFromSelect')" display-format="YYYY-MM-DD">
-            </ion-datetime>
-        </ion-item>
-
-        <ion-item>
-            <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateTo')}}(MM-dd-yyyy)</ion-label>
-            <ion-datetime name="dateFrom" @ionChange="dateTo = $event.target.value" 
-                            v-bind:value="dateTo"
-                            :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-MM-DD">
-            </ion-datetime>
-        </ion-item>
-
-        <ion-item>
-            <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateLimit')}}(MM-dd-yyyy)</ion-label>
-            <ion-datetime name="dateFrom" @ionChange="dateLimit = $event.target.value" 
-                            v-bind:value="dateLimit"
-                            :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-MM-DD">
-            </ion-datetime>
-        </ion-item>
-
-        <ion-item v-if="state == 0 && othersRestaurants.length > 1">
-            <ion-label>Extend for All Restaurants</ion-label>
+            <!-- <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
                 <ion-checkbox slot="end" name="active" 
-                @ionChange="extendAll = $event.target.checked"
-                :checked="extendAll"  >    
-            </ion-checkbox>
-        </ion-item>
+                @ionChange="active = $event.target.checked"
+                :checked="active"  >    
+                </ion-checkbox>
+            </ion-item> -->
+
+            <ion-item>
+                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateFrom')}}(yyyy-dd-MM)</ion-label>
+                <ion-datetime name="dateFrom" @ionChange="dateFrom = $event.target.value" 
+                                v-bind:value="dateFrom"
+                                :placeholder="$t('backoffice.form.titles.dateFromSelect')" display-format="YYYY-DD-MM">
+                </ion-datetime>
+            </ion-item>
+
+            <ion-item>
+                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateTo')}}(yyyy-dd-MM)</ion-label>
+                <ion-datetime name="dateFrom" @ionChange="dateTo = $event.target.value" 
+                                v-bind:value="dateTo"
+                                :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
+                </ion-datetime>
+            </ion-item>
+
+            <ion-item>
+                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateLimit')}}(yyyy-dd-MM)</ion-label>
+                <ion-datetime name="dateFrom" @ionChange="dateLimit = $event.target.value" 
+                                v-bind:value="dateLimit"
+                                :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
+                </ion-datetime>
+            </ion-item>
+
+            <ion-item v-if="state == 0 && othersRestaurants.length > 1">
+                <ion-label>Extend for All Restaurants</ion-label>
+                    <ion-checkbox slot="end" name="active" 
+                    @ionChange="extendAll = $event.target.checked"
+                    :checked="extendAll"  >    
+                </ion-checkbox>
+            </ion-item>
+        </div>
+
+        <div v-if="state == 1 || state == 2 || state == 3">
+            <ion-grid>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Credit Name: </span> </div>
+                    </ion-col>
+                    <ion-col>
+                        {{creditName}}
+                    </ion-col>
+                </ion-row>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Customer Name: </span></div>
+                    </ion-col>
+                    <ion-col>
+                        {{getCustomerById(customerId)}}
+                    </ion-col>
+                </ion-row>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Credit Amount: </span></div>
+                    </ion-col>
+                    <ion-col>
+                        {{getFormatPrice(creditAmount)}}
+                    </ion-col>
+                </ion-row>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Date From: </span></div>
+                    </ion-col>
+                    <ion-col class="right">
+                        {{getFormatedDate(dateFrom)}}
+                    </ion-col>
+                </ion-row>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Date To:</span></div>
+                    </ion-col>
+                    <ion-col>
+                        {{getFormatedDate(dateTo)}}
+                    </ion-col>
+                </ion-row>
+                <ion-row class="left">
+                    <ion-col>
+                        <div><span class="title">Date Limit: </span></div>
+                    </ion-col>
+                    <ion-col>
+                        {{getFormatedDate(dateLimit)}}
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </div>
 
       <br/>
 
-      <ion-card v-if="state == 1">
-          <ion-item>
+      <ion-card v-if="state == 1 || state == 2 || state == 3">
+          <ion-item v-if="debt > 0">
               <ion-label position="floating"></ion-label>
               <ion-input :placeholder="'Please, enter an amount to pay. Total for pay: ' + pendingAmount()" name="amountToPay" 
                     @input="amountToPay = $event.target.value" @change="verifyAmount()"
@@ -108,8 +163,8 @@
                   <ion-button :disabled="!isValidAmount()" color="primary" @click="payCredit()">{{ $t('frontend.order.pay') }}</ion-button>
               </ion-item-group>
           </ion-item>
-          <ion-grid>
-              <ion-row class="left">
+          <ion-grid v-if="Payed.length > 0">
+              <ion-row style="text-align: center">
                   <ion-col>
                       <b>Transaction</b>
                   </ion-col>
@@ -135,7 +190,7 @@
 
       </ion-card>
 
-      <div v-if="state != 1">
+      <div v-if="state == 0 || state == -1">
           <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCredit()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
       </div>
         <!-- <ion-button expand="full" color="tertiary" @click="getAnothersRestaurants()">test</ion-button> -->
@@ -167,7 +222,7 @@ export default {
       creditAmount: 0,
       debt: 0,
       active: false,
-      state: 0,
+      state: -1,
       dateFrom: '',
       dateTo: '',
       dateLimit: '',
@@ -199,6 +254,8 @@ export default {
   },
   methods: {
     init(){
+        console.log(this.today)
+
         this.id = this.$route.params.creditId;
         this.fetchCustomers();
         this.fetchAllCredits();
@@ -240,6 +297,15 @@ export default {
           })
 
           }
+    },
+    getCustomerById: function(id){
+        var custom = '';
+        this.customers.forEach(customer => {
+            if (customer._id == id) {
+                custom = customer;                
+            }
+        });
+        return custom.Name;
     },
     getAnothersRestaurants(){
         const user = this.$store.state.user
@@ -402,7 +468,7 @@ export default {
                   "Name": this.creditName,
                   "CustomerId": this.customerId,
                   "CreditAmount": this.creditAmount,
-                  "Active": this.active,
+                  "Active": true,
                   "DateFrom": this.dateFrom,
                   "DateTo": this.dateTo,
                   "PayLimitDate": this.dateLimit,
@@ -433,7 +499,8 @@ export default {
                       const data= {
                             "credit": {
                                 "CreditAmount": this.creditAmount,
-                                "Debt": this.debt,
+                                "Debt": 0,
+                                // "State": 1,
                                 "Amount": 0,
                                 "Name": this.creditName,
                                 "CustomerId": this.customerId
@@ -667,6 +734,28 @@ export default {
         /* border-radius: 25px; */
     }
 
+}
+
+ion-col{
+
+    border: 1px solid lightgray;
+
+}
+
+span.title{
+    font-weight: bolder;
+}
+
+div.end{
+    text-align: end;
+}
+
+ion-row.left{
+    text-align: left;
+}
+
+ion-row.right{
+    text-align: right;
 }
 
 </style>

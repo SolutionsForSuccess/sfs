@@ -75,7 +75,7 @@
               <ion-item v-if="restaurantSelected && $store.state.configuration.viewReservation && $store.state.configuration.viewCustomerReservation && hasCardPayRes()"  @click="getReservation()"> {{$t('frontend.menu.reservation')}} <ion-badge v-if="$store.state.allReservations.length >0" slot="end" color="secondary">{{$store.state.allReservations.length}}</ion-badge></ion-item> 
               <ion-item v-if="restaurantSelected"  @click="getOrderList"> {{$t('frontend.menu.orders')}} <ion-badge v-if="$store.state.allOrders.length >0" slot="end" color="secondary">{{$store.state.allOrders.length}}</ion-badge> </ion-item>  
               <ion-item v-if="restaurantSelected"  @click="getCreditList"> {{$t('frontend.menu.credit')}} <ion-badge v-if="$store.state.allCustomerCredit.length >0" slot="end" color="secondary">{{$store.state.allCustomerCredit.length}}</ion-badge> </ion-item>  
-              <ion-item v-if="restaurantSelected && hasAds() && $store.state.configuration.viewDigitalSigned"  @click="goAds">  {{$t('frontend.menu.ads')}}</ion-item>
+              <ion-item v-if="restaurantSelected && hasAds() && $store.state.configuration.viewDigitalSigned"  @click="goAds()">  {{$t('frontend.menu.ads')}}</ion-item>
       
                  <Language />
 
@@ -315,9 +315,27 @@
     </ion-content>
 
     <ion-footer class="ion-no-border">
+      <div  
+      style="width: 250px;height: 250px;margin: 0 auto;background: #262626;padding: 10px;"
+      v-if="!getAuthenticated && restaurantSelectedId==='' && 0">
+        ADS
+      </div>
+     
+
       <ion-toolbar >
+
+         <vue-marquee 
+            v-if="!getAuthenticated && restaurantSelectedId==='' && 0"
+            style="height:20px; display: flex; flex-direction: column; justify-content: flex-end" 
+            :key="spinner">
+              <vue-marquee-slide v-for="i in 30" :key="i">
+                <span> GERNAL ADS HERE </span>
+              </vue-marquee-slide>
+            </vue-marquee>
+
         <ion-title class="menu-col-12"><a href="https://imenuapps.com/" style="text-decoration: none;">iMenuApps</a></ion-title>
       </ion-toolbar>
+
     </ion-footer>
 
 
@@ -370,6 +388,7 @@ import Modal from './backoffice/views/SetDeviceDataModal.vue';
 import { Plugins } from '@capacitor/core';
 const { Share } = Plugins;
 import NewResturant from './frontend/views/NewRestautant.vue';
+import { Marquee, Slide } from "vue-marquee-component"
 
 
 
@@ -606,7 +625,9 @@ export default {
     VBreakpoint: VBreakpoint,
     QrcodeStream: QrcodeStream,   
     StarRating,
-    NewResturant
+    NewResturant,
+    [Marquee.name]: Marquee,
+    [Slide.name]: Slide
     
   },  
   computed:{
