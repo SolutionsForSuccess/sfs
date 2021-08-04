@@ -1,4 +1,4 @@
-package net.imenuapps.apps;
+package io.ionic.starter;
 
 import android.os.Bundle;
 
