@@ -1,8 +1,7 @@
 {
-  "name": "imenuapps",
+  "name": "net.imenuapps.apps",
   "integrations": {
     "capacitor": {}
   },
-  "type": "vue",
-  "id": "60201bf5"
+  "type": "vue"
 }

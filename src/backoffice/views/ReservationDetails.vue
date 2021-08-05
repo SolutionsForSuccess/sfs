@@ -144,6 +144,12 @@
                             {{$t('frontend.reservation.peoples')}}:<strong>  {{reservation.Capacity}} </strong> </h2>
                         </ion-label></p>
 
+                        <p v-if="reservation.ServiceTime"> <ion-label class="ion-text-wrap" >
+                            <h2  style="width: 100%;float: left;font-size: 16px;
+                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                            {{$t('frontend.reservation.serviceTime')}}:<strong>  {{reservation.ServiceTime}} {{$t('backoffice.worksheetStatus.message.minutes')}}</strong> </h2>
+                        </ion-label></p>
+
                         <p v-if="reservation.Reason"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
                             text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
@@ -179,6 +185,12 @@
 
                         <ion-label>Restaurant notes</ion-label>
                         <p style="margin: 1px solid lightgray; text-align: left; font-size: 16px">{{reservation.restaurantNotes}}</p>
+
+                    </ion-card>
+
+                    <ion-card v-if="locationType == 'Table'">
+
+                        Aquí se debe dibujar el esquema de las mesas.
 
                     </ion-card>
 
@@ -241,6 +253,7 @@ export default {
             
         this.reservation = this.$route.params.reservation;
         this.reservationDate =  this.reservation.Date;
+        this.locationType = this.reservation.ServiceModel;
         // Moment.tz(this.reservation.Date, Moment.tz.guess()).format('YYYY-MM-DD');
         this.reservationHour =  this.reservation.Hour;
 
@@ -268,6 +281,7 @@ export default {
             key:0,  
             key1: 0, 
             currency:'USD',
+            locationType: 'Table',
             allState : [this.$t('frontend.reservation.state0'), this.$t('frontend.reservation.state1'),
                     this.$t('frontend.reservation.state2'), this.$t('frontend.reservation.state3'),
                     this.$t('frontend.reservation.state4'), this.$t('frontend.reservation.state5'),

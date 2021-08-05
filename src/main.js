@@ -10,6 +10,7 @@ import VuePaginate from 'vue-paginate'
 import VTooltip from 'v-tooltip'
 import Cors from 'cors'
 import router from './backoffice/router/index.js'
+import VCalendar from 'v-calendar';
 // import VueSocketIO from 'vue-socket.io'
 
 
@@ -131,6 +132,7 @@ Vue.use(Cors);
 // Vue.use(Cors({ maxAge: 604800000, origin: true }));  
 Vue.use(VTooltip);
 Vue.use(VuePaginate)
+Vue.use(VCalendar)
 Vue.use(VueGoogleMaps, {
   load: {
     // key: 'AIzaSyATqn9NEXjO84wIQKcw4i6_1fgb18Bz4TM'

@@ -489,19 +489,18 @@ export default {
         this.emailspinner = true
         const test = {
             "Email": this.EmailTest,
-            "mss": "This is a sample message. Please, dont respond this message.",
-            "subject": "iMenuApps support."
+            "mss": this.$t('backoffice.emailTest.message'),
+            "subject": this.$t('backoffice.emailTest.subject')
         }
         console.log(this.Password)
         Api.testRestaurantEmail(test)
-        .then(res => {
-            console.log("Success")
-            console.log(res)
+        .then(() => {
+            this.showToastMessage(this.$t('backoffice.emailTest.success'), 'success')
             this.emailspinner = false
         })
         .catch(e => {
-            console.log("Error")
             console.log(e)
+            this.showToastMessage(e, 'danger')
             this.emailspinner = false
         })
     },

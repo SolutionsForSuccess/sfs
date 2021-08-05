@@ -21,9 +21,9 @@
                 <ion-segment-button value="general">
                     <span>{{$t('backoffice.form.titles.genaral')}}</span>
                 </ion-segment-button>
-                 <ion-segment-button value="payments">
+                <!-- <ion-segment-button value="payments">
                     <span>{{$t('backoffice.options.managePaymentSettings')}}</span>
-                </ion-segment-button>
+                </ion-segment-button> -->
                 <ion-segment-button v-if="viewCatering" value="catering">
                     <span>{{$t('backoffice.form.fields.catering')}}</span>
                 </ion-segment-button>
@@ -313,7 +313,24 @@
                     :checked="viewReservation">
               </ion-checkbox>
             </ion-item> -->
-            <div v-if="viewReservation" style="margin-left: 30px">
+
+            <ion-item>
+                <ion-label >{{$t('backoffice.form.fields.serviceReservation')}}
+                <ion-toggle name="serviceReservation" style="top: 12px;"
+                @ionChange="serviceReservation=$event.target.checked" 
+                :checked ="serviceReservation">
+                </ion-toggle></ion-label>
+            </ion-item>
+
+            <ion-item>
+                <ion-label >{{$t('backoffice.form.fields.tablesChoose')}}
+                <ion-toggle name="tablesChoose" style="top: 12px;"
+                @ionChange="tablesChoose=$event.target.checked" 
+                :checked ="tablesChoose">
+                </ion-toggle></ion-label>
+            </ion-item>
+
+            <div v-if="viewReservation && !serviceReservation" style="margin-left: 30px">
                 <ion-item>
                     <h1>{{$t('backoffice.form.fields.reservation')}}</h1>
                 </ion-item>
@@ -340,7 +357,7 @@
                 </ion-item>
 
                 <ion-item v-if="payForReservarionQuotation">
-                    <ion-label position="floating">{{$t('backoffice.form.fields.percentPayForQuotation')}}</ion-label>
+                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.percentPayForQuotation')}}</ion-label>
                     <ion-input type="number" name="amountPayForReservarionQuotation"
                       @input="amountPayForReservarionQuotation = $event.target.value" 
                       v-bind:value="amountPayForReservarionQuotation">
@@ -695,6 +712,8 @@ export default {
       viewDelivery: false,
       viewOnTable: false,
       viewCurbside: false,
+      serviceReservation: false,
+      tablesChoose: false,
 
       zipCodes: [],
       states: [],
@@ -1074,6 +1093,8 @@ export default {
               setTimeout(() => {  // Some AJAX call occurs
                   Api.fetchById(this.modelName, this.id)
                   .then(response => {
+                    this.serviceReservation = response.data.ServiceReservation;
+                    this.tablesChoose = response.data.TablesChoose;
                     this.selectPickHour = response.data.SelectPickHour;
                     this.minTimeToCook = response.data.MinTimeToCook;
                     this.pickFrom = response.data.PickFrom;
@@ -1118,7 +1139,7 @@ export default {
                         this.viewCustomerReservation = response.data.ViewCustomerReservation;
                         this.minDayToReservation = response.data.MinDayToReservation;
                         this.payForReservarionQuotation = response.data.HasReservationQuotation;
-                        this.amountPayForReservarionQuotation  = response.data.PayForReservationQuotation; 
+                        this.amountPayForReservarionQuotation  = response.data.PayForReservationQuotation || 0; 
                         this.setReservationDateAndTime(response.data.ReservationDaysAndTime);
                     }
 
@@ -1218,23 +1239,14 @@ export default {
         .then(a => a.present());
     },
     isValidForm(){
-        // let errors = [];
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-        //     //                    message, this.$t('backoffice.form.validate.validateSetting'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
+        
+        if (this.payForReservarionQuotation == true){
+            if (this.amountPayForReservarionQuotation == '' || this.amountPayForReservarionQuotation <= 0)
+            {
+                return false
+            }
+            return true
+        }
 
         return true
     },
@@ -1523,6 +1535,8 @@ export default {
             }
 
             if (this.viewReservation){
+              item["ServiceReservation"] = this.serviceReservation
+              item["TablesChoose"] = this.tablesChoose
               item["ViewReservation"] = this.viewReservation
               item["ViewCustomerReservation"] = this.viewCustomerReservation
               item["MinDayToReservation"] = this.minDayToReservation

@@ -100,8 +100,8 @@
 
                                 <!-- WorkSheet -->
                                 <!-- v-if="hasPermission('canViewWorkSheet')" -->
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.workSheet')" @click="$router.push('/workSheet')" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                        <span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>
+                                <ion-chip v-tooltip="$t('backoffice.controlPanel.workSheet')" v-if="hasPermission('canViewWorkSheet')" @click="$router.push('/workSheet')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                        <span class="iconify" data-icon="bx:bx-spreadsheet" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageWorkSheet') }}</ion-label>   
                                 </ion-chip>
 
@@ -345,6 +345,8 @@ export default {
             item: 0,
             online: false,
             vClockin: false,
+
+            restaurantS: null,
         }
     },
     created: async function(){
@@ -412,8 +414,13 @@ export default {
                 .then(m => m.present())
         },
         init(){
-            this.spinner = true 
-
+            this.spinner = true
+            
+            Api.fetchAll('setting')
+            .then(response => {
+                this.restaurantS = response.data[0]
+            })
+            
             //Esto es NAB
             // var endpoint = '/sale/';
             // var epiKey="8EEDC66DF02D7803E05321281FAC8C31";
@@ -701,6 +708,9 @@ export default {
                             break;
                         case 'canViewCredit':
                             res = roles[index].canViewCredit;
+                            break;
+                        case 'canViewWorkSheet':
+                            res = roles[index].canViewWorkSheet
                             break;
                         default:    
                             break;

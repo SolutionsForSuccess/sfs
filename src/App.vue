@@ -169,6 +169,7 @@
               <a @click="showStaffList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewUser') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" color="primary" data-icon="simple-icons:codechef" data-inline="false"></span>{{ $t('backoffice.options.manageUsers') }}</ion-item></a>
               <a @click="showDriverList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewDriver') && staffoccupationscustomers"><span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>Drivers</ion-item></a>
               <router-link to="/role" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewRole') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>{{ $t('backoffice.options.manageRoles') }}</ion-item></router-link>
+              <router-link to="/worksheet" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewWorkSheet') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="bx:bx-spreadsheet" data-inline="false"></span>{{ $t('backoffice.options.manageWorkSheet') }}</ion-item></router-link>
               <router-link to="/occupation" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOccupation') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>{{ $t('backoffice.options.manageOccupation') }}</ion-item></router-link>
               <router-link to="/customer" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCustomer') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="raphael:people" data-inline="false"></span>{{ $t('backoffice.options.manageCustomers') }}</ion-item></router-link>
               <router-link to="/credit" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCredit') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>{{ $t('backoffice.options.manageCredits') }}</ion-item></router-link>
@@ -615,6 +616,8 @@ export default {
       newRestaurantKey: 3,
       storeKey: 1,
       vClockin: false,
+
+      restaurantS: null,
            
     }
   }, 
@@ -817,6 +820,9 @@ export default {
                           break;
                       case 'canViewCredit':
                           res = roles[index].canViewCredit;
+                          break;
+                      case 'canViewWorkSheet':
+                          res = roles[index].canViewWorkSheet
                           break;
                       default:
                           break;

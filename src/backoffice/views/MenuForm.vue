@@ -62,6 +62,14 @@
           </ion-checkbox>
         </ion-item>
 
+        <ion-item>
+           <ion-label>{{$t('backoffice.form.fields.isReservationMenu')}}</ion-label>
+           <ion-checkbox slot="end" name="isReservationMenu" 
+            @ionChange="changeReservationMenu($event.target.checked)"
+            :checked="isReservationMenu" >  
+          </ion-checkbox>
+        </ion-item>
+
         <!-- <ion-item v-for="entry in form" v-bind:key="entry.val">
           <ion-label>{{entry.val}}</ion-label>
           <ion-checkbox
@@ -82,7 +90,8 @@
                 <ion-item-sliding v-for="category in availableCategories" v-bind:key="category._id">
                 <ion-item>
                     <ion-thumbnail slot="start">
-                        <ion-img :src="category.ImageUrl"></ion-img>
+                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
                     </ion-thumbnail>
                     <ion-label>
                         <!-- <h2>{{ product.CategoryId }}</h2> -->
@@ -114,7 +123,8 @@
                 <ion-item v-for="category in availableCategories" v-bind:key="category._id">
 
                     <ion-thumbnail slot="start">
-                        <ion-img :src="category.ImageUrl"></ion-img>
+                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
                     </ion-thumbnail>
                     <ion-label>
                         <!-- <h2>{{ product.CategoryId }}</h2> -->
@@ -143,8 +153,9 @@
                 <ion-item-sliding v-for="category in selectedCategories" v-bind:key="category._id">
                 <ion-item>
                     <ion-thumbnail slot="start">
-                    <ion-img :src="category.ImageUrl"></ion-img>
-                </ion-thumbnail>
+                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
+                    </ion-thumbnail>
                     <ion-label>
                         <!-- <h2>{{ product.CategoryId }}</h2> -->
                         <h2><div style="word-wrap: break-word">{{ category.Name }}</div></h2>
@@ -172,7 +183,8 @@
             <ion-list>
                 <ion-item v-for="category in selectedCategories" v-bind:key="category._id">
                     <ion-thumbnail slot="start">
-                        <ion-img :src="category.ImageUrl"></ion-img>
+                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
                     </ion-thumbnail>
                     <ion-label>
                         <!-- <h2>{{ product.CategoryId }}</h2> -->
@@ -214,6 +226,7 @@ export default{
       active: false,
       isCatering: false,
       isService: false,
+      isReservationMenu: false,
 
       categories: [],
       selectedCategories: [],
@@ -239,7 +252,7 @@ export default{
   methods:{
         changeService(val){
             this.isService = val;
-
+         
             if (!this.id)
               this.initialLoading = false;
 
@@ -251,7 +264,21 @@ export default{
             }
 
             this.initialLoading = false;
-            
+        },
+        changeReservationMenu(val){
+              this.isReservationMenu = val;
+
+              if (!this.id)
+                this.initialLoading = false;
+
+              if (!this.initialLoading)
+              {
+                  this.availableCategories = [];
+                  this.selectedCategories = [];
+                  this.fetchAllCategoriesByType(val);
+              }
+
+              this.initialLoading = false;
         },
         ifErrorOccured(action){
           return this.$ionic.alertController.create({
@@ -297,8 +324,8 @@ export default{
             }
         }
         return res;
-    },
-    isValidForm(){
+        },
+        isValidForm(){
         // let errors = [];
         if (this.name == "")
         {
@@ -333,26 +360,26 @@ export default{
         // {
         //     return true;
         // }
-    },
-    ShowMessage: function(type, message, topic='') {
-        return this.$ionic.alertController
-          .create({
-            cssClass: 'my-custom-class',
-            header: type,
-            subHeader: topic,
+        },
+        ShowMessage: function(type, message, topic='') {
+          return this.$ionic.alertController
+            .create({
+              cssClass: 'my-custom-class',
+              header: type,
+              subHeader: topic,
+              message: message,
+              buttons: [this.$t('backoffice.form.messages.buttons.ok')],
+            })
+          .then(a => a.present())
+        },
+        showToastMessage(message, tColor){
+          return this.$ionic.toastController.create({
+            color: tColor,
+            position: 'top',
+            duration: 3000,
             message: message,
-            buttons: [this.$t('backoffice.form.messages.buttons.ok')],
-          })
-        .then(a => a.present())
-      },
-      showToastMessage(message, tColor){
-        return this.$ionic.toastController.create({
-          color: tColor,
-          position: 'top',
-          duration: 3000,
-          message: message,
-          showCloseButton: false
-        }).then(a => a.present())
+            showCloseButton: false
+          }).then(a => a.present())
       },
       productsByCategory: function(id){
           this.$router.push({
@@ -437,6 +464,7 @@ export default{
         this.active = data.Active;
         this.isCatering = data.IsCatering;
         this.isService = data.IsService;
+        this.isReservationMenu = data.IsReservationMenu;
         // this.$refs.active.checked = this.active;
         let categoriesIds = data.Categories;
 
@@ -493,7 +521,7 @@ export default{
               });
 
              this.availableCategories = availableCateg;
-             if (this.isService)
+             if (this.isService || this.isReservationMenu)
                 this.availableCategories = this.availableCategories.filter(categ => categ.Service == true)
              else
                 this.availableCategories = this.availableCategories.filter(categ => !categ.Service || categ.Service == false)
@@ -604,6 +632,7 @@ export default{
                 "Active": this.active,
                 "IsCatering": this.isCatering,
                 "IsService": this.isService,
+                "IsReservationMenu": this.isReservationMenu,
                 "Categories": categories,
                 "Date": this.date,
             }

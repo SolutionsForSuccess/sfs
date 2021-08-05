@@ -24,6 +24,10 @@
                     <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.genaral')}}</span>
                 </ion-segment-button>
+                <ion-segment-button v-if="cType == 'product'" value="others">
+                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
+                    <span>{{$t('backoffice.form.titles.others')}}</span>
+                </ion-segment-button>
                 <ion-segment-button value="variants">
                     <!-- <span class="iconify" data-icon="mdi:sitemap" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.variants')}}</span>
@@ -68,22 +72,6 @@
             </ion-item>
 
             <ion-item>
-            <ion-label position="floating">SKU</ion-label>
-            <ion-input type="text" name="sku"
-            @input="sku = $event.target.value" 
-            v-bind:value="sku">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('frontend.reservation.code')}}</ion-label>
-            <ion-input type="text" name="code"
-            @input="code = $event.target.value" 
-            v-bind:value="code">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
             <ion-label position="floating">{{$t('backoffice.form.fields.shortDescription')}}</ion-label>
             <ion-input type="text" name="shortDescription"
             @input="shortDescription = $event.target.value" 
@@ -105,7 +93,7 @@
                 :checked="showServicePrice"  >    
               </ion-checkbox>
             </ion-item>
-
+            
             <ion-item>
             <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.costPrice')}}</ion-label>
             <ion-input type="number" name="costPrice"
@@ -124,6 +112,14 @@
 
             <ion-item v-if="specialPrice">
                 <ion-label>Special price: <span style="color: red">{{ SpecialPrice }}</span></ion-label>
+            </ion-item>
+
+            <ion-item v-if="cType == 'service'">
+                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.stimateTime')}}</ion-label>
+                <ion-input type="number" name="stimateTime"
+                @input="stimateTime = $event.target.value" 
+                v-bind:value="stimateTime">
+                </ion-input>
             </ion-item>
 
             <ion-item>
@@ -179,78 +175,6 @@
             </ion-list>
 
             <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.stockQuantity')}}</ion-label>
-            <ion-input type="number" name="stockQuantity"
-            @input="stockQuantity = $event.target.value" 
-            v-bind:value="stockQuantity">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.minReorderPoint')}}</ion-label>
-            <ion-input type="number" name="minReorderPoint"
-            @input="minReorderPoint = $event.target.value" 
-            v-bind:value="minReorderPoint">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.maxReorderPoint')}}</ion-label>
-            <ion-input type="number" name="maxReorderPoint"
-            @input="maxReorderPoint = $event.target.value" 
-            v-bind:value="maxReorderPoint">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.vendorName')}}</ion-label>
-            <ion-input type="text" name="vendorName"
-            @input="vendorName = $event.target.value" 
-            v-bind:value="vendorName">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.vendorCode')}}</ion-label>
-            <ion-input type="text" name="vendorCode"
-            @input="vendorCode = $event.target.value" 
-            v-bind:value="vendorCode">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.keywords')}}</ion-label>
-            <ion-input type="text" name="keywords"
-            @input="keywords = $event.target.value" 
-            v-bind:value="keywords">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.tags')}}</ion-label>
-            <ion-input type="text" name="tags"
-            @input="tags = $event.target.value" 
-            v-bind:value="tags">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.binNumber')}}</ion-label>
-            <ion-input type="text" name="binNumber"
-            @input="binNumber = $event.target.value" 
-            v-bind:value="binNumber">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.addSerialNumber')}}</ion-label>
-            <ion-input type="text" name="addSerialNumber"
-            @input="addSerialNumber = $event.target.value" 
-            v-bind:value="addSerialNumber">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
               <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
               <ion-checkbox slot="end" name="available" 
                 @ionChange="available = $event.target.checked"
@@ -258,6 +182,86 @@
               </ion-checkbox>
             </ion-item>
 
+            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+        </div>
+        <div v-if="others">
+            <ion-item>
+                <ion-label position="floating">SKU</ion-label>
+                <ion-input type="text" name="sku"
+                @input="sku = $event.target.value" 
+                v-bind:value="sku">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('frontend.reservation.code')}}</ion-label>
+                <ion-input type="text" name="code"
+                @input="code = $event.target.value" 
+                v-bind:value="code">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.stockQuantity')}}</ion-label>
+                <ion-input type="number" name="stockQuantity"
+                @input="stockQuantity = $event.target.value" 
+                v-bind:value="stockQuantity">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.minReorderPoint')}}</ion-label>
+                <ion-input type="number" name="minReorderPoint"
+                @input="minReorderPoint = $event.target.value" 
+                v-bind:value="minReorderPoint">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.maxReorderPoint')}}</ion-label>
+                <ion-input type="number" name="maxReorderPoint"
+                @input="maxReorderPoint = $event.target.value" 
+                v-bind:value="maxReorderPoint">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.vendorName')}}</ion-label>
+                <ion-input type="text" name="vendorName"
+                @input="vendorName = $event.target.value" 
+                v-bind:value="vendorName">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.vendorCode')}}</ion-label>
+                <ion-input type="text" name="vendorCode"
+                @input="vendorCode = $event.target.value" 
+                v-bind:value="vendorCode">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.keywords')}}</ion-label>
+                <ion-input type="text" name="keywords"
+                @input="keywords = $event.target.value" 
+                v-bind:value="keywords">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.tags')}}</ion-label>
+                <ion-input type="text" name="tags"
+                @input="tags = $event.target.value" 
+                v-bind:value="tags">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.binNumber')}}</ion-label>
+                <ion-input type="text" name="binNumber"
+                @input="binNumber = $event.target.value" 
+                v-bind:value="binNumber">
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-label position="floating">{{$t('backoffice.form.fields.addSerialNumber')}}</ion-label>
+                <ion-input type="text" name="addSerialNumber"
+                @input="addSerialNumber = $event.target.value" 
+                v-bind:value="addSerialNumber">
+                </ion-input>
+            </ion-item>
             <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
         <div v-if="variants">
@@ -533,6 +537,7 @@ export default {
       costPrice: 0,
       salePrice: 0,
       specialPrice: null,
+      stimateTime: 0,
 
       stockQuantity: 0,
       minReorderPoint: 0,
@@ -588,6 +593,7 @@ export default {
       //Segment
       segmentValue: 'general',
       general: true,
+      others: false,
       variants: false,
       sides: false,
       ingredientsB: false,
@@ -638,6 +644,7 @@ export default {
         console.log(value)
         if(value === 'general'){
             this.general = true
+            this.others = false
             this.variants = false
             this.sides = false
             this.ingredientsB = false
@@ -645,8 +652,17 @@ export default {
 
             this.fetchCategories()
         }
+        if(value === 'others'){
+            this.general = false
+            this.others = true
+            this.variants = false
+            this.sides = false
+            this.ingredientsB = false
+            this.categoryTab = false
+        }  
         if(value === 'variants'){
             this.general = false
+            this.others = false
             this.variants = true
             this.sides = false
             this.ingredientsB = false
@@ -654,6 +670,7 @@ export default {
         }  
         if(value === 'sides'){
             this.general = false
+            this.others = false
             this.variants = false
             this.sides = true
             this.ingredientsB = false
@@ -661,6 +678,7 @@ export default {
         }
         if(value === 'ingredients'){
             this.general = false
+            this.others = false
             this.variants = false
             this.sides = false
             this.ingredientsB = true 
@@ -668,6 +686,7 @@ export default {
         }
         if(value === 'category'){
             this.general = false
+            this.others = false
             this.variants = false
             this.sides = false
             this.ingredientsB = false 
@@ -683,6 +702,7 @@ export default {
         this.vf_size = ''
         this.vf_costPrice = 0
         this.vf_salePrice = 0
+        this.stimateTime=0
         this.vf_active = false
         this.vf_file = null
         this.vf_fileName = ''
@@ -880,8 +900,11 @@ export default {
                         }
                             
                         this.qr = response.data._id;
-                        if (this.cType == 'service')
+                        if (this.cType == 'service'){
                             this.showServicePrice = response.data.ShowServicePrice;
+                            this.stimateTime = response.data.StimateTime;
+                        }
+                            
                         this.ingredients = response.data.Ingredients;
                         //console.log(this.ingredients)
                         if (this.ingredients.length > 0)
@@ -991,6 +1014,10 @@ export default {
         //     // errors.push(this.$t('backoffice.form.validate.image'));
         //     return false
         // }
+        if (this.cType == 'service' && this.stimateTime <= 0)
+        {
+            return false
+        }
 
         return true
 
@@ -1244,6 +1271,7 @@ export default {
             if (this.cType == 'service')
             {
                 item["ShowServicePrice"] = this.showServicePrice;
+                item["StimateTime"] = this.stimateTime;
             }
             //If I am editing
             if (this.id){
@@ -1354,6 +1382,7 @@ export default {
             this.description = '';
             this.salePrice = 0;
             this.costPrice = 0;
+            this.stimateTime = 0;
             this.stockQuantity = 0;
             this.maxReorderPoint = 0;
             this.vendorName = '';
@@ -1412,6 +1441,7 @@ export default {
             this.description = '';
             this.salePrice = 0;
             this.costPrice = 0;
+            this.stimateTime = 0;
             this.stackQuantity = 0;
             this.maxReorderPoint = 0;
             this.vendorName = '';

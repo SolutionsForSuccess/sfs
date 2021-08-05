@@ -20,9 +20,12 @@
                     <!-- <span class="iconify" data-icon="mdi:sitemap" data-inline="false"></span> -->
                     <span>SMS</span>
                 </ion-segment-button>
-                <ion-segment-button value="payments">
+                <!-- <ion-segment-button value="payments"> -->
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.titles.payments')}}</span>
+                    <!-- <span>{{$t('backoffice.titles.payments')}}</span>
+                </ion-segment-button> -->
+                <ion-segment-button value="payments">
+                    <span>{{$t('backoffice.options.managePaymentSettings')}}</span>
                 </ion-segment-button>
                 <ion-segment-button value="capcha">
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
@@ -32,12 +35,15 @@
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.supportUsers')}}</span>
                 </ion-segment-button>
-                 <ion-segment-button value="restaurants">
+                <ion-segment-button value="restaurants">
                     <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
                     <span>{{$t('frontend.createNew.restaurants')}}</span>
                 </ion-segment-button>
                 <ion-segment-button value="restaurantSetting">
                     <span>{{$t('backoffice.options.manageRestaurantSettings')}}</span>
+                </ion-segment-button>
+                <ion-segment-button value="ads">
+                    <span>Ads</span>
                 </ion-segment-button>
             </ion-segment>
           </ion-toolbar>
@@ -194,18 +200,17 @@
         </div>
         <!-- Payments -->
         <div v-if="payments">
-            <ion-segment id="paymentsSegment" @ionChange="paySegmentChanged($event.target.value)" :value="paySegmentValue" @input="value=paySegmentValue">
+            <Payments/>
+            <!-- <ion-segment id="paymentsSegment" @ionChange="paySegmentChanged($event.target.value)" :value="paySegmentValue" @input="value=paySegmentValue">
                 <ion-segment-button value="shift4">
-                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.shift4')}}</span>
                 </ion-segment-button>
                 <ion-segment-button value="auth">
-                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
                     <span>{{$t('backoffice.form.titles.auth')}}</span>
                 </ion-segment-button>
-            </ion-segment>
+            </ion-segment> -->
             <!-- Shift4 -->
-            <div v-if="shift4">
+            <!-- <div v-if="shift4">
                 <ion-item>
                     <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.endPointUrl')}}</ion-label>
                     <ion-input type="text" name="EndPointURLShift4"
@@ -243,7 +248,6 @@
                 </ion-item>
 
                 <div style="margin-top: 20px">
-                    <!-- Aquí -->
                     <ion-item>
                         Tokens:
                     </ion-item>
@@ -275,7 +279,6 @@
                 </div>
 
                 <div style="margin-top: 20px">
-                    <!-- Aquí -->
                     <ion-item>
                         <ion-label >Has Delivery Payment
                         <ion-toggle name="HasDeliveryPayment" style="top: 12px;" Key="other"
@@ -316,9 +319,9 @@
                     </div>
                 </div>
 
-            </div>
+            </div> -->
             <!-- Authorize.net -->
-            <div v-if="auth">
+            <!-- <div v-if="auth">
                 <ion-item>
                     <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.endPointUrl')}}</ion-label>
                     <ion-input type="text" name="endPointUrl"
@@ -343,9 +346,10 @@
                     <ion-chip slot="end" color="primary" outline="true" @click="changeTransactionKey()"><ion-icon name="eye"></ion-icon></ion-chip>
                 </ion-item>
             </div>
-            <br/>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+            <br/> -->
+            <!-- <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}</ion-button> -->
         </div>
+
         <div v-if="user">
             <ion-header>
                 <ion-toolbar>
@@ -488,7 +492,6 @@
         </div>
         <!-- Restaurant Settings -->
         <div v-if="restaurantSetting">
-
             <ion-list>
                 <ion-list-header>
                     <ion-label>
@@ -508,7 +511,7 @@
             <div v-if="restaurantS">
 
                 <ion-item>
-                    <ion-label >ViewCatering
+                    <ion-label >View Catering
                     <ion-toggle name="ViewCatering" style="top: 12px;" Key="other"
                         @ionChange="restaurantS.ViewCatering=$event.target.checked" 
                         :checked ="restaurantS.ViewCatering">
@@ -517,7 +520,7 @@
                 </ion-item>
 
                 <ion-item>
-                    <ion-label >ViewReservation
+                    <ion-label >View Reservation
                     <ion-toggle name="ViewReservation" style="top: 12px;" Key="other"
                         @ionChange="restaurantS.ViewReservation=$event.target.checked" 
                         :checked ="restaurantS.ViewReservation">
@@ -526,7 +529,7 @@
                 </ion-item>
 
                 <ion-item>
-                    <ion-label >ViewDigitalSigned
+                    <ion-label >View Digital Signed
                     <ion-toggle name="ViewDigitalSigned" style="top: 12px;" Key="other"
                         @ionChange="restaurantS.ViewDigitalSigned=$event.target.checked" 
                         :checked ="restaurantS.ViewDigitalSigned">
@@ -535,10 +538,37 @@
                 </ion-item>
 
                 <ion-item>
-                    <ion-label >ViewLoyaltyProgram
+                    <ion-label >View Loyalty Program
                     <ion-toggle name="ViewLoyalty" style="top: 12px;" Key="other"
                         @ionChange="restaurantS.ViewLoyalty=$event.target.checked" 
                         :checked ="restaurantS.ViewLoyalty">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >View Special Prices
+                    <ion-toggle name="ViewSpecialPrice" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewSpecialPrice=$event.target.checked" 
+                        :checked ="restaurantS.ViewSpecialPrice">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >View Drivers
+                    <ion-toggle name="ViewDrivers" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewDrivers=$event.target.checked" 
+                        :checked ="restaurantS.ViewDrivers">
+                    </ion-toggle>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >View Suscriptors
+                    <ion-toggle name="ViewSuscriptors" style="top: 12px;" Key="other"
+                        @ionChange="restaurantS.ViewSuscriptors=$event.target.checked" 
+                        :checked ="restaurantS.ViewSuscriptors">
                     </ion-toggle>
                     </ion-label>
                 </ion-item>
@@ -547,6 +577,10 @@
                 <ion-button expand="full" color="primary"  @click="saveRestaurantData()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
             </div>
 
+        </div>
+        <!-- Ads Setting -->
+        <div v-if="ads">
+            <ManageAds :typeProp="'app'"/>
         </div>
     </div>
     </div>
@@ -558,6 +592,8 @@ import { Api } from '../api/api.js';
 import { EventBus } from '../../frontend/event-bus';
 
 import RestaurantType from './RestaurantType.vue'
+import ManageAds from './manageAds.vue'
+import Payments from './PaymentSettingsForm.vue'
 
 export default {
 
@@ -669,6 +705,7 @@ export default {
       capcha: false,
       user: false,
       restaurantSetting: false,
+      ads: false,
 
       //Payments segments
       shift4: true,
@@ -700,7 +737,7 @@ export default {
     }
   },
   components:{
-    RestaurantType
+    RestaurantType, ManageAds, Payments
   },
   created: async function(){
 
@@ -730,17 +767,16 @@ export default {
         this.emailspinner = true
         const test = {
             "Email": this.EmailTest,
-            "mss": "This is a sample message. Please, dont respond this message.",
-            "subject": "iMenuApps support."
+            "mss": this.$t('backoffice.emailTest.message'),
+            "subject": this.$t('backoffice.emailTest.subject')
         }
         Api.testSupportEmail(test)
-        .then(res => {
-            console.log("Success")
-            console.log(res)
+        .then(() => {
+            this.showToastMessage(this.$t('backoffice.emailTest.success'), 'success')
             this.emailspinner = false
         })
         .catch(e => {
-            console.log("Error")
+            this.showToastMessage(e, 'danger')
             console.log(e)
             this.emailspinner = false
         })
@@ -839,6 +875,7 @@ export default {
             this.capcha = false
             this.user = false
             this.restaurantSetting = false
+            this.ads = false
         }
         if(value === 'sms'){
             this.email = false
@@ -847,6 +884,7 @@ export default {
             this.capcha = false
             this.user = false
             this.restaurantSetting = false
+            this.ads = false
         }
         if(value === 'payments'){
             this.email = false
@@ -855,6 +893,7 @@ export default {
             this.capcha = false
             this.user = false  
             this.restaurantSetting = false        
+            this.ads = false
         }
         if(value === 'capcha'){
             this.email = false
@@ -863,6 +902,7 @@ export default {
             this.capcha = true
             this.user = false     
             this.restaurantSetting = false     
+            this.ads = false
         }
         if(value === 'user'){
             this.email = false
@@ -871,6 +911,7 @@ export default {
             this.capcha = false
             this.user = true
             this.restaurantSetting = false
+            this.ads = false
         }
         if(value === 'restaurants'){
             this.email = false
@@ -879,6 +920,7 @@ export default {
             this.capcha = false
             this.user = false
             this.restaurantSetting = false
+            this.ads = false
         }
         if (value === 'restaurantSetting'){
             this.restaurantSetting = true
@@ -887,6 +929,16 @@ export default {
             this.payments = false
             this.capcha = false
             this.user = false
+            this.ads = false
+        }
+        if (value === 'ads'){
+            this.restaurantSetting = false
+            this.email = false
+            this.sms = false
+            this.payments = false
+            this.capcha = false
+            this.user = false
+            this.ads = true
         }
         this.segmentValue = value;
     },

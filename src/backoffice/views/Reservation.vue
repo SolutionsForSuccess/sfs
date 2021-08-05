@@ -17,17 +17,13 @@
         <span class="iconify" data-icon="ant-design:plus-outlined" data-inline="false"></span>
          <!-- ADD -->
       </ion-segment-button>
-      <!-- <ion-segment-button value="bookmark"> -->
-      <!-- <span class="iconify" data-icon="tabler:search" data-inline="false"></span> -->
-      <!-- SEARCH -->
-      <!-- </ion-segment-button> -->
       <ion-segment-button value="heart">
         <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span>
       <!-- LIST -->
       </ion-segment-button>
-      <ion-segment-button value="waitlist">
+      <!-- <ion-segment-button value="waitlist">
         <span class="iconify" data-icon="mdi:playlist-plus" data-inline="false"></span>
-      </ion-segment-button>
+      </ion-segment-button> -->
 
     </ion-segment>
    
@@ -498,9 +494,9 @@ export default {
      data () {
       return {
          screenWidth: 0,
-         camera: true,
+         camera: false,
          bookmark: false,
-         heart: false,
+         heart: true,
          waitlist: false,
          spinner: false,
          paginate: ['allReservations', 'allWaitList'],
@@ -519,7 +515,7 @@ export default {
                     this.$t('frontend.reservation.state2'), this.$t('frontend.reservation.state3'),
                     this.$t('frontend.reservation.state4'), this.$t('frontend.reservation.state5'),
                     this.$t('frontend.reservation.state6')],
-        segmentValue: 'camera',
+        segmentValue: 'bookmark',
         filterStatus: 'all',
         dateToDay: '',
         restaurantConfig: null,
@@ -538,9 +534,10 @@ export default {
      created: function(){
         
        this.screenWidth = screen.width;
-       if(this.$route.params.showAllReservation){
-         this.segmentChanged('heart')
-       }
+      //  console.log(this.$route.params)
+      //  if(this.$route.params.showAllReservation){
+       this.segmentChanged('heart')
+      //  }
        
        this.dateToDay = moment.tz(moment.tz.guess()).format('MM-DD-YYYY')    
        this.dateToDay = moment(this.dateToDay, "MM-DD-YYYY").add('days', this.minDayToReservation)
@@ -899,7 +896,8 @@ export default {
       segmentChanged(value){            
              //console.log(value)
              if(value === 'camera'){
-                 this.camera = true;
+               console.log('Aquí va el código de crear nueva reservación')
+                 this.camera = false;
                  this.bookmark = false;
                  this.heart = false;
                  this.waitlist = false;

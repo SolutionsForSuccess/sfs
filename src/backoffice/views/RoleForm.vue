@@ -376,6 +376,25 @@
         </ion-list>
 
         <ion-item>
+            <p>{{$t('backoffice.form.permissionsGroup.permissionWorkSheet')}}</p>
+            <ion-chip slot="end" :color="worksheet_color" @click="selectDeselectWorksheet()">
+                <ion-icon name="checkmark-circle"></ion-icon>
+                <ion-label>{{worksheet_title}}</ion-label>
+            </ion-chip>
+        </ion-item>
+        <ion-list>
+            <ion-item v-for="permission in worksheetPermissions" v-bind:key="permission.val">
+            <ion-label>{{permission.val}}</ion-label>
+            <ion-checkbox
+                slot="end"
+                @ionChange="permission.isChecked=$event.target.checked"
+                :checked="permission.isChecked"
+                >
+            </ion-checkbox>
+            </ion-item>
+        </ion-list>
+
+        <ion-item>
             <p>{{$t('backoffice.form.permissionsGroup.permissionOrder')}}</p>
             <ion-chip slot="end" :color="order_color" @click="selectDeselectOrder()">
                 <ion-icon name="checkmark-circle"></ion-icon>
@@ -568,6 +587,12 @@ export default {
         { id: 'canEditRole', val: this.$t('backoffice.form.permissionsGroup.canEditRole'), isChecked: false },
         { id: 'canDeleteRole', val: this.$t('backoffice.form.permissionsGroup.canDeleteRole'), isChecked: false },
       ],
+      worksheetPermissions: [
+        { id: 'canViewWorkSheet', val: this.$t('backoffice.form.permissionsGroup.canViewWorkSheet'), isChecked: false },
+        { id: 'canCreateWorkSheet', val: this.$t('backoffice.form.permissionsGroup.canCreateWorkSheet'), isChecked: false },
+        { id: 'canEditWorkSheet', val: this.$t('backoffice.form.permissionsGroup.canEditWorkSheet'), isChecked: false },
+        { id: 'canDeleteWorkSheet', val: this.$t('backoffice.form.permissionsGroup.canDeleteWorkSheet'), isChecked: false },
+      ],
       variantGroupPermissions: [
         { id: 'canViewVariantGroup', val: this.$t('backoffice.form.permissionsGroup.canViewVariantGroup'), isChecked: false },
         { id: 'canCreateVariantGroup', val: this.$t('backoffice.form.permissionsGroup.canCreateVariantGroup'), isChecked: false },
@@ -624,6 +649,10 @@ export default {
         role: false,
         role_color: 'success',
         role_title: 'Select all',
+
+        worksheet: false,
+        worksheet_color: 'success',
+        worksheet_title: 'Select all',
 
         occupation: false,
         occupation_color: 'success',
@@ -801,6 +830,11 @@ export default {
                             this.rolePermissions[1].isChecked = response.data.canCreateRole;
                             this.rolePermissions[2].isChecked = response.data.canEditRole;
                             this.rolePermissions[3].isChecked = response.data.canDeleteRole;
+
+                            this.worksheetPermissions[0].isChecked = response.data.canViewWorkSheet;
+                            this.worksheetPermissions[1].isChecked = response.data.canCreateWorkSheet;
+                            this.worksheetPermissions[2].isChecked = response.data.canEditWorkSheet;
+                            this.worksheetPermissions[3].isChecked = response.data.canDeleteWorkSheet;
 
                             this.variantGroupPermissions[0].isChecked = response.data.canViewVariantGroup;
                             this.variantGroupPermissions[1].isChecked = response.data.canCreateVariantGroup;
@@ -1191,7 +1225,7 @@ export default {
         });
     },
     selectDeselectRole(){
-        this.role = !this.variant;
+        this.role = !this.role;
         if (this.role_color == 'success')
         {
             this.role_color = 'danger'
@@ -1204,6 +1238,25 @@ export default {
 
         this.rolePermissions.forEach(permission => {
             if (this.role)
+                permission.isChecked = true;
+            else
+                permission.isChecked = false;
+        });
+    },
+    selectDeselectWorksheet(){
+        this.worksheet = !this.worksheet;
+        if (this.worksheet_color == 'success')
+        {
+            this.worksheet_color = 'danger'
+            this.worksheet_title = 'Deselect all'
+        }  
+        else{
+            this.worksheet_color = 'success'
+            this.worksheet_title = 'Select All'
+        }
+
+        this.worksheetPermissions.forEach(permission => {
+            if (this.worksheet)
                 permission.isChecked = true;
             else
                 permission.isChecked = false;
@@ -1330,6 +1383,7 @@ export default {
         this.selectDeselectUser(this.all);
         this.selectDeselectOccupation(this.all);
         this.selectDeselectRole(this.all);
+        this.selectDeselectWorksheet(this.all);
         this.selectDeselectVariantGroup(this.all);
         this.selectDeselectReservation(this.all);
         this.selectDeselectOrder(this.all);
@@ -1431,6 +1485,10 @@ export default {
                 "canCreateRole": this.rolePermissions[1].isChecked,
                 "canEditRole": this.rolePermissions[2].isChecked,
                 "canDeleteRole": this.rolePermissions[3].isChecked,
+                "canViewWorkSheet": this.worksheetPermissions[0].isChecked,
+                "canCreateWorkSheet": this.worksheetPermissions[1].isChecked,
+                "canEditWorkSheet": this.worksheetPermissions[2].isChecked,
+                "canDeleteWorkSheet": this.worksheetPermissions[3].isChecked,
                 "canViewVariantGroup": this.variantGroupPermissions[0].isChecked,
                 "canCreateVariantGroup": this.variantGroupPermissions[1].isChecked,
                 "canEditVariantGroup": this.variantGroupPermissions[2].isChecked,
