@@ -594,12 +594,13 @@
                 </div>
 
               
-                <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="position: fixed;width: inherit;bottom: 52px;">
+                <!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed" style="position: fixed;width: inherit;bottom: 52px;"> -->
+                <div vertical="bottom" horizontal="end" style="width: 100%">
 
-                    <p style="text-align: center;font-weight: 500;margin: 0;background: white;"
+                    <p style="text-align: center;font-weight: 500;margin: 0;"
                      v-if="hasCreditAmount()">Credit Active {{getCreditAmount()}}</p>
 
-                  <div  v-if="$store.state.cart.length > 0 " style="display:flex;justify-content: center;background: white;flex-direction: column;align-items: center;">
+                  <div  v-if="$store.state.cart.length > 0 " style="display:flex;justify-content: center;flex-direction: column;align-items: center;">
                   
                     <div style="padding: 10px 0 0; text-align: center" v-if="$store.state.allTickets.length === 0 && !isCatering">
                       <div style="display: flex;justify-content: flex-start;align-items: center;" 
@@ -663,7 +664,7 @@
                     </a> 
 
                   </div>
-                </ion-fab>
+                </div>
               
                 
               </div>
@@ -1930,20 +1931,7 @@ export default {
       .then(a => a.present())
     },
 
-    async closeReservation(){
-        if(this.order.CodeToDiscount !== ''){
-             await Api.getReservationByCode(this.order.CodeToDiscount)
-            .then(async response => {                 
-                response.data.State = 6;
-                await Api.putIn('Reservation',response.data);
-
-                Commons.getListReservation();
-            })
-            .catch(e => {              
-              console.log(e); 
-            }) 
-        }
-    },
+  
 
     async getOrders(){
       if(this.clientId =='')
@@ -1970,7 +1958,8 @@ export default {
         Commons.sendOrderEmail(value);
         this.goodPaymentToast();                  
         if(this.order.Discount > 0 && this.order.CodeToDiscount)
-             await this.closeReservation(); 
+          console.log();
+            // Ajustar descuento 
       } 
       
      this.forceUpdateFunction()  

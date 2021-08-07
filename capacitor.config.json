@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "io.ionic.starter",
+  "appId": "net.imenuapps.apps",
+  "appName": "net.imenuapps.apps",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "dist",

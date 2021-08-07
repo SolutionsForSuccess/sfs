@@ -1,5 +1,25 @@
 <template>
-    <div >         
+    <div >  
+
+      <modal name="product-detail" width="80%" height="80%">       
+        <ProductDetail 
+          :productId ="productDetailData.productId"
+          :Name ="productDetailData.Name"
+          :SalePrice ="productDetailData.SalePrice"
+          :Description ="productDetailData.Description"
+          :ImageUrl ="productDetailData.ImageUrl"
+          :ProductCant ="productDetailData.ProductCant"
+          :Note ="productDetailData.Note"
+          :productVariant ="productDetailData.productVariant"
+          :aggregateCant ="productDetailData.aggregateCant"
+          :products ="productDetailData.products"
+          :orderType ="productDetailData.orderType"
+          :Ingredients ="productDetailData.Ingredients"
+          :orderFromCatering ="productDetailData.orderFromCatering"
+          :isService ="productDetailData.isService"
+          :currency ="productDetailData.currency"
+        >  </ProductDetail>       
+      </modal>       
 
         <div v-if="prod.length > 0">
           
@@ -141,11 +161,13 @@ export default {
           logoFacebook, 
           logoInstagram,
           filterProduct: [],
-          cart: []
+          cart: [],
+          productDetailData: {},
     }
   },    
    components:{
     VBreakpoint: VBreakpoint, 
+    ProductDetail,
   },
   created: function(){    
 
@@ -324,45 +346,41 @@ export default {
 
     done: function(){
       EventBus.$emit('showProduct', false );
-      },
+    },
 
-    productDetail: function(pr){
-           
+
+    async productDetail(pr){
+      this.productDetailData = this.getProdDetailDatas(pr);    
+      this.$modal.show('product-detail');
+    }, 
+
+    
+    getProdDetailDatas(pr){
+
       var productVariant=[]
       if(pr.VariantGroupId !=''){
         productVariant = this.variants.filter(v => v._id == pr.VariantGroupId)
-      }    
-      return this.$ionic.modalController
-      .create({
-        component: ProductDetail,
-        cssClass: 'my-custom-class',
-        componentProps: {
-          data: {
-            content: 'New Content',
-          },
-          propsData: {           
-            productId: pr._id,
-            Name: pr.Name,
-            SalePrice: parseFloat(pr.SalePrice),
-            Description: pr.Description,
-            ImageUrl: pr.ImageUrl,
-            ProductCant: parseInt(pr.count) || 1,
-            Note: pr.Note,
-            productVariant: productVariant,
-            aggregateCant: pr.AggregateCant || 0,
-            // Aggregates: pr.Aggregates || [],
-            // Aggregates: [],
-            products: this.products,           
-            orderType: this.orderType,            
-            Ingredients: pr.Ingredients || [],          
-            orderFromCatering: this.orderFromCatering,
-            isService: this.isService,           
-            currency: this.currency,
-          },
-        },
-      })
-      .then(m => m.present())
-      },
+      }   
+      
+     return {           
+        productId: pr._id,
+        Name: pr.Name,
+        SalePrice: parseFloat(pr.SalePrice),
+        Description: pr.Description || '',
+        ImageUrl: pr.ImageUrl,
+        ProductCant: parseInt(pr.count) || 1,
+        Note: pr.Note || '',
+        productVariant: productVariant,
+        aggregateCant: pr.AggregateCant || 0,
+        products: this.products,           
+        orderType: this.orderType,            
+        Ingredients: pr.Ingredients || [],          
+        orderFromCatering: this.orderFromCatering,
+        isService: this.isService,           
+        currency: this.currency,
+      }
+
+    },
 
  
      

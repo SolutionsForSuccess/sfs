@@ -588,36 +588,36 @@ methods: {
         this.spinnerDiscount = true;
 
         try {
-           const response = await Api.getReservationByCode(this.theCodeToDiscount)
-         if(response.status === 200 ){
-            if(response.data.State === 6){
-              this.discount = 0;
-              this.spinnerDiscount = false;
-              const mss =  this.i18n.t('frontend.reservation.orderCloseToDiscount');
-              return this.openToastError(mss);
-            }
-            if(response.data.QuotationPayment > this.finalSubTotal() ){
-                this.discount = 0;
-                 this.spinnerDiscount = false;
-                const mss =  this.i18n.t('frontend.reservation.subtotalNotForDiscount');
-                return this.openToastError(mss);
-            } 
-             if(response.data.QuotationPayment && response.data.State === 4){
-                this.spinnerDiscount = false;
-                this.discount = response.data.QuotationPayment;
-                this.order.Discount = this.discount; 
-                this.order.CodeToDiscount = this.theCodeToDiscount; 
-                store.commit("setOrder", this.order);
-                return;
-             }                 
-            else{
+        //    const response = await Api.getReservationByCode(this.theCodeToDiscount)
+        //  if(response.status === 200 ){
+        //     if(response.data.State === 6){
+        //       this.discount = 0;
+        //       this.spinnerDiscount = false;
+        //       const mss =  this.i18n.t('frontend.reservation.orderCloseToDiscount');
+        //       return this.openToastError(mss);
+        //     }
+        //     if(response.data.QuotationPayment > this.finalSubTotal() ){
+        //         this.discount = 0;
+        //          this.spinnerDiscount = false;
+        //         const mss =  this.i18n.t('frontend.reservation.subtotalNotForDiscount');
+        //         return this.openToastError(mss);
+        //     } 
+        //      if(response.data.QuotationPayment && response.data.State === 4){
+        //         this.spinnerDiscount = false;
+        //         this.discount = response.data.QuotationPayment;
+        //         this.order.Discount = this.discount; 
+        //         this.order.CodeToDiscount = this.theCodeToDiscount; 
+        //         store.commit("setOrder", this.order);
+        //         return;
+        //      }                 
+        //     else{
                 this.theCodeToDiscount = '';
                 this.showDiscount = false;  
                  this.spinnerDiscount = false;
                 const mss =  this.i18n.t('frontend.reservation.notDiscountToApply');
                 return this.openToastError(mss);                  
-            }  
-          }
+            // }  
+          // }
         } catch (error) {
           console.log(error)
           this.theCodeToDiscount = '';

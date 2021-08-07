@@ -8,12 +8,12 @@
         <ion-button color="secondary" @click="showModal()">Show Modal</ion-button>
     </div> -->
 
-    <div>
+    <!-- <div> -->
       <!-- <iframe src="https://sandbox.payfabric.com/Payment/Web/Transaction/Process?key=21062901218440&token=2:4ue4aigcrvke" height="400" width="800" name="demo"> -->
-      <iframe src="https://sandbox.payfabric.com/Payment/Web/Transaction/ResponsiveProcess?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJQYXlGYWJyaWNfVjMiLCJpYXQiOiIxNjI0OTgxMDc0IiwiZXhwIjoiMTYyNDk4MTk3NCIsImF1ZCI6IlBheW1lbnRQYWdlIiwic3ViIjoiMjEwNjI5MDEyMTg0NDAiLCJpbnN0IjoiMjlhYjdlMDgtMjlmNy00MDNhLWEwZmYtMThmMjZiZjZjZDgxIiwiZGV2aWNlIjoiOTExMjA4NTItODkxZC00NTI2LTljZGMtNGYxYzQ3Mzg2NzA5IiwiZGNuIjoiMiIsInN1cHBvcnRlZFBheW1lbnRNZXRob2RzIjpbeyJ0eXBlIjoiQ3JlZGl0Q2FyZCIsInNyYyI6IlVSTCIsImF0dHJpYnV0ZXMiOm51bGx9XX0.3gM_h53HIGVbtON168OnT1NirCxXmHwodSNHyrhPyJY" height="400" width="800" name="demo">
+      <!-- <iframe src="https://sandbox.payfabric.com/Payment/Web/Transaction/ResponsiveProcess?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJQYXlGYWJyaWNfVjMiLCJpYXQiOiIxNjI0OTgxMDc0IiwiZXhwIjoiMTYyNDk4MTk3NCIsImF1ZCI6IlBheW1lbnRQYWdlIiwic3ViIjoiMjEwNjI5MDEyMTg0NDAiLCJpbnN0IjoiMjlhYjdlMDgtMjlmNy00MDNhLWEwZmYtMThmMjZiZjZjZDgxIiwiZGV2aWNlIjoiOTExMjA4NTItODkxZC00NTI2LTljZGMtNGYxYzQ3Mzg2NzA5IiwiZGNuIjoiMiIsInN1cHBvcnRlZFBheW1lbnRNZXRob2RzIjpbeyJ0eXBlIjoiQ3JlZGl0Q2FyZCIsInNyYyI6IlVSTCIsImF0dHJpYnV0ZXMiOm51bGx9XX0.3gM_h53HIGVbtON168OnT1NirCxXmHwodSNHyrhPyJY" height="400" width="800" name="demo">
               <p>Su navegador no es compatible con iframes</p>
       </iframe>
-    </div>
+    </div> -->
 
     <!--<div style="margin-right:33%; margin-left:33%">
         <ion-button color="primary" @click="tokenCreate()" style="float: left">Token Create</ion-button>
@@ -29,7 +29,7 @@
     </ion-item> -->
 
     <!-- CONNECTED WITH a930 DEVICE -->
-    <!-- <ion-header>
+    <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
@@ -163,7 +163,7 @@
 
     <div style="margin: 1px solid red">
         {{response}}
-    </div> -->
+    </div>
 
     <!-- <div>
       <iframe :src="url" height="400" width="800" name="demo">
@@ -192,7 +192,7 @@
 
     </div> -->
 
-   <ion-button api_access_id="442f701ee5d25cf1b4ab6592d0b670a5"
+   <!-- <ion-button api_access_id="442f701ee5d25cf1b4ab6592d0b670a5"
   method="sale"
   version_number="2.0"	
   xdata_1="custom field"
@@ -209,7 +209,7 @@ Pay Now</ion-button>
 <div id="cont">
   <ion-button @click="sendMail()">Send Mail</ion-button>
   <ion-button @click="preview()">Preview</ion-button>
-</div>
+</div> -->
 
 <!-- <div>
     <ion-button @click="sendMess()"></ion-button>

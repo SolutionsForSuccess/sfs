@@ -418,7 +418,7 @@ export var Devices = {
                 //Process commercialInformation
                 const transDatetime = moment()
                 transDatetime.format('YYMMDD').toString()
-                // console.log('TRANS DATETIME: ' + transDatetime.toISOString())
+                console.log('TRANS DATETIME: ' + transDatetime.toISOString())
                 let productInformation = ''
                 let PONumber = ''
                 let orderDate = '' 

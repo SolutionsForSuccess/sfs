@@ -1,23 +1,27 @@
 <template>
-<div>
+<div :key="keyForceUpdate"> 
   
       
-  <ion-toolbar>
+  <ion-toolbar >
        <ion-card-title style="text-align: left;padding: 10px;">
            {{$t('frontend.reservation.reservations')}}
 
       </ion-card-title>
       
-    <ion-segment id="reservationSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-      <ion-segment-button value="camera">
+    <ion-segment 
+    
+    id="reservationSegment" 
+    @ionChange="segmentChanged($event.target.value)" :value="segmentValue" 
+    @input="value=segmentValue">
+      <ion-segment-button value="newReserv">
         <span class="iconify" data-icon="ant-design:plus-outlined" data-inline="false"></span>
          <!-- ADD -->
       </ion-segment-button>
-      <ion-segment-button value="bookmark">
-      <span class="iconify" data-icon="tabler:search" data-inline="false"></span>
+       <!-- <ion-segment-button value="codeReserv"> -->
+      <!-- <span class="iconify" data-icon="tabler:search" data-inline="false"></span> -->
       <!-- SEARCH -->
-      </ion-segment-button>
-      <ion-segment-button value="heart">
+      <!-- </ion-segment-button>  -->
+      <ion-segment-button value="listReserv" v-if="clientId !== ''">
       <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span>
       <!-- LIST -->
     </ion-segment-button>
@@ -25,7 +29,7 @@
    
   </ion-toolbar>
 
-  <div v-if="camera" style="    width: 80%; margin: 0 auto;">
+  <div v-if="newReserv" style="    width: 80%; margin: 0 auto;">
       <hr>
         <ion-card-title>{{$t('frontend.reservation.create')}} 
           <ion-chip @click="toastInfoHorarios" style="background: transparent; padding: 0; margin: 0;">
@@ -34,74 +38,169 @@
         </ion-card-title>
 
        
+         <v-breakpoint>
+          <div  slot-scope="scope">
 
-        <div >
+            <div v-if="spinner" class="menu-col-12">
+              <ion-progress-bar  color="primary" type="indeterminate" reversed="true"></ion-progress-bar>
+            </div>
 
-          <div v-if="spinner" class="menu-col-12">
-            <ion-progress-bar  color="primary" type="indeterminate" reversed="true"></ion-progress-bar>
-          </div>
+            <!-- <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
+              <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
+                  <span class="iconify" data-icon="el:error-alt" data-inline="false" style="color: red; margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
+                  {{$t('frontend.home.clientRequired')}}</p>
+              </ion-label>  -->
 
-           <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
-            <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
-                <span class="iconify" data-icon="el:error-alt" data-inline="false" style="color: red; margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
-                {{$t('frontend.home.clientRequired')}}</p>
-            </ion-label> 
+            <ion-card  v-if="!spinner " :key="keyCreated+'KC'">
+                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="CustomerName" @input="theName = $event.target.value" ></ion-input>
+                </ion-item>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="email"  @input="theEmail = $event.target.value" @change="value=ValidateEmail()" ></ion-input>
+                </ion-item>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="phone"  @input="thePhone = $event.target.value" ></ion-input>
+                </ion-item> 
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.reservation.reason')}}</ion-label>
+                  <ion-input type="text"  @ionChange="reasonToReser=$event.target.value "></ion-input>
+                </ion-item>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="number" :value="guest" @ionChange="guest=$event.target.value "></ion-input>
+                </ion-item>
+                 <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.reservation.timeToReserve')}}  (min) <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="number" :value="serviceTime" @ionChange="serviceTime=$event.target.value,fetchTables()"></ion-input>
+                </ion-item>
+              
+                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                      <ion-label position="floating">{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong></ion-label>
+                      <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToReserv=$event.target.value,validateHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
+                    </ion-datetime>
+                </ion-item>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
+                  <ion-label position="floating">{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key"></ion-datetime>           
+                </ion-item>
 
-          <ion-card  v-if="!spinner && clientId !==''">
-                <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="CustomerName" @input="theName = $event.target.value" :readonly="clientId !==''? true: false"></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="email"  @input="theEmail = $event.target.value" @change="value=ValidateEmail()" :readonly="clientId !==''? true: false"></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="phone"  @input="thePhone = $event.target.value" :readonly="clientId !==''? true: false"></ion-input>
-              </ion-item> 
-                <ion-item>
-                    <ion-label position="floating">{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong></ion-label>
-                    <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToReserv=$event.target.value, validateHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
-                   </ion-datetime>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong></ion-label>
-                <!-- <ion-datetime display-format="h:mm A" picker-format="h:mm A" :value="hourEstimateToPick"  @ionChange="hourEstimateToPick = $event.target.value"         -->
-                <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key"></ion-datetime>           
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="number" :value="guest" @ionChange="guest=$event.target.value "></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.reason')}}</ion-label>
-                <ion-input type="text"  @ionChange="reasonToReser=$event.target.value "></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.order.notes')}}</ion-label>
-                <ion-textarea type="text"  @ionChange="noteToReserv=$event.target.value "></ion-textarea>
-              </ion-item>
-          </ion-card>  
+                 <div v-if="spinnerTable" style="text-align: center;" >
+                  <ion-spinner ></ion-spinner>
+                </div> 
+
+                <div style="text-align: center;" v-if="!spinnerTable">
+                  <ion-label position="floating"><strong>
+                    <ion-label color="success" v-if="totalSeats > 0"> {{totalSeats}} {{$t('frontend.reservation.seatsAvailable')}} </ion-label>
+                    <ion-label color="danger" v-if="totalSeats === 0">{{$t('frontend.reservation.notAvailable')}} </ion-label>
+                    </strong>
+                    </ion-label>
+                </div>
+                  
+                
+                  <div  class="menu-col-12" style="float: left;" v-if="tablesChoose && totalSeats > 0">  
+
+
+                   
+
+                    <div v-if="seatSelected < guest && !spinnerTable" style="text-align: center;" >
+                       <ion-label color="danger" >{{$t('frontend.reservation.guestLocation')}}</ion-label>                  
+                      
+                    </div>                                  
+
+                    <div v-if="!spinnerTable && hourToReserv!=='' && dateToReserv!==''">                      
+
+                        <div
+                          v-for="(r, index ) in configuration.tableDesign" :key="index" 
+                          class="menu-col-12" style="display: flex;position: relative;">                         
+                        
+                          <div v-for="(r1, index1 ) in r.length" :key="index1" 
+                            :style="' display: flex; flex-direction: column; align-items: center;justify-content: center;width:'+100/r.length+'%;'" 
+                            class="menu-grid">
+                              <ion-card 
+                              :color="findTable(configuration.tableDesign[index][index1].table).CanReserve === false? 'danger' : 'success'" 
+                              :disabled="findTable(configuration.tableDesign[index][index1].table).CanReserve === false ? true: false"
+                                v-if="findTable(configuration.tableDesign[index][index1].table).Name"
+                                :class="findTable(configuration.tableDesign[index][index1].table).Shape==='Square'?'square':
+                                findTable(configuration.tableDesign[index][index1].table).Shape==='Circle'?'circle' :
+                                findTable(configuration.tableDesign[index][index1].table).Shape==='Rectangular'? 'rectangle':
+                                'oval'"                           
+                                :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:1':'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:0.8'"
+                                @click="getIdTable(configuration.tableDesign[index][index1].table)"
+                              > 
+
+                                  
+                              <div style="position: absolute">
+                                  <div :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'font-weight: 700;font-size: 18px;text-transform: uppercase;display: flex; align-items: center;':'font-weight: 700;font-size: 18px;text-transform: none;display: flex; align-items: center;'">
+                                  {{findTable(configuration.tableDesign[index][index1].table).Name}}
+                                  <ion-checkbox :checked="serviceLocation.includes(configuration.tableDesign[index][index1].table)?true: false" style="margin: 5px;"></ion-checkbox> 
+                                </div>
+
+                                <div style="display: flex; align-items: center;    justify-content: center;">                                                          
+                                    {{findTable(configuration.tableDesign[index][index1].table).Seats.length}}
+                                    <span class="iconify" data-icon="la:chair" data-inline="false" data-flip="horizontal"></span>
+                                </div>
+                              </div>
+                             
+
+                              </ion-card>                             
+                          </div>
+
+                        </div>    
+
+                    </div>                                      
+                  
+                  </div>
+              
+                
+                <ion-item class="menu-col-12" >
+                  <ion-label position="floating">{{$t('frontend.order.notes')}}</ion-label>
+                  <ion-textarea type="text"  @ionChange="noteToReserv=$event.target.value "></ion-textarea>
+                </ion-item>
+
+              
+            </ion-card>  
+            
           
-         
-        </div>  
+          </div>  
 
-        
+         </v-breakpoint>
 
-        <ion-button @click="saveReservation()" v-if="!spinner  && clientId !==''">{{ this.$t('frontend.home.acept') }}</ion-button>
+         <ion-card>
+
+            <ion-item class="menu-col-12" >
+              <ion-label><strong>{{$t('frontend.reservation.deposit')}}: {{getFormatPrice(configuration.payForReservationQuotation)}}</strong></ion-label>
+            </ion-item>
+
+            <div>
+               <ion-label color="danger" v-if="totalSeats < guest && totalSeats > 0"><strong>{{$t('frontend.reservation.notGuestAvaibility')}}</strong></ion-label>
+            </div>
+            
+
+                <ion-button color="danger" @click="cancelReservation()">{{$t('frontend.home.cancel')}}</ion-button>
+                <ion-button color="primary" @click="confirmReservation()" :disabled="totalSeats < 1 || totalSeats < guest || (seatSelected < guest && tablesChoose)? true: false">                           
+                  {{$t('frontend.home.confirm')}}
+                  <ion-spinner v-if="spinnerPayment" name="lines-small"></ion-spinner>
+                </ion-button>
+
+             <!-- <ion-button @click="saveReservation()" v-if="!spinner">{{ this.$t('frontend.home.acept') }}</ion-button> -->
+         </ion-card>
+
+       
 
 
   </div>
   
-  <div v-if="bookmark">
+  <div v-if="codeReserv">
     <hr>
        <ion-card-title>{{$t('frontend.reservation.find')}}</ion-card-title>
       <ion-card>
 
       <div class="ion-text-wrap menu-col-12">
         <ion-searchbar 
-        v-if="!spinner && clientId !==''"
+        v-if="!spinner "
          inputmode="text"
          animated :placeholder="$t('frontend.reservation.enterCode')" 
          search-icon=false
@@ -112,7 +211,7 @@
         </ion-searchbar >
 
         <ion-button fill="outline"  style="float: left; margin: 10px 0;" @click="findByCode()"
-        v-if="!spinner && clientId !==''">
+        v-if="!spinner">
          <span class="iconify" data-icon="flat-ui:search" data-inline="false" style="margin: 0 -10px;"></span>
         </ion-button>
       </div>
@@ -124,13 +223,13 @@
            <ion-progress-bar  color="primary" type="indeterminate" reversed="true"></ion-progress-bar>
           </div>
 
-           <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
+           <!-- <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
             <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
                 <span class="iconify" data-icon="el:error-alt" data-inline="false" style="color: red; margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
                 {{$t('frontend.home.clientRequired')}}</p>
-            </ion-label> 
+            </ion-label>  -->
 
-          <div v-if="!spinner && reservationByCode.CustomerName && clientId !==''"  class="menu-col-12">
+          <div v-if="!spinner && reservationByCode.CustomerName "  class="menu-col-12">
               <ion-item>
                 <p class="menu-col-4"><strong>{{$t('frontend.orderType.name')}} </strong></p>
                 <ion-input readonly=true type="text">{{reservationByCode.CustomerName}}</ion-input>
@@ -185,18 +284,16 @@
         
   </div>
 
-  <div v-if="heart">
-
-
+  <div v-if="listReserv">
 
         <hr>
            <ion-card-title>
       {{$t('frontend.reservation.yoursReservations')}}
-       <ion-button fill="outline" style="float: right; margin-right: 10px;" @click="segmentChanged('camera')" v-tooltip="$t('frontend.tooltips.addOrder')"> +  </ion-button>
+       <ion-button fill="outline" style="float: right; margin-right: 10px;" @click="segmentChanged('newReserv')" v-tooltip="$t('frontend.tooltips.addOrder')"> +  </ion-button>
 
         <ion-label class="ion-text-wrap"> 
         </ion-label>
-         <ion-searchbar v-if="clientId !==''"
+         <ion-searchbar 
                 @ionClear="handleInput('')"
                 @input="$event.target.value?handleInput($event.target.value):handleInput('')"
                 :placeholder="$t('frontend.home.search')">           
@@ -223,7 +320,7 @@
                 {{$t('frontend.home.clientRequired')}}</p>
         </ion-label> 
 
-        <div  v-if="clientId !=='' && !spinner">
+        <div  v-if="!spinner">
           <ion-item-sliding>
 
             <ion-item >
@@ -243,10 +340,10 @@
               :list="reservationToFilter"
               :per="8"
             >
-          <ion-item-sliding v-for="reservation in paginated('allReservations')" :key="reservation._id">
+          <ion-item-sliding v-for="(reservation, index) in paginated('allReservations')" :key="index">
                  
             <ion-item
-              @click="getReservationState(reservation)"
+              @click="getReservationState(reservation, index)"
               style="width: 100%;"    
               :style="
                reservation.State===0 ? '--background: #edeb3038' // solicitada
@@ -317,18 +414,20 @@ import { Api } from '../../backoffice/api/api.js';
  import moment from 'moment-timezone';
   import { EventBus } from '../event-bus';
    import { Commons } from '../commons'
-
+ import { VBreakpoint } from 'vue-breakpoint-component'
+  import PaymentSplited from '../components/PaymentSplited'
 
 export default {
     name: 'Reservation',
      components: {   
+       VBreakpoint
   },
      data () {
       return {
         spinnerEmail: false,
-         camera: true,
-         bookmark: false,
-         heart: false,
+         newReserv: true,
+         codeReserv: false,
+         listReserv: false,
          spinner: false,
          paginate: ['allReservations'],
          theCode: '',
@@ -336,17 +435,19 @@ export default {
          theName: this.CustomerName || '',
          theEmail: this.email || '',
          thePhone: this.phone || '',
-         dateToReserv: this.dateToDay,
+         
          hourToReserv: '',
          guest: 1,
+         serviceTime: 1,
+         serviceLocation: [],
          noteToReserv: '',
          reasonToReser: '',
          allState: [this.$t('frontend.reservation.state0'), this.$t('frontend.reservation.state1'),
                     this.$t('frontend.reservation.state2'), this.$t('frontend.reservation.state3'),
                     this.$t('frontend.reservation.state4'), this.$t('frontend.reservation.state5'),
                     this.$t('frontend.reservation.state6')],
-        segmentValue: 'camera',
-        dateToDay: '',
+        segmentValue: 'newReserv',
+        
         key: 0,
         reservationToFilter: [],
         cardNumber:'',
@@ -361,24 +462,45 @@ export default {
         phone: '',  
         allReservations: [],
         configuration: {},
-        restaurantActive: {}
+        restaurantActive: {},
+        dateToDay: moment(),
+        dateToReserv: this.dateToDay,
+        filterTables: [],
+        spinnerTable: false, 
+        totalSeats : 0,
+        spinnerPayment: false,
+        googleData: {},
+        restaurantSelectedId: '',
+        reservation: {},
+        keyCreated: 0,
+        keyForceUpdate: 0,
+        tablesChoose: false,
+        seatSelected: 0,
+        AllTables: [],
       }
      },     
-     created: function(){
+     created: async function(){
 
+       
         
-        if(this.$store.state.customer._id){
-          this.clientId= this.$store.state.customer._id;
-        this.CustomerName= this.$store.state.customer.Name;
-        this.email= this.$store.state.customer.EmailAddress;
-        this.phone=this.$store.state.customer.Phone;
-        this.marketingEmail=this.$store.state.customer.MarketingConsent.Email;
-        this.marketingPhone=this.$store.state.customer.MarketingConsent.Phone; 
-       }
-
-       this.allReservations = this.$store.state.allReservations;
+      if(this.$store.state.customer._id){
+        this.clientId= this.$store.state.customer._id;
+      this.CustomerName= this.$store.state.customer.Name;
+      this.email= this.$store.state.customer.EmailAddress;
+      this.phone=this.$store.state.customer.Phone;
+      this.marketingEmail=this.$store.state.customer.MarketingConsent.Email;
+      this.marketingPhone=this.$store.state.customer.MarketingConsent.Phone; 
+      }
+      this.restaurantSelectedId = this.$store.state.restaurantActive.restaurantId || '';
+      this.allReservations = this.$store.state.allReservations;
       this.configuration = this.$store.state.configuration; 
       this.restaurantActive = this.$store.state.restaurantActive  
+
+      this.tablesChoose = this.configuration.tablesChoose;
+       this.dateToDay = moment().add('days', this.configuration.minDayToReservation);
+       this.dateToReserv = moment().add('days', this.configuration.minDayToReservation);
+
+     
        
       for(var i=0; i< this.allReservations.length; i++){
         this.allReservations[i].iState = this.allState[this.allReservations[i].State];
@@ -388,13 +510,24 @@ export default {
        
 
        if(this.$route.params.showAllReservation){
-         this.segmentChanged('heart')
+         this.segmentChanged('listReserv')
        } 
-       
-       this.dateToDay = moment.tz(moment.tz.guess()).format('MM-DD-YYYY'),    
-       this.dateToDay = moment(this.dateToDay, "MM-DD-YYYY").add('days', this.configuration.minDayToReservation);
+  
+      
 
         EventBus.$on('updateAllReservationsInParent', (value) => { this.allReservations =  value});
+
+        EventBus.$on('updateCustomerGuess', (value) => {
+          value; 
+          this.clientId= this.$store.state.guess._id || '';
+          this.CustomerName= this.$store.state.guess.Name || '';
+          this.email= this.$store.state.guess.EmailAddress || '';
+          this.phone= this.$store.state.guess.Phone || '';   
+
+          this.keyForceUpdate++; 
+        });
+
+         await this.GetAllTables();
        
      },
     mounted: function(){
@@ -427,20 +560,20 @@ export default {
       },
          
       segmentChanged(value){            
-             if(value === 'camera'){
-                 this.camera = true;
-                 this.bookmark = false;
-                 this.heart = false;
+             if(value === 'newReserv'){
+                 this.newReserv = true;
+                 this.codeReserv = false;
+                 this.listReserv = false;
              }
-             if(value === 'bookmark'){
-                 this.camera = false;
-                 this.bookmark = true;
-                 this.heart = false;
+             if(value === 'codeReserv'){
+                 this.newReserv = false;
+                 this.codeReserv = true;
+                 this.listReserv = false;
              }  
-              if(value === 'heart'){
-                 this.camera = false;
-                 this.bookmark = false;
-                 this.heart = true;                
+              if(value === 'listReserv'){
+                 this.newReserv = false;
+                 this.codeReserv = false;
+                 this.listReserv = true;                
              }
              this.segmentValue = value;
 
@@ -487,65 +620,7 @@ export default {
             
       },
 
-      async saveReservation(){
-        
-        if(this.clientId !=''){
-          this.theName= this.CustomerName;
-         this.theEmail= this.email;
-         this.thePhone = this.phone ;
-          if(this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1){
-            let mss = '';
-            if(this.dateToReserv === '') mss +='<br>'+ this.$t('frontend.reservation.reservationDate');
-            if(this.hourToReserv === '') mss +='<br>'+ this.$t('frontend.reservation.reservationHour');
-            if(this.guest < 1) mss +='<br>'+ this.$t('frontend.reservation.peoples') +' > 1';
-             return this.alertRequiredDatas(mss);
-          }          
-        }
-        else{
-          if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
-            this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1)
-            var mss1 = '';
-            if(this.dateToReserv === '') mss1 += '<br>' + this.$t('frontend.reservation.reservationDate');
-            if(this.hourToReserv === '') mss1 +='<br>'+ this.$t('frontend.reservation.reservationHour');
-            if(this.guest < 1) mss1 +='<br>'+ this.$t('frontend.reservation.peoples')+ ' > 1';
-              return this.alertRequiredDatas(mss1);
-        }          
-
-        const Reservation = {
-        "CustomerId" : this.clientId,
-        "CustomerName": this.theName,
-        "CustomerEmail": this.theEmail,
-        "CustomerPhone":  this.thePhone,
-        "Capacity":  this.guest,
-        "Date": Moment(this.dateToReserv).toISOString(),
-        "Hour": Moment(this.hourToReserv).toISOString(),
-        "Note": this.noteToReserv,
-        "Reason": this.reasonToReser,
-        "State": 0
-        }
-        
-        
-        try {
-          this.spinner = true;
-          const response = await Api.postIn('Reservation', Reservation);          
-          if(response.status === 200){
-            this.dateToReserv = this.dateToDay;
-            this.hourToReserv = '' ; this.guest = 1;
-            this.noteToReserv = ''; this.reasonToReser = ''; this.spinner = false;
-            this.openToast();             
-            this.sendReservationEmail(Reservation);
-            this.getReservations();            
-            this.segmentChanged('heart');    
-            this.spinner = false;             
-          }
-        
-        } catch (error) {
-          console.log(error);
-          this.spinner = false;          
-        }       
-
-    
-      },
+     
 
       getReservationDate(thisDate){
         return  moment.tz(thisDate, moment.tz.guess()).format('MM-DD-YYYY') 
@@ -555,8 +630,8 @@ export default {
         return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 
       },
 
-      getReservationState(reservation){
-          return this.$router.push({ name: 'ReservationDetail', params: {reservation: reservation, currentPageReservation: this.currentPageReservation } })    
+      getReservationState(reservation, index){
+          return this.$router.push({ name: 'ReservationDetail', params: {reservation: reservation, currentPageReservation: this.currentPageReservation, tables: this.AllTables, indexPosition: index} })    
       },
 
      async sendReservationEmail(reservation){
@@ -589,7 +664,7 @@ export default {
             this.spinnerEmail = false;
       },
 
-      validateHour(){
+      async validateHour(){
         this.key ++;
         if(this.hourToReserv === '')
           return ''
@@ -613,10 +688,11 @@ export default {
             const mess = this.$t('frontend.reservation.errorHour')+ day + 
             this.$t('frontend.reservation.errorHour2') +
             this.getReservationHour(this.configuration.reservationDaysAndTime[index].OpenHour) + ' - '+ this.getReservationHour(this.configuration.reservationDaysAndTime[index].CloseHour);
-
-            this.alertNotGoodHour(mess);
+            this.totalSeats = 0;
+            return this.alertNotGoodHour(mess);
            
           } 
+          await this.fetchTables();
         }
       },
 
@@ -793,10 +869,433 @@ export default {
 
      onLangsPageChange () {          
         this.currentPageReservation = this.$refs.paginator.currentPage + 1;        
-       }
+       },
 
+    fetchTables: async function(){
 
+     try {
+        if(this.serviceTime < 1 || this.hourToReserv === '' || this.dateToReserv === '' || this.guest < 1) return
+
+     this.spinnerTable = true;
+     this.serviceLocation = [];
+     const response = await Api.fetchAll('Table')
+     this.spinnerTable = false;
+     this.totalSeats = 0;
+      // dateToReserv, hourToReserv
+
+      const day = moment(this.dateToReserv).format('MM-DD-YYYY');
+      const hour = moment(this.hourToReserv).format('HH:mm');
+      const hourOut = moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm');
+      const tableAvailables = response.data;
+      for (const table of tableAvailables) {
+        let isBussy = false;
+        if(table.Reservations){
+          for (const res of table.Reservations) {             
+            if(res.Day === day &&  ( (hour >= res.HourIn && hour <= res.HourOut) || (hourOut >= res.HourIn && hourOut <= res.HourOut) ) ){
+              table.CanReserve = false; 
+              isBussy = true;
+              break;
+            } 
+          }
+        }
+        if(!isBussy){
+            table.CanReserve = true;
+            this.totalSeats += table.Seats.length;
+          }  
+         
+      }
+     this.filterTables = tableAvailables;   
+       
+     } catch (error) {
+       error;
+        this.spinnerTable = false;
      }
+
+     },
+
+    findTable(id){
+      const index = this.filterTables.findIndex( t => t._id === id)
+    
+      if(index !== -1)
+        return this.filterTables[index];
+      return {};
+    },
+
+     getIdTable(value){
+     
+      if(this.serviceLocation.includes(value)){
+        const index = this.serviceLocation.findIndex(p => p == value);
+        if(index !== -1){
+            this.seatSelected -= this.findTable(value).Seats.length;
+            this.serviceLocation.splice(index, 1); 
+            } 
+      }
+      else{
+        this.seatSelected += this.findTable(value).Seats.length;
+        this.serviceLocation.push(value)
+      } 
+
+    },
+
+    async addBussyTime(value){    
+      if(value.modelName==='Table'){
+        const busy = {
+          ReservationId: value.reservationId,
+          Day:value.day,
+          HourIn: value.hourIn,
+          HourOut: value.hourOut,
+          State: 0,            
+        }
+
+       for (const tId of value.modelId) {
+          const table = await this.findTable(tId);
+          if(table._id){
+            if(table.Reservations) table.Reservations.push(busy)
+            else {
+              table.Reservations = [];
+              table.Reservations.push(busy)
+            }
+            delete table.CanReserve;
+            await Api.putIn('Table', table);
+          }         
+       }
+    }
+
+    },
+
+    getFormatPrice(price){
+      let result = price
+      if(this.currency !== '')
+      result = new Intl.NumberFormat('en', {style: "currency", currency: this.restaurantActive.currency} ).format(price);
+      return result;
+    },
+
+     async cancelReservation(){
+        return this.$router.push({ name: 'AboutFront', params: {url: this.restaurantActive.restaurantUrl} }).catch(()=>{})
+        },
+
+    async saveReservation(){
+        
+        if(this.clientId !=''){
+          this.theName= this.CustomerName;
+         this.theEmail= this.email;
+         this.thePhone = this.phone ;
+          if(this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1){
+            let mss = '';
+            if(this.dateToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationDate')+'</strong>';
+            if(this.hourToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
+            if(this.guest < 1) mss +='<br><strong>'+ this.$t('frontend.reservation.peoples') +' > 1'+'</strong>';
+            if(this.serviceTime < 1) mss +='<br> <strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
+             return this.alertRequiredDatas(mss);
+          }          
+        }
+        else{
+          if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
+            this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1)
+            var mss1 = '';
+            if(this.dateToReserv === '') mss1 += '<br><strong>' + this.$t('frontend.reservation.reservationDate')+'</strong>';
+            if(this.hourToReserv === '') mss1 +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
+            if(this.guest < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.peoples')+ ' > 1'+'</strong>';
+             if(this.serviceTime < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
+              return this.alertRequiredDatas(mss1);
+        }          
+
+        const Reservation = {
+        "CustomerId" : this.clientId,
+        "CustomerName": this.theName,
+        "CustomerEmail": this.theEmail,
+        "CustomerPhone":  this.thePhone,
+        "Capacity":  this.guest,
+        "ServiceTime": this.serviceTime,
+        "ServiceLocation": this.serviceLocation,
+        "ServiceModel": 'Table',
+        "Date": Moment(this.dateToReserv).toISOString(),
+        "Hour": Moment(this.hourToReserv).toISOString(),
+        "Note": this.noteToReserv,
+        "Reason": this.reasonToReser,
+        "State": 0
+        }
+        
+        
+        try {
+          this.spinner = true;
+          const response = await Api.postIn('Reservation', Reservation);          
+          if(response.status === 200){
+             const busyObj = {
+               reservationId: response.data._id,
+               day: moment(this.dateToReserv).format('MM-DD-YYYY'),
+               hourIn: moment(this.hourToReserv).format('HH:mm'),
+               hourOut: moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm'), 
+               modelName: 'Table',
+               modelId: this.serviceLocation
+             }         
+            this.addBussyTime(busyObj);             
+            this.dateToReserv = this.dateToDay;
+            this.hourToReserv = '' ; this.guest = 1; this.serviceTime = 1; this.serviceLocation = [];
+            this.noteToReserv = ''; this.reasonToReser = ''; this.spinner = false;
+            this.openToast();             
+            this.sendReservationEmail(Reservation);
+            this.getReservations();            
+            this.segmentChanged('listReserv');    
+            this.spinner = false;        
+             
+          }
+        
+        } catch (error) {
+          console.log(error);
+          this.spinner = false;          
+        }  
+      },
+
+    async AsignServiceLocation(){
+        await this.fetchTables();
+
+        const tableService = [];
+        let count = 0;
+
+
+        for (const table of this.filterTables) {
+          if(table.CanReserve){
+            count += table.Seats.length;
+            tableService.push(table._id);
+            if(count >= this.guest){
+               this.serviceLocation = [...tableService];
+               break;
+            }
+          }          
+        }
+        return;
+    },
+
+    async confirmReservation(){
+
+      if(this.seatSelected === 0 && !this.tablesChoose){
+        await this.AsignServiceLocation();
+      }
+
+        if(this.clientId !=''){
+          this.theName= this.CustomerName;
+         this.theEmail= this.email;
+         this.thePhone = this.phone ;
+          if(this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1){
+            let mss = '';
+            if(this.dateToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationDate')+'</strong>';
+            if(this.hourToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
+            if(this.guest < 1) mss +='<br><strong>'+ this.$t('frontend.reservation.peoples') +' > 1'+'</strong>';
+            if(this.serviceTime < 1) mss +='<br> <strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
+             return this.alertRequiredDatas(mss);
+          }          
+        }
+        else{
+            
+          if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
+            this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1){
+              var mss1 = '';
+              if(this.theName === '') mss1 += '<br><strong>' + this.$t('frontend.orderType.name')+'</strong>';
+              if(this.theEmail === '') mss1 += '<br><strong>' + this.$t('frontend.orderType.email')+'</strong>';
+              if(this.thePhone === '') mss1 += '<br><strong>' + this.$t('frontend.orderType.phone')+'</strong>';
+              if(this.dateToReserv === '') mss1 += '<br><strong>' + this.$t('frontend.reservation.reservationDate')+'</strong>';
+              if(this.hourToReserv === '') mss1 +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
+              if(this.guest < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.peoples')+ ' > 1'+'</strong>';
+              if(this.serviceTime < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
+              return this.alertRequiredDatas(mss1);
+            }
+           
+        }          
+
+        this.reservation = {
+        "CustomerId" : this.clientId,
+        "CustomerName": this.theName,
+        "CustomerEmail": this.theEmail,
+        "CustomerPhone":  this.thePhone,
+        "Capacity":  this.guest,
+        "ServiceTime": this.serviceTime,
+        "ServiceLocation": this.serviceLocation,
+        "ServiceModel": 'Table',
+        "Date": Moment(this.dateToReserv).toISOString(),
+        "Hour": Moment(this.hourToReserv).toISOString(),
+        "Note": this.noteToReserv,
+        "Reason": this.reasonToReser,
+        "State": 0
+        }
+        
+
+        if(this.configuration.hasReservationQuotation && this.configuration.payForReservationQuotation > 0){
+            this.spinnerPayment = true;
+            await this.getWalletInformation();
+            this.spinnerPayment = false;
+            return this.openPayment();
+        }
+        else{
+            alert('The restaurant has not yet defined a reservation feet')
+            return;
+        }
+       
+        
+    },
+
+    async getWalletInformation(){
+      const  newT =  parseInt( this.configuration.payForReservationQuotation.toFixed(2).replace('.', ''));
+      const basket = {"invoice": 666, "total": newT };       
+      
+     
+      const ipClient = await Api.getClientIp();
+      const res = await Api.walletInformation(basket, this.restaurantSelectedId, ipClient.data.ip); 
+      if(res.status === 200 && res.statusText === "OK"){
+               
+        this.googleData.merchantId = res.data.walletConfig.merchantID.toString();  
+        this.googleData.gateway = res.data.walletConfig.googlePay.gateway;           
+        this.googleData.allowedAuthMethods= res.data.walletConfig.googlePay.allowedAuthMethods;         
+        this.googleData.allowedCardNetworks= res.data.walletConfig.googlePay.allowedCardNetworks;  
+        this.googleData.currencyCode =res.data.walletConfig.currencyCode; 
+        this.googleData.countryCode =res.data.walletConfig.countryCode;      
+        
+      }      
+      
+    
+    },
+
+    async openPayment(){
+            return this.$ionic.modalController
+        .create({
+            component: PaymentSplited,
+            cssClass: 'my-custom-class',
+            componentProps: {
+            data: {
+                content: 'New Content',
+            },
+            propsData: {  
+                parent:this,
+                order: {
+                    Total: this.configuration.payForReservationQuotation.toFixed(2),
+                    Taxe: "1.00",
+                    Tip: 0,
+                    SubTotal: this.configuration.payForReservationQuotation.toFixed(2),
+                    Products: []
+                }, 
+                Total: this.configuration.payForReservationQuotation.toFixed(2),
+                Tax:  "1.00",
+                TaxName: '',     
+                restaurantId: this.restaurantSelectedId,
+                payMethod: this.restaurantActive.payMethod  ,   
+                currency: this.restaurantActive.currency,
+                returnTo: 'ReservationState',   
+                googleData: this.googleData,
+                staffName: this.$store.state.staffName || '',
+                deviceTransactionType: '01',
+                deviceData: {
+                    'amountInformation': {
+                            'TransactionAmount': this.configuration.payForReservationQuotation.toFixed(2),
+                            'TipAmount': 0,
+                            'TaxAmount': "1.00",
+                        },
+                        'accountInformation':{
+                            'FirstName': this.reservation.CustomerName
+                        },
+                        'traceInformation':{
+                            'TransactionNumber': ''
+                        }
+                },   
+                customerName: this.reservation.CustomerName,
+                restaurantName: this.restaurantActive.restaurantName,
+          },
+            },
+        })
+        .then(m => m.present())
+    
+    },
+
+    async makeSplitPayment(res){  
+
+      try {
+          this.spinner = true;
+
+          this.reservation.QuotationPayment = this.configuration.payForReservationQuotation; 
+          this.reservation.State = 4;    
+          this.reservation.Payment= {
+            TransId : res.transId, 
+            Total: this.configuration.payForReservationQuotation,           
+            Method : res.method + ' '+ res.accountType+ ' '+ res.accountNumber,           
+            AccountNumber : res.accountNumber,  
+            ExpirationCard : res.expirationCard 
+          }   
+          const response = await Api.postIn('Reservation', this.reservation);
+          if(response.status === 200 && response.statusText === "OK"){             
+             
+            this.openToast(); 
+            this.sendReservationEmail(this.reservation); 
+            this.sendReservationCustomer(this.reservation);
+            const busyObj = {
+                reservationId: response.data._id,
+                day: moment(this.dateToReserv).format('MM-DD-YYYY'),
+                hourIn: moment(this.hourToReserv).format('HH:mm'),
+                hourOut: moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm'), 
+                modelName: 'Table',
+                modelId: this.serviceLocation
+            }      
+            this.addBussyTime(busyObj); 
+
+            this.dateToReserv = this.dateToDay;
+            this.hourToReserv = '' ; this.guest = 1; this.serviceTime = 1; this.serviceLocation = [];
+            this.noteToReserv = ''; this.reasonToReser = ''; this.totalSeats = 0;
+            this.keyCreated ++
+
+            if(this.clientId !== ''){
+              await this.getReservations();
+              this.segmentChanged('listReserv'); 
+            }
+            else this.sendPrint(this.reservation);
+              
+            this.spinner = false;
+              
+            if(res.method === 'Credit')
+                Commons.updateCustomerCredit(parseFloat(res.total), 'Reservation', response.data._id); 
+            else if(res.method === 'HouseAccount'){
+              const houseAccount = { 
+                  "ServerName": this.$store.state.staffName, 
+                  "CustomerName": this.theName,                 
+                  "Amount": res.total,    
+                  "Model": "Reservation",
+                  "ModelId": response.data._id,
+                  }
+              await Api.postIn('houseAccount', houseAccount); 
+            }             
+            else{
+              const paymentEntry = {                       
+                  "Method": res.method,
+                  "Payment": res.total,
+                  "InvoiceNumber": res.transId,
+                  "ModelId": response.data._id,
+                  "ModelFrom": "Reservation",
+                  "StaffName": this.$store.state.staffName,               
+                  }
+              await Api.postIn('allpayments', paymentEntry);
+            } 
+            
+            return 
+          }
+          
+      } catch (error) {            
+          console.log(error)
+          this.spinner = false;
+      }
+  
+    },
+
+    async GetAllTables(){
+      try {
+        const response = await Api.fetchAll('Table')
+        if(response.status === 200) this.AllTables = response.data;
+        
+      } catch (error) {
+        error
+      }
+    }
+
+   
+    
+
+  }
 }
 
 </script>
@@ -857,5 +1356,154 @@ li {
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
+
+.content {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}  
+.square {
+  /* width: inherit; */
+  opacity: 0.8;
+  max-height: 200px;
+    max-width: 200px;
+  width: 100%;
+}
+
+.square:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+.square:hover{
+ opacity: 0.9;
+}
+
+.circle{
+   width: 100%;
+     opacity: 0.8;
+   /* width: inherit; */
+   max-height: 200px;
+    max-width: 200px;
+  border-radius: 50%;
+}
+.circle:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+.circle:hover{
+    opacity: 0.9;
+}
+.rectangle{
+    width: 100%; 
+      opacity: 0.8;
+    /* width: inherit; */
+    max-height: 200px;
+    max-width: 200px;
+}
+.rectangle:after {
+  content: "";
+  display: block;
+  padding-bottom: 60%;
+}
+.rectangle:hover{
+    opacity: 0.9;
+}
+.oval{
+  /* width: inherit; */
+  max-height: 200px;
+    opacity: 0.8;
+    max-width: 200px;
+    width: 100%; 
+    border-radius: 50%;
+}
+.oval:after {
+  content: "";
+  display: block;
+  padding-bottom: 60%;
+}
+.oval:hover{
+    opacity: 0.9;
+}
+
+.menu-grid{
+  float: left;
+  height: 220px;
+  border: none;
+  padding: 5px;
+}
+.menu-col-1{
+    flex: 0 0 calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-2{
+    flex: 0 0 calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(2 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-3{
+    flex: 0 0 calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(3 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-4{
+    flex: 0 0 calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(4 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-5{
+    flex: 0 0 calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(5 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-6{
+    flex: 0 0 calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(6 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-7{
+    flex: 0 0 calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(7 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-8{
+    flex: 0 0 calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(8 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-9{
+    flex: 0 0 calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(9 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-10{
+    flex: 0 0 calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(10 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-11{
+    flex: 0 0 calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(11 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
+.menu-col-12{
+    flex: 0 0 calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
+    width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
+    max-width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
+    text-align: left;
+}
     
 </style>

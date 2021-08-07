@@ -38,6 +38,7 @@
              <ion-button @click="termAndCondition=true,hideTerms()">Aceptar</ion-button>
         </modal>
 
+
         <div >
 
             <ion-header>
@@ -53,163 +54,168 @@
                 </ion-toolbar>
             </ion-header> 
 
-                <v-breakpoint>
-                    <div slot-scope="scope" :key="key">
+            <ion-card >
+                <ion-button @click="restaurantBussines=true,serviceBussines=false" :disabled="restaurantBussines? true: false">Negocio</ion-button>
+                <ion-button @click="serviceBussines=true,restaurantBussines=false" :disabled="serviceBussines? true: false">Reservación</ion-button>
+            </ion-card>
+
+            <v-breakpoint v-if="restaurantBussines || serviceBussines">
+                <div slot-scope="scope" :key="key">
+
+                    <ion-card >
+                            <ion-card-title style="text-align: left;padding: 15px;">
+                            {{$t('frontend.createNew.dataRestaurant')}}
+                        </ion-card-title>
+                        <ion-card-content :key="restaurantKey">
+                            <div  style="display: flex;justify-content: flex-start;align-items: center;" v-if="!serviceBussines">  
+                                
+                                <h2>{{$t('frontend.createNew.restaurantType')}}<strong style="color: red">*</strong></h2>
+                                <ion-select interface="popover" icon="add" v-if="restaurantType.length > 0"
+                                style=""
+                                :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                                :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                                    
+                                :placeholder="$t('frontend.createNew.select')"
+                                :value="restaurantTypeSelected"
+                                @ionChange="restaurantTypeSelected=$event.target.value"                          
+                                >
+                                    <ion-select-option v-for="(res, index) in restaurantType"                    
+                                    :key="index" 
+                                    :value="index" >{{res.Type}}
+                                    </ion-select-option>  
+                                </ion-select>
+                                <div v-if="restaurantTypeSelected !==-1" style="display: flex;">
+                                    <div  v-if="restaurantType[restaurantTypeSelected].Datas.length > 0" @click="showRestaurantType()">
+                                        <span  class="iconify" data-icon="ic:baseline-remove-red-eye" data-inline="false"></span>
+                                    </div>
+                                </div>
+                                        
+                            </div>                               
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantName')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true  
+                                    :value="restaurantName" @input="restaurantName = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true
+                                    :value="restaurantAddres" @input="restaurantAddres = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantZipcode')}} <strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true
+                                    :value="restaurantZipcode" @change="restaurantZipcode=ValidateZipcode($event.target.value, 'restaurant')"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" readonly=true
+                                    :value="restaurantCity" 
+                                ></ion-input>
+                            </ion-item>
+                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" readonly=true
+                                    :value="restaurantState" 
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="restaurantPhone" @input="restaurantPhone = $event.target.value"
+                                    @change=" validatePhone($event.target.value, 'rest')"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="restaurantEmail" @input="restaurantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'rest')"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantWeb')}}</ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="restaurantWeb" @input="restaurantWeb = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.restaurantFax')}}</ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="restaurantFax" @input="restaurantFax = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+
+                        </ion-card-content>
+                    </ion-card>    
 
                         <ion-card >
-                             <ion-card-title style="text-align: left;padding: 15px;">
-                               {{$t('frontend.createNew.dataRestaurant')}}
-                            </ion-card-title>
-                            <ion-card-content :key="restaurantKey">
-                                <div  style="display: flex;justify-content: flex-start;align-items: center;">  
-                                    
-                                    <h2>{{$t('frontend.createNew.restaurantType')}}<strong style="color: red">*</strong></h2>
-                                    <ion-select interface="popover" icon="add" v-if="restaurantType.length > 0"
-                                    style=""
-                                    :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                                    :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                                    
-                                    :placeholder="$t('frontend.createNew.select')"
-                                    :value="restaurantTypeSelected"
-                                    @ionChange="restaurantTypeSelected=$event.target.value"                          
-                                    >
-                                        <ion-select-option v-for="(res, index) in restaurantType"                    
-                                        :key="index" 
-                                        :value="index" >{{res.Type}}
-                                        </ion-select-option>  
-                                    </ion-select>
-                                    <div v-if="restaurantTypeSelected !==-1" style="display: flex;">
-                                        <div  v-if="restaurantType[restaurantTypeSelected].Datas.length > 0" @click="showRestaurantType()">
-                                            <span  class="iconify" data-icon="ic:baseline-remove-red-eye" data-inline="false"></span>
-                                        </div>
-                                    </div>
-                                            
-                                </div>                               
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantName')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true  
-                                        :value="restaurantName" @input="restaurantName = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true
-                                        :value="restaurantAddres" @input="restaurantAddres = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantZipcode')}} <strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true
-                                        :value="restaurantZipcode" @change="restaurantZipcode=ValidateZipcode($event.target.value, 'restaurant')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            <ion-card-title style="text-align: left;padding: 15px;">
+                            {{$t('frontend.createNew.dataMercahnt')}}
+                        </ion-card-title>                            
+                        
+                        <ion-card-content :key="merchantKey">
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            <ion-label position="floating">{{$t('frontend.createNew.merchantName')}}<strong style="color: red">*</strong></ion-label>                                          
+                            <ion-input type="text" required=true                                 
+                                :value="merchantName" @input="merchantName = $event.target.value"
+                            ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantLastName')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="merchantLastName" @input="merchantLastName = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true
+                                    :value="merchantAddres" @input="merchantAddres = $event.target.value"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'">
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantZipcode')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true
+                                    :value="merchantZipcode" @change="merchantZipcode=ValidateZipcode($event.target.value, 'merchant')"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
                                     <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
                                     <ion-input type="text" readonly=true
-                                        :value="restaurantCity" 
+                                        :value="merchantCity" 
                                     ></ion-input>
                                 </ion-item>
-                                 <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-item  :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
                                     <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
                                     <ion-input type="text" readonly=true
-                                        :value="restaurantState" 
+                                        :value="merchantState" 
                                     ></ion-input>
                                 </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="restaurantPhone" @input="restaurantPhone = $event.target.value"
-                                        @change=" validatePhone($event.target.value, 'rest')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="restaurantEmail" @input="restaurantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'rest')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantWeb')}}</ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="restaurantWeb" @input="restaurantWeb = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.restaurantFax')}}</ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="restaurantFax" @input="restaurantFax = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-
-                            </ion-card-content>
-                        </ion-card>    
-
-                         <ion-card >
-                              <ion-card-title style="text-align: left;padding: 15px;">
-                               {{$t('frontend.createNew.dataMercahnt')}}
-                            </ion-card-title>                            
-                            
-                            <ion-card-content :key="merchantKey">
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                <ion-label position="floating">{{$t('frontend.createNew.merchantName')}}<strong style="color: red">*</strong></ion-label>                                          
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
                                 <ion-input type="text" required=true                                 
-                                    :value="merchantName" @input="merchantName = $event.target.value"
+                                    :value="merchantPhone" @input="merchantPhone = $event.target.value"
+                                    @change=" validatePhone($event.target.value, 'merchant')"
                                 ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantLastName')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="merchantLastName" @input="merchantLastName = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true
-                                        :value="merchantAddres" @input="merchantAddres = $event.target.value"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'">
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantZipcode')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true
-                                        :value="merchantZipcode" @change="merchantZipcode=ValidateZipcode($event.target.value, 'merchant')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                        <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
-                                        <ion-input type="text" readonly=true
-                                            :value="merchantCity" 
-                                        ></ion-input>
-                                    </ion-item>
-                                    <ion-item  :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                        <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
-                                        <ion-input type="text" readonly=true
-                                            :value="merchantState" 
-                                        ></ion-input>
-                                    </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="merchantPhone" @input="merchantPhone = $event.target.value"
-                                        @change=" validatePhone($event.target.value, 'merchant')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" required=true                                 
-                                        :value="merchantEmail" @input="merchantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'merchant')"
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.createNew.merchantClerk')}}<strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="number" required=true                                 
-                                        :value="merchantClerk" @input="merchantClerk = $event.target.value"  @change="validateClerk($event.target.value)"
-                                    ></ion-input>
-                                </ion-item>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" required=true                                 
+                                    :value="merchantEmail" @input="merchantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'merchant')"
+                                ></ion-input>
+                            </ion-item>
+                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                                <ion-label position="floating">{{$t('frontend.createNew.merchantClerk')}}<strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="number" required=true                                 
+                                    :value="merchantClerk" @input="merchantClerk = $event.target.value"  @change="validateClerk($event.target.value)"
+                                ></ion-input>
+                            </ion-item>
 
-                            </ion-card-content>
-                        </ion-card> 
+                        </ion-card-content>
+                    </ion-card> 
 
-                    </div> 
-                </v-breakpoint>
+                </div> 
+            </v-breakpoint>
         </div>
         <ion-input @ionChange="paymentRes=$event.target.value" id="newRestaurantPayment" ref="abc" style="display:none"></ion-input>
 
@@ -353,6 +359,8 @@ export default {
            restaurantTypeSelected: -1,
            termAndCondition: false,
            spinnerDate: false,
+           restaurantBussines: false,
+           serviceBussines: false,
         }
     },  
     methods:{
@@ -435,6 +443,9 @@ export default {
                     "ServerId": this.merchantClerk
                     }
                 }
+
+            if(this.restaurantBussines) res.RestaurantBussines = true;
+            if(this.serviceBussines) res.ServiceBussines = true;
             if(traceNumber) res.TraceNumber = traceNumber;
             if(this.restaurantFax !== '') res.Fax = this.restaurantFax;
             if(this.restaurantWeb !== '') res.Web = this.restaurantWeb;
@@ -614,6 +625,7 @@ export default {
         hideTerms() {
          this.$modal.hide('terms-and-condition');
         },
+
 
 
       

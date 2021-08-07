@@ -7,7 +7,7 @@
             <ion-title>{{ i18n.t('frontend.product.productDetail') }}</ion-title>
           </ion-col>
           <ion-col size="2" style="border: 0px !important;">
-            <ion-button @click="dismissQr" >
+            <ion-button @click="dismissQr()" >
               <ion-icon slot="icon-only"  name="close"></ion-icon>
             </ion-button>
           </ion-col>
@@ -15,7 +15,7 @@
          
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding"> 
+    <!-- <ion-content class="ion-padding">  -->
 
         <ion-card  >
           <ion-card-header>
@@ -139,7 +139,7 @@
         </ion-card>
 
        
-    </ion-content>
+    <!-- </ion-content> -->
   </div>
 </template>
 
@@ -243,7 +243,7 @@ export default {
 methods: {
 
     dismissQr(){
-       return this.$ionic.modalController.dismiss()
+       this.$modal.hide('product-detail');    
     },
 
     changeVariant(varId, variant){

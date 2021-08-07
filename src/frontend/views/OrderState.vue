@@ -576,9 +576,6 @@ export default {
       
        this.indexPosition = this.$route.params.indexPosition
 
-        console.log(this.$route.params.indexPosition)
-
-
         if(this.order.OrderType === 'PickUp' || this.order.OrderType === 'Curbside'){
             this.orderInfo =  moment.tz(this.order.DateToPick, moment.tz.guess()).format('MM-DD-YYYY') +'  |  '+ moment.tz(this.order.HourToPick, moment.tz.guess()).format('hh:mm A')
         }

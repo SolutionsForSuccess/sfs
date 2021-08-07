@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export var Api = {
 
-   token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',      
+    token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',    
     // endPointURL: 'http://localhost:7071/api/',   //LOCAL      
     // endPointURL: 'https://sls-eus-dev-serverless-succes-api.azurewebsites.net/api/', //PROD
     endPointURL: 'https://sls-eus-dev-serverless-succes-api-dev.azurewebsites.net/api/', //DEVELOp
@@ -16,7 +16,6 @@ export var Api = {
     // endPointURL: 'https://api.eposnowhq.com/api/v4/',
 
     
-
     restaurantId: '',
     restaurant: null,
 

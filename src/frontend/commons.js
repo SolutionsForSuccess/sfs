@@ -269,6 +269,8 @@ export var Commons = {
               showOtherRestaurant: response.data[0].ShowOtherRestaurant || false,
               ads : response.data[0].Ads || [],
               hasDeliveryPayment: response.data[0].HasDeliveryPayment || false,
+              tableDesign: response.data[0].TableDesign || [],
+              tablesChoose: response.data[0].TablesChoose || false,
             }
   
             store.commit('setConfiguration', configuration)           
@@ -716,6 +718,8 @@ export var Commons = {
 
     htmlSendReservation(reservation){
 
+     
+
       const  allState = [i18n.t('frontend.reservation.state0'), i18n.t('frontend.reservation.state1'),
                           i18n.t('frontend.reservation.state2'), i18n.t('frontend.reservation.state3'),
                           i18n.t('frontend.reservation.state4'), i18n.t('frontend.reservation.state5'),
@@ -748,20 +752,21 @@ export var Commons = {
         html += ` <h4> ${i18n.t('frontend.orderType.phone')}: ${reservation.CustomerPhone}</h4>`;
       if(reservation.Capacity)
         html += ` <h4> ${i18n.t('frontend.reservation.peoples')}: ${reservation.Capacity}</h4>`;
+
+        const hourOut = moment(this.hourToReserv).add(parseInt(reservation.ServiceTime), 'minutes');
+
       if(reservation.Date)
         html += ` <h4> ${i18n.t('frontend.reservation.reservationDate')}: ${this.getDate(reservation.Date)}</h4>`;
       if(reservation.Hour)
-        html += ` <h4> ${i18n.t('frontend.reservation.reservationHour')}: ${this.getHour(reservation.Hour)}</h4>`;
+        html += ` <h4> ${i18n.t('frontend.reservation.reservationHour')}: ${this.getHour(reservation.Hour)}  -   ${this.getHour(hourOut)}</h4>`;
       if(reservation.Note)
         html += ` <h4> ${i18n.t('frontend.order.notes')}: ${reservation.Note}</h4>`;
       if(reservation.Reason)
         html += ` <h4> ${i18n.t('frontend.reservation.reason')}: ${reservation.Reason}</h4>`;
       if(reservation.State)
-        html += ` <h4> ${i18n.t('frontend.home.state')}: ${allState[reservation.State]}</h4>`;
-      if(reservation.Code)
-        html += ` <h4> ${i18n.t('frontend.reservation.code')}: ${reservation.Code}</h4>`;
+        html += ` <h4> ${i18n.t('frontend.home.state')}: ${allState[reservation.State]}</h4>`;     
       if(reservation.QuotationPayment)
-        html += `<h4> ${i18n.t('frontend.reservation.dinnerPrePayment')}: ${ this.getFormatPrice(reservation.QuotationPayment)}</h4>`;     
+        html += `<h4> ${i18n.t('frontend.reservation.deposit')}: ${ this.getFormatPrice(reservation.QuotationPayment)}</h4>`;     
       html += `</td></tr>`;  
 
       html += '<tr><td colspan=6 style=" text-align: center;">';

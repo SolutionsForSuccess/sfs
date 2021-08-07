@@ -1387,11 +1387,22 @@ export default {
     },
     
     async getAllRestaurant(){
+        console.log("ALL RESTAURANT")
+        console.log(this.$store.state.user.AllRestaurant)
+
         for(var i =0; i < this.$store.state.user.AllRestaurant.length; i++){
-            const rest = await Api.fetchById('Restaurant', this.$store.state.user.AllRestaurant[i]);
-            if(rest.status === 200)
-                this.allRestaurant.push(rest.data);
+            try{
+                const rest = await Api.fetchById('Restaurant', this.$store.state.user.AllRestaurant[i]);
+                console.log(rest)
+                if(rest.status === 200)
+                    this.allRestaurant.push(rest.data);
+            }
+            catch(e){
+                console.log(e)
+            }   
         }
+
+        console.log(this.allRestaurant)
     },
 
     async deleteRestaurant(){

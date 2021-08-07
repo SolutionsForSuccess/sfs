@@ -6,17 +6,26 @@
             <ion-buttons slot="start" @click="allReservation()">
               <ion-back-button default-href="home"></ion-back-button>
             </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
+
+            <ion-label style="padding: 20px 100px;display: flex;justify-content: center;align-items: center;" :key="keyOrder+'L'">
+                <div v-if="indexPosition > 0" @click="ordenBack()"><span class="iconify" data-icon="eva:arrow-back-fill" data-inline="false" ></span></div>
+                <h1 > Detalles de la Reservación</h1>      
+                <div v-if="indexPosition < allReservations.length -1" @click="ordenFor()"> <span class="iconify" data-icon="eva:arrow-forward-fill" data-inline="false" ></span></div>      
+            </ion-label>
+
+            <!-- <ion-label style="padding: 20px 100px;">
                 <h1> Detalles de la Reservación</h1>            
                        
-            </ion-label>    
-            <ion-chip color="primary" slot="end" @click="sendReservationEmail(reservation)"  v-tooltip="$t('frontend.tooltips.forward')">
+            </ion-label>     -->
+            <ion-chip color="primary" slot="end" style="padding:0" @click="sendReservationEmail(reservation)"  v-tooltip="$t('frontend.tooltips.forward')">
                 <span  class="iconify" data-icon="carbon:mail-all" data-inline="false"></span>
                 <ion-spinner v-if="spinnerEmail"></ion-spinner>
             </ion-chip>       
-            <ion-chip color="primary" slot="end" @click="sendPrint" v-tooltip="$t('frontend.tooltips.printRes')">
+            <ion-chip color="primary" slot="end" style="padding:0" @click="sendPrint" v-tooltip="$t('frontend.tooltips.printRes')">
                 <span class="iconify" data-icon="ic:round-local-printshop" data-inline="false">
             </span></ion-chip>
+
+             
               
           </ion-toolbar>
         </ion-header>
@@ -25,7 +34,7 @@
             <ion-spinner  name="lines" class="spinner"></ion-spinner>
         </div>
 
-        <v-breakpoint v-if="!spinner1">
+        <v-breakpoint v-if="!spinner1" :key="keyOrder">
             <div slot-scope="scope" style="argin-top: 10px;">
 
                 <span > 
@@ -57,9 +66,9 @@
                             </ion-label>
                                 <h2 v-if="reservation.QuotationPayment" style="width: 100%;float: left;font-size: 16px;
                                 text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
-                                    {{$t('frontend.reservation.dinnerPrePayment')}}: <strong>  {{ getFormatPrice(reservation.QuotationPayment)}} </strong>  |
-                                    {{$t('frontend.order.transId')}}: <strong>  {{ reservation.PaymentTransId}} </strong>  |
-                                    {{$t('frontend.order.paymentMethod')}}: <strong>  {{ reservation.PaymentMethod}} - </strong>  </h2>
+                                    {{$t('frontend.reservation.deposit')}}: <strong>  {{ getFormatPrice(reservation.Payment.Total)}} </strong>  |
+                                    {{$t('frontend.order.transId')}}: <strong>  {{ reservation.Payment.TransId}} </strong>  |
+                                    {{$t('frontend.order.paymentMethod')}}: <strong>  {{ reservation.Payment.Method}} - </strong>  </h2>
                         </div>
 
                        
@@ -132,23 +141,26 @@
                             {{$t('frontend.order.notes')}}:<strong>  {{reservation.Note}} </strong> </h2>
                         </ion-label></p>
 
-                        
-                         <p v-if="reservation.Code"> <ion-label class="ion-text-wrap" >
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.reservation.code')}}:<strong>  {{reservation.Code}} </strong> </h2>
-                        </ion-label></p>
 
                         <p v-if="reservation.QuotationPayment"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
                             text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.reservation.dinnerPrePayment')}}:<strong> {{getFormatPrice(reservation.QuotationPayment)}} </strong> </h2>
+                            {{$t('frontend.reservation.deposit')}}:<strong> {{getFormatPrice(reservation.QuotationPayment)}} </strong> </h2>
                         </ion-label></p>
 
                          <p v-if="reservation.restaurantNotes"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
                             text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
                             {{$t('frontend.reservation.restaurantNotes')}}:<strong>  {{reservation.restaurantNotes}} </strong> </h2>
+                        </ion-label></p>
+                         <p v-if="reservation.ServiceLocation.length > 0 && configuration.tablesChoose"> <ion-label class="ion-text-wrap" >
+                            <h2  style="width: 100%;float: left;font-size: 16px;
+                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                            {{$t('frontend.order.location')}}: <br>
+                                <div style="padding: 5px 10px; text-transform: uppercase;">
+                                    <strong v-for="table in reservation.ServiceLocation" :key="table"> {{findTable(table).Name}} <br></strong>    
+                                </div> 
+                            </h2>
                         </ion-label></p>
 
                     </ion-card>
@@ -218,13 +230,19 @@ export default {
         this.restaurantSelectedId = this.$store.state.restaurantActive.restaurantId || '';             
         this.reservation = this.$route.params.reservation;
         this.configuration = this.$store.state.configuration;
-        this.restaurantActive = this.$store.state.restaurantActive
+        this.restaurantActive = this.$store.state.restaurantActive;
+        this.allReservations = this.$store.state.allReservations;
 
         if( this.$route.params.fromMyAccount)
             this.fromMyAccount = this.$route.params.fromMyAccount;
 
         if( this.$route.params.currentPageReservation > 1)
             this.currentPageReservation = this.$route.params.currentPageReservation;
+
+        if( this.$route.params.tables)
+            this.tables = this.$route.params.tables;
+
+        this.indexPosition = this.$route.params.indexPosition
 
         this.valEstate = this.allState[this.reservation.State];  
 
@@ -260,6 +278,10 @@ export default {
             googleData: {},
             spinnerPayment: false,
             spinnerEmail: false,
+            tables: [],
+            allReservations: [],
+            indexPosition: -1,
+             keyOrder: 0,
         }
     },
     computed:{
@@ -447,7 +469,8 @@ export default {
         },
 
         getReservationHour(thisHour){
-            return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 
+             const hourOut = moment(thisHour).add(parseInt(this.reservation.ServiceTime), 'minutes');
+            return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') +' - '+ moment.tz(hourOut, moment.tz.guess()).format('hh:mm A') 
         },
     
         sendPrint:  function(){
@@ -577,6 +600,30 @@ export default {
       }      
       
     
+    },
+
+    findTable(id){
+      const index = this.tables.findIndex( t => t._id === id)
+    
+      if(index !== -1)
+        return this.tables[index];
+      return {};
+    },
+
+     ordenFor(){
+         if(this.indexPosition < this.allReservations.length -1){
+             this.indexPosition +=1;
+             this.reservation = this.allReservations[this.indexPosition];
+             this.keyOrder ++;
+         }
+    },
+    ordenBack(){
+          if(this.indexPosition > 0){
+             this.indexPosition -=1;
+             this.reservation = this.allReservations[this.indexPosition];
+             this.keyOrder ++;
+         }
+       
     },
 
         

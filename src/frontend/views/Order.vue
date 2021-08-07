@@ -1130,7 +1130,7 @@ export default {
         Commons.sendOrderEmail(value);
         this.goodPaymentToast();                  
         if(this.discount > 0 && this.theCodeToDiscount != '');{
-              this.closeReservation(); 
+              console.log(); // Ajustar descuento
         }  
       }
         
@@ -1992,53 +1992,6 @@ ValidateHour(value){
           )
     },
 
-    closeReservation(){
-        if(this.theCodeToDiscount !== ''){
-             Api.getReservationByCode(this.theCodeToDiscount)
-            .then(response => {                 
-                response.data.State = 6;
-                Api.putIn('Reservation',response.data);
-            })
-            .catch(e => {              
-              console.log(e); 
-            }) 
-        }
-    },
-
-    findByCode(){
-        this.key2++;
-        if(this.theCodeToDiscount === '')
-            return this.alertRequiredDatas();
-        this.spinnerDiscount = true;
-        Api.getReservationByCode(this.theCodeToDiscount)
-            .then(response => {
-                 this.spinnerDiscount = false;
-                if(response.data.State === 6){
-                    this.discount = 0;
-                    return this.orderCloseToDiscount();
-                }                    
-                if(response.data.QuotationPayment > this.subTotal ){
-                     this.discount = 0;
-                     return this.quotationBiggerThanSubtotal();
-                }                                    
-                if(response.data.QuotationPayment && response.data.State === 4)
-                    this.discount = response.data.QuotationPayment;  
-                else{
-                    this.theCodeToDiscount = '';
-                    this.showDiscount = false;                    
-                     return this.notDiscountToApply();
-                }
-                   
-
-            })
-            .catch(e => {
-              this.spinnerDiscount = false;
-              this.theCodeToDiscount = '';
-              console.log(e);    
-              return this.notDiscountToApply();
-                        
-            }) 
-      },
 
     validateEmail(){
          let emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;

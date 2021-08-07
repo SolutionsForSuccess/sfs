@@ -206,7 +206,7 @@
 
             
               <div>
-                <ion-icon @click="openEnd" name="settings" class="menu-col-1" style="float: right;font-size: 30px;margin: 0px 25px 0 15px;"></ion-icon>
+                <ion-icon @click="openEnd" name="settings" class="" style="float: right;font-size: 30px;margin: 0px 25px 0 15px;"></ion-icon>
                 <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')"><span class="iconify" data-icon="ph:user-circle" data-inline="false"></span></div>
                 <div :key="keyUserLogin+'L'" style="float: right;" v-if="CustomerName" @click="showEditUser=!showEditUser"><span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span></div>
               </div>
@@ -334,7 +334,7 @@
               </vue-marquee-slide>
             </vue-marquee>
 
-        <ion-title class="menu-col-12"><a href="https://imenuapps.com/" style="text-decoration: none;">iMenuApps</a></ion-title>
+        <ion-title class="menu-col-12" style="text-align: center"><a href="https://imenuapps.com/" style="text-decoration: none;">iMenuApps</a></ion-title>
       </ion-toolbar>
 
     </ion-footer>
@@ -1218,8 +1218,9 @@ export default {
 
     getReservation: async function(){
        this.closeStart();
-       if(this.ClientId !='' && this.CustomerName !='') return this.$router.push({ name: 'Reservation' })
-       else return this.logIng('','reservation'); 
+       return this.$router.push({ name: 'Reservation' })
+      //  if(this.ClientId !='' && this.CustomerName !='') return this.$router.push({ name: 'Reservation' })
+      //  else return this.logIng('','reservation'); 
     },
 
     getOrderList: async function(){  
@@ -1491,7 +1492,6 @@ export default {
     restaurantSchedule(horarios){
      
       const day =  moment.tz( moment.tz.guess()).format('dddd') ;
-      
 
       const index = horarios.findIndex(re=> re.Day === day);
       if(index !== -1){
