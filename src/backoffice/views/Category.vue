@@ -26,9 +26,9 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
 
         <div v-if="screenWidth < 600">
             <paginate
@@ -75,7 +75,7 @@
               :list="filterCategories"
               :per="8"
             >
-            <ion-list>
+            <ion-list :key="key">
               <ion-item v-for="category in paginated('languages')" v-bind:key="category._id">
                 <ion-thumbnail slot="start">
                   <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
@@ -129,22 +129,14 @@ export default {
 
       spinner: false,
       screenWidth: 0,
+      key: 0,
     }
   }, 
   methods: {
     doRefresh(){
         this.fetchCategories();
     },
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -230,29 +222,11 @@ export default {
     },
     /****** CRUD category methods ******/
     fetchCategories: function(){
-       this.$ionic.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        // duration: 1000,  
-        backdropDismiss: true
-      })
-      .then(loading => {
-          loading.present()
-          setTimeout(() => {  // Some AJAX call occurs
-                Api.fetchAll(this.modelName).then(response => {
-                this.categories = response.data
-                this.filterCategories = this.categories;
-                loading.dismiss();
-              })
-              .catch(e => {
-                console.log(e)
-                loading.dismiss()
-                this.ifErrorOccured(this.fetchCategories)
-              });
-          })
-      })
-    },
+
+      this.categories = this.$store.state.backConfig.category;
+       this.filterCategories = this.categories; 
+       },
+
     editCategory: function(id){
         this.$router.push({
         name: 'CategoryForm', 
@@ -283,6 +257,9 @@ export default {
                   //                       this.$t('backoffice.list.messages.messageDeleteSuccessCategory'), 
                   //                               this.$t('backoffice.list.messages.deleteSubtitleCategory'));
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessCategory'), "success");
+                  const index = this.$store.state.backConfig.category.findIndex(men => men._id === id)
+                  if(index !== -1) this.$store.state.backConfig.category.splice(index, 1);
+                  this.key ++;
                   this.fetchCategories();
                   this.spinner = false;
                   return response;

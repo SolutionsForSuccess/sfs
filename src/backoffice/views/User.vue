@@ -41,9 +41,10 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+
+    <div >
        <div v-if="screenWidth < 600">
           <paginate
           name="languages"
@@ -151,19 +152,12 @@ export default {
   name: 'staff',
   created: function(){
     this.isForDriversSupervisor = this.$route.params.isForDriversSupervisor || false
-
-    //console.log("IS SUPERVISOR")
-    //console.log(this.isForDriversSupervisor);
-
-    //console.log(screen.width)
     this.screenWidth = screen.width;
-    //Get Occupation
-    this.fetchOccupations()
+    this.staffOcuppations = this.$store.state.backConfig.occupation;
     this.fetchUsers();
 
     window.onresize = function() {
-      this.screenWidth = screen.width
-      //console.log(this.screenWidth)
+    this.screenWidth = screen.width
     }
   },
   data () {
@@ -171,30 +165,15 @@ export default {
       modelName: 'Staff',
       users: [],
       filterUsers: [],
-
-      // file: null,
-      // fileName: '',
-
       paginate: ['languages'],
       staffOcuppations: [],
-
       spinner: false,
       screenWidth: 0,
-
       isForDriversSupervisor: false,
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    
     goToSupervisorForm(){
         this.$router.push({
             name: 'UserForm',
@@ -203,6 +182,7 @@ export default {
             }
         })
     },
+
     ifErrorOccured(action){
 
       return this.$ionic.alertController.create({
@@ -227,6 +207,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterUsers = this.users
@@ -239,6 +220,7 @@ export default {
           this.filterUsers = this.users
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -276,6 +258,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -287,6 +270,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -296,57 +280,30 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchUsers: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.users = response.data
-                  this.users = this.users.filter(usr => usr.IsSupport == false || !usr.IsSupport)
-                  if (this.isForDriversSupervisor)
-                      this.users = this.users.filter(usr => usr.IsDriver && usr.IsExternalDriver)
-                  else
-                      this.users = this.users.filter(usr => !usr.IsExternalDriver)
-                  this.filterUsers = this.users
 
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchUsers)
-                });
-            })
-        })
-    },
+      this.users = this.$store.state.backConfig.staff;
+      this.users = this.users.filter(usr => usr.IsSupport == false || !usr.IsSupport)
+      if (this.isForDriversSupervisor)
+        this.users = this.users.filter(usr => usr.IsDriver && usr.IsExternalDriver)
+      else
+        this.users = this.users.filter(usr => !usr.IsExternalDriver)
+      this.filterUsers = this.users
+
+      },
+
     getStaffOcuppations(OccuppationId){
         const occ = this.staffOcuppations.filter(ocupp => ocupp._id === OccuppationId)
         if (occ.length > 0)
         {
             console.log(occ[0].Name)
             return occ[0].Name
-        }
-        
+        }        
         return ''
     },
-    fetchOccupations(){
-        Api.fetchAll('Occupation')
-        .then(response => {
-            this.staffOcuppations = response.data
-        })
-        .catch(e => {
-            console.log(e)
-        })
-    },
+ 
     editUser: function(id){
         this.$router.push({
           name: 'UserForm', 
@@ -356,7 +313,8 @@ export default {
           }
         });
     },
-    deleteUser: function(id){
+
+    deleteUser: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -371,15 +329,15 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async() => {
               
               this.spinner = true
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessUser'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleUser'));
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessUser'), "success");
+                  const index = this.$store.state.backConfig.staff.findIndex(s => s._id === id);
+                  if(index !== -1) this.$store.state.backConfig.staff.splice(index, 1);
+                  this.key ++;
                   this.fetchUsers();
                   this.spinner = false;
                   return response;

@@ -1,122 +1,241 @@
 <template>
     <div>
         <div style="padding: 20px;">
-            <!-- <h3>{{$t('backoffice.titles.controlPanel')}}</h3> -->
+         
+            <ion-loading
+                v-if="spinner"
+                cssClass="my-custom-class"
+                :message="$t('frontend.tooltips.loadRestaurant')"
+            ></ion-loading>
+                   
+            <v-breakpoint :key="$store.state.user.RestaurantId">
+                <div slot-scope="scope" :key="getOnline()">
+                 
+                    
 
-            <div v-if="spinner">
-                <ion-spinner  name="lines" class="spinner"></ion-spinner>
-            </div>
+                    
 
-            <v-breakpoint v-if="!spinner">
-                <div slot-scope="scope">
+                    <div v-if="vClockin">
 
-                    <!-- <div>
-                        <ion-list>
-                            <ion-item>
-                                <ion-label>{{$t('frontend.menu.restaurant')}}</ion-label>
-                                <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                                @ionChange="changeRestaurant($event.target.value)" v-bind:value="restaurantId">
-                                    <ion-select-option v-for="restaurant in allRestaurant" v-bind:key="restaurant._id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
-                                </ion-select>
-                            </ion-item>
-                        </ion-list>
-                    </div> -->
-
-                    <ion-title v-if="!online" style="color: rgb(172 127 14)">
-                        <span class="iconify" data-icon="twemoji:warning" data-inline="false" style="margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
-                        {{$t('backoffice.form.fields.onlineMss')}}</ion-title>
-                     <ion-title v-if="online" style="color: rgb(44 172 14)">
-                        <span class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
-                        {{$t('backoffice.form.fields.onlineMss1')}}</ion-title>
-                                     
-                    <ion-card v-if="!scope.noMatch && options.series[0].data.length > 0">  
-
-                        <div                         
-                           :class="scope.isSmall || scope.noMatch || scope.isMedium  ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" >  
-                           <ion-label>{{$t('backoffice.titles.payments')}}</ion-label>                     
-                           <v-chart    style="margin: 0 auto;"                                                
-                           :options="optionsPayment"  />
-                        </div>
-
-                        <div
-                            :class="scope.isSmall || scope.noMatch || scope.isMedium  ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" >
-                           <ion-la> Restaurant's Rating </ion-la>
-                            <v-chart   style="margin: 0 auto;"                                                     
-                             :options="options2"  />
-                        </div>                        
-                    </ion-card>
-
-                    <ion-card v-if="vClockin">
-
-                        <ion-card-header>
+                        <ion-card-header style="font-size: 1.3em;font-weight: 400;">
                             {{$t('backoffice.titles.controlPanel')}} 
+                            <ion-button v-tooltip="'Reload All Restaurant Data'" @click="reloadAllData()">
+                                <div v-if="!spinnerReload">
+                                    <span class="iconify" data-icon="si-glyph:arrow-reload" style="margin:0"></span>
+                                </div>                              
+                              <ion-spinner name="dots" v-if="spinnerReload"></ion-spinner>
+                            </ion-button>
                         </ion-card-header>
 
-                        <div :class="scope.isSmall || scope.noMatch ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" style="padding: 20px; text-align: center;">
-                 
-                                <div v-if="hasPermission('canViewMenu') || hasPermission('canViewCategory') ||
+                            <!-- Mensaje online -->
+                        <div class=" menu-col-12 ">
+                            <ion-text v-if="!getOnline()" style="color: rgb(172 127 14)">
+                                <span class="iconify" data-icon="twemoji:warning" data-inline="false" style="margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
+                                {{$t('backoffice.form.fields.onlineMss')}}</ion-text>
+                            
+                            <ion-text v-if="getOnline()" style="color: rgb(44 172 14)">
+                                <span class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
+                                {{$t('backoffice.form.fields.onlineMss1')}}</ion-text>
+                        </div>
+
+                            <!-- CHIP SELECTED -->
+                       <div>
+                            <div  
+                            :class="scope.isSmall || scope.noMatch ? ' menu-col-3 card-category' : ' menu-col-3 card-category'"
+                            style="padding: 3px;  display: flex; justify-content: center;">
+                            <ion-chip class="chip-support" 
+                            :color="viewSelected==='Sale'? 'dark': 'secondary'" 
+                            @click="viewSelected==='Sale'? viewSelected='' : viewSelected='Sale'" >
+                                <span class="iconify" data-icon="dashicons:money-alt"></span>
+                                {{ $t('backoffice.menu.sales') }}
+                            </ion-chip>
+                        </div>
+
+                        <div  
+                            :class="scope.isSmall || scope.noMatch ? ' menu-col-3 card-category' : ' menu-col-3 card-category'"
+                            style="padding: 3px;  display: flex; justify-content: center;">
+                                <ion-chip class="chip-support"  
+                                :color="viewSelected==='Admin'? 'dark': 'secondary'"  
+                                @click="viewSelected==='Admin'? viewSelected='' : viewSelected='Admin'">
+                                    <span class="iconify" data-icon="dashicons:admin-appearance"></span>
+                                   Admin <!-- {{ $t('backoffice.menu.restaurantAdministration') }} -->
+                                </ion-chip>
+                        </div>
+                         <div  
+                            :class="scope.isSmall || scope.noMatch ? ' menu-col-3 card-category' : ' menu-col-3 card-category'"
+                            style="padding: 3px;  display: flex; justify-content: center;">
+                            <ion-chip class="chip-support"
+                            :color="viewSelected==='Report'? 'dark': 'secondary'"  
+                            @click="viewSelected==='Report'? viewSelected='' : viewSelected='Report'">
+                                <span class="iconify" data-icon="icon-park-outline:table-report"></span>
+                                {{ $t('backoffice.menu.report') }}
+                            </ion-chip>
+                        </div>
+
+                        <div  
+                            :class="scope.isSmall || scope.noMatch ? ' menu-col-3 card-category' : ' menu-col-3 card-category'"
+                            style="padding: 3px;  display: flex; justify-content: center;">
+                                <ion-chip class="chip-support" 
+                                :color="viewSelected==='Config'? 'dark': 'secondary'" 
+                                @click="viewSelected==='Config'? viewSelected='' : viewSelected='Config'">
+                                    <span class="iconify" data-icon="eos-icons:configuration-file"></span>
+                                    Config<!-- {{ $t('backoffice.menu.settings') }} -->
+                                </ion-chip>
+                        </div>
+
+                       
+                       </div>
+
+                    
+
+                        <!-- Content X CHip Selected -->
+                        <div>
+                            <div v-if="viewSelected==='Sale'">
+                                <!-- <div v-if="hasPermission('canViewOrder')">{{ $t('backoffice.menu.ordersTickets') }}</div> -->
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                v-tooltip="$t('backoffice.controlPanel.orders')" v-if="hasPermission('canViewOrder')" @click="$router.push( '/order')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                    <span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.viewOrders') }}</ion-label>   
+                                </ion-chip> 
+                                 <br>
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.reservations')" v-if="hasPermission('canViewReservation')" @click="$router.push('/reservationbackoffice')" color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                    <span class="iconify" data-icon="ic:baseline-access-time" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageReservation') }}</ion-label>   
+                                </ion-chip>
+                                <br>                            
+                           
+
+                                 <div >para agrupar en order {{ $t('backoffice.menu.reservationsDeliveries') }}</div>
+                                    <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.tickets')" v-if="hasPermission('canViewOrder')" @click="$router.push('/ticket')" color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                <span class="iconify" data-icon="ph:ticket-duotone" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.titles.tickets') }}</ion-label>   
+                                </ion-chip>
+                                <br>
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.cateringOrders')" v-if="hasPermission('canViewOrder')" @click="$router.push( '/cateringOrder')"  color="secondary" style="border: 1px solid grey;">
+                                    <span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.viewCateringOrders') }}</ion-label>   
+                                </ion-chip>
+                                <br>
+
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.orderForDelivery')" v-if="hasPermission('canViewOrderForDelivery')" @click="$router.push('/orderForDelivered')" color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                <span class="iconify" data-icon="mdi:truck-delivery-outline" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.titles.ordersForDelivery') }}</ion-label>   
+                                </ion-chip>                                                               
+                                <br>
+                            </div>
+                            <div v-if="viewSelected==='Admin'">
+                                 <div v-if="hasPermission('canViewMenu') || hasPermission('canViewCategory') ||
                                      hasPermission('canViewProduct')">{{ $t('backoffice.menu.foodServices') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.menus')" v-if="hasPermission('canViewMenu')" @click="$router.push('/menu')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                    :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                    v-tooltip="$t('backoffice.controlPanel.menus')" 
+                                    v-if="hasPermission('canViewMenu')" @click="$router.push('/menu')" 
+                                    color="secondary" 
+                                    style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="bx:bx-food-menu" color="primary" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageMenus') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.categories')" v-if="hasPermission('canViewCategory')"  @click="$router.push('/category')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                    :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                    v-tooltip="$t('backoffice.controlPanel.categories')" v-if="hasPermission('canViewCategory')"  
+                                    @click="$router.push('/category')" color="secondary" 
+                                    style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="carbon:category-new-each" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageCategories') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.menuItems')"  v-if="hasPermission('canViewProduct')" @click="$router.push('/product')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                v-tooltip="$t('backoffice.controlPanel.menuItems')"  v-if="hasPermission('canViewProduct')" @click="$router.push('/product')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="dashicons:products" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageProducts') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.services')" v-if="hasPermission('canViewProduct')" @click="$router.push('/product/service')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                    :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                    v-tooltip="$t('backoffice.controlPanel.services')" v-if="hasPermission('canViewProduct')" 
+                                    @click="$router.push('/product/service')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageServices') }}</ion-label>   
                                 </ion-chip>
-                                <ion-chip v-tooltip="$t('frontend.specialsPrice.titles')" v-if="hasPermission('canViewSpecialPrices')"  @click="$router.push('/specialsprice')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <br>
+                                 <ion-chip 
+                                 :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.otherCharges')" v-if="hasPermission('canViewOtherCharge')"  @click="$router.push('/otherCharge')" color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                    <span class="iconify" data-icon="si-glyph:money-bag" data-inline="false"></span>
+                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageOtherCharges') }}</ion-label>   
+                                </ion-chip>
+                                <br>
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('frontend.specialsPrice.titles')" v-if="hasPermission('canViewSpecialPrices')"  @click="$router.push('/specialsprice')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="ic:baseline-price-check" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('frontend.specialsPrice.titles') }}</ion-label>  
                                 </ion-chip>
 
-                                <div v-if="hasPermission('canViewUser') || 
-                                    hasPermission('canViewRole') || hasPermission('canViewOccupation') 
-                                        || hasPermission('canViewCustomer') || hasPermission('canViewDriver')" style="margin-top: 40px;">{{ $t('backoffice.menu.staffOccupationsCustomersDrivers') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.staff')" v-if="hasPermission('canViewUser')" @click="$router.push('/user')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <div v-if="hasPermission('canViewUser') || hasPermission('canViewRole') || 
+                                            hasPermission('canViewOccupation') || hasPermission('canViewCustomer') ||
+                                             hasPermission('canViewDriver')" 
+                                             style="margin-top: 40px;">{{ $t('backoffice.menu.staffOccupationsCustomersDrivers') }}
+                                </div>
+                                <ion-chip
+                                 :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.staff')" v-if="hasPermission('canViewUser')" @click="$router.push('/user')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                 <span class="iconify"  color="primary" data-icon="simple-icons:codechef" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageUsers') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.driver')" v-if="hasPermission('canViewDriver')"  @click="manageDriver()" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                 :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.driver')" v-if="hasPermission('canViewDriver')"  @click="manageDriver()" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageDriver') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.roles')" v-if="hasPermission('canViewRole')"  @click="$router.push('/role')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.roles')" v-if="hasPermission('canViewRole')"  @click="$router.push('/role')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageRoles') }}</ion-label>   
                                 </ion-chip>
 
                                 <!-- WorkSheet -->
                                 <!-- v-if="hasPermission('canViewWorkSheet')" -->
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.workSheet')" v-if="hasPermission('canViewWorkSheet')" @click="$router.push('/workSheet')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.workSheet')" v-if="hasPermission('canViewWorkSheet')" @click="$router.push('/workSheet')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="bx:bx-spreadsheet" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageWorkSheet') }}</ion-label>   
                                 </ion-chip>
 
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.occupations')" v-if="hasPermission('canViewOccupation')" @click="$router.push( '/occupation')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.occupations')" v-if="hasPermission('canViewOccupation')" @click="$router.push( '/occupation')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageOccupation') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.customers')" v-if="hasPermission('canViewCustomer')"  @click="$router.push('/customer')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                 :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.customers')" v-if="hasPermission('canViewCustomer')"  @click="$router.push('/customer')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="raphael:people" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageCustomers') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.credit')" v-if="hasPermission('canViewCredit')" @click="$router.push('/credit')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.credit')" v-if="hasPermission('canViewCredit')" @click="$router.push('/credit')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageCredits') }}</ion-label>   
                                 </ion-chip>                  
@@ -124,115 +243,129 @@
                                 <div v-if="hasPermission('canViewTable') || hasPermission('canViewTax') ||
                                     hasPermission('canViewShipping') || hasPermission('canViewOtherCharge') ||
                                         hasPermission('canChangeSetting')" style="margin-top: 40px;">{{ $t('backoffice.menu.restaurantAdministration') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.tables')" v-if="hasPermission('canViewTable')" @click="$router.push('/table')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.tables')" v-if="hasPermission('canViewTable')" @click="$router.push('/table')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="vs:table-o" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageTables') }}</ion-label>   
                                     </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.taxes')" v-if="hasPermission('canViewTax')" @click="$router.push( '/tax')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                v-tooltip="$t('backoffice.controlPanel.taxes')" v-if="hasPermission('canViewTax')" @click="$router.push( '/tax')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="heroicons-outline:receipt-tax" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageTaxes') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.deliveries')" v-if="hasPermission('canViewShipping')"  @click="$router.push('/shipping')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                v-tooltip="$t('backoffice.controlPanel.deliveries')" v-if="hasPermission('canViewShipping')"  @click="$router.push('/shipping')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="la:truck-pickup-solid" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageShippings') }}</ion-label>   
                                 </ion-chip>
+                                <br>                              
                                 <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.otherCharges')" v-if="hasPermission('canViewOtherCharge')"  @click="$router.push('/otherCharge')" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                    <span class="iconify" data-icon="si-glyph:money-bag" data-inline="false"></span>
-                                        <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageOtherCharges') }}</ion-label>   
-                                </ion-chip>
-                                <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.payments')" v-if="hasPermission('canViewPayments')" @click="$router.push('/payment')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                    <span class="iconify" data-icon="ic:twotone-attach-money" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.managePyments') }}</ion-label>
-                                </ion-chip>
-                        </div>
-
-                        <div :class="scope.isSmall || scope.noMatch ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" style="padding: 20px; text-align: center;">
-                        
-                                <div v-if="hasPermission('canViewOrder')">{{ $t('backoffice.menu.ordersTickets') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.orders')" v-if="hasPermission('canViewOrder')" @click="$router.push( '/order')"  color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                    <span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.viewOrders') }}</ion-label>   
-                                </ion-chip>
-                                <br>                            
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.tickets')" v-if="hasPermission('canViewOrder')" @click="$router.push('/ticket')" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                <span class="iconify" data-icon="ph:ticket-duotone" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.titles.tickets') }}</ion-label>   
-                                </ion-chip>
-                                <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.cateringOrders')" v-if="hasPermission('canViewOrder')" @click="$router.push( '/cateringOrder')"  color="secondary" style="width: 70%;border: 1px solid grey;">
-                                    <span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.viewCateringOrders') }}</ion-label>   
-                                </ion-chip>
-                                <br>
-
-                                <div v-if="hasPermission('canViewSuscriptor')" style="margin-top: 40px;">{{ $t('backoffice.menu.marketing') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.menu.marketing')" v-if="hasPermission('canViewSuscriptor')"  @click="$router.push('/suscriptor')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                  <div v-if="hasPermission('canViewSuscriptor')" style="margin-top: 40px;">{{ $t('backoffice.menu.marketing') }}</div>
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.menu.marketing')" v-if="hasPermission('canViewSuscriptor')"  @click="$router.push('/suscriptor')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="mdi:email-newsletter" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.titles.suscriptors') }}</ion-label>   
                                 </ion-chip>
                                 <br>
+                            </div>
+                            <div v-if="viewSelected==='Config'">
                                 
-                                <div v-if="hasPermission('canViewOrderForDelivery') ||
-                                     hasPermission('canViewReservation')" style="margin-top: 40px;">{{ $t('backoffice.menu.reservationsDeliveries') }}</div>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.orderForDelivery')" v-if="hasPermission('canViewOrderForDelivery')" @click="$router.push('/orderForDelivered')" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                <span class="iconify" data-icon="mdi:truck-delivery-outline" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.titles.ordersForDelivery') }}</ion-label>   
-                                </ion-chip>
-                                <br>
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.reservations')" v-if="hasPermission('canViewReservation')" @click="$router.push('/reservationbackoffice')" color="secondary" style=" width: 70%;border: 1px solid grey;">
-                                    <span class="iconify" data-icon="ic:baseline-access-time" data-inline="false"></span>
-                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageReservation') }}</ion-label>   
-                                </ion-chip>
-                                <br>
 
-                                <div v-if="hasPermission('canChangeSetting') ||
-                                     hasPermission('canSuperUser')" style="margin-top: 40px;">{{ $t('backoffice.menu.settings') }}</div>
-                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.aboutSettings')" v-if="hasPermission('canChangeSetting')"  @click="$router.push('/aboutDataSettings')" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <!-- <div v-if="hasPermission('canChangeSetting') ||
+                                     hasPermission('canSuperUser')" style="margin-top: 40px;">{{ $t('backoffice.menu.settings') }}</div> -->
+                                <!-- <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.aboutSettings')" v-if="hasPermission('canChangeSetting')"  @click="$router.push('/aboutDataSettings')" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="grommet-icons:restaurant" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageAboutSettings') }}</ion-label>   
                                 </ion-chip>
                                 <br> -->
-                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.basicSettings')" v-if="hasPermission('canChangeSetting')"  @click="manageBasicSettings()" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <!-- <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.basicSettings')" v-if="hasPermission('canChangeSetting')"  @click="manageBasicSettings()" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="clarity:settings-line" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageBasicSettings') }}</ion-label>   
                                 </ion-chip>
                                 <br> -->
-                                <ion-chip v-tooltip="$t('backoffice.controlPanel.funtionalitiesSettings')" v-if="hasPermission('canChangeSetting')"  @click="manageFunSettings()" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.funtionalitiesSettings')" v-if="hasPermission('canChangeSetting')"  @click="manageFunSettings()" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="clarity:file-settings-line" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.menu.settings') }}</ion-label>   
                                 </ion-chip>
                                 <br>
-                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.colorSettings')" v-if="hasPermission('canChangeSetting')" @click="manageColourSettings()"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.colorSettings')" v-if="hasPermission('canChangeSetting')" @click="manageColourSettings()"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                         <span class="iconify" data-icon="vaadin:palete" data-inline="false"></span>
                                         <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageColourSettings') }}</ion-label>   
                                 </ion-chip>
-                                <br> -->
-                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.paymentSettings')" v-if="hasPermission('canChangeSetting')" @click="managePaymentSettings()"  color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <br>
+                                <!-- <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.paymentSettings')" v-if="hasPermission('canChangeSetting')" @click="managePaymentSettings()"  color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="ic:twotone-payments" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.managePaymentSettings') }}</ion-label>
                                 </ion-chip>
                                 <br> -->
-                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.systemSettings')"  v-if="hasPermission('canChangeSetting')"   @click="manageKeySettings()" color="secondary" style=" width: 70%;border: 1px solid grey;">
+                                <!-- <ion-chip v-tooltip="$t('backoffice.controlPanel.systemSettings')"  v-if="hasPermission('canChangeSetting')"   @click="manageKeySettings()" color="secondary" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="clarity:network-settings-solid" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.manageKeySettings') }}</ion-label>   
                                 </ion-chip> -->
                                 <!-- <br> -->
-                                <ion-chip v-tooltip="'Description.'" v-if="hasPermission('canSuperUser')"   @click="manageSupportSettings()" color="danger" style=" width: 70%;border: 1px solid grey;">
+                                <ion-chip
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="'Description.'" v-if="hasPermission('canSuperUser')"   @click="manageSupportSettings()" color="danger" style="border: 1px solid grey;visibility: visible;">
                                     <span class="iconify" data-icon="mdi:account-supervisor" data-inline="false"></span>
                                     <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.supportSettings') }}</ion-label>  
                                 </ion-chip>
+                            </div>
+                            <div v-if="viewSelected==='Report'">
+                                <ion-chip 
+                                :class="scope.isSmall || scope.noMatch ? ' menu-col-12' : ' menu-col-6'"
+                                 v-tooltip="$t('backoffice.controlPanel.payments')" v-if="hasPermission('canViewPayments')" @click="$router.push('/payment')"  color="secondary" style="border: 1px solid grey;visibility: visible;">
+                                    <span class="iconify" data-icon="ic:twotone-attach-money" data-inline="false"></span>
+                                    <ion-label style=" width: 80%; text-align: center;">{{ $t('backoffice.options.managePyments') }}</ion-label>
+                                </ion-chip>
 
-                        </div>
+                            </div>
 
-                    </ion-card>
+                        </div>  
+
+                      
+                         
+
+                    </div>
                     <ion-card v-else>
                         <ion-title style="color: rgb(172, 14, 14)">
                         <span class="iconify" data-icon="mdi:account-clock" data-inline="false"></span>
                         {{$t('backoffice.form.fields.mustClockinMss')}} <router-link to="/assistance" style="cursor: pointer; text-decoration: none; color: black;">{{$t('backoffice.form.fields.mustClockin2Mss')}}</router-link></ion-title>
+                    </ion-card>
+
+                    <!-- <Clock/> -->
+
+                      <!-- //Graficas.         -->...
+                    <ion-card v-if="!scope.noMatch" :key="1">  
+                            
+                        <div                       
+                           :class="scope.isSmall || scope.noMatch || scope.isMedium  ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" >  
+                           <ion-label>{{$t('backoffice.titles.payments')}}</ion-label>                     
+                           <v-chart    style="margin: 0 auto;"                                                
+                           :options="optionsPayment"  />
+                        </div>
+
+                        <div v-if="options.series[0].data.length > 0"
+                            :class="scope.isSmall || scope.noMatch || scope.isMedium  ? ' menu-col-12 card-category' : ' menu-col-6 card-category'" >
+                           <ion-la> Restaurant's Rating </ion-la>
+                            <v-chart   style="margin: 0 auto;"                                                     
+                             :options="options2"  />
+                        </div>                        
                     </ion-card>
                 </div>
             </v-breakpoint>
@@ -242,13 +375,14 @@
 </template>
 
 <script>
-import { Api } from '../api/api.js';
+// import { Api } from '../api/api.js';
 import ECharts from 'vue-echarts';
 import { VBreakpoint } from 'vue-breakpoint-component';
 import Modal from './SetDeviceDataModal.vue';
 import Moment from 'moment';
 import { EventBus } from '../../frontend/event-bus';
 import 'echarts';
+import { Commons } from '../../frontend/commons';
 // import SHA256 from "crypto-js/sha256";
 
 export default {
@@ -347,56 +481,64 @@ export default {
             vClockin: false,
 
             restaurantS: null,
+            viewSelected: '',
+            spinnerReload: false,
         }
     },
     created: async function(){
-        // console.log(this.$store.state.user._id)
+        console.log(this.hasPermission('canIgnoreClockin'));
         this.init()
-        this.vClockin = await this.verifyClockin()
+        this.vClockin = await this.verifyClockin()        
         EventBus.$emit('clockIn', this.vClockin);
-        console.log(this.$store.state)
-        this.putHouseAccountPermission(this.$store.state.roles)
+        
     }, 
     components: {
         vChart: ECharts ,
         VBreakpoint: VBreakpoint,
     },
     methods: {
-        putHouseAccountPermission(roles){
-            let value = false
-            // console.log("Roles", roles)
-            // console.log("Lenght", roles.length)
-            roles.forEach(rol => {
-                console.log("Rol", rol)
-                if (rol.canCreateHouseAccount)
-                value = true
-            })
-            // console.log("TIENE PERMISO: ", value)
-            this.$store.commit('setStaffHouseAccount', value)
+
+        async reloadAllData(){
+            this.spinnerReload = true;
+            this.spinner = true;
+            try {
+                await Commons.getAllRestaurantCustomers();
+                await Commons.getCompleteRestaurant();  
+                 this.spinnerReload = false; 
+                 this.spinner = false;    
+                 this.viewSelected = ''         ;
+            } catch (error) {
+                error;
+                 this.spinnerReload = false;
+                 this.spinner = false;   
+            }
         },
+       
         async verifyClockin(){
+            // if (!this.hasPermission('canIgnoreClockin'))
+            //             return false
             
             try{
-                const Attendance = await Api.fetchAll('Attendance')
-                let attendanceDay = Attendance.data
+                this.spinner = true;
+                let attendanceDay = this.$store.state.backConfig.attendance;
                 let StaffId = this.$store.state.user._id
                 //Los registro del staff en cuestion
                 attendanceDay = attendanceDay.filter(att => att.StaffId == StaffId)
                 //Sean del mismo día
+                this.spinner = false
                 attendanceDay = attendanceDay.filter(att => Moment(att.DateTime).format('YYYYMMDD') == Moment().format('YYYYMMDD'))
                 if (attendanceDay.length == 0)
                 {
-                    if (!this.hasPermission('canIgnoreClockin'))
-                    {
-                        return false
-                    }
+                    
                     return true
                 }
                 return true
             }
             catch(e){
                 // console.log(e)
-                return false
+                this.spinner = false;
+                return false;
+                
             }
         },
         showSetDeviceModal(){
@@ -413,95 +555,48 @@ export default {
                 })
                 .then(m => m.present())
         },
-        init(){
+        async init(){
             this.spinner = true
             
-            Api.fetchAll('setting')
-            .then(response => {
-                this.restaurantS = response.data[0]
-            })
+            this.restaurantS = this.$store.state.backConfig.setting; 
+            this.restoreDataDefault();
+            await this.fetchAllRestaurant()
             
-            //Esto es NAB
-            // var endpoint = '/sale/';
-            // var epiKey="8EEDC66DF02D7803E05321281FAC8C31";
-            // var epiId='9001-900614-1-14';
-            // var payload = {
-                // "accountNumber": "4111111111111111",
-                // "amount": "127.99",
-                // "TransactionId": 123
-            // }
-            // var hash = SHA256(endpoint+payload, epiKey)
-            // // console.log("SIGNATURE")
-            // // console.log(hash.toString())
-
-            this.initData()
-            this.fetchAllRestaurant()
-            //// console.log("RESTAURANTES")
-            //// console.log(this.$store.state.user.RestaurantId)
             if(this.$store.state.user.RestaurantId){
                 this.restaurantId = this.$store.state.user.RestaurantId
-                let oneStart = 0;              
-                let twoStart = 0;              
-                let threeStart = 0;              
-                let fourStart = 0;              
-                let fiveStart = 0; 
-
-                Api.fetchAll('Allpayments').then(response => {
-                const payments= response.data; 
-                 if(payments.length > 0)
-                        {
-                            payments.forEach(r =>{
-                                this.optionsPayment.xAxis.data.push(Moment(r.date).format('YYYY-MM-DD')),                               
-                                this.optionsPayment.series[0].data.push( parseFloat(r.Payment) - r.Refund - r.Void) ;                                              
-                            });
-                        }              
-              })
-              .catch(() => {
-                // console.log(e)
-                
+                let oneStart, twoStart, threeStart, fourStart, fiveStart =  0; 
+                const payments= this.$store.state.backConfig.allpayments
+                if(payments.length > 0){
+                    payments.forEach(r =>{
+                        this.optionsPayment.xAxis.data.push(Moment(r.date).format('YYYY-MM-DD')),                               
+                        this.optionsPayment.series[0].data.push( parseFloat(r.Payment) - r.Refund - r.Void) ;                                              
+                    });
+                }  
+                const rating =  this.$store.state.backConfig.restaurant.rating || [];
+                this.online = this.$store.state.backConfig.restaurant.Online; 
+                if(rating.length > 0)
+                {
+                    rating.forEach(r =>{
+                        this.options.xAxis.data.push(Moment(r.date).format('YYYY-MM-DD')),
+                        this.options.series[0].data.push(r.rating) ;
+                        if( r.rating >=1 && r.rating <=1.9) oneStart++;
+                        if(r.rating >=2 && r.rating <=2.9) twoStart++;
+                        if(r.rating >=3 && r.rating <=3.9) threeStart++;
+                        if(r.rating >=4 && r.rating <=4.9) fourStart++;
+                        if(r.rating ===5) fiveStart++;                          
+                    });
+                }
+                this.options2.series[0].data['0'].value = oneStart            
+                this.options2.series[0].data['1'].value = twoStart            
+                this.options2.series[0].data['2'].value = threeStart            
+                this.options2.series[0].data['3'].value = fourStart            
+                this.options2.series[0].data['4'].value = fiveStart
                
-              });
-
-                Api.fetchById("Restaurant",  this.restaurantId).then(response => {
-                    //// console.log(0)                        
-                    if(response.status === 200){ 
-                        const rating =  response.data.rating 
-                        this.online = response.data.Online; 
-                                    
-                        if(rating.length > 0)
-                        {
-                            rating.forEach(r =>{
-                                this.options.xAxis.data.push(Moment(r.date).format('YYYY-MM-DD')),
-                                this.options.series[0].data.push(r.rating) ;
-                                //// console.log(r.rating >=4 && r.rating <=5)
-                                if( r.rating >=1 && r.rating <=1.9) oneStart++;
-                                if(r.rating >=2 && r.rating <=2.9) twoStart++;
-                                if(r.rating >=3 && r.rating <=3.9) threeStart++;
-                                if(r.rating >=4 && r.rating <=4.9) fourStart++;
-                                if(r.rating ===5) fiveStart++;                          
-                            });
-                        }
-                        this.options2.series[0].data['0'].value = oneStart            
-                        this.options2.series[0].data['1'].value = twoStart            
-                        this.options2.series[0].data['2'].value = threeStart            
-                        this.options2.series[0].data['3'].value = fourStart            
-                        this.options2.series[0].data['4'].value = fiveStart
-
-                        //Load modal set device
-                        //// console.log("PASA")
-                        // if (this.$route.params.firstLogin)
-                        //     this.showSetDeviceModal();
-
-                        this.spinner = false;           
-                    }  
-                })
-                .catch(() => {
-                    // console.log(e)
-                    this.spinner = false
-                });
             } 
         },
-        initData(){
+        
+
+        restoreDataDefault(){
             this.options = {
                 xAxis: {
                     type: 'category',
@@ -522,7 +617,6 @@ export default {
                     },
                 },
             };
-
             this.options2 = {
                 title: {
                     text: '',
@@ -560,78 +654,20 @@ export default {
                     }
                 ]
             };
-
-            this.allRestaurant = []
+            this.allRestaurant = [];
             this.restaurantId = -1
-
         },
-        fetchAllRestaurant(){
-            Api.fetchAll('Restaurant').then(response => {
-                if(response.status === 200){
 
-                    let restaurants = response.data
-                    let myRestaurants = this.$store.state.user.AllRestaurant
+        async fetchAllRestaurant(){
+           let restaurants = this.$store.state.allRestaurant;
+            let myRestaurants = this.$store.state.user.AllRestaurant;
 
-                    restaurants.forEach(restaurant => {
-                        if (myRestaurants.indexOf(restaurant._id) != -1)
-                            this.allRestaurant.push(restaurant)
-                    });
-
-                    //// console.log("AllRestaurant")
-                    //// console.log(this.allRestaurant)
-                }
-            })
-            .catch(() => {
-                // console.log(e)
-            });
+            restaurants.forEach(restaurant => {
+                if (myRestaurants.indexOf(restaurant._id) != -1)
+                    this.allRestaurant.push(restaurant)
+            });           
         },
-        changeRestaurant(value){
-            this.restaurantId = value
-            this.relogin()
-        },
-        relogin(){
-            this.spinner = true
-            let userLogin = this.$store.state.user
-            userLogin.RestaurantId = this.restaurantId
-            // this.$store.commit("setAuthentication", true);
-            // this.$store.commit("setUser", userLogin);
-            //Set token
-            // Api.setTokenId(userLogin.token);
-            Api.setRestaurantId(this.restaurantId);
-            this.getConfig();
-
-            Api.fetchById("staff", userLogin._id)
-            .then(response => {
-                    let roles = []
-                    let staffMember = response.data
-                    staffMember.Roles.forEach(rol_id => {
-                        Api.fetchById("rol", rol_id).then(response => {
-                            roles.push(response.data);
-                        })
-                    });
-                    this.$store.commit("setRoles", roles);
-                    this.init();
-            })
-            .catch(() => {
-                // console.log(e)
-                this.spinner = false
-            });
-        },
-        getConfig: function(){
-            Api.fetchAll("Setting").then(response=> {
-                let settings = [];
-                settings = response.data;
-                if (settings.length > 0)
-                {
-                    var allStyles = settings[settings.length -1].AllStyles;
-                    document.querySelector('style').innerHTML += allStyles;
-
-                }
-            })
-            .catch(() => {
-            // console.log(e)
-            });
-        },
+   
         hasPermission(permission){
             
             let res = false;
@@ -758,16 +794,13 @@ export default {
             }
         },
         manageFunSettings(){
-            Api.fetchAll('Setting').then(response => {
-            // // console.log(response.data)
-                let funSettings = [];
-                funSettings = response.data;
-                if (funSettings.length > 0)
+          let funSettings = this.$store.state.backConfig.setting;
+                if (funSettings._id)
                 {
                     this.$router.push({
                         name: 'FunSettingForm',
                         params: {
-                            "settingId": funSettings[funSettings.length - 1]._id,
+                            "settingId": funSettings._id,
                         }
                     });
                 }
@@ -776,35 +809,14 @@ export default {
                         name: 'FunSettingForm',
                     });
                 }
-            })
-            .catch(() => {
-            // console.log(e)
-            });
         },
         manageColourSettings(){
-            Api.fetchAll('Setting').then(response => {
-            // // console.log(response.data)
-                let colSettings = [];
-                colSettings = response.data;
-                if (colSettings.length > 0)
-                {
-                    this.$router.push({
-                        name: 'ColourSettingForm',
-                        params: {
-                            // "settingId": colSettings[colSettings.length - 1]._id,
-                            "settingId": colSettings[0]._id,
-                        }
-                    });
-                }
-                else{
-                     this.$router.push({
-                        name: 'ColourSettingForm',
-                    });
-                }
-            })
-            .catch(() => {
-            // console.log(e)
-            });
+           let colSettings = this.$store.state.backConfig.setting;
+                if (colSettings._id)
+                    this.$router.push({name: 'ColourSettingForm', params: {"settingId": colSettings._id,}});
+                else
+                     this.$router.push({  name: 'ColourSettingForm',  });
+               
         },
         manageSupportSettings(){
             this.$router.push({
@@ -836,12 +848,30 @@ export default {
                 });
             }
         },
+        getOnline(){         
+            if(this.$store.state.backConfig)
+                if(this.$store.state.backConfig.restaurant)
+                    if(this.$store.state.backConfig.restaurant.Online){                        
+                        return this.$store.state.backConfig.restaurant.Online
+                    }
+        }
 }
 
 }
 </script>
 
 <style>
+
+.chip-support{
+        height: 100px;
+    width: 90%;
+    border: 1px solid grey;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(var(--ion-color-base-rgb),0.18) !important;
+}
 
   .card-category{
       float: left;

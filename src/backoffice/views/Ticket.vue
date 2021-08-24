@@ -266,7 +266,7 @@ export default {
    this.update = setInterval(() => {
       this.initialize();
    }, 30000);
-   this.getRestaurantCustomer();
+   
   },
   destroyed: function(){
       if (this.update != null){
@@ -460,13 +460,7 @@ export default {
 
         if (this.homeOrders == false)
         {
-            // if(this.restaurantCustomer)
-            // {
-                //console.log("Restaurant Customer")
-                //console.log(this.restaurantCustomer._id)
-                //console.log(this.orders)
-                // let cat2 = this.orders.filter(item => 
-                //                               item.ClientId.indexOf(this.restaurantCustomer._id) > -1)
+            
                 let cat2 = this.orders.filter(item => item.StaffName &&
                                                     item.StaffName != '')
                 //console.log(cat2)
@@ -538,21 +532,11 @@ export default {
           console.log(e)
         });
     },
-    getRestaurantCustomer: function(){
-        if (this.resConf != null)
-        {
-            Api.findCustomerByEmail(this.resConf.Email)
-            .then(response => { 
-                this.restaurantCustomer = response.data
-                //console.log("RESTAURANT CUSTOMER")
-                //console.log(this.restaurantCustomer)
-            })
-        }
-    },
+ 
     getRestaurantConfig: function(){
       Api.fetchById('Restaurant', this.$store.state.user.RestaurantId).then(response => {
             this.resConf = response.data;
-            this.getRestaurantCustomer();
+          
       })
       .catch(e => {
         console.log(e)
@@ -563,29 +547,6 @@ export default {
         return this.$router.push({ name: 'Home', params: {url: this.$store.state.restaurantActive.restaurantUrl}  })
       } 
 
-    //    if (this.restaurantCustomer == null)
-    //    {
-    //       console.log("Cliente no existe")
-    //       let client = {
-    //           'Name': this.resConf.Name,
-    //           'EmailAddress': this.resConf.Email,
-    //           'Phone':  this.resConf.Phone,
-    //       }
-    //       this.createCustomer(client);   
-    //    }
-    //    else
-    //    {
-        // EventBus.$emit('clientHasId', this.restaurantCustomer._id);
-        // EventBus.$emit('clientHasName', this.restaurantCustomer.Name);
-        // EventBus.$emit('clientHasPhone', this.restaurantCustomer.Phone);
-        // EventBus.$emit('clientHasEmail', this.restaurantCustomer.EmailAddress);  
-        // EventBus.$emit('updateRestaurantSelectedId', this.$store.state.user.RestaurantId);
-        // EventBus.$emit('staffName', this.$store.state.user.FirstName + ' ' + this.$store.state.user.LastName);
-        // // EventBus.$emit('staffId', '');
-        //  if(this.$store.state.restaurantActive.restaurantUrl){
-        //       return this.$router.push({ name: 'Home', params: {url: this.$store.state.restaurantActive.restaurantUrl}  })
-        //     }         
-    //    }
     },
     hasPermission(permission){
         
@@ -612,31 +573,6 @@ export default {
         }
         return res;
     },
-    // createCustomer(client){
-    //   Api.postIn('Customer', client)
-    //   .then(response => {
-    //     // this.spinner = false
-    //     console.log("Success creted with _id" + response.data._id);
-    //     console.log(JSON.stringify(response.data));
-    //     client['id'] = response.data._id;
-    //     // this.CustomerName = response.data.Name;
-    //       EventBus.$emit('clientHasId', client.id );
-    //       EventBus.$emit('clientHasName', client.Name );
-    //       EventBus.$emit('clientHasPhone', client.Phone );
-    //       EventBus.$emit('clientHasEmail', client.EmailAddress ); 
-    //       EventBus.$emit('updateRestaurantSelectedId', this.$store.state.user.RestaurantId); 
-    //       EventBus.$emit('staffName', this.$store.state.user.FirstName + ' ' + this.$store.state.user.LastName);       
-    //     // this.order.ClientId = this.clientId
-    //     console.log('' + this.order);
-    //     this.$router.push({
-    //       path: '/home', 
-    //     }); 
-    //     return response;            
-    //   })
-    //   .catch(e => {
-    //      console.log(e) 
-    //   })
-    // },
     getCustomerById: function(id){
         var custom = '';
         this.customers.forEach(customer => {

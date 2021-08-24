@@ -17,10 +17,10 @@
     <br/>
 
     <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
             <ion-item>
             <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
             <ion-input type="text" name="name"
@@ -80,8 +80,8 @@
 
         <!-- </ion-card>  -->
 
-          <br/>
-          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveOtherCharge()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+          <br/>fdg
+          <ion-button expand="full" color="primary" :disabled="!isValidForm() || spinner" @click="saveOtherCharge()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
     </div>
     </div>
 </template>
@@ -123,43 +123,22 @@ export default {
         }
   },
   methods: {
-    init(){
-        this.fetchProducts(); 
+    init(){       
     
         this.id = this.$route.params.otherChargeId;
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.name = response.data.Name;
-                    this.productMax = response.data.ProductMax;
-                    this.productMin = response.data.ProductMin;
-                    this.price = response.data.Price
-                    this.productId = response.data.ProductId;
-                    this.available = response.data.Available;
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                  })
-              })
-          })   
+        this.products = this.$store.state.backConfig.product 
+        const data = this.$store.state.backConfig.othercharges.find(o => o._id === this.id)
+        if(data){
+          this.name = data.Name;
+          this.productMax = data.ProductMax;
+          this.productMin = data.ProductMin;
+          this.price = data.Price
+          this.productId = data.ProductId;
+          this.available = data.Available;
         }
 
-        //console.log(this.$route.params);
-
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -183,68 +162,19 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
-        // let errors = [];
-        if (this.name == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.name'));
-            return false
-        }
-        if (isNaN(this.productMin))
-        {
-            // errors.push(this.$t('backoffice.form.validate.productMinNumber'));
-            return false
-        }
-        if (isNaN(this.productMax))
-        {
-            // errors.push(this.$t('backoffice.form.validate.productMaxNumber'));
-            return false
-        }
-        if (this.productMin == 0)
-        {
-            // errors.push(this.$t('backoffice.form.validate.productMinGreater'));
-            return false
-        }
-        if (this.productMax < 2)
-        {
-            // errors.push(this.$t('backoffice.form.validate.productMaxGreater'));
-            return false
-        }
-        if (isNaN(this.price))
-        {
-            // errors.push(this.$t('backoffice.form.validate.price'));
-            return false
-        }
-        if (this.price == 0)
-        {
-            // errors.push(this.$t('backoffice.form.validate.priceGreater'));
-            return false
-        }
-        if (this.productId == null)
-        {
-            // errors.push(this.$t('backoffice.form.validate.product'));
-            return false
-        }
-
+        if (this.name == "")  return false
+        if (isNaN(this.productMin))  return false
+        if (isNaN(this.productMax))  return false
+        if (this.productMin == 0)  return false
+        if (this.productMax < 2) return false
+        if (isNaN(this.price))  return false
+        if (this.price == 0)  return false
+        if (this.productId == null)  return false
         return true
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'), 
-        //     //                     message, this.$t('backoffice.form.validate.validateMenu'));
-        //     this.showToastMessage(message, "danger");
-            
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -256,6 +186,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -265,15 +196,8 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    fetchProducts: function(){
-        Api.fetchAll('Product').then(response => {
-          // console.log(response.data)
-          this.products = response.data
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
+
+   
     //Create or edit a new product
     saveOtherCharge: function(){
 
@@ -294,10 +218,6 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessOtherCharges'), 
-                        //         this.$t('backoffice.list.messages.titleEditOtherCharges'));
-                        this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessOtherCharges'), "success");
                         this.name = '';
                         this.productMax = 0;
                         this.productMin = 0;
@@ -308,6 +228,9 @@ export default {
                         this.$router.push({
                           name: 'OtherCharge', 
                         });
+                        const index = this.$store.state.backConfig.othercharges.findIndex(o => o._id === this.id);
+                        if(index !== -1) this.$store.state.backConfig.othercharges[index] = item;
+                        this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessOtherCharges'), "success");
                         return response;
                   })
                   .catch(e => {
@@ -322,9 +245,7 @@ export default {
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessOtherCharges'), 
-                      //           this.$t('backoffice.list.messages.titleCreateOtherCharges'));
+                     
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessOtherCharges'), "success");
                       this.name = '';
                       this.productMax = 0;
@@ -336,6 +257,7 @@ export default {
                       this.$router.push({
                         name: 'OtherCharge', 
                       });
+                      this.$store.state.backConfig.othercharges.push(response.data)
                       return response;
                   })
                   .catch(e => {

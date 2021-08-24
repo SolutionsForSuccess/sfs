@@ -11,22 +11,25 @@
                 <ion-img :src="file"></ion-img>
             </ion-card>
           </div>     
-        <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>Enter Your Server Id</ion-label>
+        <ion-item :key="key">
+            <ion-label position="floating"><span style="color: red">*</span>{{parent.$t('backoffice.options.serverId')}}</ion-label>
             <ion-input type="number" name="serverId"
+            @input="verifyLength($event.target.value)"
             @ionChange="unlock($event.target.value)">
             </ion-input>
+            <div v-if="error">
+              <span class="iconify" data-icon="codicon:error"></span>
+            </div>
         </ion-item>
         <!-- <ion-item></ion-item> -->
         <!-- <ion-button expand="full" color="danger" :disabled="!isValidForm()" @click="unlock()">Change</ion-button> -->
-        <ion-button expand="full" color="primary" @click="closeSession()">LogOut<span class="iconify" data-icon="mdi:logout-variant" data-inline="false"></span></ion-button>
+        <ion-button expand="full" color="primary" @click="closeSession()">{{parent.$t('backoffice.options.logout')}}<span class="iconify" data-icon="mdi:logout-variant" data-inline="false"></span></ion-button>
     </ion-content>
   </div>
 </template>
 
 <script>
 
-import { Api } from '../api/api.js';
 
 export default {
   name: 'LockModal',
@@ -36,24 +39,18 @@ export default {
   data() {
     return {
       content: 'Content',
-
+      error: false,
       user: null,
       file: null,
+      errorNumber: 0,
+      key: 0,
     }
   },
   created: function(){
 
-    this.user = this.parent.$store.state.user
-    //console.log(this.user)
-    const restaurantID = this.user.RestaurantId
-    Api.fetchById('restaurant', restaurantID)
-    .then(response => {
-        //console.log(response.data)
-        this.file = response.data.ImageUrl
-    })
-    .catch(e => {
-       console.log(e)
-    })
+    this.user = this.parent.$store.state.user;   
+    this.file = this.parent.$store.state.backConfig.restaurant.ImageUrl;
+
   },
   methods:{
     ifErrorOccured(action){
@@ -79,15 +76,12 @@ export default {
         })
         .then(a => a.present());
     },
-    unlock(value){
-        //console.log(this.user.ServerId)
-        //console.log(value)
+    unlock(value){     
         if (this.user.ServerId == value)
             this.dismissModal()
     },
     
     closeSession: function(){
-        //console.log("Close session")
         this.parent.logOut()
         this.dismissModal()
     },
@@ -115,6 +109,16 @@ export default {
         showCloseButton: false
         }).then(a => a.present())
     },
+
+    verifyLength(value){
+      if(this.user.ServerId.toString().length < value.length){
+       this.error = true;
+       this.errorNumber ++;
+       this.key ++;
+      //  if(this.errorNumber === 3) this.closeSession();
+      }
+       this.error= false
+    }
 }
 }
 </script>

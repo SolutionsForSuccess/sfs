@@ -1,8 +1,8 @@
 <template>
     <div>
-    <!-- <ion-backdrop v-if="isBackdrop"></ion-backdrop> -->
+    <ion-backdrop v-if="isBackdrop"></ion-backdrop>
 
-     <!-- <ion-header>
+     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
@@ -12,13 +12,15 @@
             </ion-label>
           </ion-toolbar>
     </ion-header>
-    <br/> -->
+    <br/>
 
     <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+     <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div>
         <ion-item>
           <ion-label >{{$t('backoffice.form.fields.online')}}
           <ion-toggle name="online" style="top: 12px;"
@@ -474,6 +476,7 @@ export default {
         }
   },
   methods: {
+
     checkEmailTest(){
         if (this.EmailTest == '')
             return true
@@ -485,6 +488,7 @@ export default {
         }
         return false
     },
+
     emailTest(){
         this.emailspinner = true
         const test = {
@@ -504,134 +508,107 @@ export default {
             this.emailspinner = false
         })
     },
+
     change(){
         this.example = new Intl.NumberFormat('en', {style: "currency", currency: this.currencyCode} ).format(123456)
     },
+
     init(){
-        this.allCurrencies = require('currency-codes/data');
-        //console.log('All currencies');
-        //console.log(this.allCurrencies);
-        
-        //  if(this.$route.params.settingId)
-        //     this.id = this.$route.params.settingId;
+
+        this.allCurrencies = require('currency-codes/data');      
         this.id = this.$store.state.user.RestaurantId     
         if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    //console.log("The Zip Code");
-                    //console.log(response.data.ZipCode);
-                    this.name = response.data.Name;
-                    this.address = response.data.Address;
-                    this.online = response.data.Online;
-                    // this.showOthersRestaurant = response.data.ShowOtherRestaurant;
-                    this.email = response.data.Email;
-                    this.SmtpHost = response.data.SmtpHost,
-                    this.emailHost = response.data.EmailHost,
-                    this.Port = response.data.Port,
-                    this.Secure = response.data.Secure,
-                    this.Password = response.data.Password,
-                    this.phone = response.data.Phone;
-                    this.web = response.data.Web;
-                    this.urlLocation = response.data.UrlLocation;
-                    this.fax = response.data.Fax;
-                    this.file = response.data.ImageUrl;
-                    this.currencyCode = response.data.Currency;
-                    this.customHours = response.data.CustomHours;
-                    this.customHoursText = response.data.CustomHoursText;
+            const data = this.$store.state.backConfig.restaurant;
+            this.name = data.Name;
+            this.address = data.Address;
+            this.online = data.Online;
+            // this.showOthersRestaurant = data.ShowOtherRestaurant;
+            this.email = data.Email;
+            this.SmtpHost = data.SmtpHost,
+            this.emailHost = data.EmailHost,
+            this.Port = data.Port,
+            this.Secure = data.Secure,
+            this.Password = data.Password,
+            this.phone = data.Phone;
+            this.web = data.Web;
+            this.urlLocation = data.UrlLocation;
+            this.fax = data.Fax;
+            this.file = data.ImageUrl;
+            this.currencyCode = data.Currency;
+            this.customHours = data.CustomHours;
+            this.customHoursText = data.CustomHoursText;
 
-                    //socials
-                    this.socialList = response.data.Sociasls;
-                    if (this.socialList.length > 0){
-                      this.socials = true
-                      this.socialList.forEach(s => {
-                          if (s.SocialName == 'Facebook')
-                            this.facebook = s.SocialUrl
-                          if (s.SocialName == 'Instagram')
-                            this.instagram = s.SocialUrl
-                          if (s.SocialName == 'Twitter')
-                            this.twitter = s.SocialUrl
-                          if (s.SocialName == 'Youtube')
-                            this.youtube = s.SocialUrl
-                      });
-                    }
-                    this.change();
+            //socials
+            this.socialList = data.Sociasls;
+            if (this.socialList.length > 0){
+              this.socials = true
+              this.socialList.forEach(s => {
+                if (s.SocialName == 'Facebook')
+                  this.facebook = s.SocialUrl
+                if (s.SocialName == 'Instagram')
+                  this.instagram = s.SocialUrl
+                if (s.SocialName == 'Twitter')
+                  this.twitter = s.SocialUrl
+                if (s.SocialName == 'Youtube')
+                  this.youtube = s.SocialUrl
+              });
+            }
+            this.change();
 
-                    // Restaurant date and time
-                    if (response.data.RestaurantDaysAndTime)
-                    {
-                          response.data.RestaurantDaysAndTime.forEach(element => {
-                              if (element.Day == 'Monday')
-                              {
-                                  this.activeMonday = true
-                                  this.mondayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.mondayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Tuesday')
-                              {
-                                  this.activeTuesday = true
-                                  this.tuesdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.tuesdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Wednesday')
-                              {
-                                  this.activeWednesday = true
-                                  this.wednesdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.wednesdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Thursday')
-                              {
-                                  this.activeThursday = true
-                                  this.thursdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.thursdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Friday')
-                              {
-                                  this.activeFriday = true
-                                  this.fridayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.fridayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Saturday')
-                              {
-                                  this.activeSaturday = true
-                                  this.saturdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.saturdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                              if (element.Day == 'Sunday')
-                              {
-                                  this.activeSunday = true
-                                  this.sundayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
-                                  this.sundayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
-                              }
-                          
-                          });
-                          this.restaurantDaysAndTime
-                    }
+            // Restaurant date and time
+            if (data.RestaurantDaysAndTime)
+            {
+              data.RestaurantDaysAndTime.forEach(element => {
+                  if (element.Day == 'Monday')
+                  {
+                      this.activeMonday = true
+                      this.mondayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.mondayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Tuesday')
+                  {
+                      this.activeTuesday = true
+                      this.tuesdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.tuesdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Wednesday')
+                  {
+                      this.activeWednesday = true
+                      this.wednesdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.wednesdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Thursday')
+                  {
+                      this.activeThursday = true
+                      this.thursdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.thursdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Friday')
+                  {
+                      this.activeFriday = true
+                      this.fridayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.fridayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Saturday')
+                  {
+                      this.activeSaturday = true
+                      this.saturdayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.saturdayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+                  if (element.Day == 'Sunday')
+                  {
+                      this.activeSunday = true
+                      this.sundayOpenHour = Moment.tz(element.OpenHour, Moment.tz.guess()).format('HH:mm')
+                      this.sundayCloseHour = Moment.tz(element.CloseHour, Moment.tz.guess()).format('HH:mm')
+                  }
+              
+              });
+              this.restaurantDaysAndTime
+            }
 
                     // End
-
-
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                  })
-              })
-          })   
         }
-        //console.log(this.$route.params);
+
     },
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -656,52 +633,18 @@ export default {
         })
         .then(a => a.present());
     },
+    
     isValidForm(){
-        // let errors = [];
-        if (this.name == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.name'));
-            return false
-        }
-        if (this.address == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.address'));
-            return false
-        }
-        if (this.email == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.email'));
-            return false
-        }
-        if (this.phone == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.phone'));
-            return false
-        }
-        if (this.file == null)
-        {
-            // errors.push(this.$t('backoffice.form.validate.image'));
-            return false
-        }
+        if (this.name == "")return false
+        if (this.address == "")return false
+        if (this.email == "") return false
+        if (this.phone == "") return false
+        if (this.file == null)return false
 
         return true
 
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-        //     //                    message, this.$t('backoffice.form.validate.validateSetting'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -713,6 +656,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -722,16 +666,19 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){
       return this.file != null;
     },
+
     handleImage: function(event)
     {
         const selectedImage = event.target.files[0];
         this.fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
+
     createBase64Img: function(fileObject){
         const reader = new FileReader();
 
@@ -743,204 +690,165 @@ export default {
     },
     /*******                              Fin                              *******/
     //Create or edit a new restaurant basic setting
+
     saveRestaurantDaysAndTime(){
-        let reservation = [] 
-        if (!this.sameHourForAllDays){
-            if (this.activeMonday){
-                reservation.push({
-                    "Day": 'Monday',
-                    "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeTuesday){
-                reservation.push({
-                    "Day": 'Tuesday',
-                    "OpenHour": Moment(this.tuesdayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.tuesdayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeWednesday){
-                reservation.push({
-                    "Day": 'Wednesday',
-                    "OpenHour": Moment(this.wednesdayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.wednesdayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeThursday){
-                reservation.push({
-                    "Day": 'Thursday',
-                    "OpenHour": Moment(this.thursdayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.thursdayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeFriday){
-                reservation.push({
-                    "Day": 'Friday',
-                    "OpenHour": Moment(this.fridayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.fridayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeSaturday){
-                reservation.push({
-                    "Day": 'Saturday',
-                    "OpenHour": Moment(this.saturdayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.saturdayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-            if (this.activeSunday){
-                reservation.push({
-                    "Day": 'Sunday',
-                    "OpenHour": Moment(this.sundayOpenHour, 'HH:mm').toISOString(),
-                    "CloseHour": Moment(this.sundayCloseHour, 'HH:mm').toISOString(),
-                })
-            }
-        }
-        else{
-            reservation = [
-                {
+      let reservation = [] 
+      if (!this.sameHourForAllDays){
+          if (this.activeMonday){
+              reservation.push({
                   "Day": 'Monday',
                   "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
                   "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+              })
+          }
+          if (this.activeTuesday){
+              reservation.push({
                   "Day": 'Tuesday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+                  "OpenHour": Moment(this.tuesdayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.tuesdayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+          if (this.activeWednesday){
+              reservation.push({
                   "Day": 'Wednesday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+                  "OpenHour": Moment(this.wednesdayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.wednesdayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+          if (this.activeThursday){
+              reservation.push({
                   "Day": 'Thursday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+                  "OpenHour": Moment(this.thursdayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.thursdayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+          if (this.activeFriday){
+              reservation.push({
                   "Day": 'Friday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+                  "OpenHour": Moment(this.fridayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.fridayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+          if (this.activeSaturday){
+              reservation.push({
                   "Day": 'Saturday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-                {
+                  "OpenHour": Moment(this.saturdayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.saturdayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+          if (this.activeSunday){
+              reservation.push({
                   "Day": 'Sunday',
-                  "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
-                  "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
-                },
-            ]
-        }
-        // console.log(this.mondayOpenHour)
-        // console.log(this.mondayCloseHour)
-        //console.log("The reservation")
-        //console.log(reservation)
+                  "OpenHour": Moment(this.sundayOpenHour, 'HH:mm').toISOString(),
+                  "CloseHour": Moment(this.sundayCloseHour, 'HH:mm').toISOString(),
+              })
+          }
+      }
+      else{
+        reservation = [
+            {
+              "Day": 'Monday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Tuesday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Wednesday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Thursday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Friday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Saturday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+            {
+              "Day": 'Sunday',
+              "OpenHour": Moment(this.mondayOpenHour, 'HH:mm').toISOString(),
+              "CloseHour": Moment(this.mondayCloseHour, 'HH:mm').toISOString(),
+            },
+        ]
+      }       
         return reservation
     },
-    saveSetting: function(){
 
-        if (this.isValidForm()){
-            this.isBackdrop = true;
-            let item = {
-              "Name": this.name,
-              "Address": this.address,
-              "Online": this.online,
-              // "ShowOtherRestaurant": this.showOthersRestaurant,
-              "Email": this.email,
-              "SmtpHost": this.SmtpHost,
-              "EmailHost": this.emailHost,
-              "Port": this.Port,
-              "Secure": this.Secure,
-              "Password": this.Password,
-              "Phone": this.phone,
-              "Web": this.web,
-              "Currency": this.currencyCode,
-              "RestaurantDaysAndTime": this.saveRestaurantDaysAndTime(),
-              "CustomHours": this.customHours,
-              "CustomHoursText": this.customHoursText,
-            }
-            if (this.file != null)
-            {
-              item["ImageUrl"] = this.file;
-              item["ImageName"] = this.fileName;
-            }
-            if (this.fax != '')
-            {
-               item["Fax"] = this.fax
-            }
-            if (this.urlLocation != '')
-            {
-               item["UrlLocation"] = this.urlLocation
-            }
-            let listS = []
-            if (this.socials){
-               
-               console.log(this.facebook )
-               console.log(this.instagram )
-               console.log(this.twitter )
-               console.log(this.youtube )
-               if (this.facebook != '')
-                  listS.push({'SocialName': 'Facebook', 'SocialUrl': this.facebook})
-               if (this.instagram != '')
-                  listS.push({'SocialName': 'Instagram', 'SocialUrl': this.instagram})
-               if (this.twitter != '')
-                  listS.push({'SocialName': 'Twitter', 'SocialUrl': this.twitter})
-               if (this.youtube != '')
-                  listS.push({'SocialName': 'Youtube', 'SocialUrl': this.youtube})
-            }
-            item["Sociasls"] = listS
-            //If I am editing
-            if (this.id){
-              item['_id'] = this.id
-              this.spinner = true
-              Api.putIn(this.modelName, item)
-                  .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessSetting'), 
-                        //         this.$t('backoffice.list.messages.titleEditSetting'));
-                        this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
-                        // this.$router.push({
-                        //   name: 'ControlPanel', 
-                        // });
-                        this.spinner = false;
-                        return response;
-                  })
-                  .catch(e => {
-                        this.isBackdrop = false
-                        console.log(e);
-                        this.spinner = false;
-                        this.ifErrorOccured(this.saveSetting);
-                  })
-            }
-            // else{
-            //   //Else, I am created a new category
-            //   this.spinner = true;
-            //   Api.postIn(this.modelName, item)
-            //       .then(response => {
-            //           // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-            //           //        this.$t('backoffice.list.messages.messageCreateSuccessSetting'), 
-            //           //           this.$t('backoffice.list.messages.titleCreateSetting'));
-            //           this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSetting'), "success");
-            //           this.spinner = false;
-            //           this.$router.push({
-            //             name: 'ControlPanel', 
-            //           });
-            //           return response;
-            //       })
-            //       .catch(e => {
-            //           this.isBackdrop = false
-            //           console.log(e);
-            //           this.spinner = false;
-            //           this.ifErrorOccured(this.saveSetting);
-            //       })
-            // }
+    saveSetting: async function(){
 
+      if (this.isValidForm()){
+        this.isBackdrop = true;
+        let item = {
+          "Name": this.name,
+          "Address": this.address,
+          "Online": this.online,
+          // "ShowOtherRestaurant": this.showOthersRestaurant,
+          "Email": this.email,
+          "SmtpHost": this.SmtpHost,
+          "EmailHost": this.emailHost,
+          "Port": this.Port,
+          "Secure": this.Secure,
+          "Password": this.Password,
+          "Phone": this.phone,
+          "Web": this.web,
+          "Currency": this.currencyCode,
+          "RestaurantDaysAndTime": this.saveRestaurantDaysAndTime(),
+          "CustomHours": this.customHours,
+          "CustomHoursText": this.customHoursText,
         }
+        if (this.file != null)
+        {
+          item["ImageUrl"] = this.file;
+          item["ImageName"] = this.fileName;
+        }
+        if (this.fax != '') item["Fax"] = this.fax
+        if (this.urlLocation != '') item["UrlLocation"] = this.urlLocation
+        let listS = []
+        if (this.socials){
+          if (this.facebook != '')
+            listS.push({'SocialName': 'Facebook', 'SocialUrl': this.facebook})
+          if (this.instagram != '')
+            listS.push({'SocialName': 'Instagram', 'SocialUrl': this.instagram})
+          if (this.twitter != '')
+            listS.push({'SocialName': 'Twitter', 'SocialUrl': this.twitter})
+          if (this.youtube != '')
+            listS.push({'SocialName': 'Youtube', 'SocialUrl': this.youtube})
+        }
+        item["Sociasls"] = listS
+        //If I am editing
+        if (this.id){
+          item['_id'] = this.id
+          this.spinner = true
+          await Api.putIn(this.modelName, item)
+              .then(response => {
+                    this.$store.state.backConfig.restaurant = response.data;
+                    this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
+                    // this.$router.push({
+                    //   name: 'ControlPanel', 
+                    // });
+                    this.spinner = false;
+                    return response;
+              })
+              .catch(e => {
+                    this.isBackdrop = false
+                    console.log(e);
+                    this.spinner = false;
+                    this.ifErrorOccured(this.saveSetting);
+              })
+        }
+      }
     },
   },
 

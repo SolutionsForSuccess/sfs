@@ -50,17 +50,10 @@ export default {
   },
   created: function(){
 
-    this.user = this.parent.$store.state.user
-    //console.log(this.user) 
-    // Api.put('staff', restaurantID)
-    // .then(response => {
-    //     console.log(response.data)
-    // })
-    // .catch(e => {
-    //    console.log(e)
-    // })
+    this.user = this.parent.$store.state.user   
   },
   methods:{
+
     ifErrorOccured(action){
       return this.parent.$ionic.alertController.create({
           title: this.parent.$t('backoffice.list.messages.connectionError'),
@@ -84,16 +77,12 @@ export default {
         })
         .then(a => a.present());
     },
-    changeServerId(){
-        // const item = {
-        //     '_id': this.user._id,
-        //     'ServerId': this.newServerId
-        // }
+
+    async changeServerId(){       
         let user = this.user
         user.ServerId = this.newServerId
-        Api.putIn('Staff', user)
+        await Api.putIn('Staff', user)
         .then(() => {
-            //console.log(response.data)
             this.parent.$store.commit("setUser", user)
             payAuthorizeNet.setClerkId(user.ServerId)
             this.showToastMessage("The Server Id was changed successfully", "success")
@@ -104,9 +93,11 @@ export default {
             this.showToastMessage("An error occur change Server Id", "danger")
         })
     },
+
     dismissModal() { 
         this.$ionic.modalController.dismiss(null);
     },
+
     isValidForm(){
         if (this.oldServerId.toString().length != 4 ||  this.newServerId.toString().length != 4)
             return false
@@ -116,6 +107,7 @@ export default {
             return false
         return true
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
             .create({
@@ -127,6 +119,7 @@ export default {
             })
             .then(a => a.present())
     },
+    
     showToastMessage(message, tColor){
         return this.$ionic.toastController.create({
         color: tColor,

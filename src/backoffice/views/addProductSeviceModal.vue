@@ -193,43 +193,22 @@ export default {
 
   },
   methods:{
-      fetchMenus: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.parent.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll('menu').then(response => {
-                  // console.log(response.data)
-                  this.cateringMenus = response.data
-                  if (this.isCatering)
-                      this.cateringMenus = this.cateringMenus.filter(menu => menu.IsCatering)
-                  else
-                      this.cateringMenus = this.cateringMenus.filter(menu => !menu.IsCatering)
-                  if (this.addType == 'product')
-                    this.cateringMenus = this.cateringMenus.filter(menu => !menu.IsService || menu.IsService == false)
-                  else
-                    this.cateringMenus = this.cateringMenus.filter(menu => menu.IsService == true)
-                  if (this.cateringMenus.length > 0)
-                  {
-                      this.menuSelected = this.cateringMenus[0]._id
-                  }
-                      
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchMenus)
-                });
-            })
-        }) 
+
+    fetchMenus: function(){
+        this.cateringMenus = this.$store.state.backConfig.menu
+        if (this.isCatering)
+            this.cateringMenus = this.cateringMenus.filter(menu => menu.IsCatering)
+        else
+            this.cateringMenus = this.cateringMenus.filter(menu => !menu.IsCatering)
+        if (this.addType == 'product')
+            this.cateringMenus = this.cateringMenus.filter(menu => !menu.IsService || menu.IsService == false)
+        else
+            this.cateringMenus = this.cateringMenus.filter(menu => menu.IsService == true)
+        if (this.cateringMenus.length > 0)
+            this.menuSelected = this.cateringMenus[0]._id
+
     },
+
     fetchCategories: function(){
         this.$ionic.loadingController
         .create({
@@ -259,88 +238,48 @@ export default {
             })
         }) 
     },
-    changeMenu(menu){
-        //console.log("MENU: " + menu)
-        this.menuSelected = menu;
 
+    changeMenu(id){
+        this.menuSelected = id;
           //Traer las todas las categorías de ese menú
-          if (menu){
-            this.$ionic.loadingController
-            .create({
-              cssClass: 'my-custom-class',
-              message: this.parent.$t('backoffice.titles.loading'),
-              backdropDismiss: true
-            })
-            .then(loading => {
-                loading.present()
-                setTimeout(() => {  // Some AJAX call occurs
-                    Api.fetchById('menu', menu)
-                      .then(response => {
-                        const listCategoriesIds = response.data.Categories;
+        if (id){
+            const data =this.$store.state.backConfig.menu.find(m => m._id ===id)
+            if(data){
+            const listCategoriesIds = data.Categories;
 
-                        this.categories = [];
-                        listCategoriesIds.forEach(categoryId => {
-                          let selCategory = null;
-                          this.allCategories.forEach(category => {
-                              if (categoryId == category._id)
-                                  selCategory = category;
-                          });
-                          this.categories.push(selCategory);
-                        })
-                        if (this.categories.length > 0)
-                        {
-                            this.categorySelected = this.categories[0]._id
-                        }
-
-                        loading.dismiss();
-                        return response;
-                      })
-                      .catch(e => {
-                        console.log(e);
-                        loading.dismiss();
-                        this.ifErrorOccured(this.init)
-                      })
-                })
-            })
-        }
-        
-    },
-    changeCategory(category){
-        this.categorySelected = category;
-
-        //Traer todos los productos de esa categoría
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.parent.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll('product').then(response => {
-                  // console.log(response.data)
-                  this.products = response.data
-                  this.products = this.products.filter(prod => prod.CategoryId == category)
-                      
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
+            this.categories = [];
+            listCategoriesIds.forEach(categoryId => {
+                let selCategory = null;
+                this.allCategories.forEach(category => {
+                    if (categoryId == category._id)
+                        selCategory = category;
                 });
+                this.categories.push(selCategory);
             })
-        })
+
+            if (this.categories.length > 0)
+                this.categorySelected = this.categories[0]._id
+            }
+        }
     },
+
+    changeCategory(id){
+        this.categorySelected = id;
+        this.products = this.$store.state.backConfig.product;
+        this.products = this.products.filter(prod => prod.CategoryId == id)
+
+    },
+
     addProduct(product){
         //console.log(product)
         if (!this.productsSelected.find(prod => product._id == prod._id))
             this.productsSelected.push(product)
     },
+    
     deleteProduct(product){
         this.productsSelected.splice(this.productsSelected.indexOf(product), 1)
     },
+
     ifErrorOccured(action){
       return this.parent.$ionic.alertController.create({
           title: this.parent.$t('backoffice.list.messages.connectionError'),
@@ -364,15 +303,18 @@ export default {
         })
         .then(a => a.present());
     },
+
     dismissModal() { 
         this.$ionic.modalController.dismiss(null);
     },
+
     isValidForm(){
         if (this.productsSelected.length > 0)
           return true
         
         return false
     },
+
     ShowMessage(type, message, topic='') {
       return this.$ionic.alertController
           .create({
@@ -384,6 +326,7 @@ export default {
           })
           .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -393,30 +336,28 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    add(){
-        //console.log("Aqui")
-        //console.log(this.productsSelected)
 
+    add(){
         let productSel = []
         this.productsSelected.forEach(prod => {
-            let item = {
-                'Aggregates': prod.Aggregates,
-                'AggregateCant': prod.AggregateCant,
-                'Cant': 1,
-                'ImageUrl': prod.ImageUrl,
-                'Name': prod.Name,
-                'Note': prod.Note,
-                'Price': prod.CostPrice,
-                '_id': prod._id,
-                'fromCatering': true,
-            }
-            //Precios diferentes si es catering o no.
-            if (!this.isCatering) item.Price = prod.SalePrice
-            if (this.addType == 'product')
-                item['isService'] = false
-            else
-                item['isService'] = true
-            productSel.push(item)
+        let item = {
+            'Aggregates': prod.Aggregates,
+            'AggregateCant': prod.AggregateCant,
+            'Cant': 1,
+            'ImageUrl': prod.ImageUrl,
+            'Name': prod.Name,
+            'Note': prod.Note,
+            'Price': prod.CostPrice,
+            '_id': prod._id,
+            'fromCatering': true,
+        }
+        //Precios diferentes si es catering o no.
+        if (!this.isCatering) item.Price = prod.SalePrice
+        if (this.addType == 'product')
+            item['isService'] = false
+        else
+            item['isService'] = true
+        productSel.push(item)
         })
 
         if (this.addType == 'product')

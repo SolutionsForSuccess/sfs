@@ -37,18 +37,18 @@
 
     <ion-spinner  v-if="spinnerState"></ion-spinner>                  
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
       
-    <div v-if="!spinner && table">
+    <div v-if="table">
       <div v-if="screenWidth < 600">
         <paginate
           name="languages"
           :list="filterTables"
           :per="8"
         >
-          <ion-list>
+          <ion-list :key="key">
             <ion-item-sliding v-for="table in paginated('languages')" v-bind:key="table._id">
               <ion-item>
                 <ion-label>
@@ -96,7 +96,7 @@
           :list="filterTables"
           :per="8"
         >
-          <ion-list>
+          <ion-list  :key="key">
             <ion-item-sliding v-for="table in paginated('languages')" v-bind:key="table._id">
               <ion-item  
                  @click="hasPermission('canEditTable')? editTable(table._id): false"
@@ -149,7 +149,7 @@
       </div>
     </div>
 
-    <div  v-if="!spinner && orderTable">
+    <div  v-if="orderTable">
 
       <v-breakpoint>
           <div slot-scope="scope" :key="keyShape+'C'"   style="    display: flex;flex-wrap: wrap; align-items: center;">
@@ -286,7 +286,7 @@
                       :style="findTable(restaurantSetting.TableDesign[index][index1].table).State=='Free' ?
                       '--background:#76fb3838;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible' :
                       '--background:#ff00001f;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible'"
-                      @click="getIdTable(restaurantSetting.TableDesign[index][index1].table)"
+                      
                     > 
                       <div v-if="!editMaket" style="position: absolute;">                      
                           <ion-badge slot="start" style="padding: 10px; margin: 10px;position: absolute;left: 0;" 
@@ -335,22 +335,23 @@
 import { Api } from '../api/api.js';
 import Modal from './QrModal.vue';
 import TableOrderModal from './TableOrderModal';
-// import { VBreakpoint } from 'vue-breakpoint-component'
+import { VBreakpoint } from 'vue-breakpoint-component'
 
 
 export default {
 
   name: 'mesa',
   created: function(){
-    // this.screenWidth = screen.width;
-    // this.fetchTables();
+    this.screenWidth = screen.width;
+    this.fetchTables();
+    this.restaurantSetting = this.$store.state.backConfig.setting;    
+    if(!this.restaurantSetting.TableDesign)     
+      this.restaurantSetting.TableDesign = [];  
 
-    // this.getRestaurantSetting();
-  
   },
-  //  components:{   
-  //   VBreakpoint: VBreakpoint,  
-  // },
+   components:{   
+    VBreakpoint: VBreakpoint,  
+  },
  
   data () {
     return {
@@ -368,6 +369,7 @@ export default {
       maket: false,
       segmentValue: 'table',
       orders: [],
+      key: 0,
       keyShape: 0,
       keyRow: 0,
       restaurantSetting: {},
@@ -377,38 +379,30 @@ export default {
     }
   }, 
   methods: {
-     async segmentChanged(value){         
-             if(value === 'table'){
-                 this.table = true;
-                 this.orderTable = false;  
-                 this.maket = false;              
-             }
-             if(value === 'orderTable'){
-                await this.fetchOrdersTable();
-                this.table = false;
-                 this.maket = false;
-                this.orderTable = true;
-                //console.log('orders');
-                //console.log(this.orders.length);
-             }  
-             if(value === 'maket')   {
-               this.table = false;
-                this.orderTable = false;
-                this.maket = true;
-             }          
-             this.segmentValue = value;
 
-         },
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    async segmentChanged(value){         
+            if(value === 'table'){
+                this.table = true;
+                this.orderTable = false;  
+                this.maket = false;              
+            }
+            if(value === 'orderTable'){
+              this.orders = this.$store.state.backConfig.order.filter(order => order.State < 5 && order.OrderType === 'On Table');
+              this.table = false;
+                this.maket = false;
+              this.orderTable = true;
+              //console.log('orders');
+              //console.log(this.orders.length);
+            }  
+            if(value === 'maket')   {
+              this.table = false;
+              this.orderTable = false;
+              this.maket = true;
+            }          
+            this.segmentValue = value;
+
+        },
+   
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -432,6 +426,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterTables = this.tables
@@ -444,6 +439,7 @@ export default {
           this.filterTables = this.categories
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -472,6 +468,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -483,6 +480,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -492,9 +490,8 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    seeQrCode(seats){
-      //console.log('seats')
-      //console.log(seats)
+
+    seeQrCode(seats){     
         return this.$ionic.modalController
         .create({
           component: Modal,
@@ -512,33 +509,41 @@ export default {
         })
         .then(m => m.present())
     },
-    setAvailable(table){
-        // this.spinnerState = true;
+
+    async setAvailable(table){
+        this.spinner = true;
         table.State = 'Free';
-        this.keyShape ++;
+       this.keyShape ++;
         table.Seats.forEach(seat => {
             seat.available = true
         });
-        Api.putIn('table', table).then(response => {
+        await Api.putIn('table', table).then(response => {
+            const index = this.$store.state.backConfig.tables.findIndex(t => t._id === table._id)
+            if(index !== -1) this.$store.state.backConfig.tables[index] = table;
+             this.key ++;
             this.showToastMessage('La mesa está hora disponible.', 'success')
-            // this.spinnerState = false
+            this.spinner = false
             return response
         })
         .catch(e => {
-            console.log(e)
+            e;
             this.spinnerState = false
         })
     },
-    setBusy(table){
-        // this.spinner = true;
+
+    async setBusy(table){
+        this.spinner = true;
         table.State = 'Busy';
         this.keyShape ++;
         table.Seats.forEach(seat => {
             seat.available = false
         });
-        Api.putIn('table', table).then(response => {
+        await Api.putIn('table', table).then(response => {
+           const index = this.$store.state.backConfig.tables.findIndex(t => t._id === table._id)
+            if(index !== -1) this.$store.state.backConfig.tables[index] = table;
+            this.key ++;
             this.showToastMessage('Se ha ocupado la mesa.', 'success')
-            // this.spinner = false
+            this.spinner = false
             return response
         })
         .catch(e => {
@@ -546,38 +551,22 @@ export default {
             this.spinner = false
         })
     },
+
     /****** CRUD category methods ******/
     fetchTables: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  this.tables = response.data
-                  this.filterTables = this.tables
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchTables)
-                });
-            })
-        })
+      this.tables = this.$store.state.backConfig.tables;
+      this.filterTables = this.tables;
+
     },
+
     editTable: function(id){
         this.$router.push({
         name: 'TableForm',
         params: { tableId: id }
       });
     },
-    deleteTable: function(id){
+
+    deleteTable: async function(id){
 
       return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -597,9 +586,8 @@ export default {
                 this.spinner = true
                 Api.deleteById(this.modelName, id)
                   .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessTable'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleTable'));
+                    const index = this.$store.state.backConfig.tables.findIndex(t => t._id === id)
+                    if(index !== -1) this.$store.state.backConfig.tables.splice(index, 1);
                     this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessTable'), "success");
                     this.fetchTables();
                     this.spinner = false;
@@ -621,47 +609,16 @@ export default {
 
      },
 
-    async fetchOrdersTable(){
-      this.$ionic.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        // duration: 1000,  
-        backdropDismiss: true
-      })
-      .then(loading => {
-          loading.present()
-          setTimeout(async() => {  // Some AJAX call occurs
-            const response = await Api.fetchAll('Order');
-            if(response.status === 200)            
-              this.orders = response.data.filter(order => order.State < 5 && order.OrderType === 'On Table');
-            //console.log('All Ordesr')
-            //console.log(this.orders)
-            loading.dismiss();
-          })
-      })    
-    },
-
      getAmoutByTable(value){
-       //console.log(value);
        const listO = this.getListOrder(value);
-       //console.log('listO')
-       //console.log(listO)
        let total = 0;
-
        listO.forEach( o => { total+= parseFloat(o.Total) })
-
-       //console.log('total '+ total)
        return total.toFixed(2);
     },
 
-    
-
      async getOrdersDetails(value){
-       //console.log(value);
        const listO = this.getListOrder(value);
        if(listO.length > 0){
-         //console.log(listO.length)
          return this.$ionic.modalController
         .create({
           component: TableOrderModal,
@@ -690,7 +647,6 @@ export default {
            listO.push(order);
          }         
        }
-       //console.log(listO)
        return listO;
      },
 
@@ -706,43 +662,25 @@ export default {
         })
     },
 
-
      addRowColumn(rowC){
-      console.log('addRow  ' + rowC)
       const array = [];
       const data = { table: ''  }
       for(var i=0; i< parseInt(rowC); i++) {
         array.push(data);
       }
-     console.log(array)
       this.restaurantSetting.TableDesign.push(array)
-      console.log(this.restaurantSetting.TableDesign)
        this.rowC = 1;
       this.keyRow ++;
       this.keyShape ++;  
-     
     },
 
-    getRestaurantSetting(){
-      Api.fetchAll('Setting')
-      .then(response => {
-          if (response.data.length > 0)
-          {                  
-              this.restaurantSetting = response.data[0];     
-              console.log(this.restaurantSetting); 
-              if(!this.restaurantSetting.TableDesign)     
-               this.restaurantSetting.TableDesign = [];        
-          }
-      })
-      .catch(e => {
-          console.log(e)
-      })
-    },
+  
 
    async saveSetting(){ 
       this.keyEdit = true;
         await Api.putIn('Setting', this.restaurantSetting).then(response => {
             response
+            this.$store.state.backConfig.setting = this.restaurantSetting;
             this.keyEdit = false;
             this.editMaket = false;
         })
@@ -753,7 +691,7 @@ export default {
     },  
 
     addTable(index, index1, value){ 
-      console.log(index, index1, value)
+      
       const UJ = JSON.parse(JSON.stringify( this.restaurantSetting.TableDesign))
 
       for (const tb of UJ) {
@@ -768,8 +706,7 @@ export default {
       UJ[index][index1].table=value
       this.restaurantSetting.TableDesign = UJ;      
         
-      this.keyShape ++;   
-      console.log(JSON.parse(JSON.stringify( this.restaurantSetting.TableDesign)));
+      this.keyShape ++;        
     },
 
     findTable(id){
@@ -785,6 +722,7 @@ export default {
       this.keyShape ++; 
       this.keyRow ++;  
     },
+
     deleteColRow(index, index1){
       console.log(index, index1)
       this.restaurantSetting.TableDesign[index].splice(index1, 1);
@@ -799,9 +737,6 @@ export default {
       this.keyRow ++;  
     },
 
-    getIdTable(value){
-      console.log('Get table Id ' + value);
-    },
     doReorder(event){
 
       const value = this.restaurantSetting.TableDesign[event.detail.from]
@@ -821,6 +756,7 @@ export default {
   },
 
 }
+
 
 </script>
 

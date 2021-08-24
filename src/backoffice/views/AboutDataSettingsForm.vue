@@ -15,10 +15,12 @@
     <br/>
 
     <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div >
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.title')}}</ion-label>
           <ion-input type="text" name="title"
@@ -87,106 +89,43 @@ export default {
     
     this.id = this.$route.params.aboutId;
     if (this.id){
-      this.$ionic.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        backdropDismiss: true
-      })
-      .then(loading => {
-          loading.present()
-          setTimeout(() => {  // Some AJAX call occurs
-            Api.fetchById(this.modelName, this.id)
-            .then(response => {
-               this.title = response.data.Title;
-               this.subtitle = response.data.Title;
-               this.description = response.data.Description;
-               this.file = response.data.ImageUrl;
-               loading.dismiss();
-               return response;
-            })
-            .catch(e => {
-              console.log(e);
-              loading.dismiss();
-            })  
-          })
-      }) 
+      const data = this.$store.state.backConfig.about.find(a => a._id === this.id);
+      if(data){
+        this.title = data.Title;
+        this.subtitle = data.Subtitle;
+        this.description = data.Description;
+        this.file = data.ImageUrl;
+      }
     }
-
-    //console.log(this.$route.params);
   },
+
   computed: {
         titleT() {
             return this.id ? this.$t('backoffice.titles.editAboutForm') :  this.$t('backoffice.titles.newAboutForm');
         }
   },
+
   methods: {
+
     manageFunSettings(){
-        Api.fetchAll('Setting').then(response => {
-        // console.log(response.data)
-            let funSettings = [];
-            funSettings = response.data;
-            if (funSettings.length > 0)
-            {
-                this.$router.push({
-                    name: 'FunSettingForm',
-                    params: {
-                        "settingId": funSettings[funSettings.length - 1]._id,
-                        "tab": "about"
-                    }
-                });
-            }
-            else{
-                this.$router.push({
-                    name: 'FunSettingForm',
-                });
-            }
-        })
-        .catch(e => {
-        console.log(e)
+        this.$router.push({
+          name: 'FunSettingForm',
+          params: {
+              "settingId": this.$store.state.backConfig.setting._id,
+              "tab": "about"
+          }
         });
     },
+
     isValidForm(){
-        // let errors = [];
-        if (this.title == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.title'));
-            return false
-        }
-        if (this.subtitle == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.subtitle'));
-            return false
-        }
-        if (this.description == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.description'));
-            return false
-        }
-        if (this.file == null)
-        {
-            // errors.push(this.$t('backoffice.form.validate.image'));
-            return false
-        }
+        if (this.title == "")return false
+        if (this.subtitle == "")  return false
+        if (this.description == "") return false
+        if (this.file == null)return false
 
-        return true
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-        //     //                    message, this.$t('backoffice.form.validate.validateSetting'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
+        return true      
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -198,6 +137,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -207,16 +147,19 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){
       return this.file != null;
     },
+
     handleImage: function(event)
     {
         const selectedImage = event.target.files[0];
         this.fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
+
     createBase64Img: function(fileObject){
         const reader = new FileReader();
 
@@ -228,7 +171,7 @@ export default {
     },
     /*******                              Fin                              *******/
     //Create or edit a new category
-    saveAbout: function(){
+    saveAbout: async function(){
 
         if (this.isValidForm()){
 
@@ -248,12 +191,10 @@ export default {
             if (this.id){
               item['_id'] = this.id;
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageCreateSuccessSetting'), 
-                        //         this.$t('backoffice.list.messages.titleEditSuccess'));
+                        const index = this.$store.state.backConfig.about.findIndex(a => a._id === this.id)
+                        if(index !== -1) this.$store.state.backConfig.about[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSetting'), "success");
                         this.title = '';
                         this.subtitle = '';
@@ -261,10 +202,7 @@ export default {
                         this.isEditing = false;
                         this.id = null;
                         this.file = null;
-                        this.spinner = false;
-                        // this.$router.push({
-                        //   name: 'About', 
-                        // });
+                        this.spinner = false;                       
                         this.manageFunSettings();
                         return response;
                   })
@@ -280,11 +218,9 @@ export default {
             else{
               //Else, I am created a new category
               this.spinner = true;
-              Api.postIn(this.modelName, item)
+              await Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessSetting'), 
-                      //           this.$t('backoffice.list.messages.titleCreateSetting'));
+                      this.$store.state.backConfig.about.push(response.data)
                       this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
                       this.title = '';
                       this.subtitle = '';

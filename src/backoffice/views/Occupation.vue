@@ -25,10 +25,10 @@
             </ion-searchbar>
     </ion-header>
     
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+   <div v-if="spinner">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
       <div v-if="screenWidth < 600">
           <paginate
             name="languages"
@@ -123,19 +123,11 @@ export default {
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    
     isSupportUserLogin(){
         return this.$store.state.user.IsSupport
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -159,6 +151,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterOccupation = this.occupations
@@ -171,6 +164,7 @@ export default {
           this.filterOccupation = this.categories
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -199,6 +193,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -210,6 +205,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -219,39 +215,22 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchOccupations: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.occupations = response.data
-                  this.filterOccupation = this.occupations;
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchOccupations)
-                });
-            })
-        })
-    },
+
+      this.occupations = this.$store.state.backConfig.occupation;
+      this.filterOccupation = this.occupations;
+  },
+
     editOccupation: function(id){
         this.$router.push({
         name: 'OccupationForm', 
         params: { occupationId: id }
       });
     },
-    deleteOccupation: function(id){
+
+    deleteOccupation: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -266,14 +245,13 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async () => {
               
               this.spinner = true
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
-                  // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), 
-                  //                       this.$t('backoffice.list.messages.messageDeleteSuccessOccupation'), 
-                  //                               this.$t('backoffice.list.messages.deleteSubtitleOccupation'));
+                  const index = this.$store.state.backConfig.occupation.findIndex( o => o._id === id);
+                  if(index !== -1) this.$store.state.backConfig.occupation.splice(index, 1);
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessOccupation'), "success");
                   this.fetchOccupations();
                   this.spinner = false;

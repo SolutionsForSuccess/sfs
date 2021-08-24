@@ -14,10 +14,12 @@
         </ion-header>
         <br/> -->
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+     <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div >
         <ion-item>
             <ion-label>{{$t('backoffice.form.titles.eposConfiguration')}}</ion-label>    
         </ion-item> 
@@ -90,49 +92,18 @@
             }
         },
         created: function(){
-             //  if(this.$route.params.settingId)
-            //     this.id = this.$route.params.settingId;
+            
             this.id = this.$store.state.user.RestaurantId
-            if (this.id){
-                this.$ionic.loadingController
-                .create({
-                    cssClass: 'my-custom-class',
-                    message: this.$t('backoffice.titles.loading'),
-                    backdropDismiss: true
-                })
-                .then(loading => {
-                    loading.present()
-                    setTimeout(() => {  // Some AJAX call occurs
-                        Api.fetchById(this.modelName, this.id)
-                        .then(response => {
-                            //console.log(response);
-                            this.endPointUrl = response.data.EndPointUrl;
-                            this.apiLoginId = response.data.ApiLoginId;
-                            this.transactionKey = response.data.TransactionKey;
-                            // this.smtpHost = response.data.SmtpHost;
-                            // this.port = response.data.Port;
-                            // this.secure = response.data.Secure;
-                            // this.email = response.data.EmailHost;
-                            // this.password = response.data.Password;
-                            // this.twFromNumber = response.data.TwFromNumber;
-                            // this.twAccountSid = response.data.TwAccountSid;
-                            // this.twToken = response.data.TwToken;
-                            if (response.data.EposIntegrate == true)
-                            {
-                                this.eposIntegrate = true;
-                                this.ePosEndPointUrl = response.data.EPosEndPointUrl;
-                                this.eposToken = response.data.EposToken;
-                            }
-                            
-                            loading.dismiss();
-                            return response;
-                        })
-                        .catch(e => {
-                            console.log(e);
-                            loading.dismiss();
-                        })
-                    })
-                })   
+            const data = this.$store.state.backConfig.restaurant
+            this.endPointUrl = data.EndPointUrl || '';
+            this.apiLoginId = data.ApiLoginId || '';
+            this.transactionKey = data.TransactionKey || '';                           
+            if (data.EposIntegrate) {
+                if (data.EposIntegrate == true) {
+                    this.eposIntegrate = true;
+                    this.ePosEndPointUrl = data.EPosEndPointUrl;
+                    this.eposToken = data.EposToken;
+                }
             }
         },
         computed: {
@@ -141,6 +112,7 @@
             }
         },
         methods: {
+
             ifErrorOccured(action){
                 return this.$ionic.alertController.create({
                     title: this.$t('backoffice.list.messages.connectionError'),
@@ -164,78 +136,23 @@
                     })
                     .then(a => a.present());
             },
+
             isValidForm(){
                 // let errors = [];
-                if (this.endPointUrl == "")
-                {
-                    // errors.push(this.$t('backoffice.form.validate.endPointUrl'));
-                    return false
-                }
-                if (this.apiLoginId == "")
-                {
-                    // errors.push(this.$t('backoffice.form.validate.apiLoginId'));
-                    return false
-                }
-                if (this.transactionKey == "")
-                {
-                    // errors.push(this.$t('backoffice.form.validate.transactionKey'));
-                    return false
-                }
-                // if (this.smtpHost == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.smtpHost'));
-                //     return false
-                // }
-                // if (this.email == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.email'));
-                //     return false
-                // }
-                // if (this.password == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.password'));
-                //     return false
-                // }
-                // if (this.twFromNumber == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.twFromNumber'));
-                //     return false
-                // }
-                // if (this.twAccountSid == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.twAccountSid'));
-                //     return false
-                // }
-                // if (this.twToken == "")
-                // {
-                //     // errors.push(this.$t('backoffice.form.validate.twToken'));
-                //     return false
-                // }
+                if (this.endPointUrl == "") return false
+                if (this.apiLoginId == "") return false
+                if (this.transactionKey == "") return false
+               
 
                 if (this.eposIntegrate)
-                {
                     if (this.ePosEndPointUrl == '' || this.eposToken == '')
                         return false
-                }
 
                 return true
 
-                // if (errors.length > 0)
-                // {
-                //     let message = "";
-                //     for (let i = 0; i < errors.length; i++) {
-                //         message += (i + 1) + "- " + errors[i] + "<br/>";
-                //     }
-                //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-                //     //                 message, this.$t('backoffice.form.validate.validateSetting'));
-                //     this.showToastMessage(message, "danger");
-                //     return false;
-                // }
-                // else
-                // {
-                //     return true;
-                // }
+               
             },
+
             ShowMessage(type, message, topic='') {
                 return this.$ionic.alertController
                 .create({
@@ -247,6 +164,7 @@
                 })
                 .then(a => a.present())
             },
+
             showToastMessage(message, tColor){
                 return this.$ionic.toastController.create({
                     color: tColor,
@@ -256,52 +174,22 @@
                     showCloseButton: false
                 }).then(a => a.present())
             },
-            // changeApiLoginId(){
-            //     if (this.showApiLoginId == "password")
-            //         this.showApiLoginId = "text"
-            //     else
-            //         this.showApiLoginId = "password"
-            // },
-            // changeTransactionKey(){
-            //     if (this.showTransactionKey == "password")
-            //         this.showTransactionKey = "text"
-            //     else
-            //         this.showTransactionKey = "password"
-            // },
-            // changeTwAccountSid(){
-            //     if (this.showTwAccountSid == "password")
-            //         this.showTwAccountSid = "text"
-            //     else
-            //         this.showTwAccountSid = "password"
-            // },
-            // changeTwToken(){
-            //     if (this.showTwToken == "password")
-            //         this.showTwToken = "text"
-            //     else
-            //         this.showTwToken = "password"
-            // },
+            
             changeePosToken(){
                 if (this.showePosToken == "password")
                     this.showePosToken = "text"
                 else
                     this.showePosToken = "password"
             },
-            saveSetting: function(){
+
+            saveSetting: async function(){
 
                 if (this.isValidForm()){
                     this.isBackdrop = true;
                     let item = {
                         "EndPointUrl": this.endPointUrl,
                         "ApiLoginId": this.apiLoginId,
-                        "TransactionKey": this.transactionKey,
-                        // "SmtpHost": this.smtpHost,
-                        // "Port": this.port,
-                        // "Secure": this.secure,
-                        // "EmailHost": this.email,
-                        // "Password": this.password,
-                        // "TwFromNumber": this.twFromNumber,
-                        // "TwAccountSid": this.twAccountSid,
-                        // "TwToken": this.twToken,
+                        "TransactionKey": this.transactionKey,                       
                         "EposIntegrate": this.eposIntegrate
                     }
                     if (this.eposIntegrate)
@@ -312,14 +200,10 @@
                     //If I am editing
                     if (this.id){
                         item['_id'] = this.id;
-                        //console.log(item);
                         this.spinner = true;
                         Api.putIn(this.modelName, item)
                         .then(response => {
-                                // alert("Success edited");
-                                // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                                //     this.$t('backoffice.list.messages.messageEditSuccessSetting'), 
-                                //         this.$t('backoffice.list.messages.titleEditSetting'));
+                                this.$store.state.backConfig.restaurant = item;
                                 this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
                                 this.spinner = false;
                                 // this.$router.push({
@@ -334,29 +218,7 @@
                             this.ifErrorOccured(this.saveSetting);
                         })
                     }
-                    // else{
-                    // //Else, I am created a new category
-                    // this.spinner = true;
-                    // Api.postIn(this.modelName, item)
-                    //     .then(response => {
-                    //         // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //         //         this.$t('backoffice.list.messages.messageCreateSuccessSetting'), 
-                    //         //             this.$t('backoffice.list.messages.titleCreateSetting'));
-                    //         this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSetting'), "success");
-                    //         this.spinner = false;
-                    //         this.$router.push({
-                    //             name: 'ControlPanel', 
-                    //         });
-                    //         return response;
-                    //     })
-                    //     .catch(e => {
-                    //         this.isBackdrop = false;
-                    //         console.log(e);
-                    //         this.spinner = false;
-                    //         this.ifErrorOccured(this.saveSetting);
-                    //     })
-                    // }
-
+                   
                 }
             },
         }

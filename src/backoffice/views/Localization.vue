@@ -167,30 +167,24 @@ export default {
      },
    
     created(){
-        // console.log('create' + this.orderProps)
-        // console.log(this.$route.params.order)
-        // console.log(this.$route.params.fun)
-        // console.log(this.getRestaurant().Email)
-        // console.log(this.$store.state.user.ParentStaffId)
+       
         
         this.order = this.$route.params.order || this.orderProps;
         this.fun = this.$route.params.fun || this.funProps;
         console.log(this.fun)
         this.driver = this.order.Driver;
-        this.getDrivers();
-        this.getCurrency();
-        this.getDriverName();
-        this.getCustomer(this.order.ClientId);
+        this.drivers = this.$store.state.backConfig.staff.filter(urs => urs.IsDriver)
+        this.currency = this.$store.state.backConfig.restaurant.Currency;
 
-        // if (this.$route.params.fun)
-        // //     this.fun = 'read'
-        // console.log("Fun: " + this.fun)
+        const data = this.$store.state.backConfig.staff.find(x => x._id === this.driver)
+        if(data)  this.driverName = data.FirstName + " " + data.LastName
+
+         const dataCust = this.$store.state.backConfig.customer.find(c => c._id === this.order.ClientId)
+        if(dataCust)   this.customer = dataCust;
+
+       
         if (this.fun == 'write')
         {
-            // console.log("Orden:");
-            // console.log(this.order);
-            // console.log("Coordenates:");
-            // console.log(this.lat + " " + this.lng);
             this.readAndPutPosition();
             this.ShowMessage('Entención, por favor!', 
                 'No cierre esta ventana. La geolocalización está activada. Para una mejor precisión, active el sistema GPS de su dispositivo.', '');
@@ -209,6 +203,7 @@ export default {
             this.isTravel = true
         }
     },
+
     destroyed(){
         console.log(this.writeInterval)
         if (this.writeInterval != null)
@@ -221,29 +216,15 @@ export default {
         IsDriver(){
             return this.$store.state.user.IsDriver;
         },
-        getRestaurant(){
-            return Api.getRestaurant()
-        },
-        getCurrency(){
-            if (!this.orderProps && !this.funProps)
-            {
-                const restaurantID = this.$store.state.user.RestaurantId
-                if (restaurantID){
-                    Api.fetchById('Restaurant', restaurantID).then(response => {
-                        this.currency = response.data.Currency
-                    }).catch(e => {
-                        console.log(e)
-                    })
-                }
-            }
-        },
-        saveDriver(){
+    
+        
+        async saveDriver(){
             const item = {
                 '_id': this.order._id,
                 'Driver': this.driver,
             }
 
-            Api.putIn('Order', item)
+            await Api.putIn('Order', item)
             .then( () => {
                 console.log("Driver was set successfully")
                 this.showToastMessage("The order was assigned successfully", "success");
@@ -253,42 +234,15 @@ export default {
                 console.log(e);
             })
         },
-        getDrivers(){
-            Api.fetchAll('Staff').then(response => {
-                this.drivers =response.data.filter(urs => urs.IsDriver)
-            })
-            .catch(e => {
-                console.log(e)
-            });
-        },
-        getCustomer(id){
-            Api.fetchById("customer", id)
-            .then(response => {
-                this.customer = response.data;
-                return response;
-            })
-            .catch(e => {
-                console.log(e);
-                return e;
-            })  
-        },
-        getDriverName(){
-            if (this.order.Driver){
-                Api.fetchById("staff", this.order.Driver)
-                .then(response => {
-                    this.driverName = response.data.FirstName + " " + response.data.LastName
-                })
-                .catch(e => {
-                    console.log(e)
-                })
-            }
-        },
+        
         getFormatedDate: function(date){
             return Utils.getFormatedDate(date);         
         },
+
         getFormateNumber: function(number){
           return new Intl.NumberFormat('en', {style: "currency", currency: this.currency} ).format(number).toString()
         },
+
         readAndPutPosition(){
             console.log(this.order.IsAccept)
             // if (this.order.IsAccept){
@@ -304,6 +258,7 @@ export default {
                 });
             // }
         },
+
         getAndShowPosition(){
             // if (this.order.IsAccept){
                 Api.fetchById("Order", this.order._id)
@@ -318,6 +273,7 @@ export default {
                 }) 
             // }
         },
+
         putPosition(){
             let travel = []
             if (this.order.Travel)
@@ -349,25 +305,29 @@ export default {
                 console.log(e);
             })
         },
-        sendEmail(item){
+
+        async sendEmail(item){
             
-            Api.sendEmail(item)
+            await Api.sendEmail(item)
             .catch(e => {
                 console.log(e)
             })
         },
-        deliveredOrder(){
+
+        async deliveredOrder(){
             const item = {
                 '_id': this.order._id,
                 'State': 5,
                 'IsAccept': false
             }
 
-            Api.putIn('Order', item)
+            await Api.putIn('Order', item)
             .then( () => {
+                const index = this.$store.state.backConfig.order.findIndex( o => o._id ===this.order._id )
+                if(index !== -1) this.$store.state.backConfig.order[index] = item;
                 const orderBody = Commons.htmlToSendEmailOrder(this.order)
                 //Enviarle email al merchant
-                const restaurantEmail = this.getRestaurant().Email
+                const restaurantEmail = this.$store.state.backConfig.restaurant.Email
                 if (restaurantEmail != '')
                 {
                      let restaurantEmailItem = {
@@ -380,23 +340,17 @@ export default {
                 //Enviarle email a el StaffPadre
                 const parentStaffId = this.$store.state.user.ParentStaffId
                 if (parentStaffId){
-                    Api.fetchById('Staff', parentStaffId)
-                    .then(response => {
-                        const parentStaff = response.data
-                        
+                     const data = this.$store.state.backConfig.staff.find( s => s._id === parentStaffId)
+                    if(data) {
+                        const parentStaff = data
                         let staffEmailItem = {
                             "email": parentStaff.Email,
                             "mess": orderBody,
                             "subject": "Delivery Complete"
                         };
                         this.sendEmail(staffEmailItem)
-                    })
-                    .catch(e => {
-                        console.log(e)
-                    })
+                    }
                 }
-                
-                console.log("Delivered successfully")
                 this.showToastMessage("The order was delivered successfully", "success");
                 this.$router.push({
                     name: 'OrderForDelivered',
@@ -406,6 +360,7 @@ export default {
                 console.log(e);
             })
         },
+
         ShowMessage(type, message, topic='') {
             return this.$ionic.alertController
                 .create({
@@ -417,6 +372,7 @@ export default {
                 })
                 .then(a => a.present())
          },
+
         showToastMessage(message, tColor){
                 return this.$ionic.toastController.create({
                     color: tColor,

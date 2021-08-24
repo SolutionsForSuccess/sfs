@@ -497,15 +497,7 @@
                     <ion-label>
                     {{$t('backoffice.options.manageBasicSettings')}}
                     </ion-label>
-                </ion-list-header>
-
-                <!-- <ion-item>
-                    <ion-label>{{$t('backoffice.form.titles.selectARestaurant')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                    @ionChange="restaurantId = changeRestaurant($event.target.value)" v-bind:value="restaurantId">
-                        <ion-select-option v-for="restaurant in restaurants" v-bind:key="restaurant.Id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
-                    </ion-select>
-                </ion-item> -->
+                </ion-list-header>             
             </ion-list>
 
             <div v-if="restaurantS">
@@ -740,6 +732,7 @@ export default {
     RestaurantType, ManageAds, Payments
   },
   created: async function(){
+      
 
       if(this.$route.params.segmentValue)
         this.segmentChanged(this.$route.params.segmentValue)
@@ -1008,22 +1001,7 @@ export default {
             console.log(e)
         }
     },
-    // changeRestaurant(val){
-    //     console.log("Change")
-    //     this.restaurantId = val
-    //     this.changeSetting()
-    // },
-    // changeSetting(){
-    //     Api.setRestaurantId(this.restaurantId)
-    //     Api.fetchAll('Setting')
-    //     .then(response => {
-    //         this.restaurantS = response.data[0]
-    //         Api.setRestaurantId(this.$store.state.user.RestaurantId)
-    //     })
-    //     .catch(() => {
-    //         Api.setRestaurantId(this.$store.state.user.RestaurantId)
-    //     })
-    // },
+    
     async saveRestaurantData(){
         try{
             this.spinner = true

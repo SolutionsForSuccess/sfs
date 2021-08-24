@@ -651,6 +651,8 @@ export default{
                         //         this.$t('backoffice.list.messages.titleEditMenu'));
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessMenu'), "success");
                         this.clearData();
+                        const index = this.$store.state.backConfig.menu.findIndex(men => men._id === item._id)
+                        if(index !== -1) this.$store.state.backConfig.menu[index] = item;
                         this.spinner = false;
                         this.$router.push({
                           name: 'Menu', 
@@ -674,6 +676,8 @@ export default{
                       //           this.$t('backoffice.list.messages.titleCreateMenu'));
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessMenu'), "success");
                       this.clearData();
+                      
+                      this.$store.state.backConfig.menu.push(response.data);
                       this.spinner = false;
                       this.$router.push({
                         name: 'Menu', 

@@ -1,5 +1,6 @@
 <template>
     <div>
+       
       <div v-if="!forgotP">
           <ion-card>
             <!-- <div v-if="basicSettings != null" class="logo"> -->
@@ -51,7 +52,6 @@
 <script>
 
 import { Api } from '../api/api.js';
-import { payAuthorizeNet } from '../api/payments.js';
 import { EventBus } from '../../frontend/event-bus';
   
 
@@ -70,7 +70,6 @@ export default {
 
       userLogin: null,
 
-      users: [],
       indexUserIsLogin: -1,
 
       forgotP: false,
@@ -84,13 +83,11 @@ export default {
   },
   created: function(){
     if(this.createdRestaurantEmail !== '')
-      this.email = this.createdRestaurantEmail;
-    //  this.getConfig();
-    //  this.fetchUsers();
+      this.email = this.createdRestaurantEmail;  
   },
   methods: {
-      getAllRestaurant(){
-          Api.fetchAll('Restaurant').then(response => {
+     async getAllRestaurant(){
+        await  Api.fetchAll('Restaurant').then(response => {
               if(response.status === 200){
 
                   let restaurants = response.data
@@ -101,9 +98,6 @@ export default {
                       if (myRestaurants.indexOf(restaurant._id) != -1)
                           userRestaurant.push(restaurant)
                   });
-
-                  //console.log("Todos Restaurantes")
-                  //console.log(userRestaurant)
                   EventBus.$emit('userRestaurant', userRestaurant)
               }
           })
@@ -160,86 +154,51 @@ export default {
           })
         .then(a => a.present())
       },
+
       login: async function(){
-          this.loginButtonPush = true
-          this.spinner = true
-          if (this.email == "")
-          {
+         
+          if (this.email == ""){
               this.ShowMessage(this.$t('backoffice.form.validate.validate'), this.$t('backoffice.form.validate.email'), this.$t('backoffice.options.login'));
               this.loginButtonPush = false;
               return;
           }
-          if (this.password == "")
-          {
+          if (this.password == ""){
               this.ShowMessage(this.$t('backoffice.form.validate.validate'), this.$t('backoffice.form.validate.password'), this.$t('backoffice.options.login'));
               this.loginButtonPush = false;
               return;
           }
           //Comienza el login
-          const item = {
-              "Email": this.email,
-              "Password": this.password
-          }
-          Api.login(item).then(async response => {
+          const item = {"Email": this.email,"Password": this.password}
+
+          this.loginButtonPush = true
+          this.spinner = true
+
+          await Api.login(item).then(async response => {
+
             const {Commons} = require('../../frontend/commons');
-              this.userLogin = response.data
-              //console.log("LOGIN");
-              //console.log(this.userLogin);
-              this.$store.commit("setAuthentication", true);
-              this.$store.commit("setUser", this.userLogin);
-              //Set token
-              //console.log("Token");
-              //console.log(this.userLogin.token);
-              Api.setTokenId(this.userLogin.token);
-              Api.setRestaurantId(this.userLogin.RestaurantId);
-              //console.log("RESTAURANT")
-              //console.log(Api.getRestaurant())
-              this.$store.commit("setAuthentication", true);
-              this.$store.commit("setUser", this.userLogin);
-              //Set token
-              Api.setTokenId(this.userLogin.token);
-              Api.setRestaurantId(this.userLogin.RestaurantId);
-              this.getConfig();              
-              Commons.changeRestaurant(this.userLogin.RestaurantId);
+            this.userLogin = response.data;     
+            Api.setTokenId(this.userLogin.token);       
+            
+            EventBus.$emit('staffName', this.userLogin.FirstName + ' ' + this.userLogin.LastName)            
+            this.$store.commit('setStaffName',this.userLogin.FirstName + ' ' + this.userLogin.LastName) ; 
+   
+            const userRestaurant = await Commons.backOfficeLogin(this.userLogin);    
+            EventBus.$emit('userRestaurant', userRestaurant);       
+            document.querySelector('ion-menu-controller').close('end')
+            this.$store.commit("setAuthentication", true);   
+            
+            await this.getAllRestaurant();
+            EventBus.$emit('blockScreen', true);
 
-              //Set ClerkId for payments.
-              payAuthorizeNet.setClerkId(this.userLogin.ServerId)
-
-              //console.log("roles")
-              //console.log(this.userLogin.Roles);
-              let roles = [];
-              this.userLogin.Roles.forEach(rol_id => {
-                   Api.fetchById("rol", rol_id).then(response => {
-                      roles.push(response.data);
-                  })
-              });
-              //console.log("Estos son los roles");
-              //console.log(roles);
-              this.$store.commit("setRoles", roles);
-              //Pass Can Create House Account
-
-              document.querySelector('ion-menu-controller').close('end')
-              EventBus.$emit('blockScreen', 'true')
-              EventBus.$emit('staffName', this.userLogin.FirstName + ' ' + this.userLogin.LastName)
-
-              //Get all restaurants of the user login
-              this.getAllRestaurant()
-
-              this.spinner = false
-              this.loginButtonPush = false
-              // if (this.userLogin.IsSupport){
-              //     this.$router.push({
-              //         name: 'Support'
-              //     }); 
-              // }
-              // else{
-                  this.$router.push({
-                      name: 'ControlPanel',
-                      params: {
-                          'firstLogin': true,
-                      }
-                  });
-              // }             
+            this.spinner = false
+            this.loginButtonPush = false
+          
+            this.$router.push({
+                name: 'ControlPanel',
+                params: {
+                    'firstLogin': true,
+                }
+            });
           })
           .catch(e => {
             console.log(e)
@@ -248,65 +207,9 @@ export default {
             this.spinner = false
           });
 
-          // if (this.isUser()){
-          //     let user = this.users[this.indexUserIsLogin];
-          //     this.$store.commit("setAuthentication", true);
-          //     this.$store.commit("setUser", user);
-          //     Api.setRestaurantId(user.RestaurantId);
-          //     this.getConfig();
+      },
 
-          //     let roles = [];
-          //     user.Roles.forEach(rol_id => {
-          //         Api.fetchById("rol", rol_id).then(response => {
-          //             roles.push(response.data);
-          //         })
-          //     });
-          //     this.$store.commit("setRoles", roles);
-          //     document.querySelector('ion-menu-controller').close('end')
-          //     this.$router.push({
-          //         name: 'ControlPanel'
-          //     });
-          // }else{
-          //     this.ShowMessage('Info', 'Email or password incorrect', 'Login');
-          // }
-      },
-      // isUser(){
-      //     for (let index = 0; index < this.users.length; index++) {
-      //         if (this.users[index].Email == this.email &&
-      //                this.users[index].Password == this.password){
-      //             this.indexUserIsLogin = index;
-      //             return true;
-      //         }
-      //     }
-      //     return false;
-      // },
-      fetchUsers: function(){
-        Api.fetchAll("Login").then(response => {
-          this.users = response.data
-        })
-        .catch(e => {
-          console.log(e)
-        });
-      },
-      getConfig: function(){
-        Api.fetchAll("Setting").then(response=> {
-            let settings = [];
-            settings = response.data;
-            if (settings.length > 0)
-            {
-                var allStyles = settings[settings.length -1].AllStyles;
-                document.querySelector('style').innerHTML += allStyles;
 
-            }
-        })
-        .catch(e => {
-          console.log(e)
-        });
-      },
-      // setConfig: function(){
-      //    var allStyles= Api;
-      //       document.querySelector('style').innerHTML += allStyles;
-      // },
   },
 
 }

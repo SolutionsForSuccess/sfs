@@ -3,10 +3,10 @@ import axios from 'axios';
 export var Api = {
 
     token: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',    
-    // endPointURL: 'http://localhost:7071/api/',   //LOCAL      
-    endPointURL: 'https://sls-eus-dev-serverless-succes-api.azurewebsites.net/api/', //PROD
+    // endPointURL: 'http://localhost:7071/api/',   //LOCALes1 222    
+     endPointURL: 'https://sls-eus-dev-serverless-succes-api.azurewebsites.net/api/', //PROD
     // endPointURL: 'https://sls-eus-dev-serverless-succes-api-dev.azurewebsites.net/api/', //DEVELOp
-
+    
     defaultToken: 'M3nuSucc3ssAp1987456321M3nuSucc3ssAp1741258963M3nuSucc3ssAp1963258741',
 
     //  token: 'eposMiddl34PI',
@@ -22,7 +22,7 @@ export var Api = {
     setRestaurantId: async function(restaurantId){
         this.restaurantId = restaurantId;
         if (restaurantId != '')
-        {
+        {         
             const data = await this.fetchById_Sync('Restaurant', restaurantId);
             this.restaurant = data.data;
         }
@@ -35,8 +35,11 @@ export var Api = {
         return this.restaurant
     },
 
-    setTokenId: function(tokenId){
-        this.token = tokenId;
+
+
+    setTokenId: function(tokenId){      
+        if(tokenId)
+            this.token = tokenId;
     },
 
     fetchAll: async function(entity){
@@ -48,7 +51,7 @@ export var Api = {
     },
 
     fetchById_Sync: function(entity, id){
-        return axios.get(this.endPointURL + entity + '?id=' + id, {headers: {'Authorization': this.token, 'restaurantid': this.restaurantId}})
+        return axios.get(this.endPointURL + entity + '?id=' + id, {headers: {'Authorization': this.defaultToken, 'restaurantid': this.restaurantId}})
     },
 
     postIn: async function(entity, items){
@@ -425,11 +428,11 @@ export var Api = {
     },
 
     testSupportEmail: async function(data){       
-        return await axios.post(this.endPointURL + 'imenusupport?testEmail=1', data, {headers: {'Authorization':this.defaultToken}})
+        return await axios.post(this.endPointURL + 'imenusupport?testEmail=1', data, {headers: {'Authorization':this.token}})
     },
 
     payPayFabric: async function(data){       
-        return await axios.post(this.endPointURL + 'payment?payPayFabric=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+        return await axios.post(this.endPointURL + 'payment?payPayFabric=1', data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
     authorizePayFabric: async function(data){       
@@ -437,51 +440,65 @@ export var Api = {
     },
 
     processPayFabric: async function(data){       
-        return await axios.post(this.endPointURL + 'payment?processPayFabric=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+        return await axios.post(this.endPointURL + 'payment?processPayFabric=1', data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
     payNAB: async function(data){       
-        return await axios.post(this.endPointURL + 'payment?payNAB=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+        return await axios.post(this.endPointURL + 'payment?payNAB=1', data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
     authorizeNAB: async function(data){       
-        return await axios.post(this.endPointURL + 'payment?authorizeNAB=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+        return await axios.post(this.endPointURL + 'payment?authorizeNAB=1', data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
-    incrementAuthorizeNAB: async function(data, invoice){       
-        return await axios.post(this.endPointURL + 'payment?incrementAuthorizeNAB='+invoice, data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+    incrementAuthorizeNAB: async function(data, invoice, moto){       
+        return await axios.post(this.endPointURL + 'payment?incrementAuthorizeNAB=' +invoice+ '&moto='+moto, data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
-    captureNAB: async function(data, invoice){       
-        return await axios.post(this.endPointURL + 'payment?captureNAB='+invoice, data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+    captureNAB: async function(data, invoice, moto){       
+        return await axios.post(this.endPointURL + 'payment?captureNAB='+invoice+'&moto='+moto, data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
-    refundNAB: async function(data, invoice){       
-        return await axios.post(this.endPointURL + 'payment?refundNAB='+invoice, data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+    refundNAB: async function(data, invoice, moto){       
+        return await axios.post(this.endPointURL + 'payment?refundNAB='+invoice+'&moto='+moto, data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
-    voidNAB: async function(data, invoice){       
-        return await axios.post(this.endPointURL + 'payment?voidNAB='+invoice, data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+    voidNAB: async function(data, invoice, moto){       
+        return await axios.post(this.endPointURL + 'payment?voidNAB=' +invoice+ '&moto=' +moto, data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
+    },
+
+    getInvoiceNAB: async function(invoice){       
+        return await axios.get(this.endPointURL + 'payment?getInvoiceNAB='+invoice, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
 
     getServerDate: async function(){       
-        return await axios.get(this.endPointURL + 'imenusupport?getServerHour=1', {headers: { 'Authorization':this.defaultToken }})
+        return await axios.get(this.endPointURL + 'imenusupport?getServerHour=1', {headers: { 'Authorization':this.token }})
     },
 
     getAllCustomerCredit: async function(customerId){       
-        return await axios.get(this.endPointURL + 'customercredit?customer='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+        return await axios.get(this.endPointURL + 'customercredit?customer='+customerId, {headers: { 'Authorization':this.token, 'restaurantid': this.restaurantId }})
     },
 
     getActiveCustomerCredit: async function(customerId){       
-        return await axios.get(this.endPointURL + 'customercredit?customerActive='+customerId, {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+        return await axios.get(this.endPointURL + 'customercredit?customerActive='+customerId, {headers: { 'Authorization':this.token, 'restaurantid': this.restaurantId }})
     },
 
     getRestaurantCustomer: async function(){       
-        return await axios.get(this.endPointURL + 'order?allCustomer=1', {headers: { 'Authorization':this.defaultToken, 'restaurantid': this.restaurantId }})
+        return await axios.get(this.endPointURL + 'order?allCustomer=1', {headers: { 'Authorization':this.token, 'restaurantid': this.restaurantId }})
     },
     customerCreditForAll: async function(data){       
-        return await axios.post(this.endPointURL + 'customercredit?createForAll=1', data, {headers: {'Authorization':this.defaultToken, 'restaurantid': this.restaurantId}})
+        return await axios.post(this.endPointURL + 'customercredit?createForAll=1', data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
     },
+
+    thisDateSheetHour: async function(data){       
+        return await axios.get(this.endPointURL + 'sheethour?thisdate='+ data, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
+    },
+
+    findCompleteRestaurantObject: async function(){       
+        return await axios.get(this.endPointURL + 'restaurant?findCompleteObject='+ this.restaurantId, {headers: {'Authorization':this.token, 'restaurantid': this.restaurantId}})
+    },
+
+
 
 
 }

@@ -89,7 +89,7 @@
                 :list="filterOrders"
                 :per="8"                     
               >
-                <ion-item-sliding  v-for="order in paginated('languages')" v-bind:key="order._id">
+                <ion-item-sliding  v-for="order in paginated('languages')" v-bind:key="order._id" open='true'>
                   <ion-item 
                   :color="order.Void > 0 ? 'warning' : order.Refund > 0 ? 'danger' : 'light'"
                   @click="viewOrder(order)">
@@ -108,7 +108,7 @@
                     </ion-label>  
                     <ion-label class="menu-col-3 elipsis-menu">                   
                         <h6>{{ getFormatPrice( parseFloat(order.Payment) - order.Refund - order.Void ) }}</h6>   
-                        <div style="position: absolute;right: 0;top: 30%;">
+                        <div style="position: absolute;right: 0;top: 30%;" >
                             <span class="iconify" data-icon="mdi:backburger" style="color: grey;margin:0;width: 20px; height: 20px;" data-inline="false"></span>
                         </div>                 
                     </ion-label>              
@@ -349,7 +349,7 @@ export default {
   created: function(){  
     this.fetchOrders();
     this.fetchHouseAccount();
-    this.fetchCustomers();
+    // this.fetchCustomers();
     this.getRestaurantConfig(); 
   
   },
@@ -419,14 +419,8 @@ export default {
         return this.getFormatPrice(count);
     },
     fetchHouseAccount(){
-        Api.fetchAll('houseaccount')
-        .then(response => {
-            this.houses = response.data
-            this.filterHouse = this.houses
-        })
-        .catch(e => {
-           console.log(e)
-        })
+        this.houses = this.$store.state.backConfig.houseAccount;
+        this.filterHouse = this.houses
     },
     reverseHouse(){
       this.filterHouse.reverse();
@@ -521,55 +515,31 @@ export default {
     },
     /****** CRUD category methods ******/
     fetchOrders: async function(){
-      this.$ionic.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        // duration: 1000,  
-        backdropDismiss: true
-      })
-      .then(loading => {
-          loading.present()
-          setTimeout(async () => {  // Some AJAX call occurs
-             await Api.fetchAll('Allpayments').then(response => {
-                this.orders = response.data.reverse();
-                this.filterOrders = this.orders; 
-                loading.dismiss();
-              })
-              .catch(e => {
-                console.log(e)
-                loading.dismiss()
-               
-              });
-          })
-      })    
-    },
-    fetchCustomers: function(){
-        Api.fetchAll('Customer').then(response => {
-          // console.log(response.data)
-          this.customers = response.data
-          return response
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
-    getRestaurantCustomer: function(){
-        Api.findCustomerByEmail(this.resConf.Email)
-        .then(response => { 
-            this.restaurantCustomer = response.data
-            //console.log("RESTAURANT CUSTOMER")
-            //console.log(this.restaurantCustomer)
-        })
-    },
+
+       this.orders = this.$store.state.backConfig.allpayments;
+       this.filterOrders = this.orders; 
+   },
+
+    // fetchCustomers: function(){
+    //     Api.fetchAll('Customer').then(response => {
+    //       // console.log(response.data)
+    //       this.customers = response.data
+    //       return response
+    //     })
+    //     .catch(e => {
+    //       console.log(e)
+    //     });
+    // },
+    // getRestaurantCustomer: function(){
+    //     Api.findCustomerByEmail(this.resConf.Email)
+    //     .then(response => { 
+    //         this.restaurantCustomer = response.data;            
+    //     })
+    // },
     getRestaurantConfig: function(){
-      Api.fetchById('Restaurant', this.$store.state.user.RestaurantId).then(response => {
-            this.resConf = response.data;
-            this.getRestaurantCustomer();
-      })
-      .catch(e => {
-        console.log(e)
-      });
+      this.resConf = this.$store.state.backConfig.restaurant;
+      // this.getRestaurantCustomer();
+     
     },    
     hasPermission(permission){
         

@@ -123,7 +123,7 @@
                             {{$t('frontend.reservation.reservationHour')}}:<strong>  {{getReservationHour(reservation.Hour)}} </strong> </h2>
                         </ion-label></p>
 
-                         <p v-if="reservation.Capacity"> <ion-label class="ion-text-wrap" >
+                         <p v-if="reservation.Capacity && reservation.ServiceModel==='Table'"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
                             text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
                             {{$t('frontend.reservation.peoples')}}:<strong>  {{reservation.Capacity}} </strong> </h2>
@@ -156,9 +156,14 @@
                          <p v-if="reservation.ServiceLocation.length > 0 && configuration.tablesChoose"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
                             text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.order.location')}}: <br>
+                            
+
+                            <ion-text v-if="reservation.ServiceModel==='Table'">{{$t('frontend.order.location')}}:</ion-text>
+                            <ion-text v-if="reservation.ServiceModel==='Staff'">{{$t('frontend.orderType.worker')}}:</ion-text>
+                            
+                             <br>
                                 <div style="padding: 5px 10px; text-transform: uppercase;">
-                                    <strong v-for="table in reservation.ServiceLocation" :key="table"> {{findTable(table).Name}} <br></strong>    
+                                    <strong v-for="table in reservation.ServiceLocation" :key="table"> {{findTable(table)}} <br></strong>    
                                 </div> 
                             </h2>
                         </ion-label></p>
@@ -232,6 +237,7 @@ export default {
         this.configuration = this.$store.state.configuration;
         this.restaurantActive = this.$store.state.restaurantActive;
         this.allReservations = this.$store.state.allReservations;
+        this.allStaff = this.$store.state.allStaff;
 
         if( this.$route.params.fromMyAccount)
             this.fromMyAccount = this.$route.params.fromMyAccount;
@@ -245,6 +251,7 @@ export default {
         this.indexPosition = this.$route.params.indexPosition
 
         this.valEstate = this.allState[this.reservation.State];  
+
 
                
         
@@ -282,6 +289,7 @@ export default {
             allReservations: [],
             indexPosition: -1,
              keyOrder: 0,
+             allStaff: [],
         }
     },
     computed:{
@@ -603,10 +611,15 @@ export default {
     },
 
     findTable(id){
-      const index = this.tables.findIndex( t => t._id === id)
-    
-      if(index !== -1)
-        return this.tables[index];
+        if(this.reservation.ServiceModel==='Table'){
+             const index = this.tables.findIndex( t => t._id === id)    
+            if(index !== -1) return this.tables[index].Name;
+        }
+        if(this.reservation.ServiceModel==='Staff'){            
+             const index = this.allStaff.findIndex( s=> s._id === id)
+             if(index !== -1) return this.allStaff[index].FirstName + ' '+ this.allStaff[index].LastName;
+        }
+     
       return {};
     },
 

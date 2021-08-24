@@ -28,17 +28,17 @@
             </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
       <div v-if="screenWidth < 600">
         <paginate
           name="languages"
           :list="filterTaxes"
           :per="8"
         >
-          <ion-list>
+          <ion-list :key="key">
             <ion-item-sliding v-for="tax in paginated('languages')" v-bind:key="tax._id">
               <ion-item>
                 <ion-label>
@@ -47,10 +47,8 @@
                     <!-- <h3>Tax priority: {{ tax.Priority }}</h3> -->
                 </ion-label>
                 <div v-if="hasPermission('canEditTax')">
-                    <ion-checkbox v-if="tax.Available" checked="true" slot="end" @click="activeTax(tax, false)"></ion-checkbox>
-                    <ion-checkbox v-else checked="false" slot="end" @click="activeTax(tax, true)"></ion-checkbox>
-                </div>
-                <!-- <ion-label>
+                   <ion-checkbox :checked="tax.Available" slot="end" @ionChange="activeTax(tax, $event.target.checked)"></ion-checkbox>
+                </div>                 <!-- <ion-label>
                     <ion-checkbox v-if="tax.Available" disabled="true" checked="true"></ion-checkbox>
                     <ion-checkbox v-else disabled="true" checked="false"></ion-checkbox>
                 </ion-label> -->
@@ -83,16 +81,15 @@
           :list="filterTaxes"
           :per="8"
         >
-          <ion-list>
+          <ion-list :key="key">
             <ion-item v-for="tax in paginated('languages')" v-bind:key="tax._id">
                 <ion-item-group side="start">
-                  <div v-if="hasPermission('canEditTax')">
-                      <ion-checkbox v-if="tax.Available" checked="true" slot="end" @click="activeTax(tax, false)"></ion-checkbox>
-                      <ion-checkbox v-else checked="false" slot="end" @click="activeTax(tax, true)"></ion-checkbox>
+                  <div v-if="hasPermission('canEditTax')"> 
+                      <ion-checkbox :checked="tax.Available" slot="end" @ionChange="activeTax(tax, $event.target.checked)"></ion-checkbox>
                   </div>
-                </ion-item-group>
+                </ion-item-group>               
                 <ion-label style="margin-left: 15px">
-                    <h2>{{ tax.Name }}</h2>
+                    <h2>{{ tax.Name }} </h2>
                     <h3>Tax percentage: {{ tax.Percentage }}%</h3>
                     <!-- <h3>Tax priority: {{ tax.Priority }}</h3> -->
                 </ion-label>
@@ -147,19 +144,11 @@ export default {
 
       spinner: false,
       screenWidth: 0,
+      key: 0,
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+   
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -183,6 +172,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterTaxes = this.taxes
@@ -195,6 +185,7 @@ export default {
           this.filterTaxes = this.taxes
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -223,6 +214,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -234,6 +226,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -243,33 +236,14 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchTaxes: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.taxes = response.data
-                  this.filterTaxes = this.taxes
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchTaxes)
-                });
-            })
-        })
-    },
-    activeTax: function(tax, state){
+       this.taxes = this.$store.state.backConfig.tax;      
+       this.filterTaxes = this.taxes
+        },
+
+    activeTax: async function(tax, state){
       let item = {
             "_id": tax._id,
             "Name": tax.Name,
@@ -280,18 +254,19 @@ export default {
             item['EposId'] = tax.EposId
         }
         this.spinner = true
-        Api.putIn(this.modelName, item)
-              .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.activeTax'), 
-                    //   this.$t('backoffice.list.messages.taxChangeState'),
-                    //     this.$t('backoffice.list.messages.activeTax'));
+        await Api.putIn(this.modelName, item)
+              .then(response => {                    
+                    const index = this.$store.state.backConfig.tax.findIndex(t => t._id === tax._id)
+                    if(index !== 1) this.$store.state.backConfig.tax[index] = item;                 
+                     this.fetchTaxes();
+                    
                     this.showToastMessage(this.$t('backoffice.list.messages.taxChangeState'), "success");
-                    this.fetchTaxes();
+                   
                     this.spinner = false;
                     return response;
               })
               .catch(e => {
-                    console.log(e);
+                    e;
                     this.fetchTaxes();
                     this.ifErrorOccured(mess => {
                       this.activeTax(tax, state)
@@ -300,13 +275,15 @@ export default {
                     });
               })
     },
+
     editTax: function(id){
         this.$router.push({
         name: 'TaxForm', 
         params: { taxId: id }
       });
     },
-    deleteTax: function(id){
+
+    deleteTax: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -321,24 +298,24 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async() => {
               
               this.spinner = true
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessTax'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleTax'));
-                  this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessTax'), "success");
-                  this.fetchTaxes();
+                  
+                    const index = this.$store.state.backConfig.tax.findIndex(t=> t._id === id)
+                    if(index !== 1) this.$store.state.backConfig.tax.splice(index, 1);
+                    this.fetchTaxes();                   
+                  this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessTax'), "success");                 
                   this.spinner = false;
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e
                   this.ifErrorOccured(mess => {
-                    this.deleteTax(id)
-                    this.spinner = false
+                     this.spinner = false
+                    this.deleteTax(id)                   
                     return mess
                   });
                 })

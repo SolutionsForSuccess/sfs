@@ -14,10 +14,13 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+   <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+
+    <div>
         <!-- States -->
         <div v-if="state == 0" style="height:45px; width:100%; background-color:#b38448; padding:10px; color:white">State: Requested</div>
         <div v-if="state == 1" style="height:45px; width:100%; background-color:#74845e; padding:10px; color:white">State: Accepted</div>
@@ -193,7 +196,6 @@
       <div v-if="state == 0 || state == -1">
           <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCredit()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
       </div>
-        <!-- <ion-button expand="full" color="tertiary" @click="getAnothersRestaurants()">test</ion-button> -->
     </div>
     </div>
 </template>
@@ -253,51 +255,39 @@ export default {
         }
   },
   methods: {
+
     init(){
-        console.log(this.today)
+        console.log(this.$route.params.creditId)
 
         this.id = this.$route.params.creditId;
-        this.fetchCustomers();
-        this.fetchAllCredits();
-        this.getCreditConfig();
-        this.getAnothersRestaurants();
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                    .then(response => {
-                      this.creditName = response.data.Name;
-                      this.customerId = response.data.CustomerId;
-                      this.creditAmount = response.data.CreditAmount;
-                      this.active = response.data.Active;
-                      this.state = response.data.State;
-                      this.dateFrom = response.data.DateFrom;
-                      this.dateTo = response.data.DateTo;
-                      this.dateLimit = response.data.PayLimitDate;
-                      this.Payed = response.data.Payed;
-                      this.debt = response.data.Debt;
+         this.customers = this.$store.state.backConfig.allCustomer;
 
-                      console.log(this.Payed)
-                      loading.dismiss();
-                      return response;
-                    })
-                    .catch(e => {
-                      console.log(e);
-                      loading.dismiss();
-                      this.ifErrorOccured(this.init)
-                    })
-              })
-          })
+        this.allCredits = this.$store.state.backConfig.customerCredit;
+        this.allCredits = this.allCredits.filter(credit => credit.Active == true);
 
-          }
+        this.creditSetting = this.$store.state.backConfig.setting;
+
+        const user = this.$store.state.user
+        var restaurants = user.AllRestaurant
+        this.othersRestaurants = restaurants
+
+        if(this.id){
+            const data = this.$store.state.backConfig.customerCredit.find(c => c._id === this.id);
+            if(data){
+                this.creditName = data.Name;
+                this.customerId = data.CustomerId;
+                this.creditAmount = data.CreditAmount;
+                this.active = data.Active;
+                this.state = data.State;
+                this.dateFrom = data.DateFrom;
+                this.dateTo = data.DateTo;
+                this.dateLimit = data.PayLimitDate;
+                this.Payed = data.Payed;
+                this.debt = data.Debt;
+            }
+        }     
     },
+
     getCustomerById: function(id){
         var custom = '';
         this.customers.forEach(customer => {
@@ -307,31 +297,15 @@ export default {
         });
         return custom.Name;
     },
-    getAnothersRestaurants(){
-        const user = this.$store.state.user
-        var restaurants = user.AllRestaurant
-        // restaurants.splice(restaurants.indexOf(user.RestaurantId), 1)
-        console.log(user.RestaurantId)
-        this.othersRestaurants = restaurants
-        console.log(this.othersRestaurants)
-        console.log(this.$store.state.user.AllRestaurant)
-    },
-    getCreditConfig(){
-        Api.fetchAll('Setting')
-        .then(response => {
-            this.creditSetting = response.data[0]
-            console.log(this.creditSetting)
-        })
-        .catch(e => {
-            console.log(e)
-        })
-    },
+   
     getFormatPrice: function(price){
         return Utils.getFormatPrice(price);         
     },
+
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);
     },
+
     goToPayment(pay){
         this.$router.push({
             name: 'PaymentDetail',
@@ -340,10 +314,12 @@ export default {
             }
         })
     },
+
     getSelectedCustomerName(customerId){
         const customer = this.customers.find(customer => customer._id == customerId)
         return customer.Name
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -367,56 +343,35 @@ export default {
         })
         .then(a => a.present());
     },
-    fetchAllCredits(){
-        Api.fetchAll('customercredit')
-        .then(response => {
-            this.allCredits = response.data
-            this.allCredits = this.allCredits.filter(credit => credit.Active == true)
-        })
-        .catch(e => {
-            console.log(e)
-        })
-    },
+  
     verifyActiveCredits(customerId){
         const creditExist = this.allCredits.find(credit => credit.CustomerId == customerId && credit.Active == true)
         if (creditExist)
-        { 
             return false
-        }
         return true
     },
+
     verifyAmount(){
         if (this.amountToPay > this.pendingAmount())
             this.amountToPay = this.pendingAmount()
     },
-    isValidForm(){
-        // let errors = [];
-        if (this.creditName == ""){
-            return false
-        }
-        if (!this.customerId){
-            return false
-        }
-        if(this.creditAmount == 0){
-            return false
-        }
-        if(this.dateFrom == ''){
-            return false
-        }
-        if(this.dateTo == ''){
-            return false
-        }
-        if (this.dateLimit == ''){
-            return false
-        }
 
+    isValidForm(){
+        if (this.creditName == "") return false
+        if (!this.customerId) return false
+        if(this.creditAmount == 0)  return false
+        if(this.dateFrom == '') return false
+        if(this.dateTo == '')  return false
+        if (this.dateLimit == '') return false
         return true
     },
+
     isValidAmount(){
         if (this.amountToPay <= 0 || this.amountToPay > this.pendingAmount())
             return false
         return true
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -426,39 +381,9 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    fetchCustomers: function(){
 
-        Api.fetchAll('Customer').then(response => {
-
-            const allCustomers = response.data
-            
-            Api.fetchAll("order").then(response => {
-                const orders = response.data
-                orders.forEach(order => {
-                    if (order.ClientId){
-                        for (let index = 0; index < allCustomers.length; index++) {
-                            let customer = allCustomers[index]
-                            if (order.ClientId == customer._id && !this.customers.find(c => c._id === customer._id))
-                            {
-                                this.customers.push(customer)
-                                break
-                            }
-                        }
-                    }
-                });
-            })
-            .catch(e => {
-                console.log(e)
-            })
-        })
-        .catch(e => {
-            console.log(e)
-            this.ifErrorOccured(this.fetchCustomers)
-        });
-
-    },
     //Create or edit a new category
-    saveCredit: function(){
+    saveCredit: async function(){
         
         if (this.isValidForm()){
 
@@ -477,9 +402,11 @@ export default {
                 if (this.id){
                   item['_id'] = this.id;
                   this.spinner = true;
-                  Api.putIn(this.modelName, item)
+                  await Api.putIn(this.modelName, item)
                       .then(response => {
                             this.spinner = false;
+                            const index = this.$store.state.backConfig.customerCredit.findIndex(c => c._id === this.id)
+                            if( index!== -1 ) this.$store.state.backConfig.customerCredit[index] = item;
                             this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessCredit'), "success");
                             this.$router.push({
                               name: 'Credit',
@@ -507,9 +434,10 @@ export default {
                             },
                             "restaurants": this.othersRestaurants
                       }
-                      Api.customerCreditForAll(data)
+                      await Api.customerCreditForAll(data)
                       .then(response => {
                           this.spinner = false;
+                          this.$store.state.backConfig.customerCredit.push(response.data);
                             this.showToastMessage('The credit was created successfully', "success");
                             this.$router.push({
                                 name: 'Credit-Form', 
@@ -526,9 +454,10 @@ export default {
                         this.spinner = true;
                         item["State"] = 1;
                         item["Debt"] = 0;
-                        Api.postIn(this.modelName, item)
+                        await Api.postIn(this.modelName, item)
                         .then(response => {
                             this.spinner = false;
+                            this.$store.state.backConfig.customerCredit.push(response.data);
                             this.showToastMessage('The credit was created successfully', "success");
                             this.$router.push({
                                 name: 'Credit-Form', 
@@ -542,8 +471,6 @@ export default {
                         })
                     }
                 }
-
-            // }
 
         }
     },

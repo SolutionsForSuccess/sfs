@@ -41,13 +41,17 @@
                     @rating-selected ="setRating"
                     style="display: block; padding-top: 10px;"
                 > </star-rating>
-                <a @click="goMenu" v-if="menuListSinCatering.length > 0 && hasOptionToShowMenu()"  color="secondary" style="margin: 12px">
+                <a @click="goMenu" v-if="menuListSinCatering.length > 0 && hasOptionToShowMenu() && this.$store.state.restaurantActive.RestaurantBussines"  color="secondary" style="margin: 12px">
                     <span class="iconify" data-icon="bx:bx-food-menu" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>
                     <ion-label style=" width: 80%; text-align: center;">{{$t('frontend.menu.menu')}}</ion-label>   
                 </a>
-                 <a @click="goCatering"  v-if="configuration.viewCatering && menuListConCatering.length > 0 && hasCardPayCat() " color="secondary" style="margin: 12px">
+                 <a @click="goCatering"  v-if="configuration.viewCatering && menuListConCatering.length > 0 && hasCardPayCat() && this.$store.state.restaurantActive.RestaurantBussines " color="secondary" style="margin: 12px">
                     <span class="iconify" data-icon="bx:bx-food-menu" data-inline="false"  style="width: 20px;height: 20px; margin: 0;"></span>
                     <ion-label style=" width: 80%; text-align: center;">{{$t('frontend.menu.menuCatering')}}</ion-label>   
+                </a>
+                 <a @click="goReservation()"  v-if="!this.$store.state.restaurantActive.RestaurantBussines && $store.state.configuration.viewReservation && $store.state.configuration.viewCustomerReservation" color="secondary" style="margin: 12px">
+                    <span class="iconify" data-icon="healthicons:i-schedule-school-date-time" style="width: 20px;height: 20px; margin: 0;"></span>
+                    <ion-label style=" width: 80%; text-align: center;">{{$t('frontend.menu.reservation')}}</ion-label>   
                 </a>
           </div>
 
@@ -466,7 +470,12 @@ export default {
 
         goCatering: function(){
             return this.$router.push({ name: 'Catering', params: {isCatering: true, url: this.$store.state.restaurantActive.restaurantUrl}  })
-        },      
+        },
+        
+        goReservation: function(){
+            return this.$router.push({ name: 'Reservation', params: { url: this.$store.state.restaurantActive.restaurantUrl}  })
+
+        },
 
        getReservationHour(thisHour){
         return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 

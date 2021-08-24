@@ -124,16 +124,7 @@ export default {
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -157,6 +148,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterVariantGroups = this.variantGroups
@@ -169,6 +161,7 @@ export default {
           this.filterVariantGroups = this.variantGroups
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -197,6 +190,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -208,6 +202,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -219,37 +214,18 @@ export default {
     },
     /****** CRUD category methods ******/
     fetchVariantGroup: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  //console.log(response.data);
-                  this.variantGroups = response.data;
-                  this.filterVariantGroups = this.variantGroups;
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchVariantGroup)
-                });
-            })
-        })
+      this.variantGroups = this.$store.state.backConfig.variantgroup;
+      this.filterVariantGroups = this.variantGroups;
     },
+
     editVariantGroup: function(id){
         this.$router.push({
         name: 'VariantGroupForm', 
         params: { variantGroupId: id }
       });
     },
-    deleteVariantGroup: function(id){
+
+    deleteVariantGroup: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -264,14 +240,13 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async () => {
               
               this.spinner = true
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
-                  // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), 
-                  //                       this.$t('backoffice.list.messages.messageDeleteSuccessVariantGroup'),
-                  //                               this.$t('backoffice.list.messages.deleteSubtitleVariantGroup'));
+                  const index = this.$store.state.backConfig.variantgroup.findIndex( v=> v._id === id);
+                  if(index !== -1) this.$store.state.backConfig.variantgroup.splice(index, 1);
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessVariantGroup'), "success");
                   this.fetchVariantGroup();
                   this.spinner = false

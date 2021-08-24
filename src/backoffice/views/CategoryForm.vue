@@ -15,10 +15,12 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+     <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    <div >
           <ion-item v-if="!externalProp">
            <ion-label>{{$t('backoffice.form.fields.service')}}</ion-label>
            <ion-checkbox slot="end" name="service" 
@@ -138,41 +140,17 @@ export default {
         console.log(this.categTypeProp)
 
         this.fetchParentId();
-
         this.id = this.$route.params.categoryId;
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                    .then(response => {
-                      console.log(response.data);
-                      this.service = response.data.Service;
-                      this.name = response.data.Name;
-                      this.description = response.data.Description;
-                      this.file = response.data.ImageUrl;
-                      this.parentId = response.data.ParentId;
-                      this.epos = response.data.EposId;
-                      loading.dismiss();
-                      return response;
-                    })
-                    .catch(e => {
-                      console.log(e);
-                      loading.dismiss();
-                      this.ifErrorOccured(this.init)
-                    })
-              })
-          })
+        const data = this.$store.state.backConfig.category.find(c => c._id === this.id);
+        if(data){
+          this.service = data.Service;
+          this.name = data.Name;
+          this.description = data.Description;
+          this.file = data.ImageUrl;
+          this.parentId = data.ParentId;
+          this.epos = data.EposId;
+        }
 
-          }
-
-        //console.log(this.$route.params);
     },
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -321,15 +299,9 @@ export default {
     },
     /*******                              Fin                              *******/
     fetchParentId(){
-         Api.fetchAll(this.modelName).then(response => {
-          // console.log(response.data)
-          this.categories = response.data;
+       this.categories = this.$store.state.backConfig.category;
           if (this.id)
               this.categories = this.categories.filter(item => item._id != this.id && !item.ParentId);
-        })
-        .catch(e => {
-          console.log(e)
-        });
     },
     //Create or edit a new category
     saveCategory: function(){
@@ -370,11 +342,9 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessCategory'), 
-                        //         this.$t('backoffice.list.messages.titleEditCategory'));
-                        this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessCategory'), "success");
+                       
+                        const index = this.$store.state.backConfig.category.findIndex(men => men._id === item._id)
+                        if(index !== -1) this.$store.state.backConfig.category[index]= item;
                         this.name = '';
                         this.description = '';
                         this.isEditing = false;
@@ -385,7 +355,7 @@ export default {
                         this.$router.push({
                           name: 'Category', 
                         });
-
+                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessCategory'), "success");
                         return response;
                   })
                   .catch(e => {
@@ -403,7 +373,8 @@ export default {
                       // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
                       //        this.$t('backoffice.list.messages.messageCreateSuccessCategory'), 
                       //           this.$t('backoffice.list.messages.titleCreateCategory'));
-                      this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessCategory'), "success");
+                      this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessCategory'), "success");                      
+                      this.$store.state.backConfig.category.push(response.data);
                       this.name = '';
                       this.description = '';
                       this.file = null;

@@ -378,7 +378,7 @@
 
                 <div 
                 v-if="scope.isMedium || !scope.isSmall && !scope.noMatch" 
-                style="top: 10px;position: absolute;z-index: 20;" 
+                style="top: 10px;position: absolute;z-index: 20;right: 31.9%;" 
                 :key="sideBarOpenFlag">
                   <div  @click="hideSideBar()" v-if="!sideBarOpenFlag"> 
                     <span class="iconify" data-icon="eva:arrow-ios-forward-outline" data-inline="false" style="margin: 0;"></span>
@@ -386,7 +386,7 @@
                 </div>
               
 
-                <ion-segment id="reservationSegment" :value="segmentValue" style="margin: 0px 0 25px;">
+                <!-- <ion-segment id="reservationSegment" :value="segmentValue" style="margin: 0px 0 25px;">
                   
                   <ion-segment-button value="table"  @click="changeSegmentValue('table')">
                     <span class="iconify" data-icon="grommet-icons:location-pin" data-inline="false" data-width="15" data-height="15"></span>
@@ -401,22 +401,20 @@
                   {{$t('frontend.order.cart') }}  
                   </ion-segment-button>
                   
-                </ion-segment>
+                </ion-segment> -->
               
                 <div style="margin-bottom: 90px;; overflow: auto;" > 
-                  <div v-if="segmentValue==='order'">                       
+
+                   <!-- v-if="segmentValue==='order'" -->
+                  <div >                       
                     <cart      
                     :key="keyForceUpdate+'C'+2"                                            
                       :showButtons ="false"
                     ></cart>
                   </div>
 
-                  <div v-if="segmentValue==='customer'" >
-                    <guess :isCatering="isCatering" :key="keyForceUpdate+'G'">                          
-                    </guess>
-                  </div>
-
-                  <div v-if="segmentValue==='table'" style="    text-align: center;" :key="keyForceUpdate+'T'+2">
+                     <!-- v-if="segmentValue==='table'" -->
+                  <div style="    text-align: center;" :key="keyForceUpdate+'T'+2">
                   
                       <ion-button  class="button-ordertype-parent"
                         v-if="!isCatering && configuration.viewDelivery && restaurantActive.hasPaymentCardConfig && $store.state.allTickets.length === 0 && configuration.zipCodes.length > 0 " 
@@ -591,6 +589,15 @@
                       </div>
 
                   </div>
+                  
+                  <div  >
+                    <!-- v-if="segmentValue==='customer'" -->
+                    <guess :isCatering="isCatering" :key="keyForceUpdate+'G'">                          
+                    </guess>
+                  </div>
+
+                  
+
                 </div>
 
               

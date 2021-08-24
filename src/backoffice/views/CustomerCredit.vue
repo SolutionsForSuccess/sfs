@@ -68,9 +68,10 @@
         </ion-header>
 
         <div v-if="spinner">
-            <ion-spinner name="lines" class="spinner"></ion-spinner>
+          <ion-progress-bar type="indeterminate"></ion-progress-bar>
         </div>
-        <div v-else> 
+
+        <div> 
               <paginate v-if="filterCredits.length > 0 && menuactive==='list'"
                 name="languages"
                 :list="filterCredits"
@@ -227,80 +228,31 @@ export default {
 
   name: 'credit',
   created: async function(){
-   this.screenWidth = screen.width;
-
-
-    this.$ionic.loadingController
-        .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        // duration: 1000,  
-        backdropDismiss: true
-    })
-    .then(loading => {
-        loading.present()
-        setTimeout(async () => {  // Some AJAX call occurs
-            await Api.fetchAll(this.modelName).then(response => {
-              this.credits = response.data
-              this.credits.reverse();
-              this.filterCredits = this.credits; 
-              loading.dismiss()
-            })
-            .catch(e => {
-              console.log(e)
-              loading.dismiss()
-              this.ifErrorOccured(this.initialize)
-            });
-
-            this.fetchCustomers();
-            this.changeFilterStatus('all');
-        })
-    })   
-
-//    await this.getRestaurantConfig(); 
-
-//    this.update = setInterval(() => {
-//       this.initialize();
-//    }, 30000);
-//    if(this.resConf.Email)
-//     this.getRestaurantCustomer();
+    this.screenWidth = screen.width;
+    this.credits = this.$store.state.backConfig.customerCredit;
+    this.credits.reverse();
+    this.filterCredits = this.credits; 
   },
    components:{   
     VBreakpoint: VBreakpoint 
   },  
-//   destroyed: function(){
-//       if (this.update != null){
-//           clearInterval(this.update);
-//       }
-//   },
+
   data () {
     return {
       modelName: 'customercredit',
       credits: [],
       customers: [],
       filterCredits: [],
-
       resConf: null,
       homeOrders: false,
       restaurantCustomer: null,
-
       update: null,
       loading: null,
-
       status: ['requested', 'accepted', 'closed', 'cancelled'],
-
-      // workflowOrderStaus: ['Pending of pay', 'Started', 'In kitchen', 'Cooked', 'Delivering', 'Delivered', 'Canceled'],
-      //   workflowOrderStaus: [this.$t('frontend.order.state0'), this.$t('frontend.order.state1'), this.$t('frontend.order.state2'), this.$t('frontend.order.state3'), this.$t('frontend.order.state4'), this.$t('frontend.order.state5'), this.$t('frontend.order.state6')],
-
       paginate: ['languages'],
 
       spinner: false,
       screenWidth: 0,
-
-      //colors
-    //   primaryColor: "",
-    //   secondaryColor: "",
-    //   tertiaryColor: "",
 
       filterStatus: "all",
       menuactive: 'list',
@@ -330,12 +282,14 @@ export default {
     }
   }, 
   methods: {
+
     initialize(){
         this.fetchCredit();
         this.fetchCustomers();
         this.changeFilterStatus('all');
         //console.log("Update order");
     },
+
     showSettingModal(){
 
         return this.$ionic.modalController
@@ -353,6 +307,7 @@ export default {
                 })
                 .then(m => m.present())
     },
+
     showCreditApproveModal(creditId){
 
         return this.$ionic.modalController
@@ -371,6 +326,7 @@ export default {
                 })
                 .then(m => m.present())
     },
+
     getTotalPayed(credit){
         let amount = 0;
         if (credit.Payed){
@@ -381,6 +337,7 @@ export default {
         
         return this.getFormatPrice(amount)
     },
+
     changeFilterStatus(value){
 
         //console.log(value)
@@ -426,6 +383,7 @@ export default {
           this.filterCredits = cat2
         })
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -449,6 +407,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -458,7 +417,8 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    deleteCredit: function(id){
+
+    deleteCredit: async function(id){
 
         this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -471,11 +431,13 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async() => {
               
               this.spinner = true;
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
+                  const index = this.$store.state.backConfig.customerCredit.findIndex( c => c._id === id);
+                  if(index !== -1) this.$store.state.backConfig.customerCredit.splice(index, 1)
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessCredit'), "success");
                   this.fetchCredit();
                   this.spinner = false;
@@ -497,16 +459,7 @@ export default {
       .then(a => a.present());
 
     },
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       // duration: 1000,  
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+  
     handleInput(value){
       this.filterCredits = this.credits
       const query = value.toLowerCase();
@@ -521,6 +474,7 @@ export default {
           this.filterCredits = this.credits
       });
     },
+
     getCreditByCustomerName(name){
         let creditList = []
         this.credits.forEach(credit => {
@@ -535,17 +489,11 @@ export default {
         })
         return creditList
     },
+
     filterHomeOreders(){
 
         if (this.homeOrders == false)
         {
-            // if(this.restaurantCustomer)
-            // {
-                //console.log("Restaurant Customer")
-                // console.log(this.restaurantCustomer._id)
-                // console.log(this.credits)
-                // let cat2 = this.credits.filter(item => 
-                //                               item.ClientId.indexOf(this.restaurantCustomer._id) > -1)
                 let cat2 = this.credits.filter(item => item.StaffName &&
                                                         item.StaffName != '')
                 //console.log(cat2)
@@ -566,71 +514,43 @@ export default {
         }
 
     },
+
     payCredit: function(){
         //Implementar código para el pago del crédito.
     },
+
     viewCredit: function(id){
         this.$router.push({
         name: 'Credit-Form', 
         params: { creditId: id }
       });
     },
-    // getOrderState(state){
-    //     return this.workflowOrderStaus[state];
-    // },
+   
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);
     },
-    // getFormateHour: function(date){
-    //     return Utils.getFormatHour(date);         
-    // },
+   
     getFormatPrice: function(price){
         return Utils.getFormatPrice(price);         
     },
-    /****** CRUD category methods ******/
+
     fetchCredit: async function(){
-        await Api.fetchAll(this.modelName).then(response => {
-          this.credits = response.data
-          this.credits.reverse();
-          this.filterCredits = this.credits;      
-        })
-        .catch(e => {
-          console.log(e)
-          this.ifErrorOccured(this.initialize)
-        });
+      this.credits = this.$store.state.backConfig.customerCredit;
+      this.credits.reverse();
+      this.filterCredits = this.credits;
     },
+
     fetchCustomers: function(){
-        Api.fetchAll('Customer').then(response => {
-          this.customers = response.data
-          return response
-        })
-        .catch(e => {
-          console.log(e)
-        });
+      this.customers = this.$store.state.backConfig.allCustomer;
+      // CONOCER SI ES A CUALQUIER CUSTOMER O A LOS CUSTOMERS DEL RESTAURANTE       
     },
-    // getRestaurantCustomer: async function(){
-    //    await Api.findCustomerByEmail(this.resConf.Email)
-    //     .then(response => { 
-    //         this.restaurantCustomer = response.data
-    //         //console.log("RESTAURANT CUSTOMER")
-    //         //console.log(this.restaurantCustomer)
-    //     })
-    // },
-    // getRestaurantConfig: async function(){
-    //   await Api.fetchById('Restaurant', this.$store.state.user.RestaurantId).then(response => {
-    //         this.resConf = response.data;
-    //         if(this.resConf.Email)
-    //           this.getRestaurantCustomer();
-    //   })
-    //   .catch(e => {
-    //     console.log(e)
-    //   });
-    // },
+    
     createCredit: function(){
         this.$router.push({
             name: 'Credit-Form', 
         });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -662,6 +582,7 @@ export default {
         }
         return res;
     },
+
     getCustomerById: function(id){
         var custom = '';
         this.customers.forEach(customer => {
@@ -671,20 +592,31 @@ export default {
         });
         return custom;
     },
-    cancelCredit(credit){
+
+    async cancelCredit(credit){
         console.log(credit)
         credit.State = 3
         credit.Active = false
-        Api.putIn('customercredit', credit)
+        await Api.putIn('customercredit', credit)
         .then(() => {
+            const index = this.$store.state.backConfig.customerCredit.find(c => c._id === credit._id);
+            if(index !== -1){
+              this.$store.state.backConfig.customerCredit[index].State = 3
+              this.$store.state.backConfig.customerCredit[index].Active = false
+            }
             this.showToastMessage('The credit was canceled sucessfully', 'success')
         })
     },
+
     acceptCredit(credit){
         if (credit.DateTo != '' && credit.DateFrom != ''){
             credit.State = 1
             Api.putIn('customercredit', credit)
             .then(() => {
+              const index = this.$store.state.backConfig.customerCredit.find(c => c._id === credit._id);
+              if(index !== -1){
+               this.$store.state.backConfig.customerCredit[index].State = 1
+            }
                 this.showToastMessage('The credit was accepted sucessfully', 'success')
             })
         }
@@ -698,6 +630,7 @@ export default {
         }
         
     },
+
     reverseCredits(){
       this.filterCredits.reverse();
     },

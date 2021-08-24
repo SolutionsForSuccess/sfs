@@ -25,9 +25,10 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+
+    <div >
         <paginate
           name="languages"
           :list="filterCustomers"
@@ -68,31 +69,19 @@ export default {
   name: 'customer',
   created: function(){
    this.fetchCustomers();
+  
   },
   data () {
     return {
       modelName: 'Customer',
-      allCustomers: [],
       customers: [],
-      orders: [],
       filterCustomers: [],
-
       paginate: ['languages'],
-
       spinner: false,
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -116,6 +105,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterCustomers = this.customers
@@ -129,6 +119,7 @@ export default {
           this.filterCustomers = this.customers
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -157,6 +148,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -168,6 +160,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -177,66 +170,21 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchCustomers: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          // duration: 1000,  
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {  // Some AJAX call occurs
-                Api.fetchAll(this.modelName).then(response => {
-                  //console.log(response.data)
-                  this.allCustomers = response.data
-                  
-                  this.fetchOrders(loading)
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchCustomers)
-                });
-            })
-        })
+       this.customers = this.$store.state.backConfig.allCustomer;
+       this.filterCustomers = this.customers
     },
-    fetchOrders: function(loading){
-        Api.fetchAll("order").then(response => {
-            this.orders = response.data
-            // console.log("All client")
-            // console.log(this.allCustomers)
-            // console.log("All orders")
-            // console.log(this.orders)
-            this.orders.forEach(order => {
-                if (order.ClientId){
-                    for (let index = 0; index < this.allCustomers.length; index++) {
-                        let customer = this.allCustomers[index]
-                        if (order.ClientId == customer._id && !this.customers.find(c => c._id === customer._id))
-                        {
-                            this.customers.push(customer)
-                            break
-                        }
-                    }
-                }
-            });
-            this.filterCustomers = this.customers
-            loading.dismiss()
-        })
-        .catch(e => {
-            console.log(e)
-            loading.dismiss()
-        })
-    },
+  
     editCustomer: function(id){
         this.$router.push({
         name: 'CustomerForm',
         params: { customerId: id }
       });
     },
-    deleteCustomer: function(id){
+
+    deleteCustomer: async function(id){
 
       return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -245,20 +193,18 @@ export default {
           {
             text: this.$t('backoffice.list.messages.buttons.cancel'),
             role: 'cancel',
-            handler: () => {
-              
+            handler: () => {              
             }
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async () => {
               
               this.spinner = true;
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
               .then(response => {
-                // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                //                        this.$t('backoffice.list.messages.messageDeleteSuccessCustomer'),
-                //                                 this.$t('backoffice.list.messages.deleteSubtitleCustomer'));
+                const index = this.$store.state.backConfig.allCustomer.findIndex(c => c.id === id)
+                if(index!== -1) this.$store.state.backConfig.allCustomer.splice(index, 1);
                 this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessCustomer'), "success");
                 this.fetchCustomers();
                 this.spinner = false;

@@ -33,11 +33,7 @@ import { Api } from '../api/api.js';
 export default {
   name: 'ChangePasswordModal',
   props: {
-    user: { type: Object, default: null },
-    // button: { type: String, default: 'Close'},
-    // button2: { type: String, default: 'Cancel order'},
-    // order: { type: Object, default: null },
-    // customer: { type: Object, default: null },
+    user: { type: Object, default: null },  
     parent: { type: Object, default: null },
   },
   data() {
@@ -46,51 +42,21 @@ export default {
         confirmPassword: '',
     }
   },
-  created: function(){
-    // const restaurantID = this.parent.$store.state.user.RestaurantId
-    // Api.fetchById('Restaurant', restaurantID)
-    // .then(response => {
-    //     this.apiLoginId = response.data.ApiLoginId
-    //     this.transactionKey = response.data.TransactionKey
-    //     this.payUrl = response.data.EndPointUrl
-    // })
-    // .catch(e => {
-    //    console.log(e)
-    // })
+  created: function(){ 
   },
   methods:{
+
     dismissModal() { 
         this.$ionic.modalController.dismiss(null);
     },
+
     isValidForm(){
-        // let errors = [];
-        if (this.password == "")
-        {
-            // errors.push(this.parent.$t('backoffice.form.validate.password'));
-            return false
-        }
-        if (this.password != this.confirmPassword)
-        {
-            // errors.push(this.parent.$t('backoffice.form.validate.confirmPassword'));
-            return false
-        }
+        if (this.password == "") return false
+        if (this.password != this.confirmPassword) return false
 
-        return true
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
+        return true;     
     },
+
     showToastMessage(message, tColor){
         return this.parent.$ionic.toastController.create({
         color: tColor,
@@ -100,39 +66,31 @@ export default {
         showCloseButton: false
         }).then(a => a.present())
     },
-    save(){
-        if (this.isValidForm())
-        {
-            let item = {
-              "_id": this.user._id,
-              // "ImageUrl": this.user.ImageUrl,
-              // "ImageName": this.user.ImageName,
-              // "FirstName": this.user.FirstName,
-              // "LastName": this.user.LastName,
-              // "Address": this.user.Address,
-              // "Phone": this.user.Phone,
-              "Email": this.user.Email,
-              // "OccupationId": this.user.OccupationId,
-              "Password": this.password,
-              // "Roles": this.user.UserRoles,
-            }
-            Api.changePassword(item)
-                  .then(response => {
-                        this.showToastMessage(this.parent.$t('backoffice.list.messages.messageEditSuccessUser'), "success");
-                        // this.$router.push({
-                        //   name: 'UserForm',
-                        //   params: {
-                        //       userId: this.user._id
-                        //   }
-                        // });
-                        this.dismissModal();
-                        return response;
-                  })
-                  .catch(e => {
-                        console.log(e);
-                        this.showToastMessage(this.parent.$t('backoffice.list.messages.errorMessage'), "danger");
-                  })
-        } 
+
+    async save(){
+      if (this.isValidForm()){
+        let item = {
+        "_id": this.user._id,            
+        "Email": this.user.Email,
+        "Password": this.password,
+        }
+        await Api.changePassword(item)
+            .then(response => {
+                  this.showToastMessage(this.parent.$t('backoffice.list.messages.messageEditSuccessUser'), "success");
+                  // this.$router.push({
+                  //   name: 'UserForm',
+                  //   params: {
+                  //       userId: this.user._id
+                  //   }
+                  // });
+                  this.dismissModal();
+                  return response;
+            })
+            .catch(e => {
+                  console.log(e);
+                  this.showToastMessage(this.parent.$t('backoffice.list.messages.errorMessage'), "danger");
+            })
+      } 
     },
   },
 }

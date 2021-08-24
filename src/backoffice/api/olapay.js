@@ -42,8 +42,6 @@ export var OlaPay = {
        }
   },
 
-
-
     async getDevice(ip, port, ssl){
        try {
         let url = ''
@@ -56,10 +54,9 @@ export var OlaPay = {
         if(response){
             console.log('Response de getDevice');
             console.log(response);
+            alert(response);
             return response;
         }
-       
-           
        } catch (error) {
            console.log(error);           
        }
@@ -120,7 +117,7 @@ export var OlaPay = {
                "expirationCard": response.data.saleResponse.expireDate,
                "accountType": response.data.saleResponse.cardType,
                "method": 'OlaPay',               
-               "moto": false,
+               "moto": true,
            }
             return response1;
          }
@@ -149,7 +146,7 @@ export var OlaPay = {
             "expirationCard": "",
             "accountType": response.data.response.card_payment_type,
             "method": 'OlaPay',               
-            "moto": false,
+            "moto": true,
         }
          return response1;
       }
@@ -176,7 +173,6 @@ export var OlaPay = {
           
       }
    },
-
 
    async search(ip, port, ssl, data){
       try {
@@ -265,7 +261,7 @@ export var OlaPay = {
             "accountType": response.data.authorizeResponse.cardType,
             "method": 'OlaPay',
             "ref": response.data.authorizeResponse.Ref,
-            "moto": false,
+            "moto": true,
         }
          return response1;
       }
@@ -290,11 +286,8 @@ export var OlaPay = {
       console.log(response1);
       return response1;
     }
-   
-       
    } catch (error) {
-       console.log(error);
-       
+       console.log(error);       
    }
 },
 

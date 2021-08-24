@@ -29,9 +29,10 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+
+    <div >
       <div v-if="screenWidth < 600">
         <paginate
           name="languages"
@@ -129,8 +130,9 @@ export default {
   name: 'tax',
   created: function(){
     this.screenWidth = screen.width;
-   this.fetchShipping();
+    this.fetchShipping();
   },
+
   data () {
     return {
       modelName: 'Shipping',
@@ -143,17 +145,9 @@ export default {
       screenWidth: 0,
     }
   }, 
+
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+   
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -177,6 +171,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterShippings = this.shippings
@@ -189,6 +184,7 @@ export default {
           this.filterShippings = this.shippings
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -217,6 +213,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -228,6 +225,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -237,33 +235,14 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchShipping: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.shippings = response.data
-                  this.filterShippings = this.shippings
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchShipping)
-                });
-            })
-        })
-    },
-    availableShipping: function(shipping, state){
+      this.shippings = this.$store.state.backConfig.shipping
+      this.filterShippings = this.shippings
+        },
+
+    availableShipping: async function(shipping, state){
       let item = {
             "_id": shipping._id,
             "Name": shipping.Name,
@@ -271,15 +250,14 @@ export default {
             "Price": shipping.Price,
         }
         this.spinner = true;
-        Api.putIn(this.modelName, item)
+        await Api.putIn(this.modelName, item)
               .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.activeShipping'), 
-                    //   this.$t('backoffice.list.messages.shippingChangeState'),
-                    //     this.$t('backoffice.list.messages.activeShipping'));
-                    this.showToastMessage(this.$t('backoffice.list.messages.shippingChangeState'), "success");
-                    this.fetchShipping();
-                    this.spinner = false;
-                    return response;
+                  const index = this.$store.state.backConfig.shipping.findIndex( s => s._id === shipping._id)
+                  if(index !== -1) this.$store.state.backConfig.shipping[index] = item;
+                  this.showToastMessage(this.$t('backoffice.list.messages.shippingChangeState'), "success");
+                  this.fetchShipping();
+                  this.spinner = false;
+                  return response;
               })
               .catch(e => {
                     console.log(e);
@@ -292,6 +270,7 @@ export default {
 
               })
     },
+
     editShipping: function(id){
         //console.log(id);
         this.$router.push({
@@ -299,7 +278,8 @@ export default {
         params: { shippingId: id }
       });
     },
-    deleteShipping: function(id){
+
+    deleteShipping: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -319,10 +299,9 @@ export default {
             this.spinner = true;
             Api.deleteById(this.modelName, id)
             .then(response => {
-                  this.fetchShipping();
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessShipping'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleShipping'));
+                  const index = this.$store.state.backConfig.shipping.findIndex( s => s._id === id)
+                  if(index !== -1) this.$store.state.backConfig.shipping.splice(index, 1);
+                  this.fetchShipping();                  
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessShipping'), "success");
                   this.spinner = false;
                   return response;

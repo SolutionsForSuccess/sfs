@@ -63,17 +63,20 @@
                     <ion-label position="floating">{{i18n.t('frontend.orderType.name')}} 
                         <strong v-if="order.OrderType !=='On Table'" style="color: red">*</strong></ion-label>                                                                                                                                
                     <ion-input :value="CustomerName" :readonly="(clientId !='' || isCatering && staffName ==='')" 
+                    autocomplete="name"
                     @input="CustomerName = $event.target.value" 
+                     @change="saveGuess()"
                     ></ion-input>
                 </ion-item>
 
-                <ion-item :style="clientId ===''? 'border: 1px solid #262626;width: 100%' : 'width: 100%'">                    
+                <ion-item :style="clientId ===''? 'border: 1px solid #262626;width: 100%' : 'width: 100%'" :key="key+'E'">                    
                     <ion-label position="floating">{{i18n.t('frontend.orderType.email')}} 
                         <strong v-if="order.OrderType !=='On Table' || staffName ===''" style="color: red">*</strong>
                     </ion-label>                                                                                                                                
-                    <ion-input :value="email" :readonly="clientId !='' || isCatering && staffName ===''" 
+                    <ion-input :value="email" :readonly="clientId !='' || isCatering && staffName ===''"
+                    autocomplete="email" 
                         @input="email = $event.target.value" 
-                        @change="validateEmail()"
+                        @change="validateEmail(),saveGuess()"
                     ></ion-input>
                 </ion-item>
 
@@ -82,8 +85,9 @@
                         <strong v-if="order.OrderType !=='On Table' || staffName ===''" style="color: red">*</strong>
                     </ion-label>                                                                                                                                
                     <ion-input :value="phone" :readonly="clientId !='' || isCatering && staffName ===''" 
+                    autocomplete="tel"
                         @input="phone = $event.target.value" 
-                        @change="validatePhone($event.target.value)" 
+                        @change="validatePhone($event.target.value),saveGuess()" 
                     ></ion-input>
                 </ion-item>
             </div>
@@ -96,7 +100,10 @@
 
                 <ion-item style="width: 100%;">
                     <ion-label position="floating"> {{$t('frontend.order.eventName')}}</ion-label> 
-                        <ion-input type="text" :value="eventName" @input="order.EventName = $event.target.value"  style=" float: left;text-align: left;"></ion-input>   
+                        <ion-input type="text" :value="eventName" 
+                        autocomplete="name"
+                        @input="order.EventName = $event.target.value"  
+                        style=" float: left;text-align: left;"></ion-input>   
                 </ion-item>                             
 
                 <ion-item style="width: 100%;">
@@ -127,7 +134,10 @@
 
                 <ion-item style="width: 100%;">
                     <ion-label position="floating"> {{$t('frontend.order.guessNumber')}}</ion-label> 
-                    <ion-input type="number" :value="numberOfGuess" @input="numberOfGuess = $event.target.value"  style=" float: left;text-align: left;"></ion-input>                               
+                    <ion-input type="number" 
+                    :value="numberOfGuess" 
+                    @input="numberOfGuess = $event.target.value"  
+                    style=" float: left;text-align: left;"></ion-input>                               
                 </ion-item> 
                 
                     <ion-item style="width: 100%;">
@@ -153,13 +163,19 @@
             </div>
 
             <div style="    text-align: center;">
-                 <ion-button fill="outline" v-if="staffName !='' && (CustomerName != '' || email != '' || phone != '')"
-                  @click="clearGuess()" >{{i18n.t('frontend.home.clear')}}</ion-button>
-                 <ion-button fill="outline" @click="saveGuess()" v-if="clientId ==='' && !isCatering">{{i18n.t('frontend.home.acept')}}</ion-button>
+                <ion-button fill="outline"
+                    v-if="staffName !='' && (CustomerName != '' || email != '' || phone != '')"
+                    @click="clearGuess()" >
+                    {{i18n.t('frontend.home.clear')}}
+                </ion-button>
+                <!-- <ion-button fill="outline"
+                    @click="saveGuess()" v-if="clientId ==='' && !isCatering">
+                    {{i18n.t('frontend.home.acept')}}
+                </ion-button> -->
                 <ion-button fill="outline" 
-                @click="addCustomer()" 
-                v-tooltip="i18n.t('backoffice.list.messages.titleCreateCustomer')"
-                v-if="getSelectEmail() === '' && getGuessEmail() !== '' && staffName !='' ">
+                    @click="addCustomer()" 
+                    v-tooltip="i18n.t('backoffice.list.messages.titleCreateCustomer')"
+                    v-if="getSelectEmail() === '' && getGuessEmail() !== '' && staffName !='' ">
                     <span class="iconify" data-icon="bx:bxs-user-plus" data-inline="false"></span>
                 </ion-button>
 
@@ -256,6 +272,7 @@ export default {
         let emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
         if (emailRegex.test(this.email) == false){
             this.email = '';
+            this.key++;
             return this.alertEmailNotValid();
         }
         return true
@@ -300,13 +317,13 @@ export default {
     },
 
     saveGuess(){
-        if(this.order.OrderType){
-            if(this.order.OrderType !== 'On Table')
-                if(this.CustomerName ==='' || this.email==='' || this.phone ==='') 
-                    return this.alertRequiredDatas();
-        }
-        else if(this.CustomerName ==='' || this.email==='' || this.phone==='') 
-            return this.alertRequiredDatas();
+        // if(this.order.OrderType){
+        //     if(this.order.OrderType !== 'On Table')
+        //         if(this.CustomerName ==='' || this.email==='' || this.phone ==='') 
+        //             return this.alertRequiredDatas();
+        // }
+        // else if(this.CustomerName ==='' || this.email==='' || this.phone==='') 
+        //     return this.alertRequiredDatas();
         
           
             
@@ -318,8 +335,9 @@ export default {
         }
 
         store.commit('setGuess', guess);
-        Commons.alertSubscription(this.email,this.CustomerName, this.phone); 
-        this.openToast();
+        if(this.CustomerName !=='' && this.email !=='' && this.phone !=='')
+            Commons.alertSubscription(this.email,this.CustomerName, this.phone); 
+        // this.openToast();
         
     },
 

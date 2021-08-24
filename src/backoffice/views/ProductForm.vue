@@ -848,88 +848,61 @@ export default {
         // this.fetchVariantGroups();
         
         if (this.id){
+            const data = this.$store.state.backConfig.product.find(p=> p._id === this.id)
+            this.name = data.Name;
+            this.sku = data.Sku;
+            this.code = data.Code;
+            this.description = data.Description;
+            this.costPrice = data.CostPrice;
+            this.salePrice = data.SalePrice;
+            this.specialPrice = data.SpecialPrice;
+            this.stockQuantity = data.StockQuantity;
+            this.minReorderPoint = data.MinReorderPoint,
+            this.maxReorderPoint = data.MaxReorderPoint,
 
-            this.$ionic.loadingController
-            .create({
-                cssClass: 'my-custom-class',
-                message: this.$t('backoffice.titles.loading'),
-                backdropDismiss: true
-            })
-            .then(loading => {
-                loading.present()
-                setTimeout(() => {  // Some AJAX call occurs
-                    Api.fetchById(this.modelName, this.id)
-                    .then(response => {
-                        console.log(response.data)
-                        this.name = response.data.Name;
-                        this.sku = response.data.Sku;
-                        this.code = response.data.Code;
-                        this.description = response.data.Description;
-                        this.costPrice = response.data.CostPrice;
-                        this.salePrice = response.data.SalePrice;
-                        this.specialPrice = response.data.SpecialPrice;
-                        this.stockQuantity = response.data.StockQuantity;
-                        this.minReorderPoint = response.data.MinReorderPoint,
-                        this.maxReorderPoint = response.data.MaxReorderPoint,
+            this.vendorName = data.VendorName;
+            this.vendorCode = data.VendorCode;
+            this.shortDescription = data.ShortDescription,
 
-                        this.vendorName = response.data.VendorName;
-                        this.vendorCode = response.data.VendorCode;
-                        this.shortDescription = response.data.ShortDescription,
+            this.addSerialNumber = data.AddSerialNumber,
+            this.tags = data.Tags,
+            this.keywords = data.Keywords,
+            this.binNumber = data.BinNumber,
 
-                        this.addSerialNumber = response.data.AddSerialNumber,
-                        this.tags = response.data.Tags,
-                        this.keywords = response.data.Keywords,
-                        this.binNumber = response.data.BinNumber,
-
-                        this.categoryId = response.data.CategoryId;
-                        this.taxId = response.data.TaxId;
-                        this.barCode = response.data.BarCode;
-                        this.file = response.data.ImageUrl;
-                        this.available = response.data.Available;
-                        if (response.data.VariantGroupId)
-                        {
-                            this.variantGroupId = response.data.VariantGroupId;
-                            //console.log(this.variantGroupId)
-                            Api.fetchById('VariantGroup', this.variantGroupId)
-                            .then(response => {
-                                this.variantList = response.data.Variants
-                            })
-                            .catch(e => {
-                                console.log(e)
-                            })
-                        }
-                            
-                        this.qr = response.data._id;
-                        if (this.cType == 'service'){
-                            this.showServicePrice = response.data.ShowServicePrice;
-                            this.stimateTime = response.data.StimateTime;
-                        }
-                            
-                        this.ingredients = response.data.Ingredients;
-                        //console.log(this.ingredients)
-                        if (this.ingredients.length > 0)
-                            this.addIngredients = true;
-                        this.aggregatesCant = response.data.AggregateCant;
-                        //this.aggregates = response.data.Aggregates;
-                        this.fetchAggregatesObj(response.data.Aggregates)
-                        if(response.data.Aggregates.length > 0)
-                            this.addAgregates = true
-                            loading.dismiss();
-                        this.epos = response.data.EposId;
-
-                        return response;
-                    })
-                    .catch(e => {
-                        console.log(e);
-                        loading.dismiss();
-                        this.ifErrorOccured(this.init);
-                    }) 
-                })
-            })  
+            this.categoryId = data.CategoryId;
+            this.taxId = data.TaxId;
+            this.barCode = data.BarCode;
+            this.file = data.ImageUrl;
+            this.available = data.Available;
+            if (data.VariantGroupId)
+            {
+                this.variantGroupId = data.VariantGroupId;
+                const obrVariant = this.$store.state.backConfig.variantgroup.find(v => v._id === data.VariantGroupId)
+                this.variantList = obrVariant;
+            }
+                
+            this.qr = data._id;
+            if (this.cType == 'service'){
+                this.showServicePrice = data.ShowServicePrice;
+                this.stimateTime = data.StimateTime;
+            }
+                
+            this.ingredients = data.Ingredients;                       
+            if (this.ingredients.length > 0)
+                this.addIngredients = true;
+            this.aggregatesCant = data.AggregateCant;                      
+            this.fetchAggregatesObj(data.Aggregates)
+            if(data.Aggregates.length > 0)
+                this.addAgregates = true                           
+            this.epos = data.EposId;
+        
         }
+                   
+           
 
         //console.log(this.$route.params);
     },
+
     goToBack(){
         if (this.sourceMenuId != null)
         {
@@ -1068,22 +1041,13 @@ export default {
         })  
     },
     fetchAggregatesObj(aggregateIds){
-      //console.log(aggregateIds);
-        Api.fetchAll(this.modelName)
-          .then(response => { 
-              let productAggregates = response.data
-              
-              aggregateIds.forEach(aggId => {
-                 const agg = productAggregates.filter(aggregate => aggregate._id == aggId)
-                 agg.forEach(a => {
-                    this.aggregates.push(a)
-                 })
-              })
-              //console.log(this.aggregates)
-          })
-          .catch(e => {
-              console.log(e)
-          })
+       let productAggregates = this.$store.state.backConfig.product
+        aggregateIds.forEach(aggId => {
+            const agg = productAggregates.filter(aggregate => aggregate._id == aggId)
+            agg.forEach(a => {
+            this.aggregates.push(a)
+            })
+        })
     },
     updateSelectedProduct(){
         this.aggregates.forEach(aggregate => {
@@ -1175,44 +1139,19 @@ export default {
     },
     /*******          Fin           *******/
     fetchCategories: function(){
-        Api.fetchAll('Category').then(response => {
-          // console.log(response.data)
-          this.categories = response.data
+         
+          this.categories = this.$store.state.backConfig.category;
           if (this.cType === 'product')
-          {
               this.categories = this.categories.filter(cat => !cat.Service || cat.Service == false)
-          }
-          else{
+          else
               this.categories = this.categories.filter(cat => cat.Service == true)
-          }
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
-    fetchTaxes: function(){
-        Api.fetchAll('Tax').then(response => {
-            this.taxes = response.data
-        })
-        .catch(e =>{
-           console.log(e) 
-        })
-    },
-    // fetchVariantGroups: function(){
-    //     Api.fetchAll('VariantGroup').then(response => {
-    //       // console.log(response.data)
-    //       this.variantGroups = response.data
-    //     })
-    //     .catch(e => {
-    //       console.log(e)
-    //     });
-    // },
-    //Create or edit a new product
-    saveProduct: async function(){
 
-        // this.spinner = true
-        // console.log('CategoryId: '+ this.categoryId)
-        //console.log(this.ingredients)
+       },
+    fetchTaxes: function(){
+        this.taxes =  this.$store.state.backConfig.tax;
+    },
+   
+    saveProduct: async function(){
 
         if (this.isValidForm())
         {
@@ -1282,10 +1221,7 @@ export default {
                   item["EposId"] = this.epos;
               }
               this.spinner = true;
-              //console.log(Api.token);
-
-              //VariantGroup
-              //console.log("Variant group: " + this.variantGroupId)
+           
               if (this.variantList.length > 0)
               {
                   let itemVG = {
@@ -1297,8 +1233,7 @@ export default {
                   {
                       itemVG["_id"] = this.variantGroupId
                       const v = await Api.putIn('VariantGroup', itemVG)
-                      //console.log("Es esta")
-                      //console.log(v)
+                     
                       if (v.status == 200 && v.statusText === "OK")
                       {
                           item["VariantGroupId"] = this.variantGroupId
@@ -1375,6 +1310,7 @@ export default {
         //   this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
         //          this.$t('backoffice.list.messages.messageCreateSuccessProduct'), 
         //             this.$t('backoffice.list.messages.titleCreateProduct'));
+            this.$store.state.backConfig.product.push(response.data);
             this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessProduct'), "success");
             this.name = '';
             this.sku = '';
@@ -1434,6 +1370,8 @@ export default {
             // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
             //      this.$t('backoffice.list.messages.messageEditSuccessProduct'), 
             //         this.$t('backoffice.list.messages.titleEditProduct'));
+            const index = this.$store.state.backConfig.product.findIndex(p => p._id === item._id);
+            if(index !== -1) this.$store.state.backConfig.product[index] = item;
             this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessProduct'), "success");
             this.name = '';
             this.sku = '';

@@ -26,10 +26,11 @@
           </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+
+    <div>
        <div v-if="screenWidth < 600">
           <paginate
           name="languages"
@@ -44,8 +45,8 @@
                       <h3>{{ suscriptor.Email }}</h3>
                   </ion-label>
                   <div v-if="hasPermission('canDesactivateSuscriptor')">
-                      <ion-checkbox v-if="suscriptor.State" checked="true" slot="end" @click="desactivateSuscriptor(suscriptor)"></ion-checkbox>
-                      <ion-checkbox v-else checked="false" slot="end" @click="desactivateSuscriptor(suscriptor)"></ion-checkbox>
+                      <ion-checkbox  :checked="suscriptor.State" slot="end" @ionChange="desactivateSuscriptor(suscriptor)"></ion-checkbox>
+                      
                   </div>
                   <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
                 </ion-item>
@@ -53,9 +54,7 @@
                   <ion-item-option v-if="hasPermission('canEditSuscriptor')" color="primary" @click="editSuscriptor(suscriptor._id)">
                     <ion-icon slot="icon-only" name="create"></ion-icon>
                   </ion-item-option>
-                  <!-- <ion-item-option v-if="hasPermission('canDesactivateSuscriptor')" color="primary" @click="desactivateSuscriptor(suscriptor._id)">
-                    <span class="iconify" data-icon="mdi:check-circle-outline" data-inline="false"></span>
-                  </ion-item-option> -->
+                 
                   <ion-item-option v-if="isSupportUser" color="danger" @click="deleteSuscriptor(suscriptor._id)">
                     <ion-icon slot="icon-only" name="trash"></ion-icon>
                   </ion-item-option>
@@ -81,8 +80,7 @@
               <ion-item v-for="suscriptor in paginated('languages')" v-bind:key="suscriptor._id">
                   <ion-item-group side="start">
                       <div v-if="hasPermission('canDesactivateSuscriptor')">
-                        <ion-checkbox v-if="suscriptor.State == true" checked="true" slot="end" @click="desactivateSuscriptor(suscriptor)"></ion-checkbox>
-                        <ion-checkbox v-else checked="false" slot="end" @click="desactivateSuscriptor(suscriptor)"></ion-checkbox>
+                        <ion-checkbox  :checked="suscriptor.State" slot="end" @ionChange="desactivateSuscriptor(suscriptor)"></ion-checkbox>
                       </div>
                   </ion-item-group>
                   <ion-label style="margin-left: 15px">
@@ -93,9 +91,7 @@
                   <ion-button v-if="hasPermission('canEditSuscriptor')" color="primary" @click="editSuscriptor(suscriptor._id)">
                     <ion-icon slot="icon-only" name="create"></ion-icon>
                   </ion-button>
-                  <!-- <ion-button v-if="hasPermission('canDesactivateSuscriptor')" color="primary" @click="desactivateSuscriptor(suscriptor)">
-                    <ion-icon slot="icon-only" name="checkbox-outline"></ion-icon>
-                  </ion-button> -->
+                 
                   <ion-button v-if="isSupportUser" color="danger" @click="deleteSuscriptor(suscriptor._id)">
                     <ion-icon slot="icon-only" name="trash"></ion-icon>
                   </ion-button>
@@ -125,17 +121,10 @@ export default {
   name: 'staff',
   created: function(){
     this.isSupportUser = this.$store.state.user.IsSupport
-
-    //console.log("IS SUPERVISOR")
-    //console.log(this.isForDriversSupervisor);
-
-    //console.log(screen.width)
     this.screenWidth = screen.width;
     this.fetchSuscriptors();
-
     window.onresize = function() {
       this.screenWidth = screen.width
-      //console.log(this.screenWidth)
     }
   },
   data () {
@@ -249,32 +238,13 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** CRUD category methods ******/
     fetchSuscriptors: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.suscriptors = response.data
-                  this.filterSuscriptors = this.suscriptors
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchSuscriptors)
-                });
-            })
-        })
+      this.suscriptors = this.$store.state.backConfig.subscriptor
+      this.filterSuscriptors = this.suscriptors
     },
+
     editSuscriptor: function(id){
         this.$router.push({
           name: 'SuscriptorForm', 
@@ -283,19 +253,23 @@ export default {
           }
         });
     },
-    desactivateSuscriptor(suscriptor){
+
+    async desactivateSuscriptor(suscriptor){
         this.spinner = true
         let State = suscriptor.State
         suscriptor.State = !State
-        Api.putIn(this.modelName, suscriptor)
+        await Api.putIn(this.modelName, suscriptor)
         .then(() => {
+           const index = this.$store.state.backConfig.subscriptor.findIndex( s=> s._id === suscriptor._id)
+           if(index !== -1) this.$store.state.backConfig.subscriptor[index] = suscriptor;
+            this.fetchSuscriptors()
             if (State)
               //Se ha desactivado
               this.showToastMessage(this.$t('backoffice.list.messages.messageDesactivareSuccessSuscriptor'), 'success')
             else
               //Se ha activado
               this.showToastMessage(this.$t('backoffice.list.messages.messageActivareSuccessSuscriptor'), 'success')
-            this.fetchSuscriptors()
+           
             this.spinner = false
         })
         .catch(e => {
@@ -305,6 +279,7 @@ export default {
             this.ifErrorOccured(this.desactivateSuscriptor)
         })
     },
+
     deleteSuscriptor: function(id){
 
         return this.$ionic.alertController.create({
@@ -325,9 +300,8 @@ export default {
               this.spinner = true
               Api.deleteById(this.modelName, id)
                 .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessUser'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleUser'));
+                  const index = this.$store.state.backConfig.subscriptor.findIndex( s=> s._id === id)
+                  if(index !== -1) this.$store.state.backConfig.subscriptor.splice(index, 1);
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessSuscriptor'), "success");
                   this.fetchSuscriptors();
                   this.spinner = false;

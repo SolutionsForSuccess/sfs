@@ -17,9 +17,12 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+
     <div v-else>   
         <ion-item>
             <ion-label>{{$t('backoffice.form.fields.name')}}: <strong>{{name}}</strong></ion-label>            
@@ -81,8 +84,8 @@
         <div v-if="id">
             <ion-item>
                 <ion-label><strong> Manage seats</strong></ion-label>
-                <ion-button color="secondary" @click="addSeat()"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
                 <ion-button v-if="seats.length > 0" color="danger" @click="deleteSeat()"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                 <ion-button color="secondary" @click="addSeat()"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
             </ion-item>
             <ion-list>
                 <ion-item v-for="seat in seats" v-bind:key="seat.Name">
@@ -175,6 +178,11 @@ export default {
   //     QrcodeVue,
   // },
   created: function(){
+
+      this.allTables = this.$store.state.backConfig.tables
+      let number = this.setTableNumber(this.allTables) 
+      this.tableNumber = number
+      this.changeNumber(this.tableNumber);
     
       this.init();
   },
@@ -184,95 +192,40 @@ export default {
         }
   },
   methods: {
+
     init(){
         this.id = this.$route.params.tableId;
-        this.fetchTables();
+        
         this.type = 'table_';
         this.state = 'Free';
         this.changeType(this.type);
         if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.name = response.data.Name;
-                    this.description = response.data.Description;
-                    this.tableNumber = response.data.TableNumber;
-                    this.shape = response.data.Shape;
-                    this.type = response.data.Type;
-                    this.seats = response.data.Seats;
-                    this.available = response.data.Available;
-                    this.state = response.data.State;
-
-                    console.log(this.seats);
-                    
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    loading.dismiss();
-                    console.log(e);
-                  }) 
-              })
-          })  
+          const data = this.$store.state.backConfig.tables.find(t =>t._id === this.id);
+          if(data){
+            this.name = data.Name;
+            this.description = data.Description;
+            this.tableNumber = data.TableNumber;
+            this.shape = data.Shape;
+            this.type = data.Type;
+            this.seats = data.Seats;
+            this.available = data.Available;
+            this.state = data.State;
+          }
         }
         else{
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchAll('Setting').then(response => {
-          
-                    let funSettings = [];
-                    funSettings = response.data;
-                    if (funSettings.length > 0)
-                    {
-                        funSettings = response.data[0]
-                        //console.log(funSettings)
-                        if (funSettings.TablePrefix && funSettings.TablePrefix != '')
-                        {
-                            this.tablePrefix = funSettings.TablePrefix + "_" 
-                            this.type = this.tablePrefix;
-                            this.changeType(this.type);
-
-                        }
-                        if (funSettings.BarPrefix && funSettings.BarPrefix != '')
-                        {
-                            this.barPrefix = funSettings.BarPrefix + "_"
-                            // this.type = this.barPrefix
-                        }
-                        if (funSettings.RoomPrefix && funSettings.RoomPrefix != '')
-                        {
-                            this.roomPrefix = funSettings.RoomPrefix + "_"
-                            // this.type = this.roomPrefix
-                        }
-                            
-                    }
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    loading.dismiss();
-                    console.log(e);
-                  }) 
-              })
-          })
+            const funSettings = this.$store.state.backConfig.setting;
+            if (funSettings.TablePrefix && funSettings.TablePrefix != '') {
+              this.tablePrefix = funSettings.TablePrefix + "_" 
+              this.type = this.tablePrefix;
+              this.changeType(this.type);
+              }
+            if (funSettings.BarPrefix && funSettings.BarPrefix != '') 
+                this.barPrefix = funSettings.BarPrefix + "_"
+            if (funSettings.RoomPrefix && funSettings.RoomPrefix != '')
+                this.roomPrefix = funSettings.RoomPrefix + "_"
         }
-
-        //console.log(this.$route.params);
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -296,73 +249,19 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
-        // let errors = [];
-        if (this.name == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.name'));
-            return false
-        }
-        if (!this.validateUniqueName(this.name))
-        {
-            // errors.push(this.$t('backoffice.form.validate.nameDuplicate'));
-            return false
-        }
-        if (isNaN(this.tableNumber))
-        {
-            // errors.push(this.$t('backoffice.form.validate.tableNumber'));
-            return false
-        }
-        if (this.tableNumber == 0)
-        {
-            // errors.push(this.$t('backoffice.form.validate.tableNumberGreater'));
-            return false
-        }
+      
+        if (this.name == "") return false
+        if (!this.validateUniqueName(this.name)) return false
+        if (isNaN(this.tableNumber)) return false
+        if (this.tableNumber == 0) return false
 
-        return true
+        return true;
+       
+    },
 
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'), message, this.$t('backoffice.form.validate.validateTable'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
-    },
-    fetchTables: function(){
-        Api.fetchAll(this.modelName).then(response => {
-          this.allTables = response.data
-          let number = this.setTableNumber(this.allTables)          
-          // let condition = false
-          // console.log("CONDITIONS")
-          // console.log(condition)
-          // while (this.allTables.includes(t => t.TableNumber == number) == true) {
-          //     condition = this.uniqueTableNumber(this.allTables, number)
-          //     console.log(condition)
-          //     if  (!condition)
-          //     {
-          //         break;
-          //     }
-          //     console.log("sumó")
-          //     number += 1
-          //     // condition = 
-          // }
-          
-          this.tableNumber = number
-          console.log(this.tableNumber)
-          this.changeNumber(this.tableNumber);
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
+  
     setTableNumber(allTables){
         let tableNumber = []
         allTables.forEach(table => {
@@ -371,15 +270,7 @@ export default {
         console.log(tableNumber)
 
         let number = 1
-        // for (let i = 0; i < tableNumber.length; i++){
-        //     if (number in tableNumber){
-        //         number++
-        //         continue
-        //     }
-        //     else{
-        //        break
-        //     }
-        // }
+    
         console.log(number in tableNumber)
         console.log(number)
         console.log(tableNumber)
@@ -394,8 +285,8 @@ export default {
         return number
 
     },
+
     changeState(state){
-        //console.log(state)
         this.state = state
           if (this.state == "Free")
           {
@@ -404,8 +295,8 @@ export default {
           });
         }
     },
+
     addSeat(){  
-        //console.log(this.id + '-' + this.name + '_' + (this.seats.length + 1))
         const name = this.id + '-' + this.name + '_' + (this.seats.length + 1)
         const seat = {
             'name': name,
@@ -414,13 +305,13 @@ export default {
 
         this.seats.push(seat);
     },
+
     deleteSeat(){
         this.seats.splice(this.seats.length - 1, 1);
     },
+
     setAvailable(seat){
         seat.available = true
-        //console.log(seat.available)
-
         let av = true
         this.seats.forEach(seat => {
             if (!seat.available)
@@ -430,10 +321,9 @@ export default {
         if (av)
           this.state = 'Free'
     },
+
     setDisable(seat){
         seat.available = false
-        //console.log(seat.available)
-
         let av = false
         this.seats.forEach(seat => {
             if (seat.available)
@@ -443,50 +333,43 @@ export default {
         if (!av)
           this.state = 'Busy'
     },
+
     formatSeat(seat){
-       //console.log("SEATs")
-       //console.log(seat)
        let name = seat.name.split('-')
        return name[1] 
     },
+
     showStatus(seat){
         return seat.available ? 'Disponible' : 'No disponible'
     },
+
     changeType(eventVal){
-        //console.log(eventVal);
         this.type = eventVal;
         let provisionalName = this.type + this.tableNumber;
-        //console.log("STEP-2")
-        //console.log("Provisional number: " + provisionalName)
         if (this.validateUniqueName(provisionalName))
         {
-            //console.log("STEP-3")
-            //console.log("Unique name")
-            this.name = provisionalName;
-            this.changeAllSeatName();
+          this.name = provisionalName;
+          this.changeAllSeatName();
         }
         else
         {
-            this.ShowMessage(this.$t('backoffice.form.validate.validate'), 
-               this.$t('backoffice.form.validate.nameDuplicate'),
-                   this.$t('backoffice.form.validate.validateTable'));
-            this.name = provisionalName;
-            this.changeAllSeatName();
+          this.ShowMessage(this.$t('backoffice.form.validate.validate'), 
+          this.$t('backoffice.form.validate.nameDuplicate'),
+          this.$t('backoffice.form.validate.validateTable'));
+          this.name = provisionalName;
+          this.changeAllSeatName();
         }
-            
     },
+
     changeAllSeatName(){
         this.name + 'seat_' + (this.seats.length + 1)
         for (let i = 0; i < this.seats.length; i++) {
-          // const name = this.name + 'seat_' + (i + 1);
           const name = this.id + "-" + this.name + "_" + (i + 1)
           this.seats[i].name = name
         }
-        //console.log("STEP-4: Seat names")
-        //console.log(this.seats)
     },
+
     seeQrCode(seat){
-        //console.log(seat);
         return this.$ionic.modalController
         .create({
           component: Modal,
@@ -504,12 +387,12 @@ export default {
         })
         .then(m => m.present())
     },
+
     changeNumber(val){
        this.tableNumber = val;
-       //console.log("STEP-1")
-       //console.log("Number: " + this.tableNumber)
        this.changeType(this.type);
     },
+
     validateUniqueName(name){
         for (let index = 0; index < this.allTables.length; index++) {
           const element = this.allTables[index];
@@ -518,6 +401,7 @@ export default {
         }
         return true;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -529,6 +413,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -538,8 +423,8 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    //Create or edit a new category
-    saveTable: function(){
+
+    saveTable: async function(){
 
         if (this.isValidForm())
         {
@@ -558,11 +443,10 @@ export default {
             if (this.id){
               item['_id'] = this.id;
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessTable'), 
-                        //         this.$t('backoffice.list.messages.titleEditTable'));
+                        const index = this.$store.state.backConfig.tables.findIndex(t => t._id === this.id)
+                        if(index !== -1) this.$store.state.backConfig.tables[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessTable'), "success");
                         this.spinner = false;
                         this.$router.push({
@@ -582,13 +466,10 @@ export default {
             else{
               //Else, I am created a new category
               this.spinner = true;
-              Api.postIn(this.modelName, item)
+              await Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessTable'), 
-                      //           this.$t('backoffice.list.messages.titleCreateTable'));
+                        this.$store.state.backConfig.tables.push(response.data);
                         this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessTable'), "success");
-                        //console.log(response)
                         this.id = response.data._id
                         this.spinner = false
                         this.$router.push({
@@ -611,21 +492,7 @@ export default {
         }
   
     },
-    /**************** Support Methods ****************/
-    //  editCategory: function(id, name, description){
-    //     this.isEditing = true;
-    //     this.editingId = id;
-    //     this.name = name;
-    //     this.description = description;
-    //     this.file = null;
-    //  },
-    //  clearCategory: function(){
-    //     this.isEditing = false;
-    //     this.editingId = null;
-    //     this.name = '';
-    //     this.description = '';
-    //     this.file = null;
-    //  },
+   
   },
 
 }

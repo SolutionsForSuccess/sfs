@@ -14,10 +14,12 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div>
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
@@ -180,37 +182,16 @@ export default {
   methods: {
     init(){
         this.id = this.$route.params.variantGroupId;
-        if (this.id){
-            //console.log(this.id)
-            this.$ionic.loadingController
-            .create({
-              cssClass: 'my-custom-class',
-              message: this.$t('backoffice.titles.loading'),
-              backdropDismiss: true
-            })
-            .then(loading => {
-                loading.present()
-                setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                    .then(response => {
-                      this.name = response.data.Name;
-                      this.description = response.data.Description;
-                      this.variants = response.data.Variants;
-                      //console.log(response.data);
-                      loading.dismiss();
-                      return response;
-                    })
-                    .catch(e => {
-                      console.log(e);
-                      loading.dismiss();
-                      this.ifErrorOccured(this.init);
-                    }) 
-                })
-            })  
-        }
-
-        //console.log(this.$route.params);
+         if (this.id){
+            const data = this.$store.state.backConfig.variantgroup.find(v => v._id === this.id)
+            if(data){
+                this.name = data.Name;
+                this.description = data.Description;
+                this.variants = data.Variants;
+            }
+         }
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -234,14 +215,12 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
-        // let errors = [];
         if (this.name == ""){
-            // errors.push(this.$t('backoffice.form.validate.name'));
             return false
         }
         if (this.variants.length == 0){
-            // errors.push("El grupo debe tener variantes");
             return false
         }
 
@@ -263,6 +242,7 @@ export default {
         //     return true;
         // }
     },
+
     isValidVariantForm(){
         let errors = [];
         if (this.vf_name == "")
@@ -306,6 +286,7 @@ export default {
             return true;
         }
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -317,6 +298,7 @@ export default {
           })
         .then(a => a.present())
     },
+    
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -326,16 +308,19 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){
       return this.vf_file != null;
     },
+
     handleImage: function(event)
     {
         const selectedImage = event.target.files[0];
         this.vf_fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
+
     createBase64Img: function(fileObject){
         const reader = new FileReader();
 
@@ -345,6 +330,7 @@ export default {
         };
         reader.readAsDataURL(fileObject);
     },
+
     clearForm(){
         this.addVariant = false
         this.vf_id = -1
@@ -359,6 +345,7 @@ export default {
         document.getElementById('variantImg').value = ''
         this.vf_qr = ''
     },
+
     save(){
         if (this.isValidVariantForm())
         {
@@ -401,12 +388,11 @@ export default {
         }
         
     },
-    //Create or edit a new category
+
     saveVariantGroup: function(){
 
         if (this.isValidForm()){
-            //console.log("VARIANTES")
-            //console.log(JSON.stringify(this.variants))
+            
             this.isBackdrop = true;
             let item = {
               "Name": this.name,
@@ -420,10 +406,8 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessVariantGroup'), 
-                        //         this.$t('backoffice.list.messages.titleEditVariantGroup'));
+                        const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === this.id)
+                        if(index !== -1) this.$store.state.backConfig.variantgroup[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessVariantGroup'), "success");
                         this.name = '';
                         this.description = '';
@@ -445,9 +429,7 @@ export default {
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessVariantGroup'),
-                      //           this.$t('backoffice.list.messages.titleCreateVariantGroup'));
+                      this.$store.state.backConfig.variantgroup.push(response.data)
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessVariantGroup'), "success");
                       this.name = '';
                       this.description = '';
@@ -467,6 +449,7 @@ export default {
 
         }
     },
+
     deleteVariant(pos){
 
         return this.$ionic.alertController.create({
@@ -492,6 +475,7 @@ export default {
       })
       .then(a => a.present());
     },
+    
     editVariant(pos){
         this.vf_id = pos
         this.vf_name = this.variants[pos].Name

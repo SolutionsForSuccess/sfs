@@ -50,10 +50,10 @@
             </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+      <div v-if="spinner">
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
         <div v-if="screenWidth < 600">
             <paginate
               name="languages"
@@ -99,7 +99,7 @@
               :list="filterMenu"
               :per="8"
             >
-              <ion-list>
+              <ion-list :key="key">
                 <ion-item  v-for="menu in paginated('languages')" v-bind:key="menu._id">
                   <ion-item-group side="start">
                       <ion-checkbox v-if="menu.Active" checked="true" slot="end" @click="activeMenu(menu, false)"></ion-checkbox>
@@ -160,30 +160,22 @@ export default {
       qrMenu: `http://localhost:8080/?menu=${this.$store.state.user.RestaurantId}`,    
       // qrMenu: `https://imenuapps.net/?menu=${this.$store.state.user.RestaurantId}`,    
       spinnerPrint: false,
+      key: 0,
     }
   }, 
   components: {
       QrcodeVue,
   },
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
-    show () {
-      //console.log(this.qrMenu)
+    
+    show () {     
       this.$modal.show('my-first-modal');
-        },
+    },
     
     hide () {
       this.$modal.hide('my-first-modal');
-        },
+    },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -207,6 +199,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterMenu = this.menus
@@ -220,6 +213,7 @@ export default {
           this.filterMenu = this.menus
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -248,6 +242,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -259,6 +254,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -268,63 +264,38 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+    
     /****** CRUD category methods ******/
     fetchMenus: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.menus = response.data
-                  this.filterMenu = this.menus
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss()
-                  this.ifErrorOccured(this.fetchMenus)
-                });
-            })
-        }) 
+         this.menus = this.$store.state.backConfig.menu;
+         this.filterMenu = this.menus;    
     },
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);         
     },
-    activeMenu: function(menu, state){
-      let item = {
-            "_id": menu._id,
-            "Name": menu.Name,
-            "Active": state,
-            "Categories": menu.Categories,
-            "Date": menu.Date,
-        }
+    activeMenu: function(value, state){
+        const menu = value
+        menu.Active = state;
         this.spinner = true;
-        Api.putIn(this.modelName, item)
-              .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.activeMenu'), 
-                    //                     this.$t('backoffice.list.messages.menuChangeState'),
-                    //                         this.$t('backoffice.list.messages.activeMenu'));
-                    this.showToastMessage(this.$t('backoffice.list.messages.menuChangeState'), "success");
+        Api.putIn(this.modelName, menu)
+              .then(response => {                 
+                   
+                    const index = this.$store.state.backConfig.menu.findIndex(men => men._id === menu._id)
+                    if(index !== -1) this.$store.state.backConfig.menu[index] = menu;
                     this.fetchMenus();
                     this.spinner = false;
+                     this.showToastMessage(this.$t('backoffice.list.messages.menuChangeState'), "success");
+                     this.key ++;
                     return response;
               })
               .catch(e => {
                     console.log(e);
                     this.fetchMenus();
                     this.ifErrorOccured(mess => {
-                        this.activeMenu(menu, state)
-                        this.spinner = false
-                        return mess
+                      this.activeMenu(value, state)
+                      this.spinner = false
+                      return mess
                     });
-
               })
     },
     editMenu: function(id){
@@ -353,12 +324,13 @@ export default {
               this.spinner = true;
               Api.deleteById(this.modelName, id)
                 .then(response => {
-                  // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                  //                       this.$t('backoffice.list.messages.messageDeleteSuccessMenu'),
-                  //                             this.$t('backoffice.list.messages.deleteSubtitleMenu'));
-                  this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessMenu'), "success");
+                 
+                  const index = this.$store.state.backConfig.menu.findIndex(men => men._id === id)
+                  if(index !== -1) this.$store.state.backConfig.menu.splice(index, 1);
                   this.fetchMenus();
                   this.spinner = false;
+                  this.key ++;
+                  this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessMenu'), "success");
                   return response;
                 })
                 .catch(e => {

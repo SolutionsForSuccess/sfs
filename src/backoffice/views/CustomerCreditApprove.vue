@@ -2,10 +2,12 @@
     <div>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div >
 
         <ion-item>
             <span style="color: red">*</span><ion-label>{{parent.$t('backoffice.form.fields.DateFrom')}} (MM-dd-yyyy)</ion-label>
@@ -68,41 +70,25 @@ export default {
         cId: { type: String},
     },
     methods:{
-        init(){
-            this.$ionic.loadingController
-            .create({
-                cssClass: 'my-custom-class',
-                message: this.parent.$t('backoffice.titles.loading'),
-                backdropDismiss: true
-            })
-            .then(loading => {
-                loading.present()
-                setTimeout(() => {  // Some AJAX call occurs
-                    Api.fetchById('customercredit', this.cId)
-                        .then(response => {
-                        this.dateFrom = response.data.DateFrom;
-                        this.dateTo = response.data.DateTo;
-                        this.dateLimit = response.data.PayLimitDate;
 
-                        loading.dismiss();
-                        return response;
-                        })
-                        .catch(e => {
-                            console.log(e);
-                            loading.dismiss();
-                        })
-                })
-            })  
+        init(){
+
+            const data = this.$store.state.backConfig.customerCredit.find(c => c._id === this.cId);
+            if(data){
+                this.dateFrom = data.DateFrom;
+                this.dateTo = data.DateTo;
+                this.dateLimit = data.PayLimitDate;
+            }
+
         },
+
         isValidForm(){
-            if (this.dateFrom == "")
-                return false
-            if (this.dateTo == "")
-                return false
-            if (this.dateLimit == "")
-                return false
+            if (this.dateFrom == "") return false
+            if (this.dateTo == "")  return false
+            if (this.dateLimit == "") return false
             return true
         },
+
         showToastMessage(message, tColor){
             return this.$ionic.toastController.create({
                 color: tColor,
@@ -112,7 +98,8 @@ export default {
                 showCloseButton: false
             }).then(a => a.present())
         },
-        saveSetting(){
+
+        async saveSetting(){
 
             if (this.isValidForm){
 
@@ -123,9 +110,12 @@ export default {
                     "PayLimitDate": this.dateLimit,
                     "State": 1
                 }
+                 this.spinner = true;
 
-                Api.putIn('Setting', item)
+                await Api.putIn('Setting', item)
                 .then(() => {
+                    const index = this.$store.state.backConfig.customerCredit.find(c => c._id === this.cId);
+                    if(index !== -1) this.$store.state.backConfig.customerCredit[index] = item;
                     this.showToastMessage('The credit setting was accepted successfully.', 'success')
                     this.spinner = false
                     this.$ionic.modalController.dismiss(null);
@@ -139,6 +129,7 @@ export default {
             }
             
         }
+        
     }
 
 }

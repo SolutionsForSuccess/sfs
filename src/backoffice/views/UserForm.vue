@@ -14,9 +14,12 @@
             </ion-label>
           </ion-toolbar>
 
-          <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
+          <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" >
               <ion-segment-button value="general">
                   <span>{{$t('backoffice.form.titles.genaral')}}</span>
+              </ion-segment-button>
+              <ion-segment-button value="clock" v-if="$store.state.backConfig.attendance.length > 0">
+                  <span>ClockIn-ClockOut</span>
               </ion-segment-button>
               <ion-segment-button value="occupation">
                   <span>{{$t('backoffice.form.fields.occupation')}}</span>
@@ -24,16 +27,19 @@
               <ion-segment-button value="roles">
                   <span>{{$t('backoffice.form.fields.roles')}}</span>
               </ion-segment-button>
+             
           </ion-segment>
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    <div >
       <!-- <ion-card> -->
-        <div v-if="general">
+        <div v-if="segmentValue==='general'">
             <ion-item>
                 <ion-card v-if="checkImage()" >
                     <ion-img :src="file"></ion-img>
@@ -142,6 +148,13 @@
                 <ion-button expand="full" color="secondary" @click="changePassword()">Change password</ion-button>
               </ion-item>
             </div>
+            <div >
+              <ion-item>
+                <ion-button expand="full" color="secondary" @click="changeServerId()">{{ $t('backoffice.options.changeServerId') }}</ion-button>
+              </ion-item>
+            </div>
+
+              
 
             <div v-if="!isForDriversSupervisor">
                 <ion-item>
@@ -167,11 +180,14 @@
           <br/>
           <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveUser()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
-        <div v-if="occupation">
+        <div v-if="segmentValue==='occupation'">
              <Occup :externalProp="true"/>
         </div>
-        <div v-if="roles">
+        <div v-if="segmentValue==='roles'">
             <Roles :externalProp="true"/>
+        </div>
+        <div v-if="segmentValue==='clock'">
+          <Clock/>
         </div>
     </div>
     </div>
@@ -181,8 +197,10 @@
 
 import { Api } from '../api/api.js';
 import Modal from './ChangePasswordModal.vue';
+import ChangeModal from './changeServerId.vue';
 import Roles from './RoleForm.vue';
 import Occup from './OccupationForm.vue';
+import Clock from './ClockInClockOut.vue'
 
 export default {
 
@@ -227,16 +245,16 @@ export default {
       general: true,
       occupation: false,
       roles: false,
+      sameConnected: false,
     }
   },
   created: function(){
       this.isForDriversSupervisor = this.$route.params.isForDriversSupervisor || false;
       this.init();
-      //console.log("SUPERVISOR")
-      //console.log(this.isForDriversSupervisor)
+     
   },
   components: {
-      Occup, Roles
+      Occup, Roles, Clock,
   },
   computed: {
         title() {
@@ -257,109 +275,65 @@ export default {
   },
   methods: {
     segmentChanged(value){
-
-        if(value === 'general'){
-            this.general = true
-            this.occupation = false
-            this.roles = false
-
-            this.fetchRoles();
-            this.fetchOccupations();
-        }
-        if(value === 'occupation'){
-            this.general = false
-            this.occupation = true
-            this.roles = false
-        }
-        if(value === 'roles'){
-            this.general = false
-            this.occupation = false
-            this.roles = true
-        }  
-        this.segmentValue = value; 
+         this.segmentValue = value; 
     },
     init(){
-        this.fetchRoles();
-        this.fetchOccupations();
+        this.allRoles = this.$store.state.backConfig.rol;
+        this.occupations = this.$store.state.backConfig.occupation;
         this.id = this.$route.params.userId;
+        this.sameConnected = this.$route.params.sameConnected || false;
         this.isSupport = this.$route.params.isSupport || false;
-        //console.log("Support " + this.isSupport)
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.file = response.data.ImageUrl;
-                    this.firstName = response.data.FirstName;
-                    this.lastName = response.data.LastName;
-                    this.address = response.data.Address;
-                    this.phone = response.data.Phone;
-                    this.email = response.data.Email;
-                    this.serverId = response.data.ServerId;
-                    this.occupationId = response.data.OccupationId;
-                    this.isDriver = response.data.IsDriver;
-                    //console.log(this.occupationId);
-                    //  this.password = response.data.Password;
-                    //  this.confirmPassword = response.data.Password;
-                    this.userRoles = response.data.Roles;
+        if(this.sameConnected){
+          console.log('Buscar usuario guardado en store');
+          const data = this.$store.state.user;
 
-                    this.user = response.data;
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                  })
-              })
-          })
-      
+            this.file = data.ImageUrl;
+            this.firstName = data.FirstName;
+            this.lastName = data.LastName;
+            this.address = data.Address;
+            this.phone = data.Phone;
+            this.email = data.Email;
+            this.serverId = data.ServerId;
+            this.occupationId = data.OccupationId;
+            this.isDriver = data.IsDriver;                  
+            this.userRoles = data.Roles;
+            this.user = data;
+        }
+        if (this.id){
+          const data = this.$store.state.backConfig.staff.find( s => s._id === this.id);
+          if(data){
+            this.file = data.ImageUrl;
+            this.firstName = data.FirstName;
+            this.lastName = data.LastName;
+            this.address = data.Address;
+            this.phone = data.Phone;
+            this.email = data.Email;
+            this.serverId = data.ServerId;
+            this.occupationId = data.OccupationId;
+            this.isDriver = data.IsDriver;                  
+            this.userRoles = data.Roles;
+            this.user = data;
+          } 
         }
         else{
             if (this.isForDriversSupervisor){
                 //Search External Driver Occupation and External Driver Role.
-                Api.fetchAll('occupation')
-                .then(response => {
-                    const ED = response.data.filter(occ => occ.Name == 'External Driver')
-                    if (ED.length > 0){
-                      this.occupationId = ED[0]._id
-                      //console.log("OCCUPATION " + this.occupationId)
-                    }
-                    else
-                       this.showToastMessage('The default occupation External Driver was deleted', 'danger')
-                })
-                .catch(e => {
-                    console.log(e)
-                    this.showToastMessage('There was a connection error. Please try reload form', 'danger')
-                })
+                const ED = this.$store.state.backConfig.occupation.filter(occ => occ.Name == 'External Driver')
+                if (ED.length > 0)
+                  this.occupationId = ED[0]._id
+                else
+                    this.showToastMessage('The default occupation External Driver was deleted', 'danger')
 
-                Api.fetchAll('rol')
-                .then(response => {
-                    const ED = response.data.filter(rol => rol.Name == 'External Driver')
-                    if (ED.length > 0){
-                      this.userRoles.push(ED[0]._id)
-                      //console.log("ROL " + this.userRoles)
-                    }  
-                    else
-                       this.showToastMessage('The default rol External Driver was deleted', 'danger')
-                })
-                .catch(e => {
-                    console.log(e)
-                    this.showToastMessage('There was a connection error. Please try reload form', 'danger')
-                })
+                const EDr = this.$store.state.backConfig.rol.filter(rol => rol.Name == 'External Driver')
+                if (EDr.length > 0)
+                  this.userRoles.push(EDr[0]._id)
+                else
+                    this.showToastMessage('The default rol External Driver was deleted', 'danger')
+
             }
         }
-        //console.log(this.$route.params);
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -383,14 +357,7 @@ export default {
         })
         .then(a => a.present());
     },
-    fetchOccupations: function(){
-        Api.fetchAll('Occupation').then(response => {
-          this.occupations = response.data
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
+
     ShowMessage(type, message, topic=''){
         return this.$ionic.alertController
           .create({
@@ -402,6 +369,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -411,16 +379,8 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    fetchRoles: function(){
-        Api.fetchAll('Rol').then(response => {
-          this.allRoles = response.data
-          //console.log("Staff roles")
-          //console.log(this.allRoles)
-        })
-        .catch(e => {
-          console.log(e)
-        });
-    },
+
+
     addDeleteRole(isChecked, rol_id){
         if (isChecked){
             if (!this.userRoles.includes(rol_id))
@@ -428,81 +388,43 @@ export default {
         }
         else
           this.userRoles.splice(this.userRoles.indexOf(rol_id), 1)
-        //console.log(this.userRoles)
     },
+
     backtoList(){
-        if (this.isSupport)
-        {
-            this.$router.push(
-              { 
-                name: 'Support',
-                params: {
-                   'tab': 'user'
-                }
-              }
-            )
-        }
-        else{
-            this.$router.push(
-              { 
-                  name: 'User',
-                  params:{
-                      isForDriversSupervisor: this.isForDriversSupervisor
-                  }
-              }
-            )
-        }
+
+        if(this.sameConnected)
+          this.$router.push({ name: 'ControlPanel'})
+        else if (this.isSupport)
+            this.$router.push({ name: 'Support', params: { 'tab': 'user' } } )
+        else
+            this.$router.push({  name: 'User', params:{ isForDriversSupervisor: this.isForDriversSupervisor }})
     },
+
     hasUserRole(rol_id){
       return this.userRoles.includes(rol_id);
     },
-    isValidForm(){
-        // let errors = [];
 
-        if (this.firstName == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.firstName'));
-            return false
+    isValidForm(){
+
+        if (this.firstName == "") return false
+
+        if (this.lastName == "") return false;
+
+        if (this.email == "") return false;
+
+        if (this.occupationId == "" && !this.isForDriversSupervisor)    return false
+       
+        if (this.id == null){
+              if (this.password == "") return false              
+              if (this.password != this.confirmPassword) return false
         }
-        if (this.lastName == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.lastName'));
-            return false
-        }
-        if (this.email == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.email'));
-            return false
-        }
-        if (this.occupationId == "" && !this.isForDriversSupervisor)
-        {
-            // errors.push(this.$t('backoffice.form.validate.occupation'));
-            return false
-        }
-        if (this.id == null)
-        {
-              if (this.password == "")
-              {
-                  // errors.push(this.$t('backoffice.form.validate.password'));
-                  return false
-              }
-              if (this.password != this.confirmPassword)
-              {
-                  // errors.push(this.$t('backoffice.form.validate.confirmPassword'));
-                  return false
-              }
-        }
-        if (this.email != "")
-        {
+
+        if (this.email != ""){
             let emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
-            if (emailRegex.test(this.email) == false)
-            {
-                // errors.push(this.$t('backoffice.form.validate.emailIncorrect'));
-                return false
-            }
+            if (emailRegex.test(this.email) == false)   return false
         }
-        if (this.serverId.toString().length > 4 && this.serverId.toString().length < 4)
-            return false
+
+        if (this.serverId.toString().length > 4 && this.serverId.toString().length < 4)  return false
 
         return true
     },
@@ -510,24 +432,24 @@ export default {
     checkImage: function(){
       return this.file != null;
     },
+
     handleImage: function(event)
     {
         const selectedImage = event.target.files[0];
         this.fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
+
     createBase64Img: function(fileObject){
         const reader = new FileReader();
-
         reader.onload = (e) => {
-            this.file = e.target.result;
-            //console.log(this.file);
+        this.file = e.target.result;
         };
         reader.readAsDataURL(fileObject);
     },
-    /*******                              Fin                              *******/
-    //Create or edit a new category
-    saveUser: function(){
+
+    
+    saveUser: async function(){
         if (this.isValidForm())
         {
             this.isBackdrop = true;
@@ -545,59 +467,39 @@ export default {
               "IsDriver": this.isDriver,
               "IsExternalDriver": false,
             }
-            if (this.isSupport)
-            {
-               item["IsSupport"] = true;
-            }
+            if (this.isSupport) item["IsSupport"] = true;
+           
             if (this.isForDriversSupervisor){
                item.IsDriver = true;
                item.IsExternalDriver = true;
                item.ParentStaffId = this.$store.state.user._id;
             }
-            if (this.file != null)
-            {
+
+            if (this.file != null){
               item["ImageUrl"] = this.file;
               item["ImageName"] = this.fileName;
             }
-            if (this.serverId != '')
-            {
-              item["ServerId"] = this.serverId;
-            }
+            if (this.serverId != '') item["ServerId"] = this.serverId;
+
             //If I am editing
             if (this.id){
               item['_id'] = this.id;
-              // item['Password'] = this.user.Password;
-              //console.log(this.fileName);
+              
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessUser'), 
-                        //         this.$t('backoffice.list.messages.titleEditUser'));
-                        //console.log(response)
+
+                        const index = this.$store.state.backConfig.staff.findIndex(s => s._id === this.id);
+                        if(index !== -1) this.$store.state.backConfig.staff[index] = item;
+                        
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessUser'), "success");
                         this.userRoles = [];
-                        // this.file = null;
                         this.spinner = false;
                         if (this.isSupport)
-                        {
-                            this.$router.push({
-                              name: 'Support',
-                              params: {
-                                  tab: 'user',
-                              } 
-                            });
-                        }
-                        else{
-                            //console.log(response.data)
-                            this.$router.push({
-                              name: 'Driver',
-                              params: {
-                                  isForDriversSupervisor: this.isForDriversSupervisor
-                              }
-                            });
-                        }
+                            this.$router.push({ name: 'Support', params: { tab: 'user', }  });
+                        else
+                            this.$router.push({ name: 'Driver', params: { isForDriversSupervisor: this.isForDriversSupervisor }});
+                        
                         return response;
                   })
                   .catch(e => {
@@ -613,31 +515,14 @@ export default {
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessUser'), 
-                      //           this.$t('backoffice.list.messages.titleCreateUser'));
+                      this.$store.state.backConfig.staff.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessUser'), "success");
                       this.userRoles = [];
-                    //   this.file = null;
                       this.spinner = false;
                       if (this.isSupport)
-                      {
-                          this.$router.push({
-                            name: 'Support',
-                            params: {
-                                tab: 'user',
-                            } 
-                          });
-                      }
-                      else{
-                          //console.log(response.data)
-                          this.$router.push({
-                            name: 'Driver',
-                            params: {
-                                isForDriversSupervisor: this.isForDriversSupervisor
-                            }
-                          });
-                      }
+                          this.$router.push({name: 'Support',  params: { tab: 'user', }  });
+                      else
+                          this.$router.push({ name: 'Driver', params: { isForDriversSupervisor: this.isForDriversSupervisor } });
                       return response;
                   })
                   .catch(e => {
@@ -649,26 +534,37 @@ export default {
             }
         } 
     },
+
     changePassword(){
         return this.$ionic.modalController
             .create({
             component: Modal,
             cssClass: 'my-custom-class',
-            componentProps: {
-                // data: {
-                //     content: this.order._id,
-                // },
+            componentProps: {               
                 propsData: {
-                    user: this.user,
-                    // button: this.$t('backoffice.list.messages.buttons.close'),
-                    // button2: this.$t('backoffice.form.buttons.cancelOrder'),
-                    // order: this.order,
-                    // customer: this.customer,
+                    user: this.user,                   
                     parent: this,
                 },
             },
             })
             .then(m => m.present())
+    },
+      changeServerId(){
+        
+        return this.$ionic.modalController
+                .create({
+                component: ChangeModal,
+                cssClass: 'my-custom-class',
+                componentProps: {
+                    data: {
+                        content: false,
+                    },
+                    propsData: {
+                        parent: this,
+                    },
+                },
+                })
+                .then(m => m.present())
     },
   },
 

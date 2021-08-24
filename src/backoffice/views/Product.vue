@@ -164,12 +164,7 @@ export default {
        this.init()
        this.screenWidth = screen.width;
    },
-  //  mounted: function(){
-  //     if(this.$route.params.currentPageOrder > 1){
-  //       this.currentPageOrder = this.$route.params.currentPageOrder; 
-  //       this.$refs.paginator.goToPage(this.currentPageOrder);
-  //     }
-  //   },
+  
    data () {
     return {
       modelName: 'Product',
@@ -197,20 +192,9 @@ export default {
     }
   },
    methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+ 
     async init(){
-      // const variants = await Api.fetchAll('VariantGroup')
-      // console.log('Variants: ' + variants.data.length)
-
+    
       const loading = await this.$ionic.loadingController
         .create({
           cssClass: 'my-custom-class',
@@ -223,59 +207,33 @@ export default {
         if (this.cType != 'product')
           this.rou = '/product-form/service'
 
-        //Currency
-          const restaurantID = this.$store.state.user.RestaurantId 
-          if (restaurantID){
-              try {
-                  const Restaurant = await Api.fetchById('Restaurant', restaurantID)
-                  this.currency = Restaurant.data.Currency
-              } catch (error) {
-                  console.log(error)
-                  loading.dismiss();
-              }
-          } 
+        this.currency = this.$store.state.backConfig.restaurant.Currency;
+        this.categories = this.$store.state.backConfig.category;
 
-          //Category
-          try {
-              const Category = await Api.fetchAll('Category')
-              this.categories = Category.data
+        if (this.cType == 'product')
+        {
+            this.categories = this.categories.filter(cat => !cat.Service || cat.Service == false)
+        }
+        else{
+            this.categories = this.categories.filter(cat => cat.Service == true)
+        }
+        this.categories.forEach(cat => {
+            this.categoriesIds.push(cat._id)
+        })
 
-              if (this.cType == 'product')
-              {
-                  this.categories = this.categories.filter(cat => !cat.Service || cat.Service == false)
-              }
-              else{
-                  this.categories = this.categories.filter(cat => cat.Service == true)
-              }
-              this.categories.forEach(cat => {
-                  this.categoriesIds.push(cat._id)
-              })
-              //console.log(this.categoriesIds)
+        this.products =  this.$store.state.backConfig.product; 
+        this.products = this.products.filter(prod => this.categoriesIds.includes(prod.CategoryId))
+        this.filterProducts = this.products
 
-              //Product
-              const Product = await Api.fetchAll(this.modelName)
-              this.products = Product.data
-              this.products = this.products.filter(prod => this.categoriesIds.includes(prod.CategoryId))
-              this.filterProducts = this.products
-              
+        if(this.$route.params.currentPageOrder > 1){
+          this.currentPageOrder = this.$route.params.currentPageOrder; 
+          if (this.$refs.paginator)
+            this.$refs.paginator.goToPage(this.currentPageOrder);
+          if (this.$refs.paginator2)
+            this.$refs.paginator2.goToPage(this.currentPageOrder);
+        }
 
-          } catch (e) {
-              console.log(e);
-              loading.dismiss();
-          }
-          //console.log("--- *** *** *** ---")
-          //console.log(this.filterProducts)
-
-          //console.log("--- Ahora es que va a la paginación ---")
-          if(this.$route.params.currentPageOrder > 1){
-            this.currentPageOrder = this.$route.params.currentPageOrder; 
-            if (this.$refs.paginator)
-              this.$refs.paginator.goToPage(this.currentPageOrder);
-            if (this.$refs.paginator2)
-              this.$refs.paginator2.goToPage(this.currentPageOrder);
-          }
-
-          loading.dismiss()
+        loading.dismiss()
     },
     getFormateNumber: function(number){
       return new Intl.NumberFormat('en', {style: "currency", currency: this.currency} ).format(number).toString()
@@ -393,68 +351,14 @@ export default {
         event.target.complete();    
     },
     /****** CRUD category methods ******/
-    fetchCategories(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                  //llamada ajax						
-                  Api.fetchAll('Category').then(response => {
-                  // console.log(response.data)
-                  this.categories = response.data
-                  if (this.cType == 'product')
-                  {
-                      this.categories = this.categories.filter(cat => !cat.Service || cat.Service == false)
-                  }
-                  else{
-                      this.categories = this.categories.filter(cat => cat.Service == true)
-                  }
-                  this.categories.forEach(cat => {
-                      this.categoriesIds.push(cat._id)
-                  })
-                  //console.log(this.categoriesIds)
-                  this.fetchProducts();
-                  loading.dismiss();
-                })
-                .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    // this.ShowMessage('Error', 'Error', 'Fetch category');
-                });
-            })
-        })
-    },
+  
     fetchProducts: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  this.products = response.data
-                  //AQUI ME QUEDE
-                  this.products = this.products.filter(prod => this.categoriesIds.includes(prod.CategoryId))
-                  this.filterProducts = this.products
-                  loading.dismiss()
-                })
-                .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init)
-                });
-            })
-        })
-    },
+
+        this.products = this.$store.state.backConfig.product;             
+        this.products = this.products.filter(prod => this.categoriesIds.includes(prod.CategoryId))
+        this.filterProducts = this.products;
+
+       },
     getCategoryNameById: function(id){
         var categ = '';
         this.categories.forEach(category => {
@@ -464,18 +368,7 @@ export default {
         });
         return categ;
     },
-    // fetchCategoryById: function(id) {
-    //     let categoryName = '';
-    //     this.categories.forEach(category => {
-    //         if (category._id == id){
-    //             categoryName = category.Name;
-    //             return categoryName;
-    //         }
-    //     }
-    //     );
-
-    //     return categoryName;
-    // },
+    
     editProduct: function(id){
           this.$router.push({
             name: 'ProductForm', 
@@ -508,12 +401,13 @@ export default {
                 if (product.VariantGroupId)
                 {
                     Api.deleteById('VariantGroup', product.VariantGroupId)
+                    const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === product.VariantGroupId); 
+                    if(index !== -1) this.$store.state.backConfig.variantgroup.splice(index, 1)
                 }
                 Api.deleteById(this.modelName, id)
                 .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessProduct'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleProduct'));
+                     const index = this.$store.state.backConfig.product.findIndex(v => v._id === id); 
+                    if(index !== -1) this.$store.state.backConfig.product.splice(index, 1);
                     this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessProduct'), "success");
                     this.fetchProducts();
                     this.spinner = false;

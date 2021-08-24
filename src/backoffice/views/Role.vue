@@ -29,9 +29,9 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+      <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
       <div v-if="screenWidth < 600">
         <paginate
           name="languages"
@@ -114,7 +114,6 @@ export default {
   name: 'role',
   created: function(){
     this.screenWidth = screen.width;
-    //console.log(this.$store.state.user.IsSupport);
     this.fetchRoles();
   },
   data () {
@@ -130,19 +129,11 @@ export default {
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+
     isSupportUserLogin(){
         return this.$store.state.user.IsSupport
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -166,6 +157,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterRoles = this.roles
@@ -178,6 +170,7 @@ export default {
           this.filterRoles = this.roles
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -206,6 +199,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -217,6 +211,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -227,38 +222,22 @@ export default {
       }).then(a => a.present())
     },
     /****** CRUD category methods ******/
+
     fetchRoles: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.roles = response.data
-                  this.filterRoles = this.roles
-                  loading.dismiss()
-                })
-                .catch(e => {
-                  console.log(e)
-                  loading.dismiss();
-                  this.ifErrorOccured(this.fetchRoles)
-                });
-            })
-        })
+
+      this.roles = this.$store.state.backConfig.rol;
+      this.filterRoles = this.roles
+
     },
+
     editRole: function(id){
         this.$router.push({
         name: 'RoleForm', 
         params: { roleId: id }
       });
     },
-    deleteRole: function(id){
+
+    deleteRole: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -272,14 +251,13 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async() => {
               
               this.spinner = true
-              Api.deleteById(this.modelName, id)
+              await Api.deleteById(this.modelName, id)
                 .then(response => {
-                    // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                    //   this.$t('backoffice.list.messages.messageDeleteSuccessRole'),
-                    //       this.$t('backoffice.list.messages.deleteSubtitleRole'));
+                  const index = this.$store.state.backConfig.rol.findIndex( r=> r._id === id)
+                  if(index !== -1) this.$store.state.backConfig.rol.splice(index, 1)
                   this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessRole'), "success");
                   this.fetchRoles();
                   this.spinner = false;

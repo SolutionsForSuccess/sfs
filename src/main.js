@@ -146,6 +146,7 @@ const store = new Vuex.Store({
     authenticated: false,
     user: null,   
     roles: [],
+    backConfig: {},
     // FRONTEND STATE
 
     customer: {},
@@ -179,6 +180,7 @@ const store = new Vuex.Store({
     allCustomerCredit: [],
     staffHouseAccount: false,
     restaurantCustomers: [],
+    allStaff: [],
   },
   mutations: {
    
@@ -190,6 +192,9 @@ const store = new Vuex.Store({
     },
     setRoles(state, roles){
       state.roles = roles;
+    },
+    setBackConfig(state, backConfig){
+      state.backConfig = backConfig;
     },
     // FRONTEND MUTATION
     setCustomer(state, customer){
@@ -285,6 +290,9 @@ const store = new Vuex.Store({
     },
     setRestaurantCustomers(state, restaurantCustomers) {
       state.restaurantCustomers = restaurantCustomers;
+    },
+    setAllStaff(state, allStaff) {
+      state.allStaff = allStaff;
     },  
   
   }

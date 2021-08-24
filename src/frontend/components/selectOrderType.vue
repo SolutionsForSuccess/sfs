@@ -27,13 +27,13 @@
               <ion-card >                
                 <ion-item> 
                   <ion-input type="email" name="email" :placeholder="i18n.t('frontend.orderType.email')"
-                  @input="email = $event.target.value" :value="email"
+                  @input="email = $event.target.value" :value="email" autocomplete="email" 
                   @change="validateEmail($event.target.value)">
                   </ion-input>
                 </ion-item>
                 <ion-item>
                   <ion-input type="password" name="password" :placeholder="i18n.t('frontend.orderType.password')"
-                  @input="password = $event.target.value"  :value="password">
+                  @input="password = $event.target.value"  :value="password" autocomplete="current-password" >
                   </ion-input>
                 </ion-item>
                 <ion-item>
@@ -65,7 +65,7 @@
         <ion-card >                
           <ion-item> 
             <ion-input type="email" name="email" :placeholder="i18n.t('frontend.orderType.email')"
-            @input="email=$event.target.value" :value="email"
+            @input="email=$event.target.value" :value="email" autocomplete="email"
             @change="validateEmail($event.target.value)">
             </ion-input>
           </ion-item>               
@@ -86,13 +86,14 @@
         <ion-card  > 
           <ion-item> 
             <ion-input type="email" name="email" :placeholder="i18n.t('frontend.orderType.email')"
-            @input="email = $event.target.value" 
+            @input="email = $event.target.value" autocomplete="email"
             v-bind:value="email" @change="duplicateEmail(email)">
             </ion-input>
           </ion-item>          
           <ion-item>
             <ion-input type="text" name="name" :placeholder=" i18n.t('frontend.orderType.name')"
             :disabled="clientId !='' && !update" @input="CustomerName = $event.target.value" 
+            autocomplete="name"
             v-bind:value="CustomerName">
             </ion-input>
           </ion-item>
@@ -111,7 +112,7 @@
             </ion-select>
                       
             <ion-input type="text" name="phone" :placeholder="i18n.t('frontend.orderType.phone')" id="phone-validator"
-            :disabled="clientId !='' && !update" @input="phone = $event.target.value"         
+            :disabled="clientId !='' && !update" @input="phone = $event.target.value"  autocomplete="tel"       
             v-bind:value="phone" @change="phone = validatePhone($event.target.value)">
             </ion-input>
           </ion-item>
@@ -161,13 +162,14 @@
          <ion-card  v-if="!showPasswordTab">             
             <ion-item> 
               <ion-input type="email" name="email" :placeholder="i18n.t('frontend.orderType.email')"
-              @input="email = $event.target.value" 
+              @input="email = $event.target.value" autocomplete="email"
               v-bind:value="email" @change="validateEmail(email)">
               </ion-input>
             </ion-item>
             <ion-item>
               <ion-input type="text" name="name" :placeholder="i18n.t('frontend.orderType.name')"
               :disabled="clientId !='' && !update" @input="CustomerName = $event.target.value" 
+              autocomplete="name"
               v-bind:value="CustomerName">
               </ion-input>
             </ion-item>
@@ -186,7 +188,7 @@
               </ion-select>
                         
               <ion-input type="text" name="phone" :placeholder="i18n.t('frontend.orderType.phone')" id="phone-validator"
-              :disabled="clientId !='' && !update" @input="phone = $event.target.value"         
+              :disabled="clientId !='' && !update" @input="phone = $event.target.value"     autocomplete="tel"    
               v-bind:value="phone" @change="phone = validatePhone($event.target.value)">
               </ion-input>
             </ion-item>

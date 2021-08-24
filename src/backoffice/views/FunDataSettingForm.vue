@@ -59,10 +59,12 @@
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+     <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+    <div >
       <!-- <ion-card> -->
         <div v-if="basic">
            <Basic/>
@@ -314,13 +316,26 @@
               </ion-checkbox>
             </ion-item> -->
 
-            <ion-item>
-                <ion-label >{{$t('backoffice.form.fields.serviceReservation')}}
-                <ion-toggle name="serviceReservation" style="top: 12px;"
-                @ionChange="serviceReservation=$event.target.checked" 
-                :checked ="serviceReservation">
+          
+
+            
+            <ion-item v-if="$store.state.restaurantActive.RestaurantBussines">
+                <ion-label >{{$t('backoffice.form.fields.reservationByTable')}}
+                <ion-toggle name="reservationByTable" style="top: 12px;"
+                @ionChange="reservationByTable=$event.target.checked" 
+                :checked ="reservationByTable">
                 </ion-toggle></ion-label>
             </ion-item>
+
+            <ion-item v-if="$store.state.restaurantActive.ServiceBussines">
+                <ion-label >{{$t('backoffice.form.fields.reservationByStaff')}}
+                <ion-toggle name="reservationByStaff" style="top: 12px;"
+                @ionChange="reservationByStaff=$event.target.checked" 
+                :checked ="reservationByStaff">
+                </ion-toggle></ion-label>
+            </ion-item>
+
+            
 
             <ion-item>
                 <ion-label >{{$t('backoffice.form.fields.tablesChoose')}}
@@ -330,7 +345,7 @@
                 </ion-toggle></ion-label>
             </ion-item>
 
-            <div v-if="viewReservation && !serviceReservation" style="margin-left: 30px">
+            <div v-if="viewReservation " style="margin-left: 30px">
                 <ion-item>
                     <h1>{{$t('backoffice.form.fields.reservation')}}</h1>
                 </ion-item>
@@ -712,7 +727,8 @@ export default {
       viewDelivery: false,
       viewOnTable: false,
       viewCurbside: false,
-      serviceReservation: false,
+      reservationByTable: false,
+      reservationByStaff: false,
       tablesChoose: false,
 
       zipCodes: [],
@@ -1080,92 +1096,69 @@ export default {
         this.segmentValue = value;
     },
     init(){
+        console.log('Init')
         this.id = this.$route.params.settingId;
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.serviceReservation = response.data.ServiceReservation;
-                    this.tablesChoose = response.data.TablesChoose;
-                    this.selectPickHour = response.data.SelectPickHour;
-                    this.minTimeToCook = response.data.MinTimeToCook;
-                    this.pickFrom = response.data.PickFrom;
-                    this.pickTo = response.data.PickTo;
-                    this.showCooker = response.data.ShowCooker;
-                    this.showOthersRestaurant = response.data.ShowOtherRestaurant;
-                    this.canViewGeoposition = response.data.CanViewGeolocation;
-                    this.canViewRating = response.data.ViewRating;
-                    this.viewDelivery = response.data.ViewDelivery;
-                    this.viewOnTable = response.data.ViewOnTable;
-                    this.viewCurbside = response.data.ViewCurbside;                    
-                    this.tablePrefix = response.data.TablePrefix;
-                    this.barPrefix = response.data.BarPrefix;
-                    this.roomPrefix = response.data.RoomPrefix;
-                    this.zipCodes = response.data.ZipCodes;
-                    this.deliveryZone = response.data.DeliveryZone;
-                    this.tipRequire = response.data.TipRequire;
-                    this.DeviceList = response.data.Devices || [];
-                    this.tips = response.data.Tips;
-                    this.HasDeliveryPayment = response.data.HasDeliveryPayment;
-                    this.tips.sort();
-
-                    //Catering
-                    this.viewCatering = response.data.ViewCatering;
-                    if (this.viewCatering)
-                    {
-                        this.minAmoutCatering = response.data.MinAmoutCatering;
-                        this.minAmountCateringDelivery = response.data.MinAmountCateringDelivery;
-                        this.partialPay = response.data.PartialPay;
-                        this.payForQuotation = response.data.PayForQuotation;
-                        this.percentPayForQuotation = response.data.PercentPayForQuotation;
-                        this.cateringMarginDays = response.data.CateringMarginDays;
-                        this.states = response.data.CateringStates;
-                        this.zipcodesExcludes = response.data.ZipCodesExcludes;
-                        this.events = response.data.CateringEvents;
-                    }
-                    //*** */
-
-                    //Reservation
-                    this.viewReservation = response.data.ViewReservation;
-                    if (this.viewReservation){
-                        this.viewCustomerReservation = response.data.ViewCustomerReservation;
-                        this.minDayToReservation = response.data.MinDayToReservation;
-                        this.payForReservarionQuotation = response.data.HasReservationQuotation;
-                        this.amountPayForReservarionQuotation  = response.data.PayForReservationQuotation || 0; 
-                        this.setReservationDateAndTime(response.data.ReservationDaysAndTime);
-                    }
-
-                    //Loyalty Program
-                    this.viewLoyalty = response.data.ViewLoyalty
-                    if (this.viewLoyalty){
-                        this.loyaltyExpirationMonths = response.data.LoyaltyExpirationMonths
-                        this.loyaltyMinPointToBuy = response.data.LoyaltyMinPointToBuy
-                        this.loyaltyPointMoney = response.data.LoyaltyPointMoney
-                    }
-
-                    if (this.$route.params.tab == 'about')
-                        this.segmentChanged('about')
-                   
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                  })
-              })
-          })   
+        this.reservationByTable = this.$store.state.backConfig.setting.ReservationByTable;
+        this.reservationByStaff = this.$store.state.backConfig.setting.ReservationByStaff;
+        this.tablesChoose = this.$store.state.backConfig.setting.TablesChoose;
+        this.selectPickHour = this.$store.state.backConfig.setting.SelectPickHour;
+        this.minTimeToCook = this.$store.state.backConfig.setting.MinTimeToCook;
+        this.pickFrom = this.$store.state.backConfig.setting.PickFrom;
+        this.pickTo = this.$store.state.backConfig.setting.PickTo;
+        this.showCooker = this.$store.state.backConfig.setting.ShowCooker;
+        this.showOthersRestaurant = this.$store.state.backConfig.setting.ShowOtherRestaurant;
+        this.canViewGeoposition = this.$store.state.backConfig.setting.CanViewGeolocation;
+        this.canViewRating = this.$store.state.backConfig.setting.ViewRating;
+        this.viewDelivery = this.$store.state.backConfig.setting.ViewDelivery;
+        this.viewOnTable = this.$store.state.backConfig.setting.ViewOnTable;
+        this.viewCurbside = this.$store.state.backConfig.setting.ViewCurbside;                    
+        this.tablePrefix = this.$store.state.backConfig.setting.TablePrefix;
+        this.barPrefix = this.$store.state.backConfig.setting.BarPrefix;
+        this.roomPrefix = this.$store.state.backConfig.setting.RoomPrefix;
+        this.zipCodes = this.$store.state.backConfig.setting.ZipCodes;
+        this.deliveryZone = this.$store.state.backConfig.setting.DeliveryZone;
+        this.tipRequire = this.$store.state.backConfig.setting.TipRequire;
+        this.DeviceList = this.$store.state.backConfig.setting.Devices || [];
+        this.tips = this.$store.state.backConfig.setting.Tips;
+        this.HasDeliveryPayment = this.$store.state.backConfig.setting.HasDeliveryPayment;
+        this.tips.sort();
+        // Catering
+        this.viewCatering = this.$store.state.backConfig.setting.ViewCatering;
+        if (this.viewCatering)
+        {
+            this.minAmoutCatering = this.$store.state.backConfig.setting.MinAmoutCatering;
+            this.minAmountCateringDelivery = this.$store.state.backConfig.setting.MinAmountCateringDelivery;
+            this.partialPay = this.$store.state.backConfig.setting.PartialPay;
+            this.payForQuotation = this.$store.state.backConfig.setting.PayForQuotation;
+            this.percentPayForQuotation = this.$store.state.backConfig.setting.PercentPayForQuotation;
+            this.cateringMarginDays = this.$store.state.backConfig.setting.CateringMarginDays;
+            this.states = this.$store.state.backConfig.setting.CateringStates;
+            this.zipcodesExcludes = this.$store.state.backConfig.setting.ZipCodesExcludes;
+            this.events = this.$store.state.backConfig.setting.CateringEvents;
+        }                  
+        //Reservation
+        this.viewReservation = this.$store.state.backConfig.setting.ViewReservation;
+        if (this.viewReservation){
+            this.viewCustomerReservation = this.$store.state.backConfig.setting.ViewCustomerReservation;
+            this.minDayToReservation = this.$store.state.backConfig.setting.MinDayToReservation;
+            this.payForReservarionQuotation = this.$store.state.backConfig.setting.HasReservationQuotation;
+            this.amountPayForReservarionQuotation  = this.$store.state.backConfig.setting.PayForReservationQuotation || 0; 
+            this.setReservationDateAndTime(this.$store.state.backConfig.setting.ReservationDaysAndTime);
         }
-        //console.log(this.$route.params);
+
+        //Loyalty Program
+        this.viewLoyalty = this.$store.state.backConfig.setting.ViewLoyalty
+        if (this.viewLoyalty){
+            this.loyaltyExpirationMonths = this.$store.state.backConfig.setting.LoyaltyExpirationMonths
+            this.loyaltyMinPointToBuy = this.$store.state.backConfig.setting.LoyaltyMinPointToBuy
+            this.loyaltyPointMoney = this.$store.state.backConfig.setting.LoyaltyPointMoney
+        }
+
+        if (this.$route.params.tab == 'about')
+            this.segmentChanged('about')
+        
     },
+    
     setReservationDateAndTime(data){
         data.forEach(element => {
             if (element.Day == 'Monday')
@@ -1490,7 +1483,8 @@ export default {
         //console.log(reservation)
         return reservation
     },
-    saveSetting: function(){
+
+    saveSetting: async function(){
 
         if (this.isValidForm()){
 
@@ -1535,7 +1529,8 @@ export default {
             }
 
             if (this.viewReservation){
-              item["ServiceReservation"] = this.serviceReservation
+              item["ReservationByTable"] = this.reservationByTable
+              item["ReservationByStaff"] = this.reservationByStaff
               item["TablesChoose"] = this.tablesChoose
               item["ViewReservation"] = this.viewReservation
               item["ViewCustomerReservation"] = this.viewCustomerReservation
@@ -1557,12 +1552,9 @@ export default {
             if (this.id){
               item['_id'] = this.id;
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessSetting'), 
-                        //         this.$t('backoffice.list.messages.titleEditSetting'));
+                        this.$store.state.backConfig.setting = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
                         this.spinner = false;
                         // this.$router.push({
@@ -1576,31 +1568,11 @@ export default {
                         this.ifErrorOccured(this.saveSetting);
                   })
             }
-            // else{
-            //   //Else, I am created a new category
-            //   this.spinner = true
-            //   Api.postIn(this.modelName, item)
-            //       .then(response => {
-            //           // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-            //           //        this.$t('backoffice.list.messages.messageCreateSuccessSetting'), 
-            //           //           this.$t('backoffice.list.messages.titleCreateSetting'));
-            //           this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSetting'), "success");
-            //           this.spinner = false
-            //           this.$router.push({
-            //             name: 'ControlPanel', 
-            //           });
-            //           return response;
-            //       })
-            //       .catch(e => {
-            //           console.log(e);
-            //           this.spinner = false
-            //           this.ifErrorOccured(this.saveSetting);
-            //       })
-            // }
+           
         }
     },
 
-    doBackup(){
+    async doBackup(){
         this.$ionic.alertController.create({
         title: "Backup",
         message: "Do you want to save a backup? This action replace the old backup saved.",
@@ -1614,9 +1586,9 @@ export default {
         },
         {
             text: "Ok",
-            handler: () => {
+            handler: async () => {
                 this.spinner = true
-                Api.backUpToPortal()
+                await Api.backUpToPortal()
                 .then(response => {
                     //console.log(response.data)
                     if (response.data.msg != "")
@@ -1684,19 +1656,15 @@ export default {
         reader.readAsText(fileObject);
     },
 
-    doRestoreFromFile(){
+    async doRestoreFromFile(){
 
         try{
 
             const backObj = JSON.parse(this.backupFile)
-            //console.log("Loading backup");
-            //console.log(backObj);
-
-            //Decripting
+           
+          
             const bytes  = Cripto.AES.decrypt(backObj.criptoInfo, 'M3nuSuc3ss*2020S0lut1onsF0rBackupR3st0r3');
-            const decryptedData = JSON.parse(bytes.toString(Cripto.enc.Utf8));
-            //console.log('decripted: ')
-            //console.log(decryptedData)
+            const decryptedData = JSON.parse(bytes.toString(Cripto.enc.Utf8));          
 
             this.$ionic.alertController.create({
             title: "Backup",
@@ -1711,7 +1679,7 @@ export default {
             },
             {
                 text: "Ok",
-                handler: () => {
+                handler: async () => {
 
                     if (typeof backObj.restaurant === 'object' && 
                         typeof backObj.setting === 'object' && Array.isArray(backObj.occupation)
@@ -1726,7 +1694,7 @@ export default {
                                         const item = JSON.stringify(backObj)
                                         //console.log("OBJECT:")
                                         //console.log(item)
-                                        Api.restoreBackUpFromFile(item)
+                                        await Api.restoreBackUpFromFile(item)
                                         .then(() => {
                                             this.spinner = false
                                             this.showToastMessage('The backup was save successfully', 'success')
@@ -1757,7 +1725,7 @@ export default {
         
     },
 
-    doRestoreFromPortal(){
+    async doRestoreFromPortal(){
         
         this.$ionic.alertController.create({
         title: "Backup",
@@ -1772,9 +1740,9 @@ export default {
         },
         {
             text: "Ok",
-            handler: () => {
+            handler: async() => {
                 this.spinner = true
-                Api.restoreBackUpFromPortal()
+                await Api.restoreBackUpFromPortal()
                 .then(() => {
                     this.spinner = false
                     this.showToastMessage('The backup was save successfully', 'success')

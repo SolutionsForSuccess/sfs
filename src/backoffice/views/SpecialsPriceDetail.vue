@@ -256,7 +256,7 @@ export default {
       if(this.specialsPrice.Datas.length > 0)
         this.dataPrice =this.specialsPrice.Datas
 
-    this.getAllCategories();
+    this.allCategories = this.$store.state.backConfig.category;   
     this.getAllProducts();
   
   },
@@ -336,10 +336,16 @@ export default {
      try {
        this.spinner = true;
         let res;
-        if(this.specialsPrice._id)
-            res = await Api.putIn('specialsPrice', this.specialsPrice)
-        else
+        if(this.specialsPrice._id){
+           res = await Api.putIn('specialsPrice', this.specialsPrice);
+           const index = this.$store.state.backConfig.specialprice.find(s => s._id === this.specialsPrice._id)
+           if(index !== -1) this.$store.state.backConfig.specialprice[index] = this.specialsPrice;
+        }
+           
+        else{
           res = await Api.postIn('specialsPrice', this.specialsPrice)
+          this.$store.state.backConfig.specialprice.push(res.data);
+        }          
         this.spinner = false;
         if(res.status === 200){
             this.specialsPrice = res.data;
@@ -358,8 +364,11 @@ export default {
       try {
         this.spinner = true;
         const response = await Api.deleteById('specialsPrice', id);
-        if(response.status === 200)          
-         this.spinner = false;
+        if(response.status === 200)    {
+           const index = this.$store.state.backConfig.specialprice.find(s => s._id === id)
+           if(index !== -1) this.$store.state.backConfig.specialprice.splice(index, 1);
+           this.spinner = false;
+        }      
         
       } catch (error) {
         error
@@ -389,37 +398,13 @@ export default {
         if(value==='ApplyProduct') this.showProduct = true
         if(value==='ApplyCategory') this.showProduct = false      
       }
-     
-      
-    },
-
-    async getAllCategories(){
-
-      try {
-        const category = await Api.fetchAll('Category')
-        if(category.status === 200)
-            this.allCategories = category.data
-      } catch (error) {
-        error;
-      }
     },
 
     async getAllProducts(){
-      try {
-        const products = await Api.fetchAll('Product')
-        if(products.status === 200){
-          const pRes = products.data.filter(p => p.Available == true);
-           this.allProducts = pRes;
-        }
-           
-      } catch (error) {
-        error;
-      }
+      const products = this.$store.state.backConfig.product
+      const pRes = products.filter(p => p.Available == true);
+      this.allProducts = pRes;
     }
-   
-
-
-
   },
 
 }

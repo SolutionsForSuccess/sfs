@@ -15,10 +15,13 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    
+    <div >
         <ion-item v-if="canEdit || id==null">
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
@@ -725,7 +728,6 @@ export default {
   },
   created: function(){
       this.init();
-    
   },
   props: {
       externalProp: {type: Boolean, default: false}
@@ -738,144 +740,118 @@ export default {
   methods: {
     init(){
         this.id = this.$route.params.roleId;
-        //console.log("Role id");
-        //console.log(this.id);
-        if (this.id){
-            this.$ionic.loadingController
-                .create({
-                    cssClass: 'my-custom-class',
-                    message: this.$t('backoffice.titles.loading'),
-                    backdropDismiss: true
-                })
-                .then(loading => {
-                    loading.present()
-                    setTimeout(() => {  // Some AJAX call occurs
-                        Api.fetchById(this.modelName, this.id)
-                            .then(response => {
-                            console.log(response.data);
+        const data = this.$store.state.backConfig.rol.find(r => r._id === this.id);
+        if(data){
+            this.name = data.Name;
+            this.description = data.Description;
+            this.canEdit = data.CanEdit;
 
-                            this.name = response.data.Name;
-                            this.description = response.data.Description;
-                            this.canEdit = response.data.CanEdit;
+            this.menuPermissions[0].isChecked = data.canViewMenu;
+            this.menuPermissions[1].isChecked = data.canCreateMenu;
+            this.menuPermissions[2].isChecked = data.canEditMenu;
+            this.menuPermissions[3].isChecked = data.canDeleteMenu;
 
-                            this.menuPermissions[0].isChecked = response.data.canViewMenu;
-                            this.menuPermissions[1].isChecked = response.data.canCreateMenu;
-                            this.menuPermissions[2].isChecked = response.data.canEditMenu;
-                            this.menuPermissions[3].isChecked = response.data.canDeleteMenu;
+            this.categoryPermissions[0].isChecked = data.canViewCategory;
+            this.categoryPermissions[1].isChecked = data.canCreateCategory;
+            this.categoryPermissions[2].isChecked = data.canEditCategory;
+            this.categoryPermissions[3].isChecked = data.canDeleteCategory;
 
-                            this.categoryPermissions[0].isChecked = response.data.canViewCategory;
-                            this.categoryPermissions[1].isChecked = response.data.canCreateCategory;
-                            this.categoryPermissions[2].isChecked = response.data.canEditCategory;
-                            this.categoryPermissions[3].isChecked = response.data.canDeleteCategory;
+            this.productPermissions[0].isChecked = data.canViewProduct;
+            this.productPermissions[1].isChecked = data.canCreateProduct;
+            this.productPermissions[2].isChecked = data.canEditProduct;
+            this.productPermissions[3].isChecked = data.canDeleteProduct;
 
-                            this.productPermissions[0].isChecked = response.data.canViewProduct;
-                            this.productPermissions[1].isChecked = response.data.canCreateProduct;
-                            this.productPermissions[2].isChecked = response.data.canEditProduct;
-                            this.productPermissions[3].isChecked = response.data.canDeleteProduct;
+            this.specialpricePermissions[0].isChecked = data.canViewSpecialPrices;
+            this.specialpricePermissions[1].isChecked = data.canCreateSpecialPrices;
+            this.specialpricePermissions[2].isChecked = data.canEditSpecialPrices;
+            this.specialpricePermissions[3].isChecked = data.canDeleteSpecialPrices;
 
-                            this.specialpricePermissions[0].isChecked = response.data.canViewSpecialPrices;
-                            this.specialpricePermissions[1].isChecked = response.data.canCreateSpecialPrices;
-                            this.specialpricePermissions[2].isChecked = response.data.canEditSpecialPrices;
-                            this.specialpricePermissions[3].isChecked = response.data.canDeleteSpecialPrices;
+            this.customerPermissions[0].isChecked = data.canViewCustomer;
+            this.customerPermissions[1].isChecked = data.canCreateCustomer;
+            this.customerPermissions[2].isChecked = data.canEditCustomer;
+            this.customerPermissions[3].isChecked = data.canDeleteCustomer;
 
-                            this.customerPermissions[0].isChecked = response.data.canViewCustomer;
-                            this.customerPermissions[1].isChecked = response.data.canCreateCustomer;
-                            this.customerPermissions[2].isChecked = response.data.canEditCustomer;
-                            this.customerPermissions[3].isChecked = response.data.canDeleteCustomer;
+            this.creditPermissions[0].isChecked = data.canViewCredit;
+            this.creditPermissions[1].isChecked = data.canCreateCredit;
+            this.creditPermissions[2].isChecked = data.canEditCredit;
+            this.creditPermissions[3].isChecked = data.canDeleteCredit;
 
-                            this.creditPermissions[0].isChecked = response.data.canViewCredit;
-                            this.creditPermissions[1].isChecked = response.data.canCreateCredit;
-                            this.creditPermissions[2].isChecked = response.data.canEditCredit;
-                            this.creditPermissions[3].isChecked = response.data.canDeleteCredit;
+            this.housePermissions[0].isChecked = data.canViewHouseAccount;
+            this.housePermissions[1].isChecked = data.canCreateHouseAccount;
 
-                            this.housePermissions[0].isChecked = response.data.canViewHouseAccount;
-                            this.housePermissions[1].isChecked = response.data.canCreateHouseAccount;
+            this.suscriptorPermissions[0].isChecked = data.canCreateSuscriptor;
+            this.suscriptorPermissions[1].isChecked = data.canViewSuscriptor;
+            this.suscriptorPermissions[2].isChecked = data.canEditSuscriptor;
+            this.suscriptorPermissions[3].isChecked = data.canDesactivateSuscriptor;
+            
+            this.tablePermissions[0].isChecked = data.canViewTable;
+            this.tablePermissions[1].isChecked = data.canCreateTable;
+            this.tablePermissions[2].isChecked = data.canEditTable;
+            this.tablePermissions[3].isChecked = data.canDeleteTable;
+            
+            this.taxPermissions[0].isChecked = data.canViewTax;
+            this.taxPermissions[1].isChecked = data.canCreateTax;
+            this.taxPermissions[2].isChecked = data.canEditTax;
+            this.taxPermissions[3].isChecked = data.canDeleteTax;
+            
+            this.shippingPermissions[0].isChecked = data.canViewShipping;
+            this.shippingPermissions[1].isChecked = data.canCreateShipping;
+            this.shippingPermissions[2].isChecked = data.canEditShipping;
+            this.shippingPermissions[3].isChecked = data.canDeleteShipping;
+            
+            this.otherChargePermissions[0].isChecked = data.canViewOtherCharge;
+            this.otherChargePermissions[1].isChecked = data.canCreateOtherCharge;
+            this.otherChargePermissions[2].isChecked = data.canEditOtherCharge;
+            this.otherChargePermissions[3].isChecked = data.canDeleteOtherCharge;
 
-                            this.suscriptorPermissions[0].isChecked = response.data.canCreateSuscriptor;
-                            this.suscriptorPermissions[1].isChecked = response.data.canViewSuscriptor;
-                            this.suscriptorPermissions[2].isChecked = response.data.canEditSuscriptor;
-                            this.suscriptorPermissions[3].isChecked = response.data.canDesactivateSuscriptor;
-                            
-                            this.tablePermissions[0].isChecked = response.data.canViewTable;
-                            this.tablePermissions[1].isChecked = response.data.canCreateTable;
-                            this.tablePermissions[2].isChecked = response.data.canEditTable;
-                            this.tablePermissions[3].isChecked = response.data.canDeleteTable;
-                            
-                            this.taxPermissions[0].isChecked = response.data.canViewTax;
-                            this.taxPermissions[1].isChecked = response.data.canCreateTax;
-                            this.taxPermissions[2].isChecked = response.data.canEditTax;
-                            this.taxPermissions[3].isChecked = response.data.canDeleteTax;
-                            
-                            this.shippingPermissions[0].isChecked = response.data.canViewShipping;
-                            this.shippingPermissions[1].isChecked = response.data.canCreateShipping;
-                            this.shippingPermissions[2].isChecked = response.data.canEditShipping;
-                            this.shippingPermissions[3].isChecked = response.data.canDeleteShipping;
-                            
-                            this.otherChargePermissions[0].isChecked = response.data.canViewOtherCharge;
-                            this.otherChargePermissions[1].isChecked = response.data.canCreateOtherCharge;
-                            this.otherChargePermissions[2].isChecked = response.data.canEditOtherCharge;
-                            this.otherChargePermissions[3].isChecked = response.data.canDeleteOtherCharge;
+            this.userPermissions[0].isChecked = data.canViewUser;
+            this.userPermissions[1].isChecked = data.canCreateUser;
+            this.userPermissions[2].isChecked = data.canEditUser;
+            this.userPermissions[3].isChecked = data.canDeleteUser;
 
-                            this.userPermissions[0].isChecked = response.data.canViewUser;
-                            this.userPermissions[1].isChecked = response.data.canCreateUser;
-                            this.userPermissions[2].isChecked = response.data.canEditUser;
-                            this.userPermissions[3].isChecked = response.data.canDeleteUser;
+            this.occupationPermissions[0].isChecked = data.canViewOccupation;
+            this.occupationPermissions[1].isChecked = data.canCreateOccupation;
+            this.occupationPermissions[2].isChecked = data.canEditOccupation;
+            this.occupationPermissions[3].isChecked = data.canDeleteOccupation;
 
-                            this.occupationPermissions[0].isChecked = response.data.canViewOccupation;
-                            this.occupationPermissions[1].isChecked = response.data.canCreateOccupation;
-                            this.occupationPermissions[2].isChecked = response.data.canEditOccupation;
-                            this.occupationPermissions[3].isChecked = response.data.canDeleteOccupation;
+            this.rolePermissions[0].isChecked = data.canViewRole;
+            this.rolePermissions[1].isChecked = data.canCreateRole;
+            this.rolePermissions[2].isChecked = data.canEditRole;
+            this.rolePermissions[3].isChecked = data.canDeleteRole;
 
-                            this.rolePermissions[0].isChecked = response.data.canViewRole;
-                            this.rolePermissions[1].isChecked = response.data.canCreateRole;
-                            this.rolePermissions[2].isChecked = response.data.canEditRole;
-                            this.rolePermissions[3].isChecked = response.data.canDeleteRole;
+            this.worksheetPermissions[0].isChecked = data.canViewWorkSheet;
+            this.worksheetPermissions[1].isChecked = data.canCreateWorkSheet;
+            this.worksheetPermissions[2].isChecked = data.canEditWorkSheet;
+            this.worksheetPermissions[3].isChecked = data.canDeleteWorkSheet;
 
-                            this.worksheetPermissions[0].isChecked = response.data.canViewWorkSheet;
-                            this.worksheetPermissions[1].isChecked = response.data.canCreateWorkSheet;
-                            this.worksheetPermissions[2].isChecked = response.data.canEditWorkSheet;
-                            this.worksheetPermissions[3].isChecked = response.data.canDeleteWorkSheet;
+            this.variantGroupPermissions[0].isChecked = data.canViewVariantGroup;
+            this.variantGroupPermissions[1].isChecked = data.canCreateVariantGroup;
+            this.variantGroupPermissions[2].isChecked = data.canEditVariantGroup;
+            this.variantGroupPermissions[3].isChecked = data.canDeleteVariantGroup;
 
-                            this.variantGroupPermissions[0].isChecked = response.data.canViewVariantGroup;
-                            this.variantGroupPermissions[1].isChecked = response.data.canCreateVariantGroup;
-                            this.variantGroupPermissions[2].isChecked = response.data.canEditVariantGroup;
-                            this.variantGroupPermissions[3].isChecked = response.data.canDeleteVariantGroup;
+            this.reservationPermissions[0].isChecked = data.canViewReservation;
+            this.reservationPermissions[1].isChecked = data.canCreateReservation;
+            this.reservationPermissions[2].isChecked = data.canEditReservation;
+            this.reservationPermissions[3].isChecked = data.canDeleteReservation;
 
-                            this.reservationPermissions[0].isChecked = response.data.canViewReservation;
-                            this.reservationPermissions[1].isChecked = response.data.canCreateReservation;
-                            this.reservationPermissions[2].isChecked = response.data.canEditReservation;
-                            this.reservationPermissions[3].isChecked = response.data.canDeleteReservation;
+            this.orderPermissions[0].isChecked = data.canViewOrder;
+            this.orderPermissions[1].isChecked = data.canEditOrder;
+            this.orderPermissions[2].isChecked = data.canCreateOrder;
+            this.orderPermissions[3].isChecked = data.canViewOrderForDelivery;
 
-                            this.orderPermissions[0].isChecked = response.data.canViewOrder;
-                            this.orderPermissions[1].isChecked = response.data.canEditOrder;
-                            this.orderPermissions[2].isChecked = response.data.canCreateOrder;
-                            this.orderPermissions[3].isChecked = response.data.canViewOrderForDelivery;
+            this.settingPermissions[0].isChecked = data.canChangeSetting;
 
-                            this.settingPermissions[0].isChecked = response.data.canChangeSetting;
+            this.paymentPermissions[0].isChecked = data.canViewPayments;
 
-                            this.paymentPermissions[0].isChecked = response.data.canViewPayments;
+            this.clockinPermissions[0].isChecked = data.canIgnoreClockin;
 
-                            this.clockinPermissions[0].isChecked = response.data.canIgnoreClockin;
-
-                            this.driverPermissions[0].isChecked = response.data.canViewDriver;
-                            this.driverPermissions[1].isChecked = response.data.canEditDriver;
-                            this.driverPermissions[2].isChecked = response.data.canCreateDriver;
-                            this.driverPermissions[3].isChecked = response.data.canDeleteDriver;
-
-                            //console.log(response.data);
-                            loading.dismiss();
-                            })
-                            .catch(e => {
-                            console.log(e);
-                            loading.dismiss();
-                            this.ifErrorOccured(this.init);
-                            }) 
-                    })
-                })  
+            this.driverPermissions[0].isChecked = data.canViewDriver;
+            this.driverPermissions[1].isChecked = data.canEditDriver;
+            this.driverPermissions[2].isChecked = data.canCreateDriver;
+            this.driverPermissions[3].isChecked = data.canDeleteDriver;
         }
-
-        //console.log(this.$route.params);
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -899,6 +875,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -910,6 +887,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -919,6 +897,7 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     selectDeselectMenu(){
         this.menu = !this.menu;
         if (this.menu_color == 'success')
@@ -938,6 +917,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectCategory(){
         this.category = !this.category;
         if (this.category_color == 'success')
@@ -957,6 +937,7 @@ export default {
                 permissionCateg.isChecked = false;
         });
     },
+
     selectDeselectProduct(){
         this.product = !this.product;
         if (this.product_color == 'success')
@@ -976,6 +957,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectSpecialPrice(){
         this.specialprice = !this.specialprice;
         if (this.specialprice_color == 'success')
@@ -995,6 +977,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectReservation(){
         this.reservation = !this.reservation;
         if (this.reservation_color == 'success')
@@ -1014,6 +997,8 @@ export default {
                 permission.isChecked = false;
         });
     },
+
+
     selectDeselectCustomer(){
         this.customer = !this.customer;
         if (this.customer_color == 'success')
@@ -1033,6 +1018,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectCredit(){
         this.credit = !this.credit;
         if (this.credit_color == 'success')
@@ -1052,6 +1038,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectHouseAccount(){
         this.house = !this.house;
         if (this.house_color == 'success')
@@ -1071,6 +1058,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectSuscriptor(){
         this.suscriptor = !this.suscriptor;
         if (this.suscriptor_color == 'success')
@@ -1090,6 +1078,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectTable(){
         this.table = !this.table;
         if (this.table_color == 'success')
@@ -1110,6 +1099,7 @@ export default {
         });
         //console.log(this.tablePermissions);
     },
+
     selectDeselectTax(){
         this.tax = !this.tax;
         if (this.tax_color == 'success')
@@ -1129,6 +1119,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectShipping(){
         this.shipping = !this.shipping;
         if (this.shipping_color == 'success')
@@ -1148,6 +1139,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectOtherCharge(){
         this.otherCharge = !this.otherCharge;
         if (this.otherCharge_color == 'success')
@@ -1167,6 +1159,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectUser(){
         this.user = !this.user;
         if (this.user_color == 'success')
@@ -1186,6 +1179,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectDriver(){
         this.driver = !this.driver;
         if (this.driver_color == 'success')
@@ -1205,6 +1199,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectOccupation(){
         this.occupation = !this.occupation;
         if (this.occupation_color == 'success')
@@ -1224,6 +1219,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectRole(){
         this.role = !this.role;
         if (this.role_color == 'success')
@@ -1243,6 +1239,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectWorksheet(){
         this.worksheet = !this.worksheet;
         if (this.worksheet_color == 'success')
@@ -1262,6 +1259,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectVariantGroup(){
         this.variant = !this.variant;
         if (this.variant_color == 'success')
@@ -1281,6 +1279,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectOrder(){
         this.order = !this.order;
         if (this.order_color == 'success')
@@ -1300,6 +1299,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectSetting(){
         this.setting = !this.setting;
         if (this.setting_color == 'success')
@@ -1319,6 +1319,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectPayment(){
         this.payment = !this.payment;
         if (this.payment_color == 'success')
@@ -1338,6 +1339,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectClockin(){
         this.clockin = !this.clockin;
         if (this.clockin_color == 'success')
@@ -1357,6 +1359,7 @@ export default {
                 permission.isChecked = false;
         });
     },
+
     selectDeselectAll(){
         this.all = !this.all;
         if (this.all_color == 'success')
@@ -1392,34 +1395,15 @@ export default {
         this.selectDeselectClockin(this.all);
         this.selectDeselectDriver(this.all);
     },
-    isValidForm(){
-        // let errors = [];
+
+    isValidForm(){      
 
         if (this.name == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.name'));
             return false
-        }
-
         return true
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     this.ShowMessage(this.$t('backoffice.form.validate.validate'), message,
-        //                               this.$t('backoffice.form.validate.validateRole'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
     },
-    saveRole: function(){
+
+    saveRole: async function(){
 
         if (this.isValidForm())
         {
@@ -1514,8 +1498,10 @@ export default {
             if (this.id){
               item['_id'] = this.id;
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
+                        const index = this.$store.state.backConfig.rol.findIndex( r=> r._id === this.id)
+                        if(index !== -1) this.$store.state.backConfig.rol[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccesRole'), "success");
                         this.spinner = false;
                         this.$router.push({
@@ -1533,8 +1519,9 @@ export default {
             else{
               //Else, I am created a new category
               this.spinner = true;
-              Api.postIn(this.modelName, item)
+              await Api.postIn(this.modelName, item)
                   .then(response => {
+                      this.$store.state.backConfig.rol.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessRole'), "success");
                       this.spinner = false;
                       

@@ -1,17 +1,11 @@
 <template>
-        <!-- <ion-list> -->
-            <ion-item id="locale" class="locale">
-                <ion-label>{{$t('backoffice.form.titles.selectALanguage')}}</ion-label>
+            <!-- <div id="locale" class="locale"> -->
                 <ion-select interface="popover"
-                 :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                 :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
                 @ionChange="changeLanguage($event.target.value)" :value="currentLanguaje">
-                    <ion-select-option v-for="language in languages" :key="language.locale" :value="language.locale" >{{language.title}}</ion-select-option>
+                    <ion-select-option v-for="language in languages" :key="language.locale" :value="language.locale" >{{language.locale}}</ion-select-option>
                 </ion-select>
-            </ion-item>
-        <!-- </ion-list> -->
+            <!-- </div> -->
 
-    <!-- </ion-content> -->
 </template>
 
 <script>

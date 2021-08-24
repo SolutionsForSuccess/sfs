@@ -14,27 +14,30 @@
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+
+    <div >
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-            <ion-input type="text" name="name"
+            <ion-input type="text" name="name" autocomplete="name"
             @input="name = $event.target.value" 
             v-bind:value="name">
           </ion-input>
         </ion-item>
         <ion-item>
           <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
-            <ion-input type="text" name="phone"
+            <ion-input type="text" name="phone" autocomplete="tlf"
             @input="phone = $event.target.value" 
             v-bind:value="phone">
           </ion-input>
         </ion-item>
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-          <ion-input type="email" name="email"
+          <ion-input type="email" name="email" autocomplete="email"
           @input="email = $event.target.value" 
           v-bind:value="email">
           </ion-input>
@@ -80,9 +83,7 @@ export default {
     }
   },
   created: function(){
-      this.init();
-      //console.log("SUPERVISOR")
-      //console.log(this.isForDriversSupervisor)
+      this.init();    
   },
   computed: {
       title() {
@@ -95,46 +96,22 @@ export default {
       }
   },
   methods: {
+
     init(){
+
         this.id = this.$route.params.suscriptorId;
         if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.name = response.data.Name;
-                    this.phone = response.data.Phone;
-                    this.email = response.data.Email;
-                    this.state = response.data.State;
-
-                    console.log(response.data)
-                    //console.log(this.occupationId);
-                    //  this.password = response.data.Password;
-                    //  this.confirmPassword = response.data.Password;
-
-                    this.suscription = response.data;
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                  })
-              })
-          })
-      
-        }
-        //console.log(this.$route.params);
+          const data = this.$store.state.backConfig.subscriptor.find(s => s._id === this.id);
+          if(data){
+            this.name = data.Name;
+            this.phone = data.Phone;
+            this.email = data.Email;
+            this.state = data.State;                 
+            this.suscription = data;
+          }
+         }       
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -158,6 +135,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     ShowMessage(type, message, topic=''){
         return this.$ionic.alertController
           .create({
@@ -169,6 +147,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -178,6 +157,7 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     backtoList(){
         this.$router.push(
           { 
@@ -185,6 +165,7 @@ export default {
           }
         )
     },
+
     isValidForm(){
         // let errors = [];
 
@@ -211,11 +192,10 @@ export default {
         return true
     },
     //Create or edit a new category
-    saveSuscription: function(){
+    saveSuscription: async function(){
         if (this.isValidForm())
         {
-            this.isBackdrop = true;
-            //console.log(this.occupationId);
+            this.isBackdrop = true;         
             let item = {
               "Name": this.name,
               "Phone": this.phone,
@@ -226,11 +206,12 @@ export default {
             //If I am editing
             if (this.id){
               item['_id'] = this.id;
-              // item['Password'] = this.user.Password;
-              //console.log(this.fileName);
+              
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
+                        const index = this.$store.state.backConfig.subscriptor.findIndex(s => s._id === this.id);
+                        if(index !== -1) this.$store.state.backConfig.subscriptor[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSuscriptor'), "success");
                         this.spinner = false;
                         this.$router.push({
@@ -249,8 +230,9 @@ export default {
             else{
               //Else, I am created a new category
               this.spinner = true;
-              Api.postIn(this.modelName, item)
+              await Api.postIn(this.modelName, item)
                   .then(response => {
+                      this.$store.state.backConfig.subscriptor.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSuscriptor'), "success");
                       this.spinner = false;
                       this.$router.push({

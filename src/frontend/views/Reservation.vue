@@ -1,5 +1,13 @@
 <template>
 <div :key="keyForceUpdate"> 
+
+     <ion-loading
+          v-if="firstSpinner"
+          showBackdrop="false"
+          cssClass="my-custom-class"
+          :message="$t('frontend.tooltips.loadRestaurant')"
+        >
+      </ion-loading>  
   
       
   <ion-toolbar >
@@ -45,114 +53,157 @@
               <ion-progress-bar  color="primary" type="indeterminate" reversed="true"></ion-progress-bar>
             </div>
 
+
             <!-- <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
               <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
                   <span class="iconify" data-icon="el:error-alt" data-inline="false" style="color: red; margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
                   {{$t('frontend.home.clientRequired')}}</p>
               </ion-label>  -->
 
-            <ion-card  v-if="!spinner " :key="keyCreated+'KC'">
-                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
-                  <ion-input type="text" :value="CustomerName" @input="theName = $event.target.value" ></ion-input>
+            <ion-card  v-if="!spinner " :key="keyCreated+'KC'" class="menu-col-12">
+                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="CustomerName" @input="theName = $event.target.value" autocomplete="name"></ion-input>
                 </ion-item>
-                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
-                  <ion-input type="text" :value="email"  @input="theEmail = $event.target.value" @change="value=ValidateEmail()" ></ion-input>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="email"  @input="theEmail = $event.target.value" @change="value=ValidateEmail()" autocomplete="email"></ion-input>
                 </ion-item>
-                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
-                  <ion-input type="text" :value="phone"  @input="thePhone = $event.target.value" ></ion-input>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="text" :value="phone"  @input="thePhone = $event.target.value" autocomplete="tel"></ion-input>
                 </ion-item> 
-                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.reservation.reason')}}</ion-label>
-                  <ion-input type="text"  @ionChange="reasonToReser=$event.target.value "></ion-input>
-                </ion-item>
-                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
+                 <ion-item 
+                    :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                      <ion-label >{{$t('frontend.reservation.reason')}}</ion-label>
+                      <ion-input type="text"  @ionChange="reasonToReser=$event.target.value "></ion-input>
+                  </ion-item>
+
+                <div v-if="!configuration.reservationByStaff">
+                 
+                <ion-item 
+                :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
                   <ion-input type="number" :value="guest" @ionChange="guest=$event.target.value "></ion-input>
                 </ion-item>
-                 <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.reservation.timeToReserve')}}  (min) <strong style="color: red">*</strong></ion-label>
-                  <ion-input type="number" :value="serviceTime" @ionChange="serviceTime=$event.target.value,fetchTables()"></ion-input>
-                </ion-item>
-              
-                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                      <ion-label position="floating">{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong></ion-label>
-                      <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToReserv=$event.target.value,validateHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
-                    </ion-datetime>
-                </ion-item>
-                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-6 card-categories'">
-                  <ion-label position="floating">{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong></ion-label>
-                  <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key"></ion-datetime>           
+                 <ion-item 
+                 :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.reservation.timeToReserve')}}  (min) <strong style="color: red">*</strong></ion-label>
+                  <ion-input type="number" :value="serviceTime"
+                   @ionChange="serviceTime=$event.target.value,fetchTables()" ></ion-input>
                 </ion-item>
 
-                 <div v-if="spinnerTable" style="text-align: center;" >
-                  <ion-spinner ></ion-spinner>
-                </div> 
-
-                <div style="text-align: center;" v-if="!spinnerTable">
-                  <ion-label position="floating"><strong>
-                    <ion-label color="success" v-if="totalSeats > 0"> {{totalSeats}} {{$t('frontend.reservation.seatsAvailable')}} </ion-label>
-                    <ion-label color="danger" v-if="totalSeats === 0">{{$t('frontend.reservation.notAvailable')}} </ion-label>
-                    </strong>
-                    </ion-label>
                 </div>
-                  
-                
-                  <div  class="menu-col-12" style="float: left;" v-if="tablesChoose && totalSeats > 0">  
+               
+              
+                  <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                      <ion-label >{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong>
+                      <ion-datetime :value="dateToDay" max="2030" style="display: inline-flex"  
+                      @ionChange="dateToReserv=$event.target.value,validateHour(),GetAllSheetHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
+                    </ion-datetime></ion-label>
+                </ion-item>
+                <ion-item :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'">
+                  <ion-label >{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong>
+                  <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" 
+                  @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key" style="display: inline-flex"></ion-datetime>  </ion-label>         
+                </ion-item>
 
+                <div class="menu-col-12" style="float: left;" >
 
-                   
+                   <div v-if="spinnerTable" style="text-align: center;" >
+                    <ion-spinner ></ion-spinner>
+                  </div> 
 
-                    <div v-if="seatSelected < guest && !spinnerTable" style="text-align: center;" >
-                       <ion-label color="danger" >{{$t('frontend.reservation.guestLocation')}}</ion-label>                  
-                      
-                    </div>                                  
+                  <div v-if="configuration.reservationByTable && !spinnerTable">
+                    Reservation By Table
+                    <div style="text-align: center;" >
+                      <ion-label position="floating"><strong>
+                        <ion-label color="success" v-if="totalSeats > 0"> {{totalSeats}} {{$t('frontend.reservation.seatsAvailable')}} </ion-label>
+                        <ion-label color="danger" v-if="totalSeats === 0">{{$t('frontend.reservation.notAvailable')}} </ion-label>
+                        </strong>
+                        </ion-label>
+                    </div>
+                    <div  class="menu-col-12" style="float: left;" v-if="tablesChoose && totalSeats > 0">  
+                        <div  style="text-align: center;" >
+                              
+                            <ion-label color="danger" v-if="totalSeats < guest && totalSeats > 0"><strong>{{$t('frontend.reservation.notGuestAvaibility')}}</strong></ion-label>             
+                            <div v-else>
+                              <ion-label color="danger" v-if="seatSelected < guest && !spinnerTable">{{$t('frontend.reservation.guestLocation')}}</ion-label> 
+                            </div>
+                          
+                        </div>  
+                        <div v-if="hourToReserv!=='' && dateToReserv!==''">                      
 
-                    <div v-if="!spinnerTable && hourToReserv!=='' && dateToReserv!==''">                      
+                              <div
+                                v-for="(r, index ) in configuration.tableDesign" :key="index" 
+                                class="menu-col-12" style="display: flex;position: relative;">                         
+                              
+                                <div v-for="(r1, index1 ) in r.length" :key="index1" 
+                                  :style="' display: flex; flex-direction: column; align-items: center;justify-content: center;width:'+100/r.length+'%;'" 
+                                  class="menu-grid">
+                                    <ion-card 
+                                    :color="findTable(configuration.tableDesign[index][index1].table).CanReserve === false? 'danger' : 'success'" 
+                                    :disabled="findTable(configuration.tableDesign[index][index1].table).CanReserve === false ? true: false"
+                                      v-if="findTable(configuration.tableDesign[index][index1].table).Name"
+                                      :class="findTable(configuration.tableDesign[index][index1].table).Shape==='Square'?'square':
+                                      findTable(configuration.tableDesign[index][index1].table).Shape==='Circle'?'circle' :
+                                      findTable(configuration.tableDesign[index][index1].table).Shape==='Rectangular'? 'rectangle':
+                                      'oval'"                           
+                                      :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:1':'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:0.8'"
+                                      @click="getIdTable(configuration.tableDesign[index][index1].table)"
+                                    > 
 
-                        <div
-                          v-for="(r, index ) in configuration.tableDesign" :key="index" 
-                          class="menu-col-12" style="display: flex;position: relative;">                         
-                        
-                          <div v-for="(r1, index1 ) in r.length" :key="index1" 
-                            :style="' display: flex; flex-direction: column; align-items: center;justify-content: center;width:'+100/r.length+'%;'" 
-                            class="menu-grid">
-                              <ion-card 
-                              :color="findTable(configuration.tableDesign[index][index1].table).CanReserve === false? 'danger' : 'success'" 
-                              :disabled="findTable(configuration.tableDesign[index][index1].table).CanReserve === false ? true: false"
-                                v-if="findTable(configuration.tableDesign[index][index1].table).Name"
-                                :class="findTable(configuration.tableDesign[index][index1].table).Shape==='Square'?'square':
-                                findTable(configuration.tableDesign[index][index1].table).Shape==='Circle'?'circle' :
-                                findTable(configuration.tableDesign[index][index1].table).Shape==='Rectangular'? 'rectangle':
-                                'oval'"                           
-                                :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:1':'display: flex;justify-content: center;align-items: center;align-content: center;flex-wrap: wrap;flex-direction: column;opacity:0.8'"
-                                @click="getIdTable(configuration.tableDesign[index][index1].table)"
-                              > 
+                                        
+                                    <div style="position: absolute">
+                                        <div :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'font-weight: 700;font-size: 18px;text-transform: uppercase;display: flex; align-items: center;':'font-weight: 700;font-size: 18px;text-transform: none;display: flex; align-items: center;'">
+                                        {{findTable(configuration.tableDesign[index][index1].table).Name}}
+                                        <ion-checkbox :checked="serviceLocation.includes(configuration.tableDesign[index][index1].table)?true: false" style="margin: 5px;"></ion-checkbox> 
+                                      </div>
 
+                                      <div style="display: flex; align-items: center;    justify-content: center;">                                                          
+                                          {{findTable(configuration.tableDesign[index][index1].table).Seats.length}}
+                                          <span class="iconify" data-icon="la:chair" data-inline="false" data-flip="horizontal"></span>
+                                      </div>
+                                    </div>
                                   
-                              <div style="position: absolute">
-                                  <div :style="serviceLocation.includes(configuration.tableDesign[index][index1].table)?'font-weight: 700;font-size: 18px;text-transform: uppercase;display: flex; align-items: center;':'font-weight: 700;font-size: 18px;text-transform: none;display: flex; align-items: center;'">
-                                  {{findTable(configuration.tableDesign[index][index1].table).Name}}
-                                  <ion-checkbox :checked="serviceLocation.includes(configuration.tableDesign[index][index1].table)?true: false" style="margin: 5px;"></ion-checkbox> 
+
+                                    </ion-card>                             
                                 </div>
 
-                                <div style="display: flex; align-items: center;    justify-content: center;">                                                          
-                                    {{findTable(configuration.tableDesign[index][index1].table).Seats.length}}
-                                    <span class="iconify" data-icon="la:chair" data-inline="false" data-flip="horizontal"></span>
-                                </div>
-                              </div>
-                             
+                              </div>    
 
-                              </ion-card>                             
-                          </div>
+                        </div>                                      
+                    </div>
+                  </div>   
 
-                        </div>    
+                  <div v-if="configuration.reservationByStaff  && !spinnerTable" :key="keyStaff">
+                    Reservation By Staff 
 
-                    </div>                                      
-                  
-                  </div>
+                    <div style="text-align: center;" v-if="staffAvailable.length > 0">
+                      <ion-label position="floating"><strong>
+                        <ion-label color="danger" v-if="staffSelected==='' && tablesChoose"> {{$t('frontend.reservation.selectStaff')}} </ion-label>
+                        </strong>
+                      </ion-label>
+                    </div>
+
+                    <div v-if="tablesChoose" style="display: flex;justify-content: center;">
+                                              
+                        <ion-card v-for="(staff, index) in staffAvailable" :key="index"
+                          @click="staffSelected !==staff.staffID? staffSelected=staff.staffID: staffSelected='', staffObj=staff "
+                          class="menu-col-3 staff-grid" color="secondary" 
+                          :style="staff.staffID===staffSelected?'opacity:1':'opacity:0.8'"> 
+                         
+                          <ion-thumbnail slot="start">
+                              <ion-img :src="staff.ImgUrl"></ion-img>
+                          </ion-thumbnail>
+
+                            <ion-label>{{staff.Name}}</ion-label>                      
+                      </ion-card>
+                    </div>
+                    
+                  </div>  
+
+                </div>      
               
                 
                 <ion-item class="menu-col-12" >
@@ -171,21 +222,25 @@
          <ion-card>
 
             <ion-item class="menu-col-12" >
-              <ion-label><strong>{{$t('frontend.reservation.deposit')}}: {{getFormatPrice(configuration.payForReservationQuotation)}}</strong></ion-label>
+              <p><strong>{{$t('frontend.reservation.deposit')}}: {{getFormatPrice(configuration.payForReservationQuotation)}}</strong></p>
             </ion-item>
 
-            <div>
-               <ion-label color="danger" v-if="totalSeats < guest && totalSeats > 0"><strong>{{$t('frontend.reservation.notGuestAvaibility')}}</strong></ion-label>
-            </div>
             
 
                 <ion-button color="danger" @click="cancelReservation()">{{$t('frontend.home.cancel')}}</ion-button>
-                <ion-button color="primary" @click="confirmReservation()" :disabled="totalSeats < 1 || totalSeats < guest || (seatSelected < guest && tablesChoose)? true: false">                           
+                <ion-button color="primary" @click="confirmReservation()" v-if="configuration.reservationByTable"
+                  :disabled="totalSeats < 1 || totalSeats < guest || (seatSelected < guest && tablesChoose)? true: false">                           
+                  {{$t('frontend.home.confirm')}}
+                  <ion-spinner v-if="spinnerPayment" name="lines-small"></ion-spinner>
+                </ion-button>
+                <ion-button color="primary" @click="confirmReservation()" v-if="configuration.reservationByStaff"
+                  :disabled="staffSelected==='' && tablesChoose? true: false">                           
                   {{$t('frontend.home.confirm')}}
                   <ion-spinner v-if="spinnerPayment" name="lines-small"></ion-spinner>
                 </ion-button>
 
-             <!-- <ion-button @click="saveReservation()" v-if="!spinner">{{ this.$t('frontend.home.acept') }}</ion-button> -->
+                
+
          </ion-card>
 
        
@@ -424,6 +479,7 @@ export default {
   },
      data () {
       return {
+        firstSpinner: false,
         spinnerEmail: false,
          newReserv: true,
          codeReserv: false,
@@ -477,12 +533,18 @@ export default {
         tablesChoose: false,
         seatSelected: 0,
         AllTables: [],
+        AllSheetHours: [],
+        staffAvailable: [],
+        allStaff: [],
+        staffSelected: '',
+        staffObj: null,
+        keyStaff: 0,
       }
      },     
      created: async function(){
 
        
-        
+      this.firstSpinner = true;  
       if(this.$store.state.customer._id){
         this.clientId= this.$store.state.customer._id;
       this.CustomerName= this.$store.state.customer.Name;
@@ -494,7 +556,8 @@ export default {
       this.restaurantSelectedId = this.$store.state.restaurantActive.restaurantId || '';
       this.allReservations = this.$store.state.allReservations;
       this.configuration = this.$store.state.configuration; 
-      this.restaurantActive = this.$store.state.restaurantActive  
+      this.restaurantActive = this.$store.state.restaurantActive ;
+      this.allStaff = this.$store.state.allStaff;
 
       this.tablesChoose = this.configuration.tablesChoose;
        this.dateToDay = moment().add('days', this.configuration.minDayToReservation);
@@ -528,7 +591,9 @@ export default {
         });
 
          await this.GetAllTables();
-       
+         await this.GetAllSheetHour();
+        
+        this.firstSpinner = false;
      },
     mounted: function(){
         if(this.$route.params.currentPageReservation > 1){
@@ -689,10 +754,19 @@ export default {
             this.$t('frontend.reservation.errorHour2') +
             this.getReservationHour(this.configuration.reservationDaysAndTime[index].OpenHour) + ' - '+ this.getReservationHour(this.configuration.reservationDaysAndTime[index].CloseHour);
             this.totalSeats = 0;
+            this.serviceLocation = [];
+            this.staffAvailable = [];
+            this.staffSelected = '';
+            this.staffObj = null;
             return this.alertNotGoodHour(mess);
            
           } 
-          await this.fetchTables();
+
+          console.log('fetchTables and fetchStaff')
+
+          if(this.configuration.reservationByTable)
+            await this.fetchTables();
+          else await this.fetchStaff();
         }
       },
 
@@ -873,6 +947,8 @@ export default {
 
     fetchTables: async function(){
 
+      console.log('in fetchTables')
+
      try {
         if(this.serviceTime < 1 || this.hourToReserv === '' || this.dateToReserv === '' || this.guest < 1) return
 
@@ -937,16 +1013,17 @@ export default {
 
     },
 
-    async addBussyTime(value){    
-      if(value.modelName==='Table'){
-        const busy = {
-          ReservationId: value.reservationId,
-          Day:value.day,
-          HourIn: value.hourIn,
-          HourOut: value.hourOut,
-          State: 0,            
-        }
+    async addBussyTime(value){ 
 
+      const busy = {
+        ReservationId: value.reservationId,
+        Day:value.day,
+        HourIn: value.hourIn,
+        HourOut: value.hourOut,
+        State: 0,            
+      }
+
+      if(value.modelName ==='Table'){ 
        for (const tId of value.modelId) {
           const table = await this.findTable(tId);
           if(table._id){
@@ -956,10 +1033,25 @@ export default {
               table.Reservations.push(busy)
             }
             delete table.CanReserve;
-            await Api.putIn('Table', table);
+            await Api.putIn(value.modelName, table);
           }         
        }
-    }
+      }
+      else{
+        console.log('Ocupas sheet Hour');
+        if(this.staffObj !== null){
+          console.log( 'indexSheet: '+ this.staffObj.indexSheet)
+          console.log( 'indexstaffHour: '+ this.staffObj.indexstaffHour)
+          console.log( 'indexDay: '+ this.staffObj.indexDay)
+          console.log(JSON.parse(JSON.stringify(this.AllSheetHours)));
+
+          this.AllSheetHours[this.staffObj.indexSheet].StaffHour[this.staffObj.indexstaffHour].DaysArray[this.staffObj.indexDay].busy.push(busy)
+          await Api.putIn('sheethour', this.AllSheetHours[this.staffObj.indexSheet]);
+          this.staffObj = null
+        }
+     
+        
+      }
 
     },
 
@@ -972,80 +1064,7 @@ export default {
 
      async cancelReservation(){
         return this.$router.push({ name: 'AboutFront', params: {url: this.restaurantActive.restaurantUrl} }).catch(()=>{})
-        },
-
-    async saveReservation(){
-        
-        if(this.clientId !=''){
-          this.theName= this.CustomerName;
-         this.theEmail= this.email;
-         this.thePhone = this.phone ;
-          if(this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1){
-            let mss = '';
-            if(this.dateToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationDate')+'</strong>';
-            if(this.hourToReserv === '') mss +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
-            if(this.guest < 1) mss +='<br><strong>'+ this.$t('frontend.reservation.peoples') +' > 1'+'</strong>';
-            if(this.serviceTime < 1) mss +='<br> <strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
-             return this.alertRequiredDatas(mss);
-          }          
-        }
-        else{
-          if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
-            this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1)
-            var mss1 = '';
-            if(this.dateToReserv === '') mss1 += '<br><strong>' + this.$t('frontend.reservation.reservationDate')+'</strong>';
-            if(this.hourToReserv === '') mss1 +='<br><strong>'+ this.$t('frontend.reservation.reservationHour')+'</strong>';
-            if(this.guest < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.peoples')+ ' > 1'+'</strong>';
-             if(this.serviceTime < 1) mss1 +='<br><strong>'+ this.$t('frontend.reservation.timeToReserve') +' > 1min'+'</strong>';
-              return this.alertRequiredDatas(mss1);
-        }          
-
-        const Reservation = {
-        "CustomerId" : this.clientId,
-        "CustomerName": this.theName,
-        "CustomerEmail": this.theEmail,
-        "CustomerPhone":  this.thePhone,
-        "Capacity":  this.guest,
-        "ServiceTime": this.serviceTime,
-        "ServiceLocation": this.serviceLocation,
-        "ServiceModel": 'Table',
-        "Date": Moment(this.dateToReserv).toISOString(),
-        "Hour": Moment(this.hourToReserv).toISOString(),
-        "Note": this.noteToReserv,
-        "Reason": this.reasonToReser,
-        "State": 0
-        }
-        
-        
-        try {
-          this.spinner = true;
-          const response = await Api.postIn('Reservation', Reservation);          
-          if(response.status === 200){
-             const busyObj = {
-               reservationId: response.data._id,
-               day: moment(this.dateToReserv).format('MM-DD-YYYY'),
-               hourIn: moment(this.hourToReserv).format('HH:mm'),
-               hourOut: moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm'), 
-               modelName: 'Table',
-               modelId: this.serviceLocation
-             }         
-            this.addBussyTime(busyObj);             
-            this.dateToReserv = this.dateToDay;
-            this.hourToReserv = '' ; this.guest = 1; this.serviceTime = 1; this.serviceLocation = [];
-            this.noteToReserv = ''; this.reasonToReser = ''; this.spinner = false;
-            this.openToast();             
-            this.sendReservationEmail(Reservation);
-            this.getReservations();            
-            this.segmentChanged('listReserv');    
-            this.spinner = false;        
-             
-          }
-        
-        } catch (error) {
-          console.log(error);
-          this.spinner = false;          
-        }  
-      },
+    },
 
     async AsignServiceLocation(){
         await this.fetchTables();
@@ -1069,7 +1088,7 @@ export default {
 
     async confirmReservation(){
 
-      if(this.seatSelected === 0 && !this.tablesChoose){
+      if(this.configuration.reservationByTable && this.seatSelected === 0 && !this.tablesChoose){
         await this.AsignServiceLocation();
       }
 
@@ -1109,18 +1128,26 @@ export default {
         "CustomerEmail": this.theEmail,
         "CustomerPhone":  this.thePhone,
         "Capacity":  this.guest,
-        "ServiceTime": this.serviceTime,
-        "ServiceLocation": this.serviceLocation,
-        "ServiceModel": 'Table',
+        "ServiceTime": this.serviceTime,     
+        "ServiceLocation": [],
+        "ServiceModel": '',  
         "Date": Moment(this.dateToReserv).toISOString(),
         "Hour": Moment(this.hourToReserv).toISOString(),
         "Note": this.noteToReserv,
         "Reason": this.reasonToReser,
         "State": 0
         }
-        
 
-        if(this.configuration.hasReservationQuotation && this.configuration.payForReservationQuotation > 0){
+        if(this.restaurantActive.RestaurantBussines){
+           this.reservation.ServiceLocation = this.serviceLocation;
+           this.reservation.ServiceModel = 'Table';
+        }
+        else if(this.restaurantActive.ServiceBussines && this.tablesChoose && this.staffSelected!==''){
+           this.reservation.ServiceLocation = [this.staffSelected];
+           this.reservation.ServiceModel = 'Staff';
+        }
+
+        if(this.configuration.hasReservationQuotation && this.configuration.payForReservationQuotation > 0 ){
             this.spinnerPayment = true;
             await this.getWalletInformation();
             this.spinnerPayment = false;
@@ -1230,14 +1257,15 @@ export default {
                 day: moment(this.dateToReserv).format('MM-DD-YYYY'),
                 hourIn: moment(this.hourToReserv).format('HH:mm'),
                 hourOut: moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm'), 
-                modelName: 'Table',
-                modelId: this.serviceLocation
+                modelName: this.reservation.ServiceModel,
+                modelId: this.reservation.ServiceLocation
             }      
             this.addBussyTime(busyObj); 
 
             this.dateToReserv = this.dateToDay;
             this.hourToReserv = '' ; this.guest = 1; this.serviceTime = 1; this.serviceLocation = [];
-            this.noteToReserv = ''; this.reasonToReser = ''; this.totalSeats = 0;
+            this.noteToReserv = ''; this.reasonToReser = ''; this.totalSeats = 0; this.staffSelected ='', this.staffObj = null;
+            this.staffAvailable =[];
             this.keyCreated ++
 
             if(this.clientId !== ''){
@@ -1270,8 +1298,7 @@ export default {
                   "StaffName": this.$store.state.staffName,               
                   }
               await Api.postIn('allpayments', paymentEntry);
-            } 
-            
+            }             
             return 
           }
           
@@ -1290,12 +1317,103 @@ export default {
       } catch (error) {
         error
       }
-    }
+    },
 
-   
+    async GetAllSheetHour(){
+      if(this.dateToReserv === '') return;
+      const date = moment(this.dateToReserv).format('YYYY-MM-DD');
+      try {
+        this.spinnerTable = true;
+        const response = await Api.thisDateSheetHour(date)
+        if(response.status === 200) this.AllSheetHours = response.data;
+
+        
+
+        console.log('AllSheetHours');
+        console.log(JSON.parse(JSON.stringify(this.AllSheetHours)));
+        this.spinnerTable = false;
+        
+      } catch (error) {
+        error;
+        this.spinnerTable = false;
+      }
+    },
+
+    fetchStaff: async function(){
+
+     
+
+      console.log('in fetchStaff');
+    
+     if(this.serviceTime < 1 || this.hourToReserv === '' || this.dateToReserv === '' || this.guest < 1) return
+
+     this.spinnerTable = true;
+     this.staffAvailable = [];
+     this.staffSelected = '';
+     this.staffObj = null;
+     const SheetHours = this.AllSheetHours;
     
 
+    const day = moment(this.dateToReserv).format('MM-DD-YYYY');
+    const hour = moment(this.hourToReserv).format('HH:mm');
+    const hourOut = moment(this.hourToReserv).add(parseInt(this.serviceTime), 'minutes').format('HH:mm');
+    for (const [indexSheet, sheet] of SheetHours.entries()) {
+      if(sheet.State === 1){
+      for (const [indexstaffHour, staffHour] of sheet.StaffHour.entries()) {          
+        for (const [indexDay, date] of staffHour.DaysArray.entries()) {
+          const resHourIn = moment(date.hourIn).format('HH:mm');
+          const resHourOut = moment(date.hourOut).format('HH:mm');
+          if(day === moment(date.day).format('MM-DD-YYYY') &&
+            ( (hour >= resHourIn && hour <= resHourOut) &&
+            (hourOut >= resHourIn && hourOut <= resHourOut) ) ){
+            
+            var staffCanReserve = true;
+
+            for (const res of date.busy) {             
+              if(res.Day === day &&  ( (hour >= res.HourIn && hour <= res.HourOut) || (hourOut >= res.HourIn && hourOut <= res.HourOut) ) ){
+                staffCanReserve = false; 
+                break;
+              } 
+            }
+
+            if(staffCanReserve){
+              const SatffObj = this.getStaff(staffHour.IdStaff); 
+              this.staffAvailable.push({            
+              'staffID': staffHour.IdStaff,
+              'Name': SatffObj.FirstName + ' '+ SatffObj.LastName,
+              'ImgUrl': SatffObj.ImageUrl,
+              'staffCanReserve': staffCanReserve,
+              'indexSheet': indexSheet,
+              'indexstaffHour': indexstaffHour,
+              'indexDay': indexDay,
+              });
+
+             
+
+            }
+          }            
+        }
+      }
+      }
+
+
+       this.spinnerTable = false;
+       this.keyStaff ++;
+    
+      
+    } 
+
+    },
+
+    getStaff(id){
+      const index = this.allStaff.findIndex( s=> s._id === id)
+      if(index !== -1)
+       return this.allStaff[index];
+      else return {};
+    },
+
   }
+  
 }
 
 </script>
@@ -1433,6 +1551,20 @@ li {
   border: none;
   padding: 5px;
 }
+.staff-grid{
+  float: left;
+  height: 120px;
+  border: none;
+  padding: 5px;
+  opacity: 0.7;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+.staff-grid:hover{
+  opacity: 0.9
+}
 .menu-col-1{
     flex: 0 0 calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
     width: calc(calc(1 / var(--ion-grid-columns, 12)) * 100%);
@@ -1504,6 +1636,9 @@ li {
     width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
     max-width: calc(calc(12 / var(--ion-grid-columns, 12)) * 100%);
     text-align: left;
+}
+.card-categories{
+  visibility: visible;
 }
     
 </style>

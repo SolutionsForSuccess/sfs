@@ -28,17 +28,17 @@
             </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div >
       <div v-if="screenWidth < 600">
           <paginate
             name="languages"
             :list="filterOtherCharges"
             :per="8"
           >
-              <ion-list>
+              <ion-list :key="key">
                   <ion-item-sliding v-for="otherCharge in paginated('languages')" v-bind:key="otherCharge._id">
                       <ion-item>
                           <ion-label class="ion-text-wrap">
@@ -121,7 +121,8 @@ import { Api } from '../api/api.js';
 export default {
    name: 'product',
    created: function(){
-       this.init();
+       this.products = this.$store.state.backConfig.product;
+       this.fetchOtherCharges();
        this.screenWidth = screen.width;
    },
    data () {
@@ -137,23 +138,11 @@ export default {
 
       spinner: false,
       screenWidth: 0,
+      key: 0,
     }
   },
    methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
-    init(){
-       this.fetchOtherCharges();
-       this.fetchProducts();
-    },
+    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -239,63 +228,11 @@ export default {
     },
     /****** CRUD category methods ******/
     fetchOtherCharges: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.otherCharges = response.data
-                  this.filterOtherCharges = this.otherCharges
-                  loading.dismiss()
-                })
-                .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                    // this.ShowMessage('Error', 'Error', 'Fetch other charges');
-                });
-            })
-        })
+      this.otherCharges = this.$store.state.backConfig.othercharges
+       this.filterOtherCharges = this.otherCharges
     },
-    fetchProducts: function(){
-        Api.fetchAll('Product').then(response => {
-          // console.log(response.data)
-          this.products = response.data
-        })
-        .catch(e => {
-            // this.ShowMessage('Error', 'Error', 'Fetch product');
-            console.log(e);
-        });
-    },
-    // getCategoryNameById: function(id){
-    //     var categ = '';
-    //     this.categories.forEach(category => {
-    //         if (category._id == id) {
-    //             categ = category.Name;                
-    //         }
-    //     });
-    //     return categ;
-    // },
-    // fetchCategoryById: function(id) {
-    //     let categoryName = '';
-    //     this.categories.forEach(category => {
-    //         if (category._id == id){
-    //             categoryName = category.Name;
-    //             return categoryName;
-    //         }
-    //     }
-    //     );
-
-    //     return categoryName;
-    // },
-    availableOtherCharge: function(otherCharge, state){
+   
+     availableOtherCharge:async function(otherCharge, state){
       let item = {
             "_id": otherCharge._id,
             "Name": otherCharge.Name,
@@ -306,13 +243,14 @@ export default {
             "Available": state,
         }
         this.spinner = true;
-        Api.putIn(this.modelName, item)
+        await Api.putIn(this.modelName, item)
               .then(response => {
-                    this.ShowMessage(this.$t('backoffice.list.messages.activeOtherCharge'), 
-                          this.$t('backoffice.list.messages.otherChargeChangeState'),
-                        this.$t('backoffice.list.messages.activeOtherCharge'));
+                    const index = this.$store.state.backConfig.othercharges.findIndex(o =>o._id ===item._id)
+                    if(index !== -1) this.$store.state.backConfig.othercharges[index] = item;
                     this.fetchOtherCharges();
+                    this.key ++;
                     this.spinner = false;
+                     this.showToastMessage(this.$t('backoffice.list.messages.activeOtherCharge'), "success");
                     return response;
               })
               .catch(e => {
@@ -326,12 +264,14 @@ export default {
 
               })
     },
+
     editOtherCharge: function(id){
         this.$router.push({
         name: 'OtherChargeForm', 
         params: { otherChargeId: id }
       });
     },
+
     deleteOtherCharge: function(id){
 
         return this.$ionic.alertController.create({
@@ -350,13 +290,14 @@ export default {
               
                 this.spinner = true
                 Api.deleteById(this.modelName, id)
-                .then(response => {
-                  // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                  //     this.$t('backoffice.list.messages.messageDeleteSuccessOtherCharges'),
-                  //         this.$t('backoffice.list.messages.deleteSubtitleOtherCharges'));
-                    this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessOtherCharges'), "success");
+                .then(response => {                  
+                    
+                    const index = this.$store.state.backConfig.othercharges.findIndex(o => o._id === id)
+                    if(index !== -1) this.$store.state.backConfig.othercharges.splice(index, 1);
                     this.fetchOtherCharges();
+                    this.key ++;
                     this.spinner = false;
+                    this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessOtherCharges'), "success");
                     return response;
                 })
                 .catch(e => {

@@ -369,7 +369,7 @@ export default {
           EventBus.$emit('clientHasPhone', client.Phone );
           EventBus.$emit('clientHasEmail', client.EmailAddress ); 
           EventBus.$emit('updateRestaurantSelectedId', this.$store.state.user.RestaurantId); 
-          EventBus.$emit('staffName', this.$store.state.user.FirstName + ' ' + this.$store.state.user.LastName);       
+          this.$store.commit('setStaffName',this.userLogin.FirstName + ' ' + this.userLogin.LastName);
         // this.order.ClientId = this.clientId
         //console.log('' + this.order);
         this.$router.push({

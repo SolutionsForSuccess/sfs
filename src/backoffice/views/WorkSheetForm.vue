@@ -14,12 +14,14 @@
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
-        <ion-grid>
+   <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
 
+    <div>
+        <ion-grid>
             <ion-row class="left">
                 <ion-col>
                     <div v-if="workSheet.State == 0">
@@ -391,7 +393,7 @@ export default{
   created: function(){
     this.screenWidth = screen.width;
     this.fetchAllStaff();
-    this.fetchAllOccupations();
+     this.allOccupations =  this.$store.state.backConfig.occupation;
   },
   computed: {
         title() {
@@ -399,9 +401,11 @@ export default{
         }
   },
   methods:{
+
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);
     },
+
     myStaffCalendar(staffId){
         let list = []
         this.staffHour.forEach(staffH => {
@@ -410,11 +414,13 @@ export default{
         })
         return list
     },
+
     checkMess(){
         if (this.selectedStaff.length > 0){
             this.showToastMessage('If you change the date, you must reset calendar.', 'primary')
         }
     },
+
     resetStaffCalendar(id=null){
 
         if (id==null){
@@ -439,6 +445,7 @@ export default{
             this.totalHoursWorked(id)
         }
     },
+
     getStaffOcuppations(OccuppationId){
         const occ = this.allOccupations.filter(ocupp => ocupp._id === OccuppationId)
         if (occ.length > 0)
@@ -449,6 +456,7 @@ export default{
         
         return ''
     },
+
     ifErrorOccured(action){
         return this.$ionic.alertController.create({
             title: this.$t('backoffice.list.messages.connectionError'),
@@ -472,6 +480,7 @@ export default{
         })
         .then(a => a.present());
     },
+
     isValidForm(){
 
         if (this.startDate == "")
@@ -489,6 +498,7 @@ export default{
 
         return true
     },
+
     showToastMessage(message, tColor){
         return this.$ionic.toastController.create({
           color: tColor,
@@ -498,82 +508,40 @@ export default{
           showCloseButton: false
         }).then(a => a.present())
     },
-    fetchAllOccupations: function(){
-        Api.fetchAll('occupation')
-        .then(response => {
-            this.allOccupations = response.data
-        })
-        .catch(e => {
-            console.log(e)
-        })
-    },
-    fetchAllStaff: function(){
 
-    this.$ionic.loadingController
-    .create({
-    cssClass: 'my-custom-class',
-    message: this.$t('backoffice.titles.loading'),
-    backdropDismiss: true
-    })
-    .then(loading => {
-        loading.present()
-        setTimeout(() => {  // Some AJAX call occurs
-        Api.fetchAll('Staff')
-        .then(response => {    
-            this.allStaff = response.data;
-            this.allStaff = this.allStaff.filter(staff => !staff.IsSupport)
-            this.id = this.$route.params.workSheetId;
-                if (this.id){
-                    // this.title = 'Edit menu';
-                    Api.fetchById(this.modelName, this.id)
-                        .then(responseSheet => {
-                        this.initData(responseSheet.data);
-                        loading.dismiss();
-                        return responseSheet;
-                        })
-                        .catch(e => {
-                        console.log(e);
-                        loading.dismiss();
-                        this.ifErrorOccured(this.fetchAllStaff);
-                        })   
+    fetchAllStaff: function(){
+        this.allStaff =  this.$store.state.backConfig.staff;
+        this.allStaff = this.allStaff.filter(staff => !staff.IsSupport)
+        this.id = this.$route.params.workSheetId;
+        console.log(this.id)
+        if (this.id){
+            const data =  this.$store.state.backConfig.shestHour.find( s=> s._id === this.id);
+            console.log(data);
+                if(data){
+                    this.workSheet = data;
+                    this.selectedStaff = this.mapStaff(this.workSheet.StaffHour);
+                    this.initAvailableStaff();
+                    this.syncStaffHours('open')
                 }
-                else{
-                this.initAvailableStaff();
-                loading.dismiss();
-                }
-            })
-            .catch(e => {
-            console.log(e);
-            loading.dismiss();
-            })  
-        })
-    })
+        }
+        else{
+            this.initAvailableStaff();
+        }
     },
-    initData: function(data){
-    this.workSheet = data
-    console.log("The Work Sheet", this.workSheet)
-    this.selectedStaff = this.mapStaff(this.workSheet.StaffHour);
-    this.initAvailableStaff();
-    this.syncStaffHours('open')
-    },
+  
     mapStaff: function(staffHour){
         let selStaff = [];
         staffHour.forEach(sh => {
 
-        let selS = null;
-        this.allStaff.forEach(s => {
-            if (sh.IdStaff == s._id)
-                selS = s;
-        });
+            let selS = null;
+            this.allStaff.forEach(s => { if (sh.IdStaff == s._id)  selS = s; });
 
-        if (selS != null)
-            selStaff.push(selS);
+            if (selS != null) selStaff.push(selS);
 
         });
-
         return selStaff;
-        
     },
+
     initAvailableStaff: function(){
         if (this.id)
         {
@@ -597,22 +565,8 @@ export default{
             this.availableStaff = this.allStaff;
         } 
     },
+
     getDaysArray(){
-
-        /*
-        
-        [
-            {
-                "day" : "2021-07-22T16:18:31.773Z",
-                "hourIn" : ISODate("2021-07-22T12:18:31.773Z"),
-                "hourOut" : ISODate("2021-07-22T16:18:31.773Z"),
-                "busy" : [],
-                "State": 0 | 1,
-            }
-        ]
-
-        */
-
 
         let daysArray = []
         let sd = moment(this.workSheet.StartDate)
@@ -648,22 +602,14 @@ export default{
 
         return daysArray
     },
+
     addStaff: function(id){
         let s = this.availableStaff.find(staff => staff._id == id);
         this.selectedStaff.push(s);
 
-        var staffIndex = this.availableStaff.indexOf(s); // get index
+        var staffIndex = this.availableStaff.indexOf(s); 
         this.availableStaff.splice(staffIndex, 1);
 
-        //Agregar staff al objeto
-    //   const sh = {
-    //       IdStaff: id,
-    //       DaysArray: []
-    //   }
-    //   this.workSheet.StaffHour.push(sh)
-    //   console.log(this.workSheet)
-
-        //Agregar staff a staffHour
         const sh = {
             IdStaff: id,
             TotalHour: 0,
@@ -673,6 +619,7 @@ export default{
         console.log(sh)
         this.staffHour.push(sh)
     },
+
     deleteStaff: function(id){
         let s = this.selectedStaff.find(staff => staff._id == id);
         this.availableStaff.push(s);
@@ -680,23 +627,6 @@ export default{
         var staffIndex = this.selectedStaff.indexOf(s);
         this.selectedStaff.splice(staffIndex, 1);
 
-        //Quitar staff del objeto
-    //   let i = 0
-    //   let find = false
-    //   this.workSheet.StaffHour.forEach(sh => {
-    //       // console.log(id, sh.IdStaff)
-    //       if (sh.IdStaff == id){
-    //           find = true
-    //       }
-    //       if (!find)
-    //         i++
-    //   })
-    //   if (find){
-    //       this.workSheet.StaffHour.splice(i, 1)
-    //       // console.log(this.workSheet)
-    //   }
-
-    // Quitar staff de staffHour
         let i = 0
         let find = false
         this.staffHour.forEach(sh => {
@@ -710,6 +640,7 @@ export default{
             this.staffHour.splice(i, 1)
         }
     },
+
     totalHoursWorked(IdStaff){
         const staffh = this.staffHour.find(sh => sh.IdStaff == IdStaff)
         console.log(staffh)
@@ -729,11 +660,13 @@ export default{
         this.staffHour.find(sh => sh.IdStaff == IdStaff).TotalHour = hours
         this.staffHour.find(sh => sh.IdStaff == IdStaff).TotalMinutes = minutes
     },
+
     validityAdd(date){
         if (date.hourIn == '' || date.hourOut == '')
             return false
         return true
     },
+
     addHour(date, IdStaff){
         if (this.validityAdd(date))
         {
@@ -743,11 +676,12 @@ export default{
         else
             this.showToastMessage('You must fill the correspond hour fields', 'danger')
     },
+
     delHour(date, IdStaff){
         this.staffHour.find(sh => sh.IdStaff == IdStaff).DaysArray.find(d => d === date).State = 0
         this.totalHoursWorked(IdStaff)
     },
-      // Create or edit a new menu
+   
     syncStaffHours(action='save'){
         //Sujeto a implementación
         if (action == 'save'){
@@ -807,23 +741,21 @@ export default{
         }
     },
 
-    saveWorkSheet: function(state=0){
+    saveWorkSheet: async function(state=0){
 
     if (this.isValidForm())
     {
         this.isBackdrop = true;
-
-        this.workSheet.State = state;
-        
+        this.workSheet.State = state;        
         this.syncStaffHours();
-
-        console.log(this.workSheet)
         
         //If I am editing
         if (this.id){
             this.spinner = true;
-            Api.putIn(this.modelName, this.workSheet)
+            await Api.putIn(this.modelName, this.workSheet)
                 .then(response => {
+                    const index =  this.$store.state.backConfig.shestHour.findIndex( w=>w._id === this.id)
+                    if(index !== -1)  this.$store.state.backConfig.shestHour[index] = this.workSheet;
                     this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessWorksheet'), "success");
                     this.spinner = false;
                     this.$router.push({
@@ -841,8 +773,9 @@ export default{
         else{
         //     //Else, I am created a new worksheet
             this.spinner = true;
-            Api.postIn(this.modelName, this.workSheet)
+            await Api.postIn(this.modelName, this.workSheet)
                 .then(response => {
+                    this.$store.state.backConfig.shestHour.push(response.data);
                     this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessWorksheet'), "success");
                     this.spinner = false;
                     this.$router.push({

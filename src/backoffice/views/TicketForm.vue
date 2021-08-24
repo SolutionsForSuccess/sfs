@@ -1007,8 +1007,8 @@ export default {
                 {
                     const invoiceNumber = this.order.AuthorizationPayment[0].paymentInfo.transId;
                     const moto = this.order.AuthorizationPayment[0].paymentInfo.moto;
-                    //console.log('Capture del Authorization '  + invoiceNumber + ' '+ moto , ' '+ this.restaurantActive.PayMethod);
-                    const response = await payAuthorizeNet.captureOrder(invoiceNumber, moto,  this.restaurantActive._id, this.restaurantActive.PayMethod);      
+                    console.log('MOTO Capture del Authorization '  + moto);
+                    const response = await payAuthorizeNet.captureOrder(invoiceNumber, moto,  this.restaurantActive._id, this.restaurantActive.PayMethod, this.order.Total);      
                     //console.log('RESPONSE CAPTURE');
                     //console.log(response);
                     delete this.order.AuthorizationPayment;

@@ -46,18 +46,15 @@
       </ion-refresher>
 
   
-      <ion-loading
-        v-if="spinner"
-        cssClass="my-custom-class"
-        :message="$t('frontend.tooltips.loadRestaurant')"
-      ></ion-loading>
-  
-    <div>  
+      <div v-if="spinner">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+    </div>
+
+    <div :key="key">  
             
 
         <div  v-if="menuactive==='list'">
           <paginate
-            :key="key"  
             name="languages"
             :list="filterOrders"
             :per="8"                     
@@ -193,7 +190,7 @@ export default {
   }, 
   methods: {
 
-      async doRefresh(event) {
+    async doRefresh(event) {
     
       await this.fetchOrders();      
       event.target.complete();
@@ -222,10 +219,8 @@ export default {
           this.fil = this.orders 
       });
     },
-       
 
     viewOrder: function(specialsPrice){
-        // console.log('Open specialsprice type con ID '+ specialsPrice);
         return this.$router.push({ name: 'SpecialsPriceDetail', params: {specialsPrice: specialsPrice} })
     },
 
@@ -236,8 +231,12 @@ export default {
       try {
         this.spinner = true;
         const response = await Api.deleteById('specialsprice', id);
-        if(response.status === 200)
+        if(response.status === 200){
+          const index = this.$store.state.backConfig.specialprice.findIndex( s=> s._id === id);
+          if(index !== -1) this.$store.state.backConfig.specialprice.splice(index, 1)
            await this.fetchOrders(); 
+           this.key ++;
+        }          
          this.spinner = false;
         
       } catch (error) {
@@ -252,16 +251,8 @@ export default {
 
     /****** CRUD category methods ******/
     fetchOrders: async function(){
-      this.spinner = true;
-      try {
-        const response = await Api.fetchAll('specialsprice')
-        this.orders = response.data;
-        this.filterOrders = this.orders; 
-         this.spinner = false;
-      } catch (error) {
-        error;
-         this.spinner = false;
-      }   
+      this.orders = this.$store.state.backConfig.specialprice
+      this.filterOrders = this.orders; 
     },
   
    getFormatPrice(price){

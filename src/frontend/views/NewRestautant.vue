@@ -13,7 +13,7 @@
                      <ion-buttons slot="start" @click="hideRestaurantType()">
                         <ion-back-button default-href="home"></ion-back-button>
                     </ion-buttons>
-                    <ion-title>{{$t('frontend.createNew.restaurantType')}}: {{restaurantType[restaurantTypeSelected].Type}}</ion-title>
+                    <ion-title>{{$t('frontend.createNew.template')}}: {{restaurantType[restaurantTypeSelected].Type}}</ion-title>
                 </ion-toolbar>
                 </ion-header>
 
@@ -34,8 +34,8 @@
                      <TermAndConditions/>
                 </div>
 
-             <ion-button @click="hideTerms()">Cancelar</ion-button>
-             <ion-button @click="termAndCondition=true,hideTerms()">Aceptar</ion-button>
+             <ion-button @click="hideTerms()">{{$t('frontend.home.cancel')}}</ion-button>
+             <ion-button @click="termAndCondition=true,hideTerms()">{{$t('frontend.home.acept')}}</ion-button>
         </modal>
 
 
@@ -54,22 +54,41 @@
                 </ion-toolbar>
             </ion-header> 
 
-            <ion-card >
-                <ion-button @click="restaurantBussines=true,serviceBussines=false" :disabled="restaurantBussines? true: false">Negocio</ion-button>
-                <ion-button @click="serviceBussines=true,restaurantBussines=false" :disabled="serviceBussines? true: false">Reservación</ion-button>
-            </ion-card>
+            <div > 
+                <ion-button @click="restaurantBussines=true,serviceBussines=false,businessType='Hospitality'" :disabled="restaurantBussines? true: false">{{$t('frontend.createNew.business')}}</ion-button>
+                <ion-button @click="serviceBussines=true,restaurantBussines=false,businessType='Reservations'" :disabled="serviceBussines? true: false">{{$t('frontend.createNew.reservation')}}</ion-button>
+            </div>
 
             <v-breakpoint v-if="restaurantBussines || serviceBussines">
                 <div slot-scope="scope" :key="key">
+
+                 
 
                     <ion-card >
                             <ion-card-title style="text-align: left;padding: 15px;">
                             {{$t('frontend.createNew.dataRestaurant')}}
                         </ion-card-title>
                         <ion-card-content :key="restaurantKey">
-                            <div  style="display: flex;justify-content: flex-start;align-items: center;" v-if="!serviceBussines">  
+                             <div style="display: flex;justify-content: flex-start;align-items: center;padding: 0 20px;font-weight: bold;" >
+                                <h2 ><ion-label>{{$t('frontend.createNew.restaurantType')}}</ion-label><strong style="color: red">*</strong></h2>                                          
+                              
+                                 <ion-select interface="popover" icon="add" 
+                                    style=""
+                                    :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                                    :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                                    
+                                    :placeholder="$t('frontend.createNew.select')"
+                                    :value="businessType"
+                                    :disabled="serviceBussines?true:false"
+                                    @ionChange="businessType=$event.target.value"                          
+                                    >
+                                        <ion-select-option v-for="(res) in businessTypeList" :key="res"
+                                        :value="res" >{{res}}
+                                        </ion-select-option>  
+                                </ion-select>
+                            </div>
+                            <div  style="display: flex;justify-content: flex-start;align-items: center;;padding: 0 20px;font-weight: bold;" v-if="!serviceBussines">  
                                 
-                                <h2>{{$t('frontend.createNew.restaurantType')}}<strong style="color: red">*</strong></h2>
+                                <h2>{{$t('frontend.createNew.template')}}<strong style="color: red">*</strong></h2>
                                 <ion-select interface="popover" icon="add" v-if="restaurantType.length > 0"
                                 style=""
                                 :ok-text="$t('backoffice.form.messages.buttons.ok')"
@@ -89,7 +108,10 @@
                                     </div>
                                 </div>
                                         
-                            </div>                               
+                            </div>    
+
+                            
+
                             <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantName')}}<strong style="color: red">*</strong></ion-label>                                          
                                 <ion-input type="text" required=true  
@@ -249,7 +271,7 @@
                 version_number= "2.0"                        
                 save_token= "true"
                 method="schedule"
-                :total_amount="amount.toString()"
+                :total_amount="getFinalAmount().toString()"
                 schedule_frequency="monthly"              
                 schedule_continuous="true"
                 :utc_time="utc"                      
@@ -311,11 +333,9 @@ export default {
             this.paySpinner = false;
             const response = JSON.parse(value);
             if(response.event === 'success'){
-                console.log('Obtener el valor del response.trace_number y guardar restaurante');
                 this.makePayment(response.trace_number, null);
             }
             if(response.event === 'failure'){
-                console.log('Obtener el valor del response.response_description y guardar restaurante');
                 this.openMs(response.response_description, 'danger');
             }
 
@@ -326,7 +346,8 @@ export default {
         return {  
         //    parent: {} ,
            appLoginId: 'hfIU9scKMj',
-           amount: 59.00,
+           amount: 39.00,
+           amountReservation: 20.00,
            spinner: false,
            restaurantName: '',
            restaurantAddres: '',
@@ -350,17 +371,22 @@ export default {
            merchantCity: '',
            merchantState: '',
            utc: '',
-           api_access_id: '11d6e10cec7e239aa76e7f456b8e9e5d', // '442f701ee5d25cf1b4ab6592d0b670a5',
-           api_secure_key: '08ad49c5c0c4fa9e33d98103ac77ca7b', //  'c477ce46b6fcbad91bb30ebd5f69488f',
-           location_id: '186209', // "277674",
+        //    api_access_id: '11d6e10cec7e239aa76e7f456b8e9e5d', // Prod',
+        //     api_secure_key: '08ad49c5c0c4fa9e33d98103ac77ca7b', //  Prod,
+        //     location_id: '186209', // Prod,
+            api_access_id:  '442f701ee5d25cf1b4ab6592d0b670a5', // Sandbox,          
+            api_secure_key: 'c477ce46b6fcbad91bb30ebd5f69488f', // SandBobx           
+            location_id: "277674", // Sandbox,
            paymentRes: '',
            paySpinner: false,
            restaurantType: [],
            restaurantTypeSelected: -1,
            termAndCondition: false,
            spinnerDate: false,
-           restaurantBussines: false,
+           restaurantBussines: true,
            serviceBussines: false,
+           businessType: '',
+           businessTypeList: ['Hospitality','Reservations','Service','Entertainment','Retail']
         }
     },  
     methods:{
@@ -433,7 +459,8 @@ export default {
                 "Address": this.restaurantAddres,
                 "Phone": this.restaurantPhone,
                 "Email": this.restaurantEmail,               
-                "ZipCode": this.restaurantZipcode,             
+                "ZipCode": this.restaurantZipcode,    
+                "BusinessType": this.businessType,         
                 "UserSettings": {
                     "FirstName": this.merchantName,
                     "LastName": this.merchantLastName,
@@ -459,7 +486,8 @@ export default {
 
             // AQUI ENLAZAR EL PAGO CON FORTE Y AL OBTENER LA RESPUESTA QUE SE GUARDE EL RESTAURANTE.
 
-            await Api.newRestaurant(res);
+           try {
+                await Api.newRestaurant(res);
             this.spinner = false;
             this.openMs(this.$t('frontend.createNew.createdMessage'), 'success'); 
             this.parent.newRestaurant = false; 
@@ -467,6 +495,12 @@ export default {
             this.parent.newRestaurantKey ++;
             this.parent.openEnd();
             return this.$router.push({name: 'AppVue' });
+               
+           } catch (error) {
+               console.log(error)
+               this.spinner = false;
+               
+           }
         },
 
         validateEmail(value, model){
@@ -569,14 +603,23 @@ export default {
             .then(a => a.present())
         },
 
-        getSingleHash(){
+        getSingleHash(){            
+            var finalAmount = this.getFinalAmount();
             if(this.utc !== ''){
-                let md5String = `${this.api_access_id}|schedule|2.0|${this.amount}|${this.utc}|A030||`
+                let md5String = `${this.api_access_id}|schedule|2.0|${finalAmount}|${this.utc}|A030||`
                 const signature = md5(md5String, this.api_secure_key); 
                 return signature
             }
             return ''
         },
+
+        getFinalAmount(){                     
+            var finalAmount = this.amount;
+            if(this.serviceBussines) finalAmount = this.amountReservation;          
+            return finalAmount;
+        },
+
+
        
         async getUTC(){
             try {                             
@@ -586,7 +629,7 @@ export default {
                 resp = resp.replace(';', '');
                 this.utc = resp
             } catch (error) {
-              console.log(error)  ;
+              error
             }
         }, 
 
@@ -600,9 +643,6 @@ export default {
                 if(index !== -1){
                     this.restaurantTypeSelected = index;
                 }
-                
-
-                console.log()
                 
             } catch (error) {
                 error;

@@ -15,10 +15,13 @@
     <br/>
 
       <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+   <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+  ></ion-loading>
+
+    <div>
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
@@ -101,36 +104,18 @@ export default {
   methods: {
     init(){
         this.id = this.$route.params.customerId;
-        if (this.id){
-          this.$ionic.loadingController
-          .create({
-            cssClass: 'my-custom-class',
-            message: this.$t('backoffice.titles.loading'),
-            backdropDismiss: true
-          })
-          .then(loading => {
-              loading.present()
-              setTimeout(() => {  // Some AJAX call occurs
-                  Api.fetchById(this.modelName, this.id)
-                  .then(response => {
-                    this.name = response.data.Name;
-                    this.phone = response.data.Phone;
-                    this.emailAddress = response.data.EmailAddress;
+        const data = this.$store.state.backConfig.allCustomer.find( c => c._id ===this.id)
+        if(data){
+          this.name = data.Name;
+          this.phone = data.Phone;
+          this.emailAddress = data.EmailAddress;
 
-                    if (response.data.MarketingConsent){
-                          this.mcemail = response.data.MarketingConsent.Email;
-                          this.mcphone = response.data.MarketingConsent.Phone;
-                    }
-                    loading.dismiss();
-                    return response;
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                  })
-              })
-          })   
+          if (data.MarketingConsent){
+                this.mcemail = data.MarketingConsent.Email;
+                this.mcphone = data.MarketingConsent.Phone;
+          }
         }
+       
         if(this.$route.params.customerName)
           this.name = this.$route.params.customerName;
         if(this.$route.params.Phone)
@@ -140,6 +125,7 @@ export default {
 
         //console.log(this.$route.params);
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -163,60 +149,19 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
-        // let errors = [];
-        if (this.name == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.name'));
-            return false
-        }
-        if (this.emailAddress == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.email'));
-            return false
-        }
-        if (this.phone == "")
-        {
-            // errors.push(this.$t('backoffice.form.validate.phone'));
-            return false
-        }
-
+        if (this.name == "") return false
+        if (this.emailAddress == "") return false
+        if (this.phone == "") return false  
         if (this.emailAddress != ""){
-
             let emailRegex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i;
-            if (emailRegex.test(this.emailAddress) == false)
-            {
-                // errors.push(this.$t('backoffice.form.validate.emailIncorrect'));
+            if (emailRegex.test(this.emailAddress) == false)            
                 return false
-            }
-            
         }
-
-        return true
-        
-        // let phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-        // if (phoneRegex.test(this.phone) == false)
-        // {
-        //     errors.push("Phone is incorrect");
-        // }
-
-        // if (errors.length > 0)
-        // {
-        //     let message = "";
-        //     for (let i = 0; i < errors.length; i++) {
-        //          message += (i + 1) + "- " + errors[i] + "<br/>";
-        //     }
-        //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-        //     //                      message,
-        //     //                        this.$t('backoffice.form.validate.validateCustomer'));
-        //     this.showToastMessage(message, "danger");
-        //     return false;
-        // }
-        // else
-        // {
-        //     return true;
-        // }
+        return true      
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -228,6 +173,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -238,7 +184,8 @@ export default {
       }).then(a => a.present())
     },
     //Create or edit a new category
-    saveCustomer: function(){
+
+    saveCustomer: async function(){
       
         if (this.isValidForm())
         {
@@ -248,12 +195,9 @@ export default {
               "Phone": this.phone,
               "EmailAddress": this.emailAddress,
             };
-
-            //console.log(this.mcemail);
-            //console.log(this.mcphone);
+          
             if (this.mcemail  || this.mcphone)
             {
-                //console.log("Entro")
                 let MarketingConsent = {
                         "Email": this.mcemail,
                         "Phone": this.mcphone
@@ -267,9 +211,8 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessCustomer'), 
-                        //         this.$t('backoffice.list.messages.titleEditCustomer'));
+                        const index = this.$store.state.backConfig.allCustomer.findIndex( c => c._id === this.id);
+                        if(index !== -1) this.$store.state.backConfig.allCustomer[index] = item;                        
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessCustomer'), "success");
                         this.name = '';
                         this.phone = '';
@@ -292,11 +235,8 @@ export default {
             else{
               //Else, I am created a new category
               this.spinner = true
-              Api.postIn(this.modelName, item)
+              await Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessCustomer'), 
-                      //           this.$t('backoffice.list.messages.titleCreateCustomer'));
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessCustomer'), "success");
                       this.name = '';
                       this.phone = '';

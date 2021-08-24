@@ -223,6 +223,7 @@
                  <ion-label position="floating">{{i18n.t('frontend.order.firstName')}} <strong style="color: red">*</strong></ion-label>                               
                   <ion-input type="text" required=true  
                   class="menu-col-8" 
+                  autocomplete="name"
                   :value="firstName" @input="firstName = $event.target.value"
                       ></ion-input>
               </ion-item>    
@@ -230,6 +231,7 @@
               <ion-item :disabled="spinner? true: false">
                   <ion-label position="floating">{{i18n.t('frontend.order.lastName')}} <strong style="color: red">*</strong></ion-label>                                          
                   <ion-input type="text" required=true  
+                  autocomplete="family-name"
                   class="menu-col-8"
                   :value="lastName" @input="lastName = $event.target.value"
                       ></ion-input>
@@ -238,6 +240,7 @@
               <ion-item :disabled="spinner? true: false">                     
                   <ion-label position="floating">{{i18n.t('frontend.order.addressLine1')}} <strong style="color: red">*</strong></ion-label>                                                                      
                   <ion-input type="text" required=true  
+                  autocomplete="street-address"
                   class="menu-col-8" 
                   :value="address" @input="address = $event.target.value"
                       ></ion-input>
@@ -246,6 +249,7 @@
               <ion-item :disabled="spinner? true: false">                  
                   <ion-label position="floating">{{i18n.t('frontend.order.postalCode')}} <strong style="color: red">*</strong></ion-label>                                                                                                    
                   <ion-input type="tel" required=true  :key="key"
+                  autocomplete="postal-code"
                   class="menu-col-8" 
                   :value="zipCode" @change="zipCode=ValidateCodeInModal( $event.target.value)"
                       ></ion-input> 
@@ -262,13 +266,15 @@
               <ion-item :disabled="spinner? true: false">                    
                   <ion-label position="floating">{{i18n.t('frontend.order.expcard')}} <strong style="color: red">*</strong></ion-label>                                                                                                                                
                   <ion-datetime class="menu-col-8"
+                  autocomplete="cc-exp"
                   display-format="MM-YYYY" :max="dateTodaymax + 6 "  picker-format="MM-YYYY"
                   :min="dateTodaymin" required=true @ionChange="expirationCard = $event.target.value"> </ion-datetime>
               </ion-item>
 
               <ion-item :disabled="spinner? true: false">                 
                   <ion-label position="floating">{{i18n.t('frontend.order.ccode')}} <strong style="color: red">*</strong></ion-label>                               
-                  <ion-input type="tel" required=true  
+                  <ion-input type="tel" required=true
+                   autocomplete="cc-csc"  
                   class="menu-col-8"
                   :value="cardCode" @input="cardCode = $event.target.value"
                       ></ion-input>
@@ -398,7 +404,7 @@
             <ion-item >
                 <ion-label position="floating">{{i18n.t('frontend.order.bankName')}}<strong style="color: red">*</strong></ion-label>                                          
                 <ion-input type="text" required=true  
-                class="menu-col-8"
+                class="menu-col-8"                
                     :value="bankName" 
                     @input="bankName = $event.target.value"
                     >

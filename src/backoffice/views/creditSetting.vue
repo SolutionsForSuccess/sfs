@@ -4,10 +4,14 @@
         <ion-toolbar>
             <ion-title>{{ parent.$t('backoffice.form.titles.creditSetting') }}</ion-title>
         </ion-toolbar>
-        <div v-if="spinner">
-            <ion-spinner name="lines" class="spinner"></ion-spinner>
-        </div>
-        <div v-else>
+
+         <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
+
+        <div>
 
             <ion-list>
                 <ion-item>
@@ -66,25 +70,16 @@ export default {
 
     },
     created(){
-        this.spinner = true
-        Api.fetchAll('Setting')
-        .then(response => {
-            this.setting = response.data[0]
-            this.feeType = this.setting.creditFeeType
-            this.feeFrecuency = this.setting.creditFeeFrecuency
-            this.feeAmount = this.setting.creditFeeAmount
-            this.spinner = false
-        })
-        .catch(e => {   
-            this.showToastMessage(e, 'danger')
-            console.log(e)
-            this.spinner = false
-        })
+        this.setting = this.$store.state.backConfig.setting;
+        this.feeType = this.setting.creditFeeType
+        this.feeFrecuency = this.setting.creditFeeFrecuency
+        this.feeAmount = this.setting.creditFeeAmount
     },
     props: {
         parent: { type: Object, default: null },
     },
     methods:{
+
         isValidForm(){
             if (this.feeType == "")
                 return false
@@ -94,6 +89,7 @@ export default {
                 return false
             return true
         },
+
         showToastMessage(message, tColor){
             return this.$ionic.toastController.create({
                 color: tColor,
@@ -103,7 +99,8 @@ export default {
                 showCloseButton: false
             }).then(a => a.present())
         },
-        saveSetting(){
+
+        async saveSetting(){
 
             if (this.isValidForm){
                 this.spinner = true
@@ -111,8 +108,9 @@ export default {
                 this.setting.creditFeeFrecuency = this.feeFrecuency
                 this.setting.creditFeeAmount = this.feeAmount
 
-                Api.putIn('Setting', this.setting)
+                await Api.putIn('Setting', this.setting)
                 .then(() => {
+                    this.$store.state.backConfig.setting = this.setting;
                     this.showToastMessage('The credit setting was saved successfully.', 'success')
                     this.spinner = false
                     this.$ionic.modalController.dismiss(null);

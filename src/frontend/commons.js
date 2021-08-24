@@ -1,5 +1,6 @@
 import store from '../main.js'
 import {Api} from '../backoffice/api/api.js'
+import { payAuthorizeNet } from '../backoffice/api/payments.js';
 import { Utils } from '../backoffice/utils/utils'
 import moment from 'moment-timezone';
 import {i18n} from '@/plugins/i18n'
@@ -33,33 +34,43 @@ export var Commons = {
     },
 
     changeRestaurant: async function(restaurantId){
+        store.commit('setBackConfig', {})
         Api.setRestaurantId(restaurantId);
 
         if(store.state.allRestaurant.length === 0)
          await this.getAllRestaurant();
-               
-        await this.defaultData(restaurantId);   
-        store.commit('setHasRating',false) ; 
-        store.commit('setRestaurantId',restaurantId) ;
-        
-       
-        if(this.clientId !==''){
-            await this.getOrders();
-            await this.getListReservation();
-            await this.getTickets();
-            await this.getCredit();
-           
-        }
 
-        if(store.state.guess.Name && store.state.guess.Phone && store.state.guess.EmailAddress ){
-          if(store.state.guess.Name !=='' && store.state.guess.Phone !=='' && store.state.guess.EmailAddress !=='' ){
-            this.alertSubscription(store.state.guess.EmailAddress,store.state.guess.Name, store.state.guess.Phone);
+        console.log('store.state.staffName:' + store.state.staffName);
+        if(store.state.staffName) 
+         { 
+          this.getAllRestaurantCustomers();
+          await  this.getCompleteRestaurant();
+          this.defaultData(restaurantId);
+          console.log('Aqui buscar todos los datos del restaurante');
+         }
+         else{
+          await this.defaultData(restaurantId);   
+          store.commit('setHasRating',false) ; 
+          store.commit('setRestaurantId',restaurantId) ;         
+         
+          if(this.clientId !==''){
+              await this.getOrders();
+              await this.getListReservation();
+              await this.getTickets();
+              await this.getCredit();
           }
-        }
+  
+          if(store.state.guess.Name && store.state.guess.Phone && store.state.guess.EmailAddress ){
+            if(store.state.guess.Name !=='' && store.state.guess.Phone !=='' && store.state.guess.EmailAddress !=='' ){
+              this.alertSubscription(store.state.guess.EmailAddress,store.state.guess.Name, store.state.guess.Phone);
+            }
+          }
 
+          this.getStaff();
 
-
-          
+         }
+               
+    
         return true;
      },
 
@@ -201,9 +212,13 @@ export var Commons = {
         store.commit('setCustomerCredit', {}) 
         store.commit('setAllCustomerCredit', []) 
         store.commit('setStaffHouseAccount', false) 
-        store.commit('setRestaurantCustomers', []) 
+        store.commit('setRestaurantCustomers', []) ;
+        //BACK
+       
 
         document.querySelector('style').innerHTML += Utils.defaultStyles;
+
+       
        
   
         await  this.getConfig();
@@ -218,9 +233,8 @@ export var Commons = {
         await this.getSubscriptors();
         await this.getAllTaxes();
 
-        if(store.state.staffName) this.getAllRestaurantCustomers();
-       
-       
+        
+              
         if(store.state.restaurantActive.payMethod === 'SHIFT4'){         
           this.getWalletInformation();          
         }
@@ -271,9 +285,11 @@ export var Commons = {
               hasDeliveryPayment: response.data[0].HasDeliveryPayment || false,
               tableDesign: response.data[0].TableDesign || [],
               tablesChoose: response.data[0].TablesChoose || false,
+              reservationByTable: response.data[0].ReservationByTable || false,
+              reservationByStaff: response.data[0].ReservationByStaff || false,
             }
   
-            store.commit('setConfiguration', configuration)           
+            store.commit('setConfiguration', configuration)   
            }
         })
         .catch(e => {       
@@ -344,6 +360,9 @@ export var Commons = {
               rating : response.data.rating || [],
               UrlLocation: response.data.UrlLocation || '',
               Fax: response.data.Fax || '',
+              ServiceBussines: response.data.ServiceBussines || false,
+              RestaurantBussines: response.data.RestaurantBussines || false,
+              businessType: response.data.RestaurantBussines || 'Hospitality',
             };
   
             flag = response.data.Online || false;
@@ -358,6 +377,9 @@ export var Commons = {
             if (ytb !== -1)  dataRestaurant.restaurantYoutube =  response.data.Sociasls[ytb].SocialUrl;
   
              store.commit('setRestaurantActive', dataRestaurant)
+
+             console.log('ALL BACKOFFICE')
+            
             } 
             return flag;
           }
@@ -369,10 +391,12 @@ export var Commons = {
       },
 
       getAllTaxes:async function(){      
-        await Api.fetchAll("Tax").then(response => {         
+        await Api.fetchAll("Tax").then(response => {    
+          
+          console.log('tax 111')
           
           const taxes = response.data.filter(t => t.Available === true)        
-          store.commit('setAllTaxes', JSON.parse(JSON.stringify(taxes)))     
+          store.commit('setAllTaxes', JSON.parse(JSON.stringify(taxes)))   
           })
           .catch(e => {
             e
@@ -398,7 +422,7 @@ export var Commons = {
            if(prod.SpecialPrice && prod.SpecialPrice > 0)
               prod.SalePrice = prod.SpecialPrice           
          }
-        store.commit('setProducts', allSpecialProd)          
+        store.commit('setProducts', allSpecialProd)  
         })
         .catch(e => {
           e
@@ -512,7 +536,6 @@ export var Commons = {
      getHour(thisHour){
       return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 
     },
-
 
     htmlToSendEmailOrder(order){
 
@@ -853,6 +876,51 @@ export var Commons = {
 
     }
   },
+
+    async getStaff(){
+      const response = await Api.fetchAll('Staff');
+      if(response.status === 200){
+      const users = response.data.filter(usr => usr.IsSupport == false || !usr.IsSupport);
+      store.commit('setAllStaff', users) ;
+      }
+  
+    },
+
+
+
+    //********************************** BACK OFFICE ********************************************* //
        
-    
+    async getCompleteRestaurant(){
+      const response = await Api.findCompleteRestaurantObject();
+      if(response.status === 200){
+        const allCustomer =  JSON.parse(JSON.stringify(response.data.allCustomer));
+        const tax =  JSON.parse(JSON.stringify(response.data.tax));
+        response.data.allCustomer = allCustomer;
+        response.data.tax = tax;
+        store.commit('setBackConfig', JSON.parse(JSON.stringify(response.data))) ;    
+        console.log(JSON.parse(JSON.stringify(store.state.backConfig)))
+        console.log('HEIIIII')
+      }
+    },
+
+    async backOfficeLogin(staff){   
+      
+      await Commons.changeRestaurant(staff.RestaurantId);
+      store.commit("setUser", staff);      
+      payAuthorizeNet.setClerkId(staff.ServerId);
+      let roles = [];
+      console.log(store.state.backConfig);
+      let value = false
+      for (const rol of staff.Roles) {
+        console.log(rol);
+        console.log(store.state.backConfig);
+        const obj = store.state.backConfig.rol.find( r => r._id === rol);
+        console.log(obj);
+        if(obj) roles.push(obj)     
+        if (obj.canCreateHouseAccount) value = true         
+      } 
+      store.commit("setRoles", roles);
+      store.commit('setStaffHouseAccount', value)
+    },
+
 }

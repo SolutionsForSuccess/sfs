@@ -3,341 +3,370 @@
 
      
     <!-- <ionMenus/> -->
-  <div id="app1">
-    <div >
-      <ion-menu contentId="my-content" side="start"  >
-        <ion-header>
-          <ion-toolbar color="secondary">
-            <ion-title>{{$t('frontend.menu.menu')}}</ion-title>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content padding class="menu ion-page">  
-          <ion-content v-show="restaurantSelectedId !==''">
-            <ion-item> </ion-item>
-            <!-- <div style="margin-top: 20px">
-                <Language />
-            </div> -->
-
-            <div style="margin-top: 20px" v-if="hasOptionToShowOtherRestaurants()">
-                <ion-select interface="popover" icon="add"
-                 :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                 :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                 :value="restaurantSelectedId"
-                 :placeholder="$t('frontend.menu.restaurant')"
-                  @ionChange="changeRestaurant($event.target.value)" >
-                    <ion-select-option v-for="res in allRestaurant"                    
-                      :key="res._id" 
-                      :value="res._id" > {{res.Name}}
-                    </ion-select-option> 
-                </ion-select>
-            </div>
-
-            <ion-card :key="storeKey+'SK'">
-              <div class="logo" style="margin-bottom: 5px;">
-                <img  :src="$store.state.restaurantActive.restaurantLogo" >
-              </div>
-
-           
-            
-                <div style="display: flex;justify-content: center;">
-                  <div  v-if="$store.state.restaurantActive.restaurantFacebok">
-                    <a :href="$store.state.restaurantActive.restaurantFacebok" v-if="$store.state.restaurantActive.restaurantFacebok !==''" target="_blanc" v-tooltip="'Facebook'">
-                      <span class="iconify" color="#3b5998"  data-icon="ion-logo-facebook" data-inline="false" ></span> 
-                    </a>
-                  </div>
-                  <div  v-if="$store.state.restaurantActive.restaurantTwitter">
-                         <a :href="$store.state.restaurantActive.restaurantTwitter"  target="_blanc" v-tooltip="'Twitter'">
-                            <span class="iconify" color="#1DA1F2" data-icon="ion-logo-twitter" data-inline="false"></span> 
-                        </a>
-                  </div>
-                    <div v-if="$store.state.restaurantActive.restaurantInstagram">
-                        <a :href="$store.state.restaurantActive.restaurantInstagram" v-if="$store.state.restaurantActive.restaurantInstagram != ''" target="_blanc" v-tooltip="'Instagram'">
-                            <span class="iconify" color="#8a3ab9" data-icon="ion-logo-instagram" data-inline="false"></span> 
-                        </a>
-                  </div>
-                    <div v-if="$store.state.restaurantActive.restaurantYoutube">
-                         <a :href="$store.state.restaurantActive.restaurantYoutube" v-if="$store.state.restaurantActive.restaurantYoutube != ''" target="_blanc" v-tooltip="'Toutube'">
-                            <span class="iconify" color="#FF0000" data-icon="ion-logo-youtube" data-inline="false"></span>  
-                        </a>
-                    </div>
-                  <div v-if="$store.state.restaurantActive.UrlLocation">
-                      <a @click="shareUrlLocation()" v-if="$store.state.restaurantActive.UrlLocation != ''" target="_blanc" v-tooltip="$t('frontend.tooltips.shareLocation')">
-                          <span class="iconify" data-icon="si-glyph:pin-location-2" data-inline="false"></span> 
-                      </a>
-                  </div>
-                </div> 
+    <div id="app1">
+      <div >
+        <ion-menu contentId="my-content" side="start"  >
+          <ion-header>
+            <ion-toolbar color="secondary">
+              <div style="display: flex;align-items: center;flex-direction: row;justify-content: space-between;"
+              >
+              <ion-title>{{$t('frontend.menu.menu')}} </ion-title>
               
+              <Language /></div>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content padding class="menu ion-page">  
+            <ion-content v-show="restaurantSelectedId !==''">
+              <ion-item> </ion-item>
            
-              <ion-item v-if="restaurantSelected"  @click="goAbout">  {{$t('frontend.menu.about')}}</ion-item>
-              <ion-item v-if="restaurantSelected && hasOptionToShowMenu()"  @click="goHome"> {{$t('frontend.menu.menu')}}</ion-item>   
-              <ion-item v-if="$store.state.configuration.viewCatering && $store.state.menuConCatering.length > 0 && hasCardPayCat()" @click="goCatering()">  {{$t('frontend.menu.menuCatering')}}</ion-item>           
-              <ion-item v-if="restaurantSelected && $store.state.allTickets.length > 0"  @click="showTickets()"> {{$t('frontend.menu.ticketMenu')}} <ion-badge v-if="$store.state.allTickets.length > 0" slot="end" color="secondary">{{$store.state.allTickets.length}}</ion-badge></ion-item>  
-              <ion-item v-if="restaurantSelected && $store.state.configuration.viewReservation && $store.state.configuration.viewCustomerReservation && hasCardPayRes()"  @click="getReservation()"> {{$t('frontend.menu.reservation')}} <ion-badge v-if="$store.state.allReservations.length >0" slot="end" color="secondary">{{$store.state.allReservations.length}}</ion-badge></ion-item> 
-              <ion-item v-if="restaurantSelected"  @click="getOrderList"> {{$t('frontend.menu.orders')}} <ion-badge v-if="$store.state.allOrders.length >0" slot="end" color="secondary">{{$store.state.allOrders.length}}</ion-badge> </ion-item>  
-              <ion-item v-if="restaurantSelected"  @click="getCreditList"> {{$t('frontend.menu.credit')}} <ion-badge v-if="$store.state.allCustomerCredit.length >0" slot="end" color="secondary">{{$store.state.allCustomerCredit.length}}</ion-badge> </ion-item>  
-              <ion-item v-if="restaurantSelected && hasAds() && $store.state.configuration.viewDigitalSigned"  @click="goAds()">  {{$t('frontend.menu.ads')}}</ion-item>
-      
-                 <Language />
 
-            </ion-card>     
-
-          </ion-content>
-        </ion-content>
-      </ion-menu>
-
-      <ion-menu contentId="my-content" side="end" >
-        <ion-header>
-          <ion-toolbar color="secondary">
-             <ion-title v-if="!getAuthenticated">{{ $t('backoffice.options.menuTitle') }}</ion-title>
-              <ion-title v-else style="margin-top: 5px; margin-bottom: 2px" >
-                    <ion-avatar style="width: 40px; height: 40px; float: left">
-                        <img v-if="getUserAuthenticated.ImageUrl != ''" :src="getUserAuthenticated.ImageUrl">
-                        <img v-else :src="require('./backoffice/assets/user.png')">
-                    </ion-avatar>
-                    <div>
-                        <p style="font-size: 12px; margin-bottom: auto">{{getUserAuthenticated.FirstName}} {{getUserAuthenticated.LastName}}</p>
-                        <p style="font-size: 10px; margin-top: auto">{{getUserAuthenticated.Email}}</p>
-                    </div>
-              </ion-title>
-          </ion-toolbar>
-        </ion-header>
-
-        <ion-content padding class="ion-page menu" >
-          <ion-item> </ion-item>
-                  
-          <div style="margin-top: 20px">
-              <Language />
-          </div>
-
-          <ion-content v-if="!getAuthenticated" :key="newRestaurantKey">
-              <Login :createdRestaurantEmail="createdRestaurantEmail" />
-          </ion-content>
-
-          
-          <ion-list>
-              <ion-item>
-                  <!-- <ion-label>{{$t('frontend.menu.restaurant')}}</ion-label> -->
-                  <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
-                  @ionChange="changeUserLoginRestaurant($event.target.value)" v-bind:value="userLoginRestaurantId">
-                      <ion-select-option v-for="restaurant in userLoginRestaurant" v-bind:key="restaurant._id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
+              <div style="margin-top: 20px" v-if="hasOptionToShowOtherRestaurants()">
+                  <ion-select interface="popover" icon="add"
+                  :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                  :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                  :value="restaurantSelectedId"
+                  :placeholder="$t('frontend.menu.restaurant')"
+                    @ionChange="changeRestaurant($event.target.value)" >
+                      <ion-select-option v-for="res in allRestaurant"                    
+                        :key="res._id" 
+                        :value="res._id" > {{res.Name}}
+                      </ion-select-option> 
                   </ion-select>
-              </ion-item>
-          </ion-list>
-          
-           
-          <!-- <ion-item v-if="!getAuthenticated" @click="closeEnd"><router-link to="/login" >{{ $t('backoffice.options.login') }}</router-link></ion-item> -->
+              </div>
 
-
-          <ion-item color='light' @click="session = !session" style="cursor: pointer">{{ $t('backoffice.menu.session') }}</ion-item>
-            <ion-item v-if="getAuthenticated && session" @click="logOut" style="cursor: pointer"><span class="iconify" data-icon="mdi:logout-variant" data-inline="false"></span>{{ $t('backoffice.options.logout') }}</ion-item>
-            <a style="cursor: pointer; text-decoration: none; color: black;" @click="changeServerId()"><ion-item v-if="getAuthenticated && session"><span class="iconify" data-icon="ri:exchange-box-line" data-inline="false"></span>{{ $t('backoffice.options.changeServerId') }}</ion-item></a>
-            <router-link to="/controlPanel" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="accessToControlPanel() && session" @click="closeEnd()"><span class="iconify" data-icon="mdi:tools" data-inline="false"></span>{{ $t('backoffice.options.controlPanel') }}</ion-item></router-link>
-
-            <router-link to="/assistance" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="accessToControlPanel() && session" @click="closeEnd()"><span class="iconify" data-icon="mdi:account-clock" data-inline="false"></span>ClockIn-ClockOut</ion-item></router-link>
-
-            <a @click="showDeviceSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="getAuthenticated && session" @click="closeEnd()"><span class="iconify" data-icon="uil:mobile-android-alt" data-inline="false"></span>Set device</ion-item></a>
-          
-          <ion-item color='light' @click="foodservices = !foodservices" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewMenu') || hasPermission('canViewCategory') || hasPermission('canViewProduct'))">{{ $t('backoffice.menu.foodServices') }}</ion-item>
-              <router-link to="/menu" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewMenu') && foodservices" @click="closeEnd()"><span class="iconify" data-icon="bx:bx-food-menu" color="primary" data-inline="false"></span>{{ $t('backoffice.options.manageMenus') }}</ion-item></router-link>
-              <router-link to="/category" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCategory') && foodservices" @click="closeEnd()"><span class="iconify" data-icon="carbon:category-new-each" data-inline="false"></span>{{ $t('backoffice.options.manageCategories') }}</ion-item></router-link>
-              <router-link to="/product" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewProduct') && foodservices" @click="closeEnd()"><span class="iconify" data-icon="dashicons:products" data-inline="false"></span>{{ $t('backoffice.options.manageProducts') }}</ion-item></router-link>
-              <router-link to="/product/service" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewProduct') && foodservices" @click="closeEnd()"><span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span>{{ $t('backoffice.options.manageServices') }}</ion-item></router-link>
-              <router-link to="/specialsprice" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSpecialPrices') && foodservices"  @click="closeEnd()"><span class="iconify" data-icon="ic:baseline-price-check" data-inline="false"></span>{{ $t('frontend.specialsPrice.titles') }}</ion-item></router-link>
-
-          <ion-item color='light' @click="orderstickets = !orderstickets" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewOrder'))">{{ $t('backoffice.menu.ordersTickets') }}</ion-item>
-              <router-link to="/order" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && orderstickets" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewOrders') }}</ion-item></router-link>
-              <router-link to="/ticket" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && orderstickets" @click="closeEnd()"><span class="iconify" data-icon="ph:ticket-duotone" data-inline="false"></span>{{ $t('backoffice.titles.tickets') }}</ion-item></router-link>
-              <router-link to="/cateringOrder" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && orderstickets" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewCateringOrders') }}</ion-item></router-link>
-
-          <ion-item color='light' @click="deliveriesreservations = !deliveriesreservations" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewOrderForDelivery') ||
-                                     hasPermission('canViewReservation'))">{{ $t('backoffice.menu.reservationsDeliveries') }}</ion-item>
-              <router-link to="/orderForDelivered" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrderForDelivery') && deliveriesreservations" @click="closeEnd()"><span class="iconify" data-icon="mdi:truck-delivery-outline" data-inline="false"></span>{{ $t('backoffice.titles.ordersForDelivery') }}</ion-item></router-link>
-              <router-link to="/reservationbackoffice" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewReservation') && deliveriesreservations" @click="closeEnd()"><span class="iconify" data-icon="ic:baseline-access-time" data-inline="false"></span>{{ $t('backoffice.options.manageReservation') }}</ion-item></router-link>
-
-          <ion-item color='light' @click="restaurantadministration = !restaurantadministration" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewTable') || hasPermission('canViewTax') ||
-                                    hasPermission('canViewShipping') || hasPermission('canViewOtherCharge') ||
-                                        hasPermission('canChangeSetting'))">{{ $t('backoffice.menu.restaurantAdministration') }}</ion-item>
-              <router-link to="/table" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewTable') && restaurantadministration" @click="closeEnd()"><span class="iconify" data-icon="vs:table-o" data-inline="false"></span>{{ $t('backoffice.options.manageTables') }}</ion-item></router-link>
-              <router-link to="/tax" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewTax') && restaurantadministration" @click="closeEnd()"><span class="iconify" data-icon="heroicons-outline:receipt-tax" data-inline="false"></span>{{ $t('backoffice.options.manageTaxes') }}</ion-item></router-link>
-              <router-link to="/shipping" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewShipping') && restaurantadministration" @click="closeEnd()"><span class="iconify" data-icon="la:truck-pickup-solid" data-inline="false"></span>{{ $t('backoffice.options.manageShippings') }}</ion-item></router-link>
-              <router-link to="/otherCharge" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOtherCharge') && restaurantadministration" @click="closeEnd()"><span class="iconify" data-icon="si-glyph:money-bag" data-inline="false"></span>{{ $t('backoffice.options.manageOtherCharges') }}</ion-item></router-link>
-              <router-link to="/payment" style="cursor: pointer; text-decoration: none; color: black;" ><ion-item v-if="hasPermission('canViewPayments') && restaurantadministration" @click="closeEnd()"><span class="iconify" data-icon="ic:twotone-attach-money" data-inline="false"></span>{{ $t('backoffice.options.managePyments') }}</ion-item></router-link>
-
-          <ion-item color='light' @click="staffoccupationscustomers = !staffoccupationscustomers" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewUser') || 
-                                    hasPermission('canViewRole') || hasPermission('canViewOccupation') 
-                                        || hasPermission('canViewCustomer') || hasPermission('canViewDriver'))">{{ $t('backoffice.menu.staffOccupationsCustomersDrivers') }}</ion-item>
-              <a @click="showStaffList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewUser') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" color="primary" data-icon="simple-icons:codechef" data-inline="false"></span>{{ $t('backoffice.options.manageUsers') }}</ion-item></a>
-              <a @click="showDriverList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewDriver') && staffoccupationscustomers"><span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>Drivers</ion-item></a>
-              <router-link to="/role" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewRole') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>{{ $t('backoffice.options.manageRoles') }}</ion-item></router-link>
-              <router-link to="/worksheet" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewWorkSheet') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="bx:bx-spreadsheet" data-inline="false"></span>{{ $t('backoffice.options.manageWorkSheet') }}</ion-item></router-link>
-              <router-link to="/occupation" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOccupation') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>{{ $t('backoffice.options.manageOccupation') }}</ion-item></router-link>
-              <router-link to="/customer" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCustomer') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="raphael:people" data-inline="false"></span>{{ $t('backoffice.options.manageCustomers') }}</ion-item></router-link>
-              <router-link to="/credit" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCredit') && staffoccupationscustomers" @click="closeEnd()"><span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>{{ $t('backoffice.options.manageCredits') }}</ion-item></router-link>
-              
-
-          <ion-item color='light' @click="marketing = !marketing" style="cursor: pointer" v-if="vClockin && (hasPermission('canViewSuscriptor'))">{{ $t('backoffice.menu.marketing') }}</ion-item>
-              <router-link to="/suscriptor" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSuscriptor') && marketing" @click="closeEnd()"><span class="iconify" data-icon="mdi:email-newsletter" data-inline="false"></span>{{ $t('backoffice.titles.suscriptors') }}</ion-item></router-link>
-              <!-- <router-link to="/newsletter" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSuscriptor') && marketing" @click="closeEnd()"><span class="iconify" data-icon="mdi:email-newsletter" data-inline="false"></span>{{ $t('backoffice.titles.newsletter') }}</ion-item></router-link> -->
-
-          <ion-item color='light' @click="settings = !settings" style="cursor: pointer" v-if="vClockin && (hasPermission('canChangeSetting') ||
-                                     hasPermission('canSuperUser'))">{{ $t('backoffice.menu.settings') }}</ion-item>
-              <!-- <router-link to="/aboutDataSettings" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings" @click="closeEnd()"><span class="iconify" data-icon="grommet-icons:restaurant" data-inline="false"></span>{{ $t('backoffice.options.manageAboutSettings') }}</ion-item></router-link> -->
-              <!-- <a @click="manageBasicSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:settings-line" data-inline="false"></span>{{ $t('backoffice.options.manageBasicSettings') }}</ion-item></a> -->
-              <a @click="manageFunSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:file-settings-line" data-inline="false"></span>{{ $t('backoffice.menu.settings') }}</ion-item></a>
-              <!-- <a @click="manageColourSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="vaadin:palete" data-inline="false"></span>{{ $t('backoffice.options.manageColourSettings') }}</ion-item></a> -->
-              <!-- <a @click="manageKeySettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:network-settings-solid" data-inline="false"></span>{{ $t('backoffice.options.manageKeySettings') }}</ion-item></a> -->
-              <router-link to="/support" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canSuperUser') && settings" @click="closeEnd()"><span class="iconify" data-icon="mdi:account-supervisor" data-inline="false"></span>{{ $t('backoffice.options.supportSettings') }}</ion-item></router-link>
-          
-          <!-- <ion-item v-if="hasPermission('canViewVariantGroup')" @click="closeEnd()"><router-link to="/variantGroup" style="cursor: pointer; text-decoration: none; color: black;">{{ $t('backoffice.options.manageVariantGroup') }}</router-link></ion-item> -->
-            <ion-item><router-link to="/demo" style="cursor: pointer; text-decoration: none; color: black;">Demo</router-link></ion-item>
-
-        </ion-content>
-      </ion-menu>
-
-     
-
-      <div main id="my-content" >
-        <ion-header>
-          <ion-toolbar color="primary" :key="restaurantSelectedId">
-            <div  v-if="!newRestaurant" style="display:flex;justify-content: space-between;align-items: center;">          
-              <ion-icon @click="openStart" name="menu" class="menu-col-2" style="float: left;font-size: 30px;"></ion-icon> 
-              <ion-title v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''" class="menu-col-6" style="text-align: center;"
-              >{{$store.state.restaurantActive.restaurantName}}</ion-title>     
+              <ion-card :key="storeKey+'SK'">
+                <div class="logo" style="margin-bottom: 5px;">
+                  <img  :src="$store.state.restaurantActive.restaurantLogo" >
+                </div>
 
             
-              <div>
-                <ion-icon @click="openEnd" name="settings" class="" style="float: right;font-size: 30px;margin: 0px 25px 0 15px;"></ion-icon>
-                <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')"><span class="iconify" data-icon="ph:user-circle" data-inline="false"></span></div>
-                <div :key="keyUserLogin+'L'" style="float: right;" v-if="CustomerName" @click="showEditUser=!showEditUser"><span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span></div>
-              </div>
-            </div>  
-          </ion-toolbar>
-        </ion-header>
-          <ion-card v-if="showEditUser" style="position: absolute; right: 35px;margin:0 ">
-               <ion-chip  @click="restaurantSelected? goMyAccount() : logIng(email, '') , showEditUser=false" style="padding: 0;" v-tooltip="$t('frontend.menu.edit')">                  
-                 <span class="iconify" data-icon="fa-solid:user-edit" data-inline="false"></span>
-                </ion-chip>
-                <ion-chip @click="cerrarSesion(), showEditUser=false" style="padding: 0;" v-tooltip="$t('frontend.menu.logout')">                  
-                 <span class="iconify" data-icon="eva:close-circle-fill" data-inline="false" ></span>
-                </ion-chip>
-            </ion-card>
-        <ion-content></ion-content>
-      </div>
-
-    </div>
-    <ion-menu-controller></ion-menu-controller>
-  </div>
-
-      
-    
-
-    <ion-content  id="app-ionic-vue"  >
-         
-        <ion-loading         
-          v-if="spinner"
-          showBackdrop="false"
-          cssClass="my-custom-class"
-          :message="$t('frontend.tooltips.loadRestaurant')"
-        >
-      </ion-loading>
-    
-      
               
-        <div v-if="!restaurantSelected && !getAuthenticated && !newRestaurant">
-          <ion-toolbar>
-             <h1 >{{$t('frontend.menu.restaurant')}}</h1>
-            <ion-searchbar  
-            @ionClear="handleInput('')"
-            @input="$event.target.value?handleInput($event.target.value):''"
-            :placeholder="$t('frontend.home.search')">             
-            </ion-searchbar>
-          </ion-toolbar>
+                  <div style="display: flex;justify-content: center;">
+                    <div  v-if="$store.state.restaurantActive.restaurantFacebok">
+                      <a :href="$store.state.restaurantActive.restaurantFacebok" v-if="$store.state.restaurantActive.restaurantFacebok !==''" target="_blanc" v-tooltip="'Facebook'">
+                        <span class="iconify" color="#3b5998"  data-icon="ion-logo-facebook" data-inline="false" ></span> 
+                      </a>
+                    </div>
+                    <div  v-if="$store.state.restaurantActive.restaurantTwitter">
+                          <a :href="$store.state.restaurantActive.restaurantTwitter"  target="_blanc" v-tooltip="'Twitter'">
+                              <span class="iconify" color="#1DA1F2" data-icon="ion-logo-twitter" data-inline="false"></span> 
+                          </a>
+                    </div>
+                      <div v-if="$store.state.restaurantActive.restaurantInstagram">
+                          <a :href="$store.state.restaurantActive.restaurantInstagram" v-if="$store.state.restaurantActive.restaurantInstagram != ''" target="_blanc" v-tooltip="'Instagram'">
+                              <span class="iconify" color="#8a3ab9" data-icon="ion-logo-instagram" data-inline="false"></span> 
+                          </a>
+                    </div>
+                      <div v-if="$store.state.restaurantActive.restaurantYoutube">
+                          <a :href="$store.state.restaurantActive.restaurantYoutube" v-if="$store.state.restaurantActive.restaurantYoutube != ''" target="_blanc" v-tooltip="'Toutube'">
+                              <span class="iconify" color="#FF0000" data-icon="ion-logo-youtube" data-inline="false"></span>  
+                          </a>
+                      </div>
+                    <div v-if="$store.state.restaurantActive.UrlLocation">
+                        <a @click="shareUrlLocation()" v-if="$store.state.restaurantActive.UrlLocation != ''" target="_blanc" v-tooltip="$t('frontend.tooltips.shareLocation')">
+                            <span class="iconify" data-icon="si-glyph:pin-location-2" data-inline="false"></span> 
+                        </a>
+                    </div>
+                  </div> 
+                
+            
+                <ion-item v-if="restaurantSelected"  @click="goAbout">  {{$t('frontend.menu.about')}}</ion-item>
+                <ion-item v-if="restaurantSelected && hasOptionToShowMenu() && $store.state.restaurantActive.RestaurantBussines"  @click="goHome"> {{$t('frontend.menu.menu')}}</ion-item>   
+                <ion-item v-if="hasOptionToShowCatering()" @click="goCatering()">  {{$t('frontend.menu.menuCatering')}}</ion-item>           
+                <ion-item v-if="restaurantSelected && hasOptionToShowTicket()"  @click="showTickets()"> {{$t('frontend.menu.ticketMenu')}} <ion-badge v-if="$store.state.allTickets.length > 0" slot="end" color="secondary">{{$store.state.allTickets.length}}</ion-badge></ion-item>  
+                <ion-item v-if="restaurantSelected && hasOptionToShowReservation() && hasCardPayRes()"  @click="getReservation()"> {{$t('frontend.menu.reservation')}} <ion-badge v-if="$store.state.allReservations.length >0" slot="end" color="secondary">{{$store.state.allReservations.length}}</ion-badge></ion-item> 
+                <ion-item v-if="restaurantSelected && $store.state.restaurantActive.RestaurantBussines"  @click="getOrderList"> {{$t('frontend.menu.orders')}} <ion-badge v-if="$store.state.allOrders.length >0" slot="end" color="secondary">{{$store.state.allOrders.length}}</ion-badge> </ion-item>  
+                <ion-item v-if="restaurantSelected"  @click="getCreditList"> {{$t('frontend.menu.credit')}} <ion-badge v-if="$store.state.allCustomerCredit.length >0" slot="end" color="secondary">{{$store.state.allCustomerCredit.length}}</ion-badge> </ion-item>  
+                <ion-item v-if="restaurantSelected && hasAds() && $store.state.configuration.viewDigitalSigned"  @click="goAds()">  {{$t('frontend.menu.ads')}}</ion-item>
+        
+                  
+
+              </ion-card>     
+
+            </ion-content>
+          </ion-content>
+        </ion-menu>
+
+        <ion-menu contentId="my-content" side="end" >
+          <ion-header>
+            <ion-toolbar color="secondary"> 
+              <ion-title v-if="!getAuthenticated ">{{ $t('backoffice.options.menuTitle') }}</ion-title>
+                     <div v-if="getUserAuthenticated" style="display: flex;flex-direction: row;align-items: center;justify-content: space-evenly;">
+                        <ion-avatar style="width: 40px; height: 40px; float: left"  @click="editUserBack(getUserAuthenticated._id)">
+                          <img v-if="getUserAuthenticated.ImageUrl != ''" :src="getUserAuthenticated.ImageUrl">
+                          <img v-else :src="require('./backoffice/assets/user.png')">
+                      </ion-avatar>
+                      <div  @click="editUserBack(getUserAuthenticated._id)">
+                          <p style="font-size: 12px; margin-bottom: auto">{{getUserAuthenticated.FirstName}} {{getUserAuthenticated.LastName}}</p>
+                          <p style="font-size: 10px; margin-top: auto">{{getUserAuthenticated.Email}}</p>
+                      </div>
+                      <Language />
+                     </div>
+            </ion-toolbar>
+          </ion-header>
+
+          <ion-content padding class="ion-page menu" >
+            <ion-item> </ion-item>
+                    
+            <ion-content v-if="!getAuthenticated" :key="newRestaurantKey">
+                <Login :createdRestaurantEmail="createdRestaurantEmail" />
+            </ion-content>
+
+            <br>
+             
+           
+
+            <router-link to="/controlPanel" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="accessToControlPanel()" @click="closeEnd()"><span class="iconify" data-icon="mdi:tools" data-inline="false"></span>Panel de Control</ion-item></router-link>
+
+            <!-- <router-link to="/assistance" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="accessToControlPanel()" @click="closeEnd()"><span class="iconify" data-icon="mdi:account-clock" data-inline="false"></span>ClockIn-ClockOut</ion-item></router-link> -->
 
          
+            
 
-          <ion-refresher 
-            style="position: relative"
-            slot="fixed"
-            @ionRefresh="doRefresh($event)">
-              <ion-refresher-content 
-                refreshing-spinner="crescent"
-              ></ion-refresher-content>
-          </ion-refresher>
+            <!-- SALES -->
+            <ion-item color='light' 
+             @click="session=='orderstickets'?session='':session='orderstickets'" 
+             style="cursor: pointer" v-if="vClockin && (hasPermission('canViewOrder'))">
+             <span class="iconify" data-icon="dashicons:money-alt"></span>
+             SALES</ion-item>
+                <router-link to="/order" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewOrders') }}</ion-item></router-link>
+                <router-link to="/reservationbackoffice" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewReservation') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="ic:baseline-access-time" data-inline="false"></span>{{ $t('backoffice.options.manageReservation') }}</ion-item></router-link>
+                <router-link to="/ticket" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="ph:ticket-duotone" data-inline="false"></span>{{ $t('backoffice.titles.tickets') }}</ion-item></router-link>
+                <router-link to="/cateringOrder" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewCateringOrders') }}</ion-item></router-link>
+                <router-link to="/orderForDelivered" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrderForDelivery') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:truck-delivery-outline" data-inline="false"></span>{{ $t('backoffice.titles.ordersForDelivery') }}</ion-item></router-link>
+         
+           <!-- ADMIN -->
+            <ion-item color='light' 
+            @click="session=='restaurantadministration'?session='':session='restaurantadministration'" 
+            style="cursor: pointer" 
+            v-if="vClockin && (hasPermission('canViewMenu') || hasPermission('canViewCategory') || hasPermission('canViewProduct'))">
+             <span class="iconify" data-icon="dashicons:admin-appearance"></span>
+            {{ $t('backoffice.menu.restaurantAdministration') }}</ion-item>
+                <router-link to="/menu" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewMenu') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="bx:bx-food-menu" color="primary" data-inline="false"></span>{{ $t('backoffice.options.manageMenus') }}</ion-item></router-link>
+                <router-link to="/category" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCategory') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="carbon:category-new-each" data-inline="false"></span>{{ $t('backoffice.options.manageCategories') }}</ion-item></router-link>
+                <router-link to="/product" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewProduct') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="dashicons:products" data-inline="false"></span>{{ $t('backoffice.options.manageProducts') }}</ion-item></router-link>
+                <router-link to="/product/service" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewProduct') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span>{{ $t('backoffice.options.manageServices') }}</ion-item></router-link>
+                <router-link to="/otherCharge" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOtherCharge') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="si-glyph:money-bag" data-inline="false"></span>{{ $t('backoffice.options.manageOtherCharges') }}</ion-item></router-link>
+                <router-link to="/specialsprice" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSpecialPrices') && session=='restaurantadministration'"  @click="closeEnd()"><span class="iconify" data-icon="ic:baseline-price-check" data-inline="false"></span>{{ $t('frontend.specialsPrice.titles') }}</ion-item></router-link>
+                <br v-if="session=='restaurantadministration'"/>
+                <a @click="showStaffList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewUser') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" color="primary" data-icon="simple-icons:codechef" data-inline="false"></span>{{ $t('backoffice.options.manageUsers') }}</ion-item></a>
+                <a @click="showDriverList()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewDriver') && session=='restaurantadministration'"><span class="iconify" data-icon="mdi:car-child-seat" data-inline="false"></span>Drivers</ion-item></a>
+                <router-link to="/role" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewRole') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="ls:cookpad" data-inline="false"></span>{{ $t('backoffice.options.manageRoles') }}</ion-item></router-link>
+                <router-link to="/worksheet" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewWorkSheet') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="bx:bx-spreadsheet" data-inline="false"></span>{{ $t('backoffice.options.manageWorkSheet') }}</ion-item></router-link>
+                <router-link to="/occupation" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOccupation') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="tabler:tools-kitchen" data-inline="false"></span>{{ $t('backoffice.options.manageOccupation') }}</ion-item></router-link>
+                <router-link to="/customer" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCustomer') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="raphael:people" data-inline="false"></span>{{ $t('backoffice.options.manageCustomers') }}</ion-item></router-link>
+                <router-link to="/credit" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewCredit') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="mdi:credit-card-plus" data-inline="false"></span>{{ $t('backoffice.options.manageCredits') }}</ion-item></router-link>
+                <br v-if="session=='restaurantadministration'"/>
+                <router-link to="/table" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewTable') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="vs:table-o" data-inline="false"></span>{{ $t('backoffice.options.manageTables') }}</ion-item></router-link>
+                <router-link to="/tax" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewTax') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="heroicons-outline:receipt-tax" data-inline="false"></span>{{ $t('backoffice.options.manageTaxes') }}</ion-item></router-link>
+                <router-link to="/shipping" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewShipping') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="la:truck-pickup-solid" data-inline="false"></span>{{ $t('backoffice.options.manageShippings') }}</ion-item></router-link>
+                <br v-if="session=='restaurantadministration'"/>
+                <router-link to="/suscriptor" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewSuscriptor') && session=='restaurantadministration'" @click="closeEnd()"><span class="iconify" data-icon="mdi:email-newsletter" data-inline="false"></span>{{ $t('backoffice.titles.suscriptors') }}</ion-item></router-link>
 
-          <div   
-            v-for="res in filterRestaurantSelect"
-            :key="res._id" 
-            class="menu-col-12">
-            <ion-list  >
+            <!-- Report -->
+            <ion-item color='light' 
+              @click="session=='reports'?session='':session='reports'" 
+              style="cursor: pointer" 
+              v-if="vClockin">
+              <span class="iconify" data-icon="icon-park-outline:table-report"></span>
+              Reports
+            </ion-item>
+                <router-link to="/payment" style="cursor: pointer; text-decoration: none; color: black;" ><ion-item v-if="hasPermission('canViewPayments') && session=='reports'" @click="closeEnd()"><span class="iconify" data-icon="ic:twotone-attach-money" data-inline="false"></span>{{ $t('backoffice.options.managePyments') }}</ion-item></router-link>
+           
+           <!-- CONfig -->
+            <ion-item color='light'
+              @click="session=='settings'?session='':session='settings'" 
+              style="cursor: pointer" v-if="vClockin && (hasPermission('canChangeSetting') || hasPermission('canSuperUser'))">
+              <span class="iconify" data-icon="eos-icons:configuration-file"></span>
+              {{ $t('backoffice.menu.settings') }}
+            </ion-item>
+                <!-- <router-link to="/aboutDataSettings" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings" @click="closeEnd()"><span class="iconify" data-icon="grommet-icons:restaurant" data-inline="false"></span>{{ $t('backoffice.options.manageAboutSettings') }}</ion-item></router-link> -->
+                <!-- <a @click="manageBasicSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:settings-line" data-inline="false"></span>{{ $t('backoffice.options.manageBasicSettings') }}</ion-item></a> -->
+                <a @click="manageFunSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && session=='settings'"><span class="iconify" data-icon="clarity:file-settings-line" data-inline="false"></span>{{ $t('backoffice.menu.settings') }}</ion-item></a>
+                <!-- <a @click="manageColourSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="vaadin:palete" data-inline="false"></span>{{ $t('backoffice.options.manageColourSettings') }}</ion-item></a> -->
+                <!-- <a @click="manageKeySettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:network-settings-solid" data-inline="false"></span>{{ $t('backoffice.options.manageKeySettings') }}</ion-item></a> -->
+                <router-link to="/support" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canSuperUser') && session=='settings'" @click="closeEnd()"><span class="iconify" data-icon="mdi:account-supervisor" data-inline="false"></span>{{ $t('backoffice.options.supportSettings') }}</ion-item></router-link>
+                <!-- <ion-item v-if="hasPermission('canViewVariantGroup')" @click="closeEnd()"><router-link to="/variantGroup" style="cursor: pointer; text-decoration: none; color: black;">{{ $t('backoffice.options.manageVariantGroup') }}</router-link></ion-item> -->
+                <!-- <ion-item><router-link to="/demo" style="cursor: pointer; text-decoration: none; color: black;">Demo</router-link></ion-item> -->
+                <ion-item v-if="$store.state.user && session=='settings'">
+                  <span class="iconify" data-icon="ph:device-mobile-light"></span>
+                    <DeviceList/> </ion-item>
 
-              <ion-item  @click="changeRestaurant(res._id)">                      
-                <div class="menu-col-2" style="text-align: center;" >
-                    <img :src="res.ImageUrl" style=" max-height: 60px;">
+             <div v-if="$store.state.user"> <vue-clock></vue-clock> </div>
+             <ion-item v-if="getAuthenticated" @click="logOut" style="cursor: pointer"><span class="iconify" data-icon="mdi:logout-variant" data-inline="false"></span>{{ $t('backoffice.options.logout') }}</ion-item>
+            
+             
+              
+             
+
+          </ion-content>
+        </ion-menu>
+
+      
+
+        <div main id="my-content" >
+          <ion-header>
+            <ion-toolbar color="primary" :key="restaurantSelectedId">
+              <div  v-if="!newRestaurant" style="display:flex;justify-content: space-between;align-items: center;">          
+                <ion-icon @click="openStart" name="menu" class="menu-col-2" :style="getAuthenticated? 'opacity: 0;': 'opacity: 1;float: left;font-size: 30px;'" ></ion-icon> 
+                <ion-title v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''" class="menu-col-6" style="text-align: center;"
+                >{{$store.state.restaurantActive.restaurantName}}</ion-title>  
+
+                
+                <div v-if="userLoginRestaurant" > 
+                  <div v-if="userLoginRestaurant.length > 0 && $store.state.user !== null" :key="userLoginRestaurantId"> 
+                      <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
+                      @ionChange="changeStaffRestaurant($event.target.value)" v-bind:value="userLoginRestaurantId">
+                          <ion-select-option v-for="restaurant in userLoginRestaurant" v-bind:key="restaurant._id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
+                      </ion-select>
+                  </div>
                 </div>
-                <ion-label class="ion-text-wrap menu-col-3" >
-                    <h3>{{res.Name}} <br> 
-                    <star-rating v-if="configuration.viewRating"
-                     v-bind:rounded-corners=false
-                      v-bind:increment="0.1"
-                      v-bind:star-size="20" 
-                      v-bind:readonly=true
-                      v-bind:rating="totalRating(res)"
-                     > </star-rating><br>
-                     <!-- <span>{{$t('frontend.menu.catering')}}</span> -->
-                    
-                     </h3>   
-                   
-                </ion-label>  
-                <ion-label class="ion-text-wrap menu-col-4" >
-                    <p>{{res.Address}}</p>                       
-                </ion-label> 
-                <ion-label class="ion-text-wrap menu-col-3" v-if="res.RestaurantDaysAndTime" style="    text-align: center;">                  
-                    <p>{{restaurantSchedule(res.RestaurantDaysAndTime)}}</p>    
-                    <p v-if="restaurantOpen(res.RestaurantDaysAndTime) === true" style="color: rgb(9 200 70)">
-                      {{$t('frontend.reservation.open')}} 
-                      <span class="iconify" data-icon="et:clock" data-inline="false" style="width: 15px; height: 15px;color: rgb(9 200 70);margin: 0;"></span>
-                    </p>                   
-                    <p v-if="restaurantOpen(res.RestaurantDaysAndTime) === false" style="color: #f10b28eb">
-                      {{$t('frontend.reservation.close')}} 
-                      <!-- <span class="iconify" data-icon="et:clock" data-inline="false"  style="width: 15px; height: 15px;color: #f10b28eb; margin: 0;"></span> -->
-                    </p>                   
-                </ion-label> 
-              </ion-item>  
-            </ion-list>
-          </div>
-        </div> 
-
-        <router-view style="padding:0 12px"/>  
-        
-
-            <new-resturant v-if="newRestaurant && showNew" :parent="this"></new-resturant>
 
 
-    </ion-content>
+              
+                <div>
+                  <ion-icon @click="openEnd" name="settings" class="" style="float: right;font-size: 30px;margin: 0px 25px 0 15px;"></ion-icon>
+                  <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')"><span class="iconify" data-icon="ph:user-circle" data-inline="false"></span></div>
+                  <div :key="keyUserLogin+'L'" style="float: right;" v-if="CustomerName" @click="showEditUser=!showEditUser"><span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span></div>
+                </div>
+              </div>  
+            </ion-toolbar>
+          </ion-header>
+            <ion-card v-if="showEditUser" style="position: absolute; right: 35px;margin:0 ">
+                <ion-chip  @click="restaurantSelected? goMyAccount() : logIng(email, '') , showEditUser=false" style="padding: 0;" v-tooltip="$t('frontend.menu.edit')">                  
+                  <span class="iconify" data-icon="fa-solid:user-edit" data-inline="false"></span>
+                  </ion-chip>
+                  <ion-chip @click="cerrarSesion(), showEditUser=false" style="padding: 0;" v-tooltip="$t('frontend.menu.logout')">                  
+                  <span class="iconify" data-icon="eva:close-circle-fill" data-inline="false" ></span>
+                  </ion-chip>
+              </ion-card>
+          <ion-content></ion-content>
+        </div>
 
-    <ion-footer class="ion-no-border">
-      <div  
-      style="width: 250px;height: 250px;margin: 0 auto;background: #262626;padding: 10px;"
-      v-if="!getAuthenticated && restaurantSelectedId==='' && 0">
-        ADS
       </div>
-     
+      <ion-menu-controller></ion-menu-controller>
+    </div>
 
-      <ion-toolbar >
+      <ion-content  id="app-ionic-vue"  >
+          
+          <ion-loading         
+            v-if="spinner"
+            showBackdrop="false"
+            cssClass="my-custom-class"
+            :message="$t('frontend.tooltips.loadRestaurant')"
+            >
+          </ion-loading>
 
-         <vue-marquee 
-            v-if="!getAuthenticated && restaurantSelectedId==='' && 0"
-            style="height:20px; display: flex; flex-direction: column; justify-content: flex-end" 
-            :key="spinner">
-              <vue-marquee-slide v-for="i in 30" :key="i">
-                <span> GERNAL ADS HERE </span>
-              </vue-marquee-slide>
-            </vue-marquee>
+          <div v-if="!restaurantSelected && !getAuthenticated && !newRestaurant">
 
-        <ion-title class="menu-col-12" style="text-align: center"><a href="https://imenuapps.com/" style="text-decoration: none;">iMenuApps</a></ion-title>
-      </ion-toolbar>
+            
 
-    </ion-footer>
+            <ion-toolbar>
+              <h1 >{{$t('frontend.menu.restaurant')}}</h1> 
+              <ion-select interface="popover" icon="add" 
+                                      style=""
+                                      :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                                      :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                                    
+                                      :placeholder="$t('frontend.createNew.select')"
+                                      :value="businessType"                                    
+                                      @ionChange="businessType=$event.target.value"                          
+                                      >
+                                          <ion-select-option v-for="(res) in businessTypeList" :key="res"
+                                          :value="res" >{{res}}
+                                          </ion-select-option>  
+                                  </ion-select>
+              
+              <ion-searchbar  
+              @ionClear="handleInput('')"
+              @input="$event.target.value?handleInput($event.target.value):''"
+              :placeholder="$t('frontend.home.search')">             
+              </ion-searchbar>
+            </ion-toolbar>
+
+          
+
+            <ion-refresher 
+              style="position: relative"
+              slot="fixed"
+              @ionRefresh="doRefresh($event)">
+                <ion-refresher-content 
+                  refreshing-spinner="crescent"
+                ></ion-refresher-content>
+            </ion-refresher>
+
+            <div   
+              v-for="res in filterRestaurantSelect"
+              :key="res._id" 
+              v-show="businessType==='All Businesses'? 1: businessType===res.BusinessType ? 1: 0"
+              class="menu-col-12">
+              <ion-list  >
+
+                <ion-item  @click="changeRestaurant(res._id)">                      
+                  <div class="menu-col-2" style="text-align: center;" >
+                      <img :src="res.ImageUrl" style=" max-height: 60px;">
+                  </div>
+                  <ion-label class="ion-text-wrap menu-col-3" >
+                      <h3>{{res.Name}}<br> 
+                      <star-rating v-if="configuration.viewRating"
+                      v-bind:rounded-corners=false
+                        v-bind:increment="0.1"
+                        v-bind:star-size="20" 
+                        v-bind:readonly=true
+                        v-bind:rating="totalRating(res)"
+                      > </star-rating><br>
+                      <!-- <span>{{$t('frontend.menu.catering')}}</span> -->
+                      
+                      </h3>   
+                    
+                  </ion-label>  
+                  <ion-label class="ion-text-wrap menu-col-4" >
+                      <p>{{res.Address}}</p>                       
+                  </ion-label> 
+                  <ion-label class="ion-text-wrap menu-col-3" v-if="res.RestaurantDaysAndTime" style="    text-align: center;">                  
+                      <p>{{restaurantSchedule(res.RestaurantDaysAndTime)}}</p>    
+                      <p v-if="restaurantOpen(res.RestaurantDaysAndTime) === true" style="color: rgb(9 200 70)">
+                        {{$t('frontend.reservation.open')}} 
+                        <span class="iconify" data-icon="et:clock" data-inline="false" style="width: 15px; height: 15px;color: rgb(9 200 70);margin: 0;"></span>
+                      </p>                   
+                      <p v-if="restaurantOpen(res.RestaurantDaysAndTime) === false" style="color: #f10b28eb">
+                        {{$t('frontend.reservation.close')}} 
+                        <!-- <span class="iconify" data-icon="et:clock" data-inline="false"  style="width: 15px; height: 15px;color: #f10b28eb; margin: 0;"></span> -->
+                      </p>                   
+                  </ion-label> 
+                </ion-item>  
+              </ion-list>
+            </div>
+          </div> 
+
+          <router-view style="padding:0 12px"/>  
+
+          <new-resturant v-if="newRestaurant && showNew" :parent="this"></new-resturant>
+
+      </ion-content>
+
+      <ion-footer class="ion-no-border">
+        <div  
+        style="width: 250px;height: 250px;margin: 0 auto;background: #262626;padding: 10px;"
+        v-if="!getAuthenticated && restaurantSelectedId==='' && 0">
+          ADS
+        </div>
+      
+
+        <ion-toolbar >
+
+          <vue-marquee 
+              v-if="!getAuthenticated && restaurantSelectedId==='' && 0"
+              style="height:20px; display: flex; flex-direction: column; justify-content: flex-end" 
+              :key="spinner">
+                <vue-marquee-slide v-for="i in 30" :key="i">
+                  <span> GERNAL ADS HERE </span>
+                </vue-marquee-slide>
+              </vue-marquee>
+
+          <ion-title class="menu-col-12" style="text-align: center"><a href="https://imenuapps.com/" style="text-decoration: none;">iMenuApps</a></ion-title>
+        </ion-toolbar>
+
+      </ion-footer>
 
 
 
@@ -383,13 +412,14 @@ import moment from 'moment-timezone';
 import { parsePhoneNumber, findNumbers } from 'libphonenumber-js'
 import StarRating from 'vue-star-rating'
 import IdleTracker from 'idle-tracker';
-import ChangeModal from './backoffice/views/changeServerId.vue';
+
 import LockModal from './backoffice/views/LockScreen.vue';
-import Modal from './backoffice/views/SetDeviceDataModal.vue';
+import DeviceList from './backoffice/views/SetDeviceDataModal.vue';
 import { Plugins } from '@capacitor/core';
 const { Share } = Plugins;
 import NewResturant from './frontend/views/NewRestautant.vue';
 import { Marquee, Slide } from "vue-marquee-component"
+import Clock from './backoffice/views/ClockInOut.vue'
 
 
 
@@ -449,12 +479,12 @@ export default {
     EventBus.$on('updateCustomer', (value) => {if(value) this.customerUpdated(); });
     EventBus.$on('startCustomerCounter', (value) => {if(value) this.timeCounterCustomer(); });
     EventBus.$on('startFrontCounter', (value) => {if(value) this.timeCounterFrontend(); });
+    EventBus.$on('blockScreen', (value) => { if(value) this.timeCounterBack(); });
     EventBus.$on('updateStoreKey', (value) => { if(value) this.storeKey ++}); 
     EventBus.$on('updateRestaurantSelectedId', (value) => { if (value != '')this.changeRestaurant(value);});
     EventBus.$on('staffName', async (value)  => {
       this.staffName = value;
-      this.$store.commit('setStaffName',value) ;
-      value
+      this.$store.commit('setStaffName',value) ;      
       if(value !== '' && this.$store.state.user)
        this.staffAllRestaurant = this.$store.state.user.AllRestaurant;
       else 
@@ -467,15 +497,8 @@ export default {
       this.staffId = value;  
       this.$store.commit('setStaffId',value) ;
     });
-    EventBus.$on('blockScreen', (value) => { 
-      if(value !== '')  {        
-         this.idleTrackerBack.start();
-      }        
-      else{
-        this.idleTrackerBack.end();  
-      }
-      // EventBus.$off('blockScreen');   
-    });
+
+    
 
     EventBus.$on('openHome', (value) => {
       if(value === true){  
@@ -490,7 +513,6 @@ export default {
     });
 
      EventBus.$on('changeRoute', async (value)   =>  { 
-       // console.log(value)  
       if(value ==='reservation') {
         return this.$router.push({ name: 'Reservation' })
       }        
@@ -517,11 +539,8 @@ export default {
     return {
       //Submenus
 
-      session: false,
-      foodservices: false,
-      orderstickets: false,
+      session: '',
       deliveriesreservations: false,
-      restaurantadministration: false,
       staffoccupationscustomers: false,
       marketing: false,
       settings: false,
@@ -616,8 +635,9 @@ export default {
       newRestaurantKey: 3,
       storeKey: 1,
       vClockin: false,
-
       restaurantS: null,
+      businessTypeList: ['All Businesses','Hospitality','Reservations','Service','Entertainment','Retail'],
+      businessType: 'All Businesses'
            
     }
   }, 
@@ -630,7 +650,9 @@ export default {
     StarRating,
     NewResturant,
     [Marquee.name]: Marquee,
-    [Slide.name]: Slide
+    [Slide.name]: Slide,
+    VueClock: Clock,
+    DeviceList: DeviceList,
     
   },  
   computed:{
@@ -643,88 +665,22 @@ export default {
 
   },
   methods: {
-    // async verifyClockin(){
-          
-    //     try{
-    //         const Attendance = await Api.fetchAll('Attendance')
-    //         let attendanceDay = Attendance.data
-    //         let StaffId = this.$store.state.user._id
+    
+    async changeStaffRestaurant(value){
+        this.userLoginRestaurantId = value;
+        this.spinner = true;
+        Api.setRestaurantId(this.userLoginRestaurantId);          
+        const response = await Api.fetchById("staff", this.$store.state.user._id);        
+        const {Commons} = require('./frontend/commons');
+        await Commons.backOfficeLogin(response.data);
 
-
-    //         //Los registro del staff en cuestion
-    //         attendanceDay = attendanceDay.filter(att => att.StaffId == StaffId)
-    //         //Sean del mismo día
-    //         attendanceDay = attendanceDay.filter(att => Moment(att.DateTime).format('YYYYMMDD') == Moment().format('YYYYMMDD'))
-
-    //         // console.log(attendanceDay.length)
-    //         if (attendanceDay.length == 0)
-    //         {
-    //             if (!this.hasPermission('canIgnoreClockin'))
-    //             {
-    //                 return false
-    //             }
-    //             return true
-    //         }
-    //         return true
-    //     }
-    //     catch(e){
-    //         // console.log(e)
-    //         return false
-    //     }
-    // },
-
-    changeUserLoginRestaurant(value){
-        this.userLoginRestaurantId = value
-        this.relogin()
-    },
-
-    relogin(){
-            this.spinner = true
-            let userLogin = this.$store.state.user
-            userLogin.RestaurantId = this.userLoginRestaurantId
-
-            Api.setRestaurantId(this.userLoginRestaurantId);
-            this.getBackofficeConfig();
-
-            Api.fetchById("staff", userLogin._id)
-            .then(response => {
-                    let roles = []
-                    let staffMember = response.data
-                    staffMember.Roles.forEach(rol_id => {
-                        Api.fetchById("rol", rol_id).then(response => {
-                            roles.push(response.data);
-                        })
-                    });
-                    const {Commons} = require('./frontend/commons');
-                    Commons.changeRestaurant(this.userLoginRestaurantId);
-                    this.$store.commit("setRoles", roles);
-                    this.$router.push({
-                        path: "/controlPanel"
-                    })
-                    // this.init();
-                  this.spinner = false
-            })
-            .catch(e => {
-                // console.log(e)
-                this.spinner = false
-            });
-    },
-
-    getBackofficeConfig: function(){
-          Api.fetchAll("Setting").then(response=> {
-              let settings = [];
-              settings = response.data;
-              if (settings.length > 0)
-              {
-                  var allStyles = settings[settings.length -1].AllStyles;
-                  document.querySelector('style').innerHTML += allStyles;
-
-              }
+        this.$router.push({
+              path: "/controlPanel"
           })
-          .catch(e => {
-          // console.log(e)
-          });
+        this.spinner = false;
     },
+
+ 
 
     async doRefresh(event) {
     
@@ -877,22 +833,7 @@ export default {
             }
         },
 
-    showDeviceSettings(){
-        return this.$ionic.modalController
-          .create({
-          component: Modal,
-          cssClass: 'my-custom-class',
-          componentProps: {
-              data: {
-                  
-              },
-              propsData: {
-                  parent: this
-              },
-          },
-          })
-          .then(m => m.present())
-    },
+ 
 
     manageFunSettings(){
             this.closeEnd();
@@ -984,24 +925,7 @@ export default {
                 .then(m => m.present())
     },
 
-    changeServerId(){
-        this.closeEnd();
-        
-        return this.$ionic.modalController
-                .create({
-                component: ChangeModal,
-                cssClass: 'my-custom-class',
-                componentProps: {
-                    data: {
-                        content: false,
-                    },
-                    propsData: {
-                        parent: this,
-                    },
-                },
-                })
-                .then(m => m.present())
-    },
+  
   
     openStart () {
         document.querySelector('ion-menu-controller').open('start')     
@@ -1014,10 +938,8 @@ export default {
     closeEnd () {
         document.querySelector('ion-menu-controller').close('end')
 
-        this.foodservices = false
-        this.orderstickets = false
+       
         this.deliveriesreservations = false
-        this.restaurantadministration = false
         this.staffoccupationscustomers = false
         this.settings = false
 
@@ -1218,7 +1140,7 @@ export default {
 
     getReservation: async function(){
        this.closeStart();
-       return this.$router.push({ name: 'Reservation' })
+       return this.$router.push({ name: 'Reservation', params: { url: this.$store.state.restaurantActive.restaurantUrl}  })
       //  if(this.ClientId !='' && this.CustomerName !='') return this.$router.push({ name: 'Reservation' })
       //  else return this.logIng('','reservation'); 
     },
@@ -1505,15 +1427,19 @@ export default {
       return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 
     },
 
-    hasCardPayCat(){
-      if(this.$store.state.configuration.viewCatering ){
-        if(this.$store.state.configuration.payForQuotation){
-          if(!this.$store.state.restaurantActive.hasPaymentCardConfig)
-            return false;
-          return true;
+    hasOptionToShowCatering(){
+      if(this.$store.state.configuration.viewCatering && this.$store.state.menuConCatering.length > 0 && this.$store.state.restaurantActive.RestaurantBussines){
+          if(this.$store.state.configuration.viewCatering ){
+          if(this.$store.state.configuration.payForQuotation){
+            if(!this.$store.state.restaurantActive.hasPaymentCardConfig)
+              return false;
+            return true;
+        }
+        return true;
+        }
       }
-       return true;
-      }
+
+     
       return false;
       
     },
@@ -1537,6 +1463,18 @@ export default {
       if(this.$store.state.configuration.showOtherRestaurant)
         return true;
       return false;      
+    },
+
+    hasOptionToShowTicket(){
+      if(this.$store.state.allTickets.length > 0 && this.$store.state.restaurantActive.RestaurantBussines)
+        return true;
+      return false;      
+    },
+
+    hasOptionToShowReservation(){
+      if(this.$store.state.configuration.viewReservation && this.$store.state.configuration.viewCustomerReservation )
+        return true;
+      return false;   
     },
 
     //USING STORE
@@ -1569,6 +1507,10 @@ export default {
         }
          
 
+    },
+
+    timeCounterBack(){
+      this.idleTrackerBack.start();
     },
 
     timeCounterCustomer(){
@@ -1611,7 +1553,18 @@ export default {
   async showTickets(){
     this.closeStart();  
     return this.$router.push({ name: 'OrderFront'});
-  }
+  },
+
+    editUserBack: function(id){
+      this.closeEnd(); 
+        this.$router.push({
+          name: 'UserForm', 
+          params: { 
+            userId: id,
+            sameConnected: true,            
+          }
+        });
+    },
 
   },
 

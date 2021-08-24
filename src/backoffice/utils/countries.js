@@ -1,4 +1,3 @@
-// TODO: Verificar paises en la zona NANP
 export const countries = [{
     country: 'US',
     code: '+1',

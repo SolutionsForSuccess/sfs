@@ -16,10 +16,12 @@
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    <div>
       <!-- <ion-card> -->
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
@@ -89,37 +91,20 @@ export default {
         }
   },
   methods: {
+
         init(){
-            this.id = this.$route.params.taxId;
+            this.id = this.$route.params.taxId;            
             if (this.id){
-              this.$ionic.loadingController
-              .create({
-                cssClass: 'my-custom-class',
-                message: this.$t('backoffice.titles.loading'),
-                backdropDismiss: true
-              })
-              .then(loading => {
-                  loading.present()
-                  setTimeout(() => {  // Some AJAX call occurs
-                      Api.fetchById(this.modelName, this.id)
-                      .then(response => {
-                        this.name = response.data.Name;
-                        this.percent = response.data.Percentage;
-                        // this.priority = response.data.Priority;
-                        this.available = response.data.Available;
-                        this.epos = response.data.EposId;
-                        loading.dismiss();
-                        return response;
-                      })
-                      .catch(e => {
-                        console.log(e);
-                        loading.dismiss();
-                      })
-                  })
-              })   
-            }
-            //console.log(this.$route.params);
+              const data = this.$store.state.backConfig.tax.find( t => t._id === this.id);
+              if(data){
+                  this.name = data.Name;
+                  this.percent = data.Percentage;
+                  this.available = data.Available;
+                  this.epos = data.EposId;
+              }
+            }             
         },
+
         ifErrorOccured(action){
           return this.$ionic.alertController.create({
               title: this.$t('backoffice.list.messages.connectionError'),
@@ -143,67 +128,38 @@ export default {
             })
             .then(a => a.present());
         },
-        // validatePriority(value){
-        //     if (parseInt(value) != 0 && parseInt(value) != 1){
-        //         this.priority = 0
-        //     }
-        // },
+        
         isValidForm(){
-            // let errors = [];
-            if (this.name == "")
-            {
-                // errors.push(this.$t('backoffice.form.validate.name'));
-                return false
-            }
-            if (isNaN(this.percent))
-            {
-                // errors.push(this.$t('backoffice.form.validate.percent'));
-                return false
-            }
-            if (this.percent == 0)
-            {
-                // errors.push(this.$t('backoffice.form.validate.percentGreater'));
-                return false
-            }
+            if (this.name == "") return false
+            if (isNaN(this.percent)) return false
+            if (this.percent == 0) return false
 
             return true
 
-            // if (errors.length > 0)
-            // {
-            //     let message = "";
-            //     for (let i = 0; i < errors.length; i++) {
-            //         message += (i + 1) + "- " + errors[i] + "<br/>";
-            //     }
-            //     // this.ShowMessage(this.$t('backoffice.form.validate.validate'),
-            //     //          message, this.$t('backoffice.form.validate.validateTax'));
-            //     this.showToastMessage(message, "danger");
-            //     return false;
-            // }
-            // else
-            // {
-            //     return true;
-            // }
         },
-      ShowMessage(type, message, topic='') {
-        return this.$ionic.alertController
-          .create({
-            cssClass: 'my-custom-class',
-            header: type,
-            subHeader: topic,
+
+        ShowMessage(type, message, topic='') {
+          return this.$ionic.alertController
+            .create({
+              cssClass: 'my-custom-class',
+              header: type,
+              subHeader: topic,
+              message: message,
+              buttons: [this.$t('backoffice.form.messages.buttons.ok')],
+            })
+          .then(a => a.present())
+        },
+
+        showToastMessage(message, tColor){
+          return this.$ionic.toastController.create({
+            color: tColor,
+            position: 'top',
+            duration: 3000,
             message: message,
-            buttons: [this.$t('backoffice.form.messages.buttons.ok')],
-          })
-        .then(a => a.present())
-    },
-    showToastMessage(message, tColor){
-       return this.$ionic.toastController.create({
-        color: tColor,
-        position: 'top',
-        duration: 3000,
-        message: message,
-        showCloseButton: false
-      }).then(a => a.present())
-    },
+            showCloseButton: false
+          }).then(a => a.present())
+        },
+
     //Create or edit a new category
     saveTax: function(){
 
@@ -213,9 +169,9 @@ export default {
             let item = {
               "Name": this.name,
               "Percentage": this.percent,
-              // "Priority": this.priority,
               "Available": this.available,
             }
+
             //If I am editing
             if (this.id){
               item['_id'] = this.id;
@@ -224,10 +180,8 @@ export default {
               this.spinner = true;
               Api.putIn(this.modelName, item)
                   .then(response => {
-                        // alert("Success edited");
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessTax'), 
-                        //         this.$t('backoffice.list.messages.titleEditTax'));
+                        const index = this.$store.state.backConfig.tax.findIndex( t => t._id === this.id)
+                        if(index !== -1) this.$store.state.backConfig.tax[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessTax'), "success");
                         this.name = '';
                         this.percent = 0;
@@ -251,9 +205,7 @@ export default {
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessTax'), 
-                      //           this.$t('backoffice.list.messages.titleCreateTax'));
+                      this.$store.state.backConfig.tax.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessTax'), "success");
                       this.name = '';
                       this.percent = 0;

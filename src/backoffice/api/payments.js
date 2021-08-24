@@ -7,6 +7,7 @@ import SHA512 from "crypto-js/sha512";
 // import Api from '../api/api.js';
 import { Api } from '../api/api.js';
 import { OlaPay } from '../api/olapay';
+import store from '../../main'
 
 export var payAuthorizeNet = {
 
@@ -101,8 +102,11 @@ export var payAuthorizeNet = {
             try {
                 const item = { 
                     'Search': { "trans_id": invoice, }                       
-                }              
-                const resp = await OlaPay.search(this.ip, this.port, this.ssl, item);
+                }     
+                const ip = store.state.device.ip || ''         ;
+                const port = store.state.device.port || '';        
+                if(ip === '' || port === '') throw new Error("Try another payment method")
+                const resp = await OlaPay.search(ip, port, true, item);
                 if(resp){
                     const item = { 
                         'Capture':{
@@ -111,12 +115,12 @@ export var payAuthorizeNet = {
                         }                      
                     }
                     this.spinner = true;
-                    const respCapture = await OlaPay.capture(this.ip, this.port, this.ssl, item);
+                    const respCapture = await OlaPay.capture(ip, port, true, item);
                     if(respCapture){
                         const item1 = { 
                             'Search': { "trans_id": respCapture, }                       
                         } 
-                        const search = await OlaPay.search(this.ip, this.port, this.ssl, item1);
+                        const search = await OlaPay.search(ip, port, true, item1);
                         if(search){
                             const response1 = {
                                 "total": search.total,
@@ -161,11 +165,13 @@ export var payAuthorizeNet = {
            
         }
         else if(payMethod === 'NAB'){
+
+            console.log('Amount in Capture: '+ total);
             
             const items = {
                 "amount": parseFloat(total),                
                 }
-            const response = await Api.captureNAB(items, invoice);
+            const response = await Api.captureNAB(items, invoice, moto);
             if(response.status === 200){
                 
                 const response1 = {
@@ -464,27 +470,40 @@ export var payAuthorizeNet = {
                 }
             }
             else{
-                const items = {
-                    "amount": parseFloat(datas.total),
-                    "tipAmount": parseFloat(datas.tip),
-                    "taxAmount": parseFloat(datas.tax),
-                   }
-                const response = await Api.incrementAuthorizeNAB(items, datas.invoiceNumber);
-                if(response.status === 200){
-                    
-                    const response1 = {
-                        "total": datas.total,
-                        "transId": datas.invoiceNumber,
-                        "accountNumber": '',
-                        "expirationCard": '',
-                        "accountType": '',
-                        "method": 'Card',
-                        "moto": false,                       
-                    }                   
-                   return response1;
+
+                const responseInvoice = await Api.getInvoiceNAB(datas.invoiceNumber);
+                if(responseInvoice.status === 200){
+                    console.log('responseInvoice');
+                    console.log(responseInvoice);
+                    console.log(responseInvoice.data.authamount);
+    
+                    const savedAmount = responseInvoice.data.authamount;
+                    const incrementalAmount = parseFloat(datas.total) - parseFloat(savedAmount)
+
+                    if(parseFloat(incrementalAmount.toFixed(2)) <= 0) return true;
+                    const items = {
+                        "amount": parseFloat(incrementalAmount.toFixed(2)),
+                        // "tipAmount": parseFloat(datas.tip),
+                        // "taxAmount": parseFloat(datas.tax),
+                       }
+                    const response = await Api.incrementAuthorizeNAB(items, datas.invoiceNumber, moto);
+                    if(response.status === 200){
+                        
+                        const response1 = {
+                            "total": datas.total,
+                            "transId": datas.invoiceNumber, //response.data.bric,
+                            "accountNumber": '',
+                            "expirationCard": '',
+                            "accountType": '',
+                            "method": 'Card',
+                            "moto": moto,                       
+                        }                   
+                       return response1;
+                    }
                 }
-            }
-           
+
+              
+            }           
             return false;
         } 
         return true;
@@ -972,8 +991,11 @@ export var payAuthorizeNet = {
                         "Amount": datas.total,     
                         "TransactionID": datas.invoiceNumber
                     }
-                }              
-                const resp = await OlaPay.goReturn(this.ip, this.port, this.ssl, item);
+                } 
+                const ip = store.state.device.ip || ''         ;
+                const port = store.state.device.port || '';        
+                if(ip === '' || port === '') throw new Error("Transaction Error")             
+                const resp = await OlaPay.goReturn(ip, port, true, item);
               
                 return resp;
               
@@ -999,7 +1021,7 @@ export var payAuthorizeNet = {
                 "amount": parseFloat(datas.total),
                 "transaction": 123              
               }
-            const res = await Api.refundNAB(items, datas.invoiceNumber);
+            const res = await Api.refundNAB(items, datas.invoiceNumber, moto);
             return res;
         }
 
@@ -1051,6 +1073,26 @@ export var payAuthorizeNet = {
                 throw new Error("Try another payment method")  
             }
         }
+        if (payMethod === 'OlaPay')
+        {
+            try {
+                const item = { 
+                    'Void':{    
+                        "TransactionID": invoice
+                    }
+                } 
+                const ip = store.state.device.ip || ''         ;
+                const port = store.state.device.port || '';        
+                if(ip === '' || port === '') throw new Error("Transaction Error")             
+                const resp = await OlaPay.goVoid(ip, port, true, item);
+              
+                return resp;
+              
+            }
+            catch(error){
+                console.log(error)
+            }
+        }
         if(payMethod === 'PayFabric'){
            const items =  {
                 "Type": "Void",
@@ -1061,10 +1103,9 @@ export var payAuthorizeNet = {
         }
         if(payMethod === 'NAB'){
             const items =  {}
-            const res = await Api.voidNAB(items, invoice);
+            const res = await Api.voidNAB(items, invoice, moto);
             return res;
         }
-        
 
         return false
     },
