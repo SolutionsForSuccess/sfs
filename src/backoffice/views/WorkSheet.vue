@@ -1,197 +1,20 @@
 <template>
 
-  <div id="worksheet" class="screen" >
-   
-      <ion-header>
-            <ion-toolbar>
-              <ion-buttons slot="start">
-                <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-              </ion-buttons>
-              <ion-label style="padding: 20px 100px;">
-                <h1>{{$t('backoffice.titles.workSheet')}}</h1>                          
-              </ion-label> 
-              <ion-label slot="end">  
-                  <ion-chip style="font-size: 30px" v-if="hasPermission('canCreateWorkSheet')" outline color="primary" @click="createWorkSheet()" >
-                      <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                  </ion-chip>
-              </ion-label> 
-              <!-- <ion-label slot="end">  
-                  <ion-chip style="font-size: 30px" v-if="hasPermission('canChangeSetting')" outline color="primary" @click="showSettingModal()" >
-                      <ion-label><span class="iconify" data-icon="ic:baseline-settings" data-inline="false"></span></ion-label>
-                  </ion-chip>
-              </ion-label>  -->
-            </ion-toolbar>
-
-              <div> 
-                  <ion-button @click="menuactive='list'" :style="menuactive==='list'? 'opacity: 1;;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="foundation:list-bullet" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button>  
-                  <ion-button    @click="menuactive='grid'" :style="menuactive==='grid'? 'opacity: 1;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="clarity:grid-chart-solid" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button>  
-                  <ion-button style="border: outset;" @click="reverseWorkSheet()">
-                    <span class="iconify" data-icon="fluent:chevron-up-down-20-filled" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button>
-              </div> 
-
-            <!-- <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterWorkSheet = workSheets"
-                  :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar> -->
-            <div style="width: 100%">
-                <ion-segment scrollable color="tertiary" @ionChange="changeFilterStatus($event.target.value)" :value="filterStatus">
-                    <ion-segment-button value="all">
-                          {{$t('frontend.reservation.all')}}
-                    </ion-segment-button>
-                    <ion-segment-button value="draft">
-                          {{status[0]}}
-                    </ion-segment-button>
-                    <ion-segment-button value="open">
-                          {{status[1]}}
-                    </ion-segment-button>
-                    <ion-segment-button value="close">
-                          {{status[2]}}
-                    </ion-segment-button>
-                </ion-segment>
-            </div>
-      </ion-header>
-
-    <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div> 
-          <paginate v-if="filterWorkSheet.length > 0 && menuactive==='list'"
-            name="languages"
-            :list="filterWorkSheet"
-            :per="8">
-            
-              <ion-item-sliding  v-for="workSheet in paginated('languages')" v-bind:key="workSheet._id">
-                <ion-item
-                    @click="viewWorkSheet(workSheet._id)"
-                    :style="workSheet.State == 0 ? '--background:#a3a89d' : workSheet.State == 1 ? '--background:#2f7ca2' : '--background:#2d2c29'">
-                    <ion-label>
-                        <h4 style="color: white;">{{$t('backoffice.worksheetStatus.fields.responsable')}}</h4>
-                        <h3 style="color: white;">{{getStaffName(workSheet.ResponsableId)}}</h3>
-                    </ion-label> 
-                    <ion-label>
-                        <h5 style="color: white;">{{$t('backoffice.worksheetStatus.fields.startDate')}}</h5>
-                        <h6><span style="color: white;">{{ getFormatedDate(workSheet.StartDate) }}</span></h6>
-                    </ion-label>
-                    <ion-label>
-                        <h5 style="color: white;">{{$t('backoffice.worksheetStatus.fields.endDate')}}</h5>
-                        <h6><span style="color: white;">{{ getFormatedDate(workSheet.EndDate) }}</span></h6>
-                    </ion-label>
-                    <ion-label>
-                        <h5 style="color: white;">{{ status[workSheet.State] }}</h5>
-                    </ion-label>             
-                </ion-item>
-                <ion-item-options side="end"> 
-                    <ion-item-option color="primary" v-if="hasPermission('canEditWorkSheet')" @click="viewWorkSheet(workSheet._id)">
-                      <ion-icon slot="icon-only" name="list"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option v-if="workSheet.State==0 && hasPermission('canEditWorkSheet')" color="success" @click="openWorkSheet(workSheet)">
-                      <ion-icon slot="icon-only" name="checkmark"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option v-if="workSheet.State==1 && hasPermission('canEditWorkSheet')" color="danger" @click="closeWorkSheet(workSheet)">
-                      <ion-icon slot="icon-only" name="close"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option color="danger" v-if="hasPermission('canDeleteWorkSheet') && workSheet.State == 0"
-                        @click="deleteWorkHour(workSheet._id)" :v-tooltip="$t('backoffice.list.actions.delete')">
-                        <ion-icon slot="icon-only" name="trash"></ion-icon>
-                    </ion-item-option>
-                </ion-item-options >
-              </ion-item-sliding>
-
-          </paginate>
-          <div v-if="filterWorkSheet.length > 0  && menuactive==='list'">
-              <paginate-links for="languages" color="primary" 
-                :simple="{
-                  next:'»' ,
-                  prev: '« ' }"
-              ></paginate-links>
+    <div id="user" class="page">
+            <listView v-if="1"
+              :title="$t('backoffice.titles.workSheet')"
+              :filter="filterWorkSheet"
+              :elements="workSheets"      
+              :viewSelected="'Admin'"     
+              :add="hasPermission('canCreateWorkSheet')"
+              :edit="hasPermission('canEditWorkSheet')"
+              :remove="hasPermission('canDeleteWorkSheet')"
+              @handleInput="handleInput"
+              @handleAddClick="createWorkSheet"   
+              @editElement="viewWorkSheet"
+              @deleteElement="deleteWorkHour"   
+            ></listView>
           </div>
-
-          <div v-if="menuactive==='grid'"  id="gridView">
-              <v-breakpoint>
-                <div slot-scope="scope" > 
-
-                  <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                    <ion-chip color="primary"
-                      @click="scrollToTop()"
-                    outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                      <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                    </ion-chip>
-
-                    <div  v-for="workSheet in filterWorkSheet" v-bind:key="workSheet._id" 
-                        style="text-align: right;"             
-                        :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                            
-                          <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                              :style="workSheet.State == 0 ? '--background:#a3a89d' : workSheet.State == 1 ? '--background:#2f7ca2' : '--background:#2d2c29'">
-                            {{ getFormatedDate(workSheet.StartDate) }} / {{ getFormatedDate(workSheet.EndDate) }}
-                          </ion-chip>
-                        <ion-card style="text-align: left;"   
-                        :style="workSheet.State == 0 ? '--background:#a3a89d' : workSheet.State == 1 ? '--background:#2f7ca2' : '--background:#2d2c29'">
-                            <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                              <ion-card-title  style="color: black;">
-                                  {{ status[workSheet.State] }}
-                              </ion-card-title>
-                              
-                              <!-- <ion-card-subtitle style="color: black; display: flex;justify-content: space-between;">
-                                <div style="text-align: center;"> 
-                                  <span class="iconify" data-icon="bx:bxs-user-circle" data-inline="false" 
-                                  style="color: #808080a6;width: 20px;  height: 20px; margin: 0;"></span>
-                                </div>
-                                <div style="text-align: right;"  >{{ getCustomerById(credit.CustomerId).Name }}</div>
-                              </ion-card-subtitle> -->
-                                
-                              </ion-card-header>
-
-                              <ion-card-content style="margin: 1px 5px; padding: 5px;background:white;color: black;" :key="cartKey + 'C'">
-                                  
-                                  <ion-card-subtitle  style="color: black; display: flex;justify-content: space-between;">
-                                      {{$t('backoffice.worksheetStatus.fields.workers')}}
-                                  </ion-card-subtitle>
-                                  <div v-for="sh in workSheet.StaffHour" v-bind:key="sh.IdStaff">
-                                      <ion-row>
-                                          <ion-col>
-                                              - {{getStaffName(sh.IdStaff)}}
-                                          </ion-col>
-                                      </ion-row>
-                                  </div>
-                              </ion-card-content>
-                              
-                              <ion-card-content style="margin:5px; background:white;color: black;text-align: center; padding: 0;" :key="stateKey + 'S'">
-                                    <ion-button color="primary" v-if="hasPermission('canEditWorkSheet')" @click="viewWorkSheet(workSheet._id)">
-                                        <ion-icon slot="icon-only" name="list"></ion-icon>
-                                    </ion-button>
-                                    <ion-button v-if="workSheet.State==0 && hasPermission('canEditWorkSheet')" color="success" @click="openWorkSheet(workSheet)">
-                                        <ion-icon slot="icon-only" name="checkmark"></ion-icon>
-                                    </ion-button>
-                                    <ion-button v-if="workSheet.State==1 && hasPermission('canEditWorkSheet')" color="danger" @click="closeWorkSheet(workSheet)">
-                                        <ion-icon slot="icon-only" name="close"></ion-icon>
-                                    </ion-button>
-                                    <ion-button color="danger" v-if="hasPermission('canDeleteWorkSheet') && workSheet.State == 0"
-                                        @click="deleteWorkSheet(workSheet._id)" :v-tooltip="$t('backoffice.list.actions.delete')">
-                                        <ion-icon slot="icon-only" name="trash"></ion-icon>
-                                    </ion-button>
-                              </ion-card-content>              
-                        </ion-card>
-                    </div>
-                  </div>
-                </div>
-              </v-breakpoint>
-          </div>
-
-
-          <div class="emptyResult" v-if="filterWorkSheet.length == 0">
-              {{$t('backoffice.titles.emptyResult')}}
-          </div>
-    </div> 
-
-  </div>
 
 </template>
 
@@ -199,17 +22,12 @@
 
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js';
-// import { payAuthorizeNet } from '../api/payments.js';
-// import Modal from './cancelOrderModal.vue';
-// import { EventBus } from '../../frontend/event-bus';
- import { VBreakpoint } from 'vue-breakpoint-component'
-//  import CreditSetting from './creditSetting.vue'
-//  import CreditApprove from './CustomerCreditApprove.vue'
+import listView from "../components/ListView";
 export default {
 
   name: 'sheethour',
   components:{   
-    VBreakpoint: VBreakpoint 
+    listView,
   },  
   data () {
     return {
@@ -227,6 +45,12 @@ export default {
       loading: null,
 
       status: [this.$t('backoffice.worksheetStatus.draft'), this.$t('backoffice.worksheetStatus.opened'), this.$t('backoffice.worksheetStatus.closed')],
+      statesAll: [{state: 0,
+                name: this.$t('backoffice.worksheetStatus.draft')}, 
+                {state: 1,
+                name:this.$t('backoffice.worksheetStatus.opened')}, 
+                {state: 2,
+                name:this.$t('backoffice.worksheetStatus.closed')}],
 
       paginate: ['languages'],
 
@@ -237,7 +61,8 @@ export default {
       menuactive: 'list',
       
       cartKey: 0,
-      stateKey: 0,          
+      stateKey: 0,  
+      keyList: 0,        
     }
   },
   async created(){
@@ -250,6 +75,43 @@ export default {
      
   }, 
   methods: {
+
+  async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+      this.$store.state.backConfig.shestHour = response.data
+      this.workSheets = this.$store.state.backConfig.shestHour;
+      this.filterWorkSheet = this.workSheets;  
+      this.spinner = false;
+       this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+        
+  },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return this.status[option.State]
+      if(count === 3) return null
+      if(count === 4) return null
+      if(count === 5) return this.getFormatedDate(option.StartDate) +' - ' +this.getFormatedDate(option.EndDate);
+
+    },
+
+    handleInput(value) {
+       this.filterWorkSheet = this.workSheets
+      const query = value.toLowerCase();
+      requestAnimationFrame(() => {
+        let cat2 = this.workSheets.filter( (item) =>
+          this.statesAll[item.State].name.toLowerCase().indexOf(query) > -1
+        );
+        if (cat2.length > 0) this.filterWorkSheet = cat2;
+        else this.filterWorkSheet = this.workSheets;
+      });
+    },
    
     async openWorkSheet(workSheet){
         this.spinner = true
@@ -268,7 +130,7 @@ export default {
         })
         .catch(e => {
             this.showToastMessage(e, 'danger')
-            console.log(e)
+            e
             this.spinner = false
         })
     },
@@ -290,24 +152,27 @@ export default {
         })
         .catch(e => {
             this.showToastMessage(e, 'danger')
-            console.log(e)
+            e
             this.spinner = false
         })
     },
 
-    getStaffName(staffId){
-        const s = this.allStaff.find(staff => staff._id == staffId)
-        console.log(staffId, s)
+    async getStaffName(staffId){
+        const s = this.allStaff.find(staff => staff._id == staffId)        
         if (s){
-          console.log(s.FirstName + ' ' + s.LastName)
           return s.FirstName + ' ' + s.LastName
+        }
+        else{
+          const staff =await Api.fetchById('staff', staffId);
+          if(staff.status === 200)
+            if(staff.data.FirstName && staff.data.LastName) 
+              return staff.data.FirstName +' '+ staff.data.LastName;
         }
         return ''
     },
 
     changeFilterStatus(value){
 
-        //console.log(value)
         this.filterStatus = value
         let status = -1
         if (value == 'all')
@@ -397,7 +262,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteWorkHour(id)
                       this.spinner = false
@@ -412,20 +277,7 @@ export default {
       .then(a => a.present());
 
     },
-    // handleInput(value){
-    //   this.filterWorkSheet = this.workSheets
-    //   console.log(value)
-    //   const query = value.toLowerCase();
-    //   requestAnimationFrame(() => {   
-    //     let cat2 = this.workSheet.filter(item => 
-    //                                       item.StartDate.indexOf(query) > new Date() || 
-    //                                            this.getOrderState(item.State).toLowerCase().indexOf(query) > -1)
-    //     if(cat2.length> 0)
-    //       this.filterCredits = cat2
-    //     else
-    //       this.filterCredits = this.credits
-    //   });
-    // },
+ 
     viewWorkSheet: function(id){
         if (this.hasPermission('canEditWorkSheet'))
         {
@@ -439,7 +291,6 @@ export default {
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);
     },
-
   
     createWorkSheet: function(){
         this.$router.push({

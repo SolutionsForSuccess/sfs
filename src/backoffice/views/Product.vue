@@ -1,162 +1,26 @@
 <template>
-    <div id="product" class="screen">
-
-        <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-        <router-link to="/product-form"><ion-button v-if="hasPermission('canCreateProduct')" expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.product')}}</ion-button></router-link> -->
-
-        <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1 v-if="cType == 'product'">{{$t('backoffice.titles.products')}}</h1>
-              <h1 v-else>{{$t('backoffice.options.manageServices')}}</h1>           
-            </ion-label>
-
-            <ion-label slot="end">
-            <!-- <router-link :to="goToForm()"> -->
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateProduct')" @click="goToForm()">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            <!-- </router-link> -->
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterProducts = products"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-        </ion-header>
-
-        <div v-if="spinner">
-            <ion-spinner name="lines" class="spinner"></ion-spinner>
-        </div>
-        <div v-else>
-          <div v-if="screenWidth < 600">
-            <paginate
-            name="languages"
-            ref="paginator"
-            :list="filterProducts"
-            :per="8"
-            >
-
-            <ion-list>
-                <ion-item-sliding v-for="product in paginated('languages')" v-bind:key="product._id">
-                    <ion-item>
-                        <ion-thumbnail slot="start">
-                            <ion-img v-if="product.ImageUrl != ''" :src="product.ImageUrl"></ion-img>
-                            <ion-img v-else :src="require('../assets/product.png')"></ion-img>
-                        </ion-thumbnail>
-                        <ion-label class="ion-text-wrap">
-                            <h2>{{ product.Name }}</h2>
-                            <!-- <h3>{{ product.Ingredients.length }}</h3> -->
-                        </ion-label>
-                        <ion-label >
-                            <p><router-link to="/category">{{ getCategoryNameById(product.CategoryId) }}</router-link></p>
-                            <p>{{$t('backoffice.form.fields.costPrice')}}: {{ getFormateNumber(product.CostPrice)}} </p>
-                            <p>{{$t('backoffice.form.fields.salePrice')}}: {{ getFormateNumber(product.SalePrice)}} </p>
-                            <p v-if="product.SpecialPrice">Special Price: <span style="color: red">{{ getFormateNumber(product.SpecialPrice)}}</span></p>
-                        </ion-label>
-                        <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                    </ion-item>
-                  <!--  <ion-item>
-                    <ion-item>  
-                    <ion-label>
-                        <h2>{{ product.Name }}</h2>
-                        <h3>{{ product.Description }}</h3>
-                        <ion-label>{{ fetchCategoryById(product.CategoryId) }}</ion-label> 
-                    </ion-label> 
-                    </ion-item>-->
-                    <ion-item-options side="end">
-                        <ion-item-option v-if="hasPermission('canEditProduct')" color="primary" @click="editProduct(product._id, product.Name, product.Description,
-                        product.CostPrice, product.SalePrice, product.CategoryId)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-item-option>
-                        <ion-item-option v-if="hasPermission('canDeleteProduct')" color="danger" @click="deleteProduct(product._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-item-option>
-                    </ion-item-options>
-                </ion-item-sliding>
-            </ion-list>
-
-            </paginate>
-
-            <paginate-links for="languages" color="primary" 
-                @change="onLangsPageChange()"
-                :async="true"
-                :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links> 
-
-          </div>
-
-          <div v-if="screenWidth >= 600">
-            <paginate
-            name="languages"
-            ref="paginator2"
-            :list="filterProducts"
-            :per="8"
-            >
-
-            <ion-list>
-                <ion-item v-for="product in paginated('languages')" v-bind:key="product._id">
-                    <ion-thumbnail slot="start">
-                        <ion-img v-if="product.ImageUrl != ''" :src="product.ImageUrl"></ion-img>
-                        <ion-img v-else :src="require('../assets/product.png')"></ion-img>
-                    </ion-thumbnail>
-                    <ion-label class="ion-text-wrap">
-                        <h2>{{ product.Name }}</h2>
-                        <!-- <h3>{{ product.Ingredients.length }}</h3> -->
-                    </ion-label>
-                    <ion-label >
-                        <p><router-link :to="'/category-form/'+product.CategoryId">{{ getCategoryNameById(product.CategoryId) }}</router-link></p>
-                        <p>{{$t('backoffice.form.fields.costPrice')}}: {{ getFormateNumber(product.CostPrice)}}</p>
-                        <p>{{$t('backoffice.form.fields.salePrice')}}: {{ getFormateNumber(product.SalePrice)}}</p>
-                        <p v-if="product.SpecialPrice">Special Price: <span style="color: red">{{ getFormateNumber(product.SpecialPrice)}}</span></p>
-                    </ion-label>
-                    <ion-item-group side="end">
-                        <ion-button v-if="hasPermission('canEditProduct')" color="primary" @click="editProduct(product._id, product.Name, product.Description,
-                        product.CostPrice, product.SalePrice, product.CategoryId)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-button>
-                        <ion-button v-if="hasPermission('canDeleteProduct')" color="danger" @click="deleteProduct(product)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-button>
-                    </ion-item-group>
-                </ion-item>
-            </ion-list>
-
-            </paginate>
-
-            <paginate-links for="languages" color="primary"
-              @change="onLangsPageChange2()"
-              :async="true"
-                :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links> 
-
-          </div>
-
-        <!-- <ion-infinite-scroll @ionInfinite="loadMore" threshold="100px" position="bottom">
-            <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll> -->
-
-        <!-- <ion-infinite-scroll>
-            <ion-infinite-scroll-content
-                loadingSpinner="bubbles"
-                loadingText="Loading more data…">
-            </ion-infinite-scroll-content>
-        </ion-infinite-scroll> -->
-        </div>
-    </div>
+    <div id="user" class="page">
+    <listView
+      :title="getTitle()"
+      :filter="filterProducts"
+      :elements="products"
+      :hasImg="true"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateProduct')"
+      :edit="hasPermission('canEditProduct')"
+      :remove="hasPermission('canDeleteProduct')"
+      @handleInput="handleInput"
+      @handleAddClick="goToForm"   
+      @editElement="editProduct"
+      @deleteElement="deleteProduct"   
+    ></listView>
+  </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
 
 export default {
    name: 'product',
@@ -189,19 +53,43 @@ export default {
       rou: '/product-form',
 
       currentPageOrder: 1,
+      keyList: 0,
     }
   },
+  components: {
+    listView,
+  }, 
    methods: {
  
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(async response => {
+        this.$store.state.backConfig.product = response.data;
+        await this.init();  
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+    },
+
+     ListViewData(option, count){
+      if(count === 1) return option.ImageUrl;
+      if(count === 2) return option.Name
+      if(count === 3) return null;         
+      if(count === 4) return this.getFormateNumber(option.SalePrice);
+      if(count === 5) return this.getCategoryNameById(option.CategoryId);
+    },
+    
+    getTitle(){
+      if(this.cType == 'product') return this.$t('backoffice.titles.products');
+      else return this.$t('backoffice.options.manageServices')
+    },
+
     async init(){
     
-      const loading = await this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        loading.present()
       
         this.cType = this.$route.params.type || 'product';
         if (this.cType != 'product')
@@ -233,8 +121,8 @@ export default {
             this.$refs.paginator2.goToPage(this.currentPageOrder);
         }
 
-        loading.dismiss()
     },
+
     getFormateNumber: function(number){
       return new Intl.NumberFormat('en', {style: "currency", currency: this.currency} ).format(number).toString()
     },
@@ -291,7 +179,8 @@ export default {
       this.filterProducts = this.products
       const query = value.toLowerCase();
       requestAnimationFrame(() => {   
-        let cat2 = this.products.filter(item => item.Name.toLowerCase().indexOf(query) > -1)
+        let cat2 = this.products.filter(item => item.Name.toLowerCase().indexOf(query) > -1 ||
+                                               this.getCategoryNameById(item.CategoryId).toLowerCase().indexOf(query) > -1)
         if(cat2.length> 0)
           this.filterProducts = cat2
         else
@@ -368,6 +257,12 @@ export default {
         });
         return categ;
     },
+
+    addProduct: function(){
+      this.$router.push({
+        name: 'ProductForm'
+      });
+    },
     
     editProduct: function(id){
           this.$router.push({
@@ -379,9 +274,10 @@ export default {
             }
           });
     },
-    deleteProduct: function(product){
 
-        const id = product._id
+    deleteProduct: function(id){
+
+       const product = this.$store.state.backConfig.product.find( p=> p._id === id);      
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
         message: this.$t('backoffice.list.messages.deleteProduct'),
@@ -414,7 +310,7 @@ export default {
                     return response;
                 })
                 .catch(e => {
-                    console.log(e);
+                    e;
                     this.ifErrorOccured(mess => {
                       this.deleteProduct(id)
                       this.spinner = false

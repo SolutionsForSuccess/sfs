@@ -214,7 +214,7 @@ export default {
                 })
                 .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveShipping)
                 })
@@ -237,7 +237,7 @@ export default {
                 })
                 .catch(e => {
                     this.isBackdrop = false;
-                    console.log(e);
+                    e;
                     this.spinner = false;
                     this.ifErrorOccured(this.saveShipping)
                 })

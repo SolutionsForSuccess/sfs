@@ -4,7 +4,7 @@
     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
+              <ion-back-button default-href="/controlPanel" @click="goToBack()"></ion-back-button>
             </ion-buttons>
             <ion-label style="padding: 20px 100px;">
               <h1>{{$t('backoffice.titles.ordersForDelivery')}}</h1>          
@@ -19,9 +19,9 @@
     </ion-header>
 
     <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+    <div>
       <div v-if="screenWidth < 600">
           <paginate
             name="languages"
@@ -129,7 +129,7 @@ export default {
       // }, 30000);
   //  this.getRestaurantCustomer();
   },
-  destroyed: function(){
+  unmounted: function(){
     if (this.update != null){
         clearInterval(this.update);
     }
@@ -207,7 +207,7 @@ export default {
                 });
             })
             .catch(e => {
-              console.log(e);
+              e;
               this.ifErrorOccured(mess => {
                   this.acceptOrder(orderP)
                   this.spinner = false
@@ -224,16 +224,7 @@ export default {
             }
         });
     },
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+  
     handleInput(value){
       this.filterOrders = this.orders
       const query = value.toLowerCase();
@@ -247,24 +238,11 @@ export default {
           this.filterOrders = this.orders
       });
     },
-    // pay: function(){
-    //     payAuthorizeNet.pay({})
-    //       .then(response => {
-    //          console.log(response);
-    //     })
-    //     .catch(e => {
-    //       console.log(e)
-    //     });
-    // },
-    // viewOrder: function(id){
-    //     this.$router.push({
-    //     name: 'OrderDetails', 
-    //     params: { orderId: id }
-    //   });
-    // },
+ 
     getOrderState(state){
         return this.workflowOrderStaus[state];
     },
+    
     getFormatedDate: function(date){
         return Utils.getFormatedDate(date);         
     },
@@ -299,7 +277,7 @@ export default {
                     loading.dismiss();
                   })
                   .catch(e => {
-                    console.log(e)
+                    e
                     loading.dismiss()
                     this.ifErrorOccured(this.init)
                   });
@@ -308,12 +286,11 @@ export default {
     },
     fetchCustomers: function(){
         Api.fetchAll('Customer').then(response => {
-          // console.log(response.data)
           this.customers = response.data
           return response
         })
         .catch(e => {
-          console.log(e)
+          e
         });
     },
     getRestaurantCustomer: function(){
@@ -321,7 +298,6 @@ export default {
         .then(response => { 
             if(response.data.length != 0 ) {
                 this.restaurantCustomer = response.data[0]
-                //console.log(this.restaurantCustomer)
             }
         })
     },
@@ -331,7 +307,7 @@ export default {
             this.getRestaurantCustomer();
       })
       .catch(e => {
-        console.log(e)
+        e
       });
     },
     // hasPermission(permission){
@@ -359,9 +335,7 @@ export default {
     createCustomer(client){
       Api.postIn('Customer', client)
       .then(response => {
-        // this.spinner = false
-        //console.log("Success creted with _id" + response.data._id);
-        //console.log(JSON.stringify(response.data));
+       
         client['id'] = response.data._id;
         // this.CustomerName = response.data.Name;
           EventBus.$emit('clientHasId', client.id );
@@ -370,15 +344,14 @@ export default {
           EventBus.$emit('clientHasEmail', client.EmailAddress ); 
           EventBus.$emit('updateRestaurantSelectedId', this.$store.state.user.RestaurantId); 
           this.$store.commit('setStaffName',this.userLogin.FirstName + ' ' + this.userLogin.LastName);
-        // this.order.ClientId = this.clientId
-        //console.log('' + this.order);
+    
         this.$router.push({
           path: '/home', 
         }); 
         return response;            
       })
       .catch(e => {
-         console.log(e) 
+         e 
       })
     },
     getCustomerById: function(id){
@@ -389,6 +362,9 @@ export default {
             }
         });
         return custom;
+    },
+    goToBack(){
+      this.$router.push({ path: '/order'})
     },
   //   cancelOrder(order, customer){
   //     return this.$ionic.modalController

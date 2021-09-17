@@ -23,109 +23,183 @@
         :message="$t('frontend.tooltips.loadRestaurant')"
     ></ion-loading>
 
-    <div v-else>   
-        <ion-item>
-            <ion-label>{{$t('backoffice.form.fields.name')}}: <strong>{{name}}</strong></ion-label>            
-        </ion-item>
-     
-        <div v-if="!id">
-            <ion-radio-group :value="type"  @ionChange="changeType($event.target.value)">
-              <ion-item>
-                <ion-label>Seat type</ion-label>
-              </ion-item>
-              <ion-item>
-                <ion-label>Table</ion-label>
-                <ion-radio slot="end" :value="tablePrefix"></ion-radio>
-              </ion-item>
-              <ion-item>
-                <ion-label>Bar</ion-label>
-                <ion-radio slot="end" :value="barPrefix"></ion-radio>
-              </ion-item>
-              <ion-item>
-                <ion-label>Room</ion-label>
-                <ion-radio slot="end" :value="roomPrefix"></ion-radio>
-              </ion-item>
-            </ion-radio-group>
-        </div>
-        
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.tableNumber')}}</ion-label>
-            <ion-input type="number" name="tableNumber"
-            @input="changeNumber($event.target.value)" 
-            v-bind:value="tableNumber">
-          </ion-input>
-        </ion-item>
+    <div >   
 
-        <ion-list>
+        <ion-row>
+
+          <ion-col size="12" size-md="6">
+
               <ion-item>
-                  <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
-                  @ionChange="shape = $event.target.value" v-bind:value="shape">
-                      <ion-select-option key="Square" value="Square">{{$t('backoffice.form.tableShape.square')}}</ion-select-option>
-                      <ion-select-option key="Rectangular" value="Rectangular">{{$t('backoffice.form.tableShape.rectangular')}}</ion-select-option>
-                      <ion-select-option key="Circle" value="Circle">{{$t('backoffice.form.tableShape.circle')}}</ion-select-option>
-                      <ion-select-option key="Oval" value="Oval">{{$t('backoffice.form.tableShape.oval')}}</ion-select-option>
-                  </ion-select>
+                  <ion-label>{{$t('backoffice.form.fields.name')}}: <strong style="text-transform: uppercase;">{{name}}</strong></ion-label>            
+              </ion-item> 
+
+               <ion-item v-if="1">
+                <ion-label ><span style="color: red">*</span>{{$t('backoffice.form.fields.tableNumber')}}</ion-label>
+                  <ion-input type="number" name="tableNumber"
+                  @input="changeNumber($event.target.value)" 
+                  v-bind:value="tableNumber">
+                </ion-input>
               </ion-item>
-          </ion-list>
 
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
-          <strong>
-            <ion-textarea name="description" 
-          @input="description = $event.target.value" 
-          v-bind:value="description">
-          </ion-textarea>
-          </strong>
-          
-        </ion-item>
+              <ion-item>
+                  <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
+                  <strong>
+                    <ion-textarea name="description" 
+                  @input="description = $event.target.value" 
+                  v-bind:value="description">
+                  </ion-textarea>
+                  </strong>
+              </ion-item>
 
-        
+              <div v-if="!id">
+                      <p style="text-align: left;padding: 0 20px;">Seat type</p>
+                  <ion-radio-group :value="type"  @ionChange="changeType($event.target.value)" style="    display: flex;justify-content: space-evenly;">
+                  
+                    <div>
+                      <ion-label>Table</ion-label>
+                      <ion-radio slot="end" :value="tablePrefix"></ion-radio>
+                    </div>
+                    <div>
+                      <ion-label>Bar</ion-label>
+                      <ion-radio slot="end" :value="barPrefix"></ion-radio>
+                    </div>
+                    <div>
+                      <ion-label>Room</ion-label>
+                      <ion-radio slot="end" :value="roomPrefix"></ion-radio>
+                    </div>
+                  </ion-radio-group>
+              </div>
+                
+              <ion-list>
+                  <ion-item>
+                    <ion-label>Forma</ion-label>
+                      <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
+                      @ionChange="shape = $event.target.value" v-bind:value="shape">
+                          <ion-select-option key="Square" value="Square">{{$t('backoffice.form.tableShape.square')}}</ion-select-option>
+                          <ion-select-option key="Rectangular" value="Rectangular">{{$t('backoffice.form.tableShape.rectangular')}}</ion-select-option>
+                          <ion-select-option key="Circle" value="Circle">{{$t('backoffice.form.tableShape.circle')}}</ion-select-option>
+                          <ion-select-option key="Oval" value="Oval">{{$t('backoffice.form.tableShape.oval')}}</ion-select-option>
+                      </ion-select>
+                  </ion-item>
+              </ion-list>
 
-        <div v-if="id">
+              <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
+                <ion-toggle slot="end" name="available" 
+                      @ionChange="available=$event.target.checked" 
+                      :checked="available">
+                </ion-toggle>
+              </ion-item>
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+         
+            <div v-if="id">
+                <ion-item>
+                    <ion-label> Manage seats</ion-label>
+                   
+                     <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"                       
+                        @click="addSeat()"
+                        >
+                        <ion-icon  slot="icon-only"  icon="add"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                     <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"
+                        :disabled="seats.length > 0? false: true"
+                        @click="deleteSeat()"
+                        >
+                        <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                </ion-item>
+
+                   <ion-list class="content-list" style="margin: 0 15px;">
+                            
+                            <ion-item
+                                v-for="(seat, index) in seats"
+                                v-bind:key="index"                               
+                            >
+                               
+
+                                <ion-label> 
+                                    <h2> <span style="padding: 0 10px;text-transform: uppercase;    font-weight: 400;">  {{ formatSeat(seat) }} </span>     </h2>    
+                                    <h4 style="padding: 0 10px;font-weight: 200;">  {{ showStatus(seat) }} </h4>
+                                </ion-label>
+
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                    @click.stop="seeQrCode(seat)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="md-qr-scanner"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                                 <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                   v-if="!seat.available"
+                                   @click="setAvailable(seat)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="close"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                                  <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                   v-else
+                                   @click="setDisable(seat)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="checkmark"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                        </ion-list>
+
+            </div>
+
             <ion-item>
-                <ion-label><strong> Manage seats</strong></ion-label>
-                <ion-button v-if="seats.length > 0" color="danger" @click="deleteSeat()"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                 <ion-button color="secondary" @click="addSeat()"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                <ion-segment v-bind:value="state" @ionChange="changeState($event.detail.value)">
+                    <ion-segment-button value="Free">
+                        <ion-label>{{$t('backoffice.form.fields.free')}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="Busy">
+                        <ion-label>{{$t('backoffice.form.fields.busy')}}</ion-label>
+                    </ion-segment-button>
+                    <ion-segment-button value="Dirty">
+                        <ion-label>{{$t('backoffice.form.fields.dirty')}}</ion-label>
+                    </ion-segment-button>
+                </ion-segment>
             </ion-item>
-            <ion-list>
-                <ion-item v-for="seat in seats" v-bind:key="seat.Name">
-                  <ion-label class="menu-col-4 elipsis-menu">{{ formatSeat(seat)}} </ion-label>
-                  <ion-label class="menu-col-4 elipsis-menu">{{ showStatus(seat) }}</ion-label>
-                  <ion-label class="menu-col-4 elipsis-menu" style="    text-align: right;">
-                    <ion-button @click="seeQrCode(seat)" color="light"> <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false" style="width: 22px;height: 22px;margin: 0;"></span></ion-button>
-                    <ion-button v-if="!seat.available" color="danger" @click="setAvailable(seat)"><ion-icon slot="icon-only" name="close"></ion-icon></ion-button>
-                    <ion-button v-else color="success" @click="setDisable(seat)"><ion-icon slot="icon-only" name="checkmark"></ion-icon></ion-button>
-               
 
-                  </ion-label>
+          </ion-col>
 
+        </ion-row>
 
-                   </ion-item>
-            </ion-list>
-        </div>
+       
+     
       
-        <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
-           <ion-checkbox slot="end" name="available" 
-                @ionChange="available=$event.target.checked" 
-                :checked="available">
-          </ion-checkbox>
-        </ion-item>
+        
+       
+
+      
+        
+
+      
+      
+      
       <!-- </ion-card>  -->
 
-      <ion-item>
-          <ion-segment v-bind:value="state" @ionChange="changeState($event.detail.value)">
-              <ion-segment-button value="Free">
-                  <ion-label>{{$t('backoffice.form.fields.free')}}</ion-label>
-              </ion-segment-button>
-              <ion-segment-button value="Busy">
-                  <ion-label>{{$t('backoffice.form.fields.busy')}}</ion-label>
-              </ion-segment-button>
-              <ion-segment-button value="Dirty">
-                  <ion-label>{{$t('backoffice.form.fields.dirty')}}</ion-label>
-              </ion-segment-button>
-          </ion-segment>
-      </ion-item>
+     
 
       <br/>
       <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveTable()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
@@ -267,20 +341,12 @@ export default {
         allTables.forEach(table => {
             tableNumber.push(table.TableNumber)
         });
-        console.log(tableNumber)
 
         let number = 1
     
-        console.log(number in tableNumber)
-        console.log(number)
-        console.log(tableNumber)
         while (tableNumber.includes(number)) {
-            console.log("Entra aquí")
             number++
         }
-
-        console.log("The number")
-        console.log(number)
 
         return number
 
@@ -456,7 +522,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                                this.$t('backoffice.list.messages.errorMessage'),
@@ -482,7 +548,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                           this.$t('backoffice.list.messages.errorMessage'),

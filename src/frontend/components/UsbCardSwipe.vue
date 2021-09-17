@@ -69,7 +69,7 @@ export default {
                         return this.error('Not USB device connected.');
                    
                 } catch (error) {                      
-                    console.log(error);
+                    error;
                     return this.error('Not USB device connected.');
                 }                 
             } else {               
@@ -150,7 +150,7 @@ export default {
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.codeNotValid ,
                 buttons: [                   
                 {

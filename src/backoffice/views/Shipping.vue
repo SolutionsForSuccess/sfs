@@ -1,129 +1,28 @@
 <template>
-  <div id="shipping" class="screen">
+   <div id="shipping" class="page">
 
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-    <router-link to="/shipping-form"><ion-button v-if="hasPermission('canCreateShipping')" expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.shipping')}}</ion-button></router-link> -->
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.shippings')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/shipping-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateShipping')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterShippings = shippings"
-                :placeholder="$t('frontend.home.search')">           
-          </ion-searchbar>
-    </ion-header>
-
-    <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div >
-      <div v-if="screenWidth < 600">
-        <paginate
-          name="languages"
-          :list="filterShippings"
-          :per="8"
-        >
-
-          <ion-list>
-            <ion-item-sliding v-for="shipping in paginated('languages')" v-bind:key="shipping._id">
-              <ion-item>
-                <ion-label>
-                    <h2>{{ shipping.Name }}</h2>
-                    <h3>{{$t('backoffice.form.fields.price')}}: {{ shipping.Price }}</h3>
-                </ion-label>
-                <div v-if="hasPermission('canEditShipping')">
-                    <ion-checkbox v-if="shipping.Available" checked="true" slot="end" @click="availableShipping(shipping, false)"></ion-checkbox>
-                    <ion-checkbox v-else checked="false" slot="end" @click="availableShipping(shipping, true)"></ion-checkbox>
-                </div>
-                <!-- <ion-label>
-                    <ion-checkbox v-if="tax.Available" disabled="true" checked="true"></ion-checkbox>
-                    <ion-checkbox v-else disabled="true" checked="false"></ion-checkbox>
-                </ion-label> -->
-                <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-              </ion-item>
-              
-              <ion-item-options side="end">
-                <ion-item-option v-if="hasPermission('canEditShipping')" color="primary" @click="editShipping(shipping._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-item-option>
-                <ion-item-option v-if="hasPermission('canDeleteShipping')" color="danger" @click="deleteShipping(shipping._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-item-option>
-              </ion-item-options>
-            </ion-item-sliding>
-        </ion-list>
-
-      </paginate>
-
-      <paginate-links for="languages" color="primary" 
-        :simple="{
-          next:'»' ,
-          prev: '« ' }"
-      ></paginate-links>
-      </div>
-
-      <div v-if="screenWidth >= 600">
-        <paginate
-          name="languages"
-          :list="filterShippings"
-          :per="8"
-        >
-
-          <ion-list>
-            <ion-item v-for="shipping in paginated('languages')" v-bind:key="shipping._id">
-                <ion-item-group side="start">
-                    <div v-if="hasPermission('canEditShipping')">
-                        <ion-checkbox v-if="shipping.Available" checked="true" slot="end" @click="availableShipping(shipping, false)"></ion-checkbox>
-                        <ion-checkbox v-else checked="false" slot="end" @click="availableShipping(shipping, true)"></ion-checkbox>
-                    </div>
-                </ion-item-group>
-                <ion-label style="margin-left: 15px">
-                    <h2>{{ shipping.Name }}</h2>
-                    <h3>{{$t('backoffice.form.fields.price')}}: {{ shipping.Price }}</h3>
-                </ion-label>
-                <ion-item-group side="end">
-                  <ion-button v-if="hasPermission('canEditShipping')" color="primary" @click="editShipping(shipping._id)">
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-button>
-                  <ion-button v-if="hasPermission('canDeleteShipping')" color="danger" @click="deleteShipping(shipping._id)">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-button>
-                </ion-item-group>
-              </ion-item>
-        </ion-list>
-
-      </paginate>
-
-      <paginate-links for="languages" color="primary" 
-        :simple="{
-          next:'»' ,
-          prev: '« ' }"
-      ></paginate-links>
-      </div>
-
-    </div>
+    <listView
+      :title="$t('backoffice.titles.shippings')"
+      :filter="filterShippings"
+      :elements="shippings"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateShipping')"
+      :edit="hasPermission('canEditShipping')"
+      :remove="hasPermission('canDeleteShipping')"
+      @handleInput="handleInput"
+      @handleAddClick="createShipping"   
+      @editElement="editShipping"
+      @deleteElement="deleteShipping"   
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
+import { Utils } from '../utils/utils.js';
 
 export default {
 
@@ -132,7 +31,9 @@ export default {
     this.screenWidth = screen.width;
     this.fetchShipping();
   },
-
+  components: {
+    listView,
+  },
   data () {
     return {
       modelName: 'Shipping',
@@ -143,10 +44,38 @@ export default {
 
       spinner: false,
       screenWidth: 0,
+      keyList: 0,
     }
   }, 
 
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.shipping = response.data;
+        this.fetchShipping(); 
+        this.spinner = false;
+         this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+        
+  },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return null;
+      if(count === 4) return this.getFormatPrice(option.Price);
+      if(count === 5){ 
+        if(option.Available) 
+          return 'Available'; 
+        else return 'No Available' }
+
+    },
    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -260,7 +189,7 @@ export default {
                   return response;
               })
               .catch(e => {
-                    console.log(e);
+                    e;
                     this.fetchShipping();
                     this.ifErrorOccured(mess => {
                       this.availableShipping(shipping, state)
@@ -272,10 +201,15 @@ export default {
     },
 
     editShipping: function(id){
-        //console.log(id);
         this.$router.push({
         name: 'ShippingForm', 
         params: { shippingId: id }
+      });
+    },
+
+    createShipping: function(){
+        this.$router.push({
+        name: 'ShippingForm'
       });
     },
 
@@ -307,7 +241,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteShipping(id)
                       this.spinner = false
@@ -322,6 +256,10 @@ export default {
       .then(a => a.present());
 
       },
+
+    getFormatPrice: function(price){
+      return Utils.getFormatPrice(price);         
+    },
   },
 
 }

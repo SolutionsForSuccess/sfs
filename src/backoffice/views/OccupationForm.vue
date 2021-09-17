@@ -160,7 +160,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                                this.$t('backoffice.list.messages.errorMessage'),
@@ -175,18 +175,16 @@ export default {
                       this.$store.state.backConfig.occupation.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessOccupation'), "success");
                       this.spinner = false;
+                      if(this.externalProp) return this.$emit("reloadOccupation", response.data._id);
 
-                      if (!this.externalProp){
-
-                          this.$router.push({
-                            name: 'Occupation', 
-                          });
-                      }
+                      this.$router.push({
+                        name: 'Occupation', 
+                      });
                       return response;
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                           this.$t('backoffice.list.messages.errorMessage'),

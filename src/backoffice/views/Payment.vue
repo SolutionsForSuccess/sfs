@@ -1,339 +1,22 @@
 <template>
-  <div id="order" class="screen">
 
-    
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.options.managePyments')}}</h1>        
-            </ion-label>
-
-              <div style="display: flex;justify-content: center;align-items: center"> 
-                  <ion-button @click="menuactive='list'" :style="menuactive==='list'? 'opacity: 1;;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="foundation:list-bullet" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button>  
-                  <ion-button    @click="menuactive='grid'" :style="menuactive==='grid'? 'opacity: 1;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="clarity:grid-chart-solid" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button> 
-                  <div v-if="filterStatus=='payment'" v-tooltip="$t('frontend.tooltips.deliveryPayment')" :style="showDeliveryPayment? 'opacity: 1;border: outset;display: flex' : 'opacity: 0.65;border: outset;display: flex' "
-                    @click="showDeliveryPayment = !showDeliveryPayment , deliveryPayments()">
-                    <span class="iconify" data-icon="emojione-monotone:delivery-truck" data-inline="false" style="margin: 0;"></span>
-                  </div> 
-                  <div style="border: outset; display: flex" @click="reverseOrders(); reverseHouse()">
-                    <span class="iconify" data-icon="fluent:chevron-up-down-20-filled" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </div>                    
-              </div> 
-
-            <ion-item v-if="filterStatus=='payment'"> 
-                <ion-datetime 
-                    class="menu-col-5 elipsis-menu" 
-                    placeholder="Desde"
-                    :value="dateFrom"
-                    @ionChange="dateFrom = $event.target.value"
-                ></ion-datetime>
-                <ion-datetime 
-                    class="menu-col-5 elipsis-menu" 
-                    placeholder="Hasta"
-                    :value="dateTo"
-                    @ionChange="dateTo =  $event.target.value"
-                    pick-format="YYYY-MM-DD"
-                ></ion-datetime> 
-                 <div style="position: absolute;right: 0;top: 30%;" @click="filterDate()">
-                     <span class="iconify" data-icon="fa-solid:search-dollar" data-inline="false" style="color: grey;margin:0;border: outset;padding: 1px !important;" ></span>
-                    </div>                 
-            </ion-item>
-           
-          </ion-toolbar>
-
-          <ion-searchbar  
-              @input="handleInput($event.target.value)" @ionClear="filterOrders = orders; filterHouse = houses"
-                :placeholder="$t('frontend.home.search')">           
-          </ion-searchbar>
-
-          <div style="width: 100%">
-              <ion-segment scrollable color="tertiary" @ionChange="filterStatus = $event.target.value" :value="filterStatus">
-                  <ion-segment-button value="payment">
-                        Payments
-                  </ion-segment-button>
-                  <ion-segment-button value="house">
-                        House Account
-                  </ion-segment-button>
-              </ion-segment>
-          </div>
-          
-    </ion-header>
-
-      <div v-if="filterStatus == 'payment'">
-        <ion-refresher 
-            style="position: relative"
-            slot="fixed"
-            @ionRefresh="doRefresh($event)">
-              <ion-refresher-content 
-                refreshing-spinner="crescent"
-              ></ion-refresher-content>
-          </ion-refresher>
-
-        <div v-if="spinner">
-            <ion-spinner name="lines" class="spinner"></ion-spinner>
-        </div>
-        
-        <div v-else >    
-
-            <div  v-if="menuactive==='list'">
-              <paginate
-                :key="key"  
-                name="languages"
-                :list="filterOrders"
-                :per="8"                     
-              >
-                <ion-item-sliding  v-for="order in paginated('languages')" v-bind:key="order._id" open='true'>
-                  <ion-item 
-                  :color="order.Void > 0 ? 'warning' : order.Refund > 0 ? 'danger' : 'light'"
-                  @click="viewOrder(order)">
-                    <ion-label class="menu-col-3 ">                   
-                        {{ order.ModelFrom }} <br>  {{ getFormatedDate(order.Date) }}
-                                    
-                    </ion-label>
-                    <ion-label class="menu-col-4 elipsis-menu"> 
-                      {{ order.InvoiceNumber}} <br>
-                      <div v-if="order.DeliveryPayment "   v-tooltip="$t('frontend.tooltips.deliveryPayment')" >
-                        <span class="iconify" data-icon="emojione-monotone:delivery-truck" data-inline="false" style="margin: 0;"></span>
-                      </div>   
-                    </ion-label>
-                    <ion-label class="menu-col-2 elipsis-menu">                   
-                        <h6>{{ order.Method }}</h6>                   
-                    </ion-label>  
-                    <ion-label class="menu-col-3 elipsis-menu">                   
-                        <h6>{{ getFormatPrice( parseFloat(order.Payment) - order.Refund - order.Void ) }}</h6>   
-                        <div style="position: absolute;right: 0;top: 30%;" >
-                            <span class="iconify" data-icon="mdi:backburger" style="color: grey;margin:0;width: 20px; height: 20px;" data-inline="false"></span>
-                        </div>                 
-                    </ion-label>              
-                  </ion-item>
-                  <ion-item-options side="end">                   
-                      <ion-item-option color="primary" @click="viewOrder(order)">
-                        <ion-icon slot="icon-only" name="list"></ion-icon>
-                      </ion-item-option>                  
-                    </ion-item-options >
-              </ion-item-sliding>
-            
-                  <ion-item style="font-size: 20px;color: red;font-weight: 900;">
-                      <ion-lable class="menu-col-6 elipsis-menu"></ion-lable>
-                      <ion-lable class="menu-col-3 elipsis-menu" style="text-align: right;" >TOTAL</ion-lable>
-                      <ion-lable class="menu-col-3 elipsis-menu" style="text-align: right;">{{getSumatory()}}</ion-lable>
-                  </ion-item>
-
-              </paginate>
-
-              <paginate-links for="languages" color="primary" 
-                :simple="{
-                  next:'»' ,
-                  prev: '« ' }"
-              ></paginate-links>
-            </div>
-
-            <div v-if="menuactive==='grid'">
-              <v-breakpoint>
-                        <div slot-scope="scope" > 
-
-                          <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                            <ion-chip color="primary"
-                              @click="scrollToTop()"
-                            outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                              <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                            </ion-chip>
-
-                            <div  v-for="order in filterOrders" v-bind:key="order._id" 
-                                style="text-align: right;"             
-                                :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                                    
-                                  <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                                    :color="order.Void > 0 ? 'warning' : order.Refund > 0 ? 'danger' : 'secondary'">
-                                    {{getFormateHour(order.Date)}}
-                                  </ion-chip>
-                                <ion-card style="text-align: left;"   
-                                :color="order.Void > 0 ? 'warning' : order.Refund > 0 ? 'danger' : 'secondary'">
-                                    <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                                      <ion-card-title  style="color: black;"> 
-                                        <a v-if="order.ModelFrom && order.ModelId"><strong style="text-decoration: underline" @click="viewOrderFrom(order.ModelFrom, order.ModelId)">{{ order.ModelFrom }} </strong></a> 
-                                      <span v-if="order.InvoiceNumber" style="text-transform: uppercase;"> {{order.InvoiceNumber.slice(-4)}} </span>   
-                                      <div v-if="order.DeliveryPayment "   v-tooltip="$t('frontend.tooltips.deliveryPayment')" style="float: right;">
-                                        <span class="iconify" data-icon="emojione-monotone:delivery-truck" data-inline="false" style="margin: 0;"></span>
-                                      </div>                           
-                                      </ion-card-title>
-                                      
-                                  
-                                      <ion-card-subtitle v-if="order.StaffName"
-                                        style="color: black; display: flex;justify-content: space-between;">
-                                        <div style="text-align: center;"> 
-                                          <span class="iconify" data-icon="grommet-icons:restaurant"
-                                          style="color: #808080a6; width: 20px;  height: 20px; margin: 0;" data-inline="false"></span>
-                                        </div>
-                                        <span style="text-align: right;"  > {{ order.StaffName }}</span>
-                                      </ion-card-subtitle>
-                                        
-                                      </ion-card-header>
-
-                                      <ion-card-content style="margin: 1px 5px; padding: 5px;background:white;color: black;" >
-                                        
-                                        <p > <ion-label class="ion-text-wrap" >
-                                            
-                                            Pagado: <strong> {{getFormatPrice(order.Payment)}} </strong> 
-                                        </ion-label></p>
-
-                                          <p > <ion-label class="ion-text-wrap" >
-                                              
-                                              Void: <strong>{{getFormatPrice(order.Void)}} </strong>
-                                          </ion-label></p>
-
-                                          <p > <ion-label class="ion-text-wrap" >
-                                            
-                                              Refund: <strong> {{getFormatPrice(order.Refund)}} </strong> 
-                                          </ion-label></p>
-
-                                          
-                                      </ion-card-content>
-                                      
-                                    
-                                  <div style="display: flex;justify-content: space-between;align-items: center;"> 
-                                    <div  >
-                                    </div>
-                                      <h3 style="text-align: center;">{{ getFormatPrice(parseFloat(order.Payment) - order.Refund - order.Void) }}</h3>
-                                      <div v-tooltip="$t('frontend.tooltips.editTicket')" @click="viewOrder(order)">
-                                        <span   class="iconify" data-icon="el:file-edit-alt" data-inline="false" style="width: 20px;height: 20px;"></span>
-                                      </div>
-                                  </div>                
-                                </ion-card>
-                            </div>
-
-                          </div>
-                        </div>
-                      </v-breakpoint>   
-            </div>
-
-        </div>
-      </div>
-
-      <div v-if="filterStatus == 'house'">
-
-          <div  v-if="menuactive==='list'">
-            <paginate
-              :key="key1"  
-              name="languages2"
-              :list="filterHouse"
-              :per="8"                     
-            >
-
-                <ion-item v-for="house in paginated('languages2')" v-bind:key="house._id" color="light">
-                  <ion-label class="menu-col-3">                   
-                      <h2>{{house.ServerName}}</h2>
-                      <h2>{{house.CustomerName}}</h2>
-                  </ion-label>
-                  <ion-label class="menu-col-3" style="margin-left: 20px"> 
-                      <h2><a><strong @click="goToOrder(house.Model, house.ModelId)">{{house.Model}}</strong></a></h2>
-                  </ion-label>
-                  <ion-label class="menu-col-3">                   
-                      <h2>Amount: {{ getFormatPrice(house.Amount) }}</h2>                
-                  </ion-label>  
-                  <ion-label class="menu-col-3 elipsis-menu">                   
-                      <h2 v-if="house.Payed">Payed: YES</h2>
-                      <h2 v-else>Payed: NO</h2>       
-                  </ion-label>              
-                </ion-item>
-          
-                <ion-item style="font-size: 20px;color: red;font-weight: 900;">
-                    <ion-lable class="menu-col-6 elipsis-menu"></ion-lable>
-                    <ion-lable class="menu-col-3 elipsis-menu" style="text-align: right;" >TOTAL</ion-lable>
-                    <ion-lable class="menu-col-3 elipsis-menu" style="text-align: right;">{{getSumatoryHouse()}}</ion-lable>
-                </ion-item>
-
-            </paginate>
-
-            <paginate-links for="languages2" color="primary" 
-              :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links>
-          </div>
-
-          <div v-if="menuactive==='grid'">
-            <v-breakpoint>
-                      <div slot-scope="scope" > 
-
-                        <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                          <ion-chip color="primary"
-                            @click="scrollToTop()"
-                          outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                            <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                          </ion-chip>
-
-                          <div  v-for="house in filterHouse" v-bind:key="house._id" 
-                              style="text-align: right;"             
-                              :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                                  
-                                <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                                  color="light">
-                                  {{house.ServerName}}
-                                </ion-chip>
-                              <ion-card style="text-align: left;" color="light">
-                                  <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                                    <ion-card-title  style="color: black;"> 
-                                      <a><strong style="text-decoration: underline" @click="goToOrder(house.Model, house.ModelId)">{{ house.Model }}</strong></a>         
-                                    </ion-card-title>
-                                    
-                                    <!-- <ion-card-subtitle v-if="order.StaffName"
-                                      style="color: black; display: flex;justify-content: space-between;">
-                                      <div style="text-align: center;"> 
-                                        <span class="iconify" data-icon="grommet-icons:restaurant"
-                                        style="color: #808080a6; width: 20px;  height: 20px; margin: 0;" data-inline="false"></span>
-                                      </div>
-                                      <span style="text-align: right;"  > {{ order.StaffName }}</span>
-                                    </ion-card-subtitle> -->
-                                      
-                                    </ion-card-header>
-
-                                    <ion-card-content style="margin: 1px 5px; padding: 5px;background:white;color: black;" >
-                                      
-                                      <p> 
-                                        <ion-label class="ion-text-wrap" >
-                                            Server Name: <strong> {{house.ServerName}} </strong> 
-                                        </ion-label>
-                                      </p>
-
-                                      <p> 
-                                        <ion-label class="ion-text-wrap" >
-                                            Customer Name: <strong> {{house.CustomerName}} </strong> 
-                                        </ion-label>
-                                      </p>
-
-                                        
-                                    </ion-card-content>
-                                    
-                                  
-                                <div style="display: flex;justify-content: space-between;align-items: center;"> 
-                                  <div  >
-                                  </div>
-                                    <h3 style="text-align: center;">{{ getFormatPrice(parseFloat(house.Amount)) }}</h3>
-                                    <!-- <div v-tooltip="$t('frontend.tooltips.editTicket')" @click="viewOrder(order)">
-                                      <span   class="iconify" data-icon="el:file-edit-alt" data-inline="false" style="width: 20px;height: 20px;"></span>
-                                    </div> -->
-                                </div>                
-                              </ion-card>
-                          </div>
-
-                        </div>
-                      </div>
-                    </v-breakpoint>   
-          </div>
-
-      </div>
-
+  <div id="user" class="page">
+    <listView      
+      :title="$t('backoffice.options.managePyments')"
+      :filter="filterOrders"
+      :elements="orders"
+      :add="false"
+      :edit="false"
+      :see="true"
+      :remove="false"
+      :viewSelected="'Report'"
+      @handleInput="handleInput"
+      @handleAddClick="viewOrder"   
+      @editElement="viewOrder"
+      @deleteElement="viewOrder"   
+    ></listView>
   </div>
+
 </template>
 
 <script>
@@ -341,38 +24,34 @@
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js';
 import moment from 'moment-timezone';
-import { VBreakpoint } from 'vue-breakpoint-component'
+
+import listView from "../components/ListView";
 
 export default {
 
   name: 'order',
   created: function(){  
     this.fetchOrders();
-    this.fetchHouseAccount();
-    // this.fetchCustomers();
     this.getRestaurantConfig(); 
   
   },
-  destroyed: function(){
+  unmounted: function(){
       if (this.update != null){
           clearInterval(this.update);
       }
   },
   components:{   
-    VBreakpoint: VBreakpoint,  
+     listView, 
   },
   data () {
     return {
-      modelName: 'Allpayment',
+      modelName: 'Allpayments',
       orders: [],
       customers: [],
 
       filterOrders: [],
       resConf: null,
       restaurantCustomer: null,
-
-      houses: [],
-      filterHouse: [],
 
       update: null,
       loading: null,
@@ -393,45 +72,28 @@ export default {
   }, 
   methods: {
 
-    /** House Account Method */
-    goToOrder(model, modelId){
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(async response => {
+        this.$store.state.backConfig.allpayments = response.data
+         await this.fetchOrders(); 
+        this.spinner = false;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });  
+  },
 
-        if (model == 'Order'){
-            this.$router.push({
-              path: '/orderdetails/'+ modelId
-            })
-        }
-        
-        if (model == 'Catering'){
-            this.$router.push({
-              path: '/cateringOrderForm/'+ modelId
-            })
-        }
-        
-    },
-    getSumatoryHouse(){
-        let count = 0;
-        for (const house of this.filterHouse) {
-           if(house.Amount >= 0){
-              count += parseFloat(house.Amount); 
-           }                      
-        }
-        return this.getFormatPrice(count);
-    },
-    fetchHouseAccount(){
-        this.houses = this.$store.state.backConfig.houseAccount;
-        this.filterHouse = this.houses
-    },
-    reverseHouse(){
-      this.filterHouse.reverse();
-    },
-    /** End House Account Method */
+  ListViewData(option, count){
+    if(count === 1) return null;
+    if(count === 2) return option.ModelFrom  ;
+    if(count === 3)  return this.getFormatPrice( parseFloat(option.Payment) - option.Refund - option.Void );
+    if(count === 4) if(option.DeliveryPayment) return this.$t('frontend.tooltips.deliveryPayment'); else return null
+    if(count === 5) return this.getFormatedDate(option.Date) ;
+    if(count === 6) return 'TOTAL: ' + this.getSumatory();
 
-      async doRefresh(event) {
-    
-      await this.fetchOrders();      
-      event.target.complete();
-    },
+  },
   
     
     ifErrorOccured(action){
@@ -470,7 +132,6 @@ export default {
     handleInput(value){
       const query = value.toLowerCase();
 
-      if (this.filterStatus == 'payment'){
           requestAnimationFrame(() => {   
             const orderFiltered = this.orders.filter(p =>
                                             p.Method && p.ModelFrom && p.InvoiceNumber && p.Date && p.Payment);
@@ -485,24 +146,11 @@ export default {
             else
               this.filterOrders = this.orders  
           });
-      }
-
-      if (this.filterStatus == 'house'){
-        requestAnimationFrame(() => {   
-            const houseFiltered = this.houses.filter(h => h.ServerName && h.CustomerName);
-            let cat2 = houseFiltered.filter(h =>
-                                            h.ServerName.toLowerCase().indexOf(query) > -1 ||
-                                            h.CustomerName.toLowerCase().indexOf(query) > -1)
-            if(cat2.length > 0)
-              this.filterHouse = cat2
-            else
-              this.filterHouse = this.houses  
-          });
-      }
+    
     },
 
-    viewOrder: function(paymentD){
-        //console.log('Open Payment con ID '+ paymentD);
+    viewOrder: function(id){
+        const paymentD = this.$store.state.backConfig.allpayments.find( p => p._id === id)
         this.$router.push({
         name: 'PaymentDetail', 
         params: { payment: paymentD ,
@@ -520,25 +168,8 @@ export default {
        this.filterOrders = this.orders; 
    },
 
-    // fetchCustomers: function(){
-    //     Api.fetchAll('Customer').then(response => {
-    //       // console.log(response.data)
-    //       this.customers = response.data
-    //       return response
-    //     })
-    //     .catch(e => {
-    //       console.log(e)
-    //     });
-    // },
-    // getRestaurantCustomer: function(){
-    //     Api.findCustomerByEmail(this.resConf.Email)
-    //     .then(response => { 
-    //         this.restaurantCustomer = response.data;            
-    //     })
-    // },
     getRestaurantConfig: function(){
       this.resConf = this.$store.state.backConfig.restaurant;
-      // this.getRestaurantCustomer();
      
     },    
     hasPermission(permission){
@@ -625,7 +256,7 @@ export default {
                         return true;
                     })
                     .catch(e => {
-                        console.log(e)
+                        e
                         loading.dismiss()  
                         return true;                     
                     });
@@ -635,7 +266,6 @@ export default {
         else if(this.dateFrom !== ''){
             
             this.dateFrom = moment(this.dateFrom).format('YYYY-MM-DD');
-            //console.log('date from ' + this.dateFrom)   ;  
               this.$ionic.loadingController
             .create({
                 cssClass: 'my-custom-class',
@@ -653,7 +283,7 @@ export default {
                         return true;
                     })
                     .catch(e => {
-                        console.log(e)
+                        e
                         loading.dismiss()                        
                     });
                 })
@@ -713,7 +343,7 @@ export default {
         
       } catch (error) {
           this.spinner1 = false;
-          console.log(error);
+          error;
           
       }                 
     }  

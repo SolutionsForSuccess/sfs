@@ -270,9 +270,7 @@ export default {
       // For best security practice, only accept event message from specified 
       //domain.
       if(event.origin !== 'https://sandbox.payfabric.com') return;
-      // your code
-      console.log("PayFabric Respose")
-      console.log(objMsg)
+      // your code      
       switch(objMsg.Event) {
         case "OnSaveTransactionCompleted":
             alert("Save transaction complete")
@@ -289,79 +287,18 @@ export default {
       }
       },false)
 
-      // window.addEventListener('callback',function(event) {
-      // var objMsg
-      // objMsg = JSON.parse(event.data);
-      // For best security practice, only accept event message from specified 
-      //domain.
-      // if(event.origin !== 'https://sandbox.payfabric.com') return;
-      // your code
-      // console.log("Forte Callbacks")
-      // console.log(objMsg)
-      // switch(objMsg.Event) {
-      //   case "begin":
-      //       alert("begin")
-      //       break
-      //   case "success":
-      //       alert("success")
-      //       break
-      //   case "failure":
-      //       alert("failure")
-      //       break
-      //   case "error":
-      //       alert("error")
-      //       break
-      //   case "abort":
-      //       alert("abort")
-      //       break
-      //   case "expired":
-      //       alert("expired")
-      //       break
-      // }
-      // },false)
-
-
-      // this.ccode = this.$store.state.restaurantActive.restaurantZipCode
-      // console.log("RESTAURANT CODE: " + this.ccode)
-
-      // this.utc_time = this.getUTC().valueOf();
-      // this.signature = this.getSignature()
-      // this.url = "https://swp.paymentsgateway.net/co/default.aspx?pg_api_login_id=hfIU9scKMj&pg_billto_postal_name_company=&pg_billto_postal_name_first=&pg_billto_postal_name_last=&pg_billto_postal_street_line1=&pg_billto_postal_city=&pg_billto_postal_stateprov=&pg_billto_postal_postalcode=&pg_billto_telecom_phone_number=&pg_billto_online_email=&pg_transaction_type=10&pg_total_amount=59&pg_scheduled_transaction=1&pg_schedule_frequency=20&pg_schedule_continuous=1&pg_schedule_quantity=0&pg_version_number=2.0&pg_utc_time=637593871633310000&pg_transaction_order_number=A001&pg_customer_token=A001&pg_paymethod_token=A001&pg_paymethod_token=true&pg_ts_hash=${this.signature}&pg_ts_hash=${this.signature}&pg_save_token=true"
+  
 
 
       this.utc_time = this.getUTC()
-      console.log(this.utc_time)
-      var butt = document.getElementById("pay")
-      console.log(butt)
+      document.getElementById("pay")
 
       this.loadTemplate()
 
   },
-  // sockets:{
-  //     connect: function () {
-  //             console.log('socket connected')
-  //     },
-  //     customEmit: function (data) {
-  //         console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
-  //         console.log(data)
-  //     }
-  // },
+  
   methods: {
-    // sendMess(){
-    //   const data= {
-    //       "action":{
-    //           "processor":"EVO",
-    //           "receipt":true
-    //       },
-    //       "payment":{
-    //           "type":"Sale",
-    //           "amount":"1.00",
-    //           "tip_amount":"0.00"
-    //       }
-    //   }
-
-    //   this.$socket.emit('emit_method', data)
-    // },
+   
     preview(){
         this.$router.push({
             name: 'EMPreview'
@@ -376,10 +313,10 @@ export default {
 
         Api.sendEmail(items)
         .then(response => {
-            console.log(response)
+           response
         })
         .catch(e => {
-            console.log(e);
+            e;
         })
     },
     loadTemplate(){
@@ -481,133 +418,58 @@ export default {
     //PayButton Methods
 
     getUTC(){
-        // axios.get('https://sandbox.forte.net/checkout/getUTC?callback=?')
-        // .then(response => {
-        //     console.log(response)
-        //     return response
-        // })
-        // .catch(e => {
-        //     console.log(e)
-        //     return ''
-        // })
-
-        // const themoment = new moment().utc()
-        // console.log(themoment.valueOf())
-        // return themoment
-
-        //date_default_timezone_set("America/Chicago");
-        // moment.tz.setDefault("America/Chicago")
-
-        // this.utc_time = moment.utc().format('YYYY-MM-DD HH:mm:ss').
-        // console.log(this.utc_time)
+       
         let d = new Date().getTime();
         d.toLocaleString('en-US', { timeZone: 'America/Chicago' })
-        console.log("Date")
-        console.log(d.valueOf())
+      
 
-        // const raw_signature = HMACMD5(this.ap+'|sale|2.0||637599881817937024|A030||', signingKey);
-        // const signature = raw_signature.toString(CryptoJS.enc.Base64);
-
-        //$unixtime = strtotime(gmdate('Y-m-d H:i:s'));
-        //const unixtime = new Date().toLocaleString();
-        // const unixtime = moment().format('LTS')
-        // console.log("UNIX TIME")
-        // console.log(unixtime)
-
-        // var timeArr = moment().tz("America/Chicago").format('HH:mm:ss').split(':');
-        // var millitime = (timeArr[0] * 3600000) + (timeArr[1] * 60000);
-
-        // console.log(millitime)
-
-        // console.log("UTC")
-        console.log(((d.valueOf() * 1000) * 10000) + 621355968000000000)
-
-
-        //$millitime = microtime(true) * 1000;
-        // const hrtime = process.hrtime();
-        // const millitime =  ( hrtime[0] * 1000000 + hrtime[1] / 1000 ) / 1000;
-        //$utc = number_format(($millitime * 10000) + 621355968000000000, 0, '.', '');
-
-        // return ((millitime * 10000) + 621355968000000000).toFixed(2)
+     
         return 621355968000000000
 
     },
 
     getSignature(){
-      // this.utc_time = this.getUTC().valueOf();
-      // let md5String = "b964756e3e0e60700f1bf1f8adc9f21e|sale|2.0|50.00|"+this.utc_time+"|A1234||"
-      // const signature = MD5(md5String,"c0ee479ce110412f3b943f3eb72b3d2b")
-
-      // console.log(signature.toString())
-      
-      // let element = document.getElementById("payB")
-      // console.log(element)
-
-      // let md5String = "b964756e3e0e60700f1bf1f8adc9f21e|schedule|2.0|59|637593901962350000|A001|A001|A001"
-      // const signature = MD5(md5String, "c0ee479ce110412f3b943f3eb72b3d2b")
-      // this.signature = signature.toString()
-      // this.url = 'https://swp.paymentsgateway.net/co/default.aspx?pg_api_login_id=hfIU9scKMj&pg_billto_postal_name_company=&pg_billto_postal_name_first=&pg_billto_postal_name_last=&pg_billto_postal_street_line1=&pg_billto_postal_city=&pg_billto_postal_stateprov=&pg_billto_postal_postalcode=&pg_billto_telecom_phone_number=&pg_billto_online_email=&pg_transaction_type=10&pg_total_amount=59&pg_scheduled_transaction=1&pg_schedule_frequency=20&pg_schedule_continuous=1&pg_schedule_quantity=0&pg_version_number=2.0&pg_utc_time=637593901962350000&pg_transaction_order_number=A001&pg_customer_token=A001&pg_paymethod_token=A001&pg_paymethod_token=true&pg_ts_hash=${this.signature}&pg_ts_hash=${this.signature}&pg_save_token=true'
-      // console.log(signature.toString())
-      
-
-
-      // return signature.toString()
       const data = "442f701ee5d25cf1b4ab6592d0b670a5|sale|2.0||"+this.utc_time+"|A030||";
       const signature = MD5(data, "c477ce46b6fcbad91bb30ebd5f69488f")
-      console.log(signature.toString())
       return signature.toString()
     },
 
     oncallback(e){
-      console.log(e)
+      e
     },
 
     oncallbackRes(res){
-      console.log("Llegó")
-      console.log(res)
+     res
     },
 
     //End PayButton Methods
 
     example(){
-        console.log(moment().format('HHmmss'))
-        console.log(moment().format('YYYYMMDD'))
+       (moment().format('HHmmss'))
     },
 
     callback(res){
 
-          console.log("SUCCESSFULLY---RESPONSE:")
-          console.log(res)
+        
           if (res[4] == '000000')
           {
-              this.response = res.data
-              console.log("Transacción exitosa.")
-              console.log(res)
-              console.log("INVOICE: " + res[6][3])
-              console.log("DATETIME: " + new Date(res[10]["TimeStamp"]).toISOString())
+              this.response = res.data;             
           }
           else if (res[4] == '100001')
           {
               this.response = res.data
-              console.log("Time out.")
-              console.log(res)
           }
           else if (res[4] == '000100')
           {
               this.response = res.data
-              console.log("DECLINE.")
-              console.log(res)
           }
           else{
               this.response = res.data
-              console.log("Otro Error.")
-              console.log(res)
           }
             
         },
 
     async sale(){    
-      console.log("SALE")
 
       const data = {
           "transactionType": '01',
@@ -632,13 +494,9 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
     async authorize(){
-      console.log("AUTHORIZE")
-
       const data = {
           "transactionType": '03',
           "amountInformation": {
@@ -659,13 +517,9 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
     async authIncremental(){
-      console.log("AUTH INCREMENTAL")
-
       const data = {
           "transactionType": '33',
           "amountInformation": {
@@ -686,13 +540,9 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
     async capture(){
-      console.log("CAPTURE")
-
       const data = {
           "transactionType": '04',
           "amountInformation": {
@@ -713,13 +563,9 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
     async refund(){
-      console.log("REFUND")
-
       const data = {
           "transactionType": '02',
           "amountInformation": {
@@ -740,13 +586,9 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
     async voide(){
-      console.log("VOID")
-
       const data = {
           "transactionType": '16',
           "amountInformation": {
@@ -767,75 +609,10 @@ export default {
       }
 
       const anw = await Devices.a930.DoCredit(this.ip, this.port, this.ssl, data, this.callback);
-      console.log("RESPONSE")
-      console.log(anw)
       this.response = anw
     },
 
-    // tokenCreate(){
-    //     return axios.get("https://sandbox.payfabric.com/payment/api/token/create", {headers: {'Authorization': '2:9733b62e-fd05-7b5a-5b71-cbeba76a8374|@Anibal63', 'Content-Type': 'application/json'}})
-    // },
-    // createTransaction(){
-    //   console.log('Hello would')
-
-    // },
-    // showModal(){
-    //       const data = {
-    //             'amountInformation': {
-    //                 'TransactionAmount': 250.00,
-    //                 'TipAmount': 20.00,
-    //                 'TaxAmount': 25.00,
-    //             },
-    //             'accountInformation':{
-    //                 'FirstName': 'Miguel'
-    //             }
-    //       }
-    //       return this.$ionic.modalController
-    //             .create({
-    //             component: DevicePayment,
-    //             cssClass: 'my-custom-class',
-    //             componentProps: {
-    //                 data: data,
-    //                 propsData: {
-    //                     datas: data,
-    //                     parent: this
-    //                 },
-    //             },
-    //             })
-    //             .then(m => m.present())
-    // },
-    // callback(res){
-    //     console.log("SUCCESSFULLY---RESPONSE:")
-    //     console.log(res)
-    // },
-
-    // initialize(){
-    //     try{
-    //         Devices.a930.Initialize(this.ip, this.port, this.callback)
-    //     }
-    //     catch(e){
-    //        console.log(e)
-    //     }
-    //   },
-    // doCredit(){
-    //     console.log(this.$store.state.user.ServerId.toString())
-
-    //     const data = {
-    //       'transactionType': '01', //SALE
-    //       'amountInformation': {
-    //           'TransactionAmount': 250.00,
-    //           'TipAmount': 20.00,
-    //           'TaxAmount': 25.00,
-    //       },
-    //       'ClerkID': this.$store.state.user.ServerId.toString(),
-    //     }
-    //     try{
-    //         Devices.a930.DoCredit(this.ip, this.port, false, data, this.callback)
-    //     }
-    //     catch(e){
-    //         console.log(e)
-    //     }
-    // }
+  
   }
 
 }

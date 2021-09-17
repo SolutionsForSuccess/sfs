@@ -34,11 +34,7 @@
             <ion-spinner  name="lines" class="spinner"></ion-spinner>
         </div>
 
-        <v-breakpoint v-if="!spinner1" :key="keyOrder">
-            <div slot-scope="scope" style="argin-top: 10px;">
-
-                <span > 
-                    <ion-card :style="scope.isSmall || scope.isMedium || scope.noMatch? '' :'width: 80%; margin: 0 auto;'">
+                    <ion-card >
 
                         <p v-if="reservation.CustomerName"> <ion-label class="ion-text-wrap" >
                             <h2  style="width: 100%;float: left;font-size: 16px;
@@ -170,7 +166,7 @@
 
                     </ion-card>
 
-                    <ion-card :style="scope.isSmall || scope.isMedium || scope.noMatch? '' :'width: 80%; margin: 0 auto;'" v-if="configuration.hasReservationQuotation && configuration.payForReservationQuotation > 0 && (reservation.State === 1 || reservation.State === 2)"> 
+                    <ion-card v-if="configuration.hasReservationQuotation && configuration.payForReservationQuotation > 0 && (reservation.State === 1 || reservation.State === 2)"> 
              
                         <ion-label class="ion-text-wrap" >
                                 <p class="titles-order" style="text-align: left;color: red">{{$t('frontend.reservation.quotationMessage1') + getFormatPrice(configuration.payForReservationQuotation) +' ' + $t('frontend.reservation.quotationMessage2')}}  </p> 
@@ -197,13 +193,7 @@
                                         
                     </ion-card>
                     
-                </span>
-
-                
-            </div>
-        </v-breakpoint>
-
-        
+                 
 
 
     </div>
@@ -213,7 +203,6 @@
 // import Stepper from '../components/Stepper'
 import { add } from "ionicons/icons";
 import { addIcons } from "ionicons";
-import { VBreakpoint } from 'vue-breakpoint-component'
 import { Api } from '../../backoffice/api/api.js';
 import moment from 'moment-timezone';
  import { EventBus } from '../event-bus';
@@ -228,7 +217,6 @@ addIcons({
 export default {
     name: 'ReservationState', 
     components:{
-        VBreakpoint: VBreakpoint
     },     
     created: function(){
 
@@ -420,7 +408,7 @@ export default {
                     }
                 
             } catch (error) {            
-                console.log(error)
+               error;
                 this.spinner = false;
             }
         
@@ -449,7 +437,7 @@ export default {
          return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: e,
                 buttons: [                   
                 {
@@ -527,7 +515,7 @@ export default {
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.$t('frontend.home.errorRequired') + ': ' + mss,
                 buttons: [                   
                 {
@@ -550,7 +538,7 @@ export default {
                 return  this.$ionic.alertController
                     .create({
                         cssClass: 'my-custom-class',
-                        header: 'Error',
+                        header: '',
                         message: this.$t('frontend.order.notValidCC'),
                         buttons: [                   
                         {
@@ -578,7 +566,7 @@ export default {
                 EventBus.$emit('updateAllReservationsInParent', response.data); 
             })
             .catch(e => {             
-                console.log(e);            
+                e;            
             })  
         },
 

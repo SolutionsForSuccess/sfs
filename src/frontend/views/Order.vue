@@ -139,188 +139,181 @@
         </ion-card>          
         </modal>
 
-        <v-breakpoint >
-            <div slot-scope="scope">
+            <div >
+              <ion-toolbar>
+                  <ion-buttons slot="start" @click="backToCall()">
+                      <ion-back-button default-href="home"></ion-back-button>
+                  </ion-buttons>    
+                                      
+                  <ion-card-title                          
+                      style="padding: 10px;text-align: center;text-transform: uppercase;font-weight: bolder;">
+                      {{$t('frontend.order.orderDetail')}} 
+                  </ion-card-title>
+              </ion-toolbar>                  
 
-                <span > 
-                    <ion-toolbar>
-                        <ion-buttons slot="start" @click="backToCall()">
-                            <ion-back-button default-href="home"></ion-back-button>
-                        </ion-buttons>    
-                                            
-                        <ion-card-title                          
-                            style="padding: 10px;text-align: center;text-transform: uppercase;font-weight: bolder;">
-                            {{$t('frontend.order.orderDetail')}} 
-                        </ion-card-title>
-                    </ion-toolbar>                  
-
-                    <div :style="scope.isSmall || scope.isMedium || scope.noMatch? '': 'width: 80%; margin: 0 auto;'">
+              <div style="width: 80%; margin: 0 auto;">
+                  
+                  <guess/>
                         
-                        <guess/>
-                             
-                        <ion-card :key="keyOrderType">     
+                  <ion-card :key="keyOrderType">     
 
-                            <ion-label class="ion-text-wrap menu-col-12" style="display: inline-block;">
-                                <h2 class="titles-order" style="float: left;">{{$t('frontend.order.orderType')}}: <span v-if="!order.OrderType" style="color: red;"> * </span></h2>                            
-                                   
-                                <ion-select interface="popover" icon="add" style="text-align: left; float: left; display: inline-flex;"                                  
-                                  :key="keyCurbside"
-                                  :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                                  :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                                  :value="allTypeOrder[order.OrderType]"   
-                                  :placeholder=" $t('frontend.app.selectOrder')"                            
-                                  @ionChange="allTypeOrder[$event.target.value], changeOrderType($event.target.value)" >
-                                      <ion-select-option  v-if="configuration.viewDelivery && restaurantActive.hasPaymentCardConfig" :value="allTypeOrder['Delivery']"> {{allTypeOrder['Delivery']}} </ion-select-option>
-                                      <ion-select-option v-if="restaurantActive.hasPaymentCardConfig" :value="allTypeOrder['PickUp']"> {{allTypeOrder['PickUp']}} </ion-select-option>
-                                      <ion-select-option v-if="configuration.viewOnTable" :value="allTypeOrder['On Table']"> {{allTypeOrder['On Table']}} </ion-select-option>                                
-                                      <ion-select-option v-if="configuration.viewCurbside" :value="allTypeOrder['Curbside']"> {{allTypeOrder['Curbside']}} </ion-select-option>                                
-                              </ion-select> 
-                            </ion-label>
+                      <ion-label class="ion-text-wrap menu-col-12" style="display: inline-block;">
+                          <h2 class="titles-order" style="float: left;">{{$t('frontend.order.orderType')}}: <span v-if="!order.OrderType" style="color: red;"> * </span></h2>                            
+                              
+                          <ion-select interface="popover" icon="add" style="text-align: left; float: left; display: inline-flex;"                                  
+                            :key="keyCurbside"
+                            :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                            :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                            :value="allTypeOrder[order.OrderType]"   
+                            :placeholder=" $t('frontend.app.selectOrder')"                            
+                            @ionChange="allTypeOrder[$event.target.value], changeOrderType($event.target.value)" >
+                                <ion-select-option  v-if="configuration.viewDelivery && restaurantActive.hasPaymentCardConfig" :value="allTypeOrder['Delivery']"> {{allTypeOrder['Delivery']}} </ion-select-option>
+                                <ion-select-option v-if="restaurantActive.hasPaymentCardConfig" :value="allTypeOrder['PickUp']"> {{allTypeOrder['PickUp']}} </ion-select-option>
+                                <ion-select-option v-if="configuration.viewOnTable" :value="allTypeOrder['On Table']"> {{allTypeOrder['On Table']}} </ion-select-option>                                
+                                <ion-select-option v-if="configuration.viewCurbside" :value="allTypeOrder['Curbside']"> {{allTypeOrder['Curbside']}} </ion-select-option>                                
+                        </ion-select> 
+                      </ion-label>
 
-                           <div :key="keyCurbside+1">
-                             
-                             <div v-if="order.OrderType==='PickUp' || isPick" @click="showPickUp()">
-                              <ion-item   >
-                               <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
-                               <ion-datetime :key="key1" style="text-align: left;" :min="minDay"
-                                 :value="dateToDay" @ionChange="dateToDay=$event.target.value" ></ion-datetime>                                
-                              </ion-item>
-                              <ion-item  >
-                                <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
-                                <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key1" style="text-align: left;"
-                                  :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value), thisMinHour !==''? savePickUp() : ''" ></ion-datetime>                                
-                              </ion-item>
-                             </div>
-                            
-
-                            <div v-if="order.OrderType ==='Delivery' || isDelivery" @click="showDeliver()">
-                                <ion-item >
-                                  <ion-label position="floating">{{$t('frontend.home.address')}} <strong style="color: red">*</strong></ion-label>
-                                  <ion-input :value="addres1" readonly></ion-input>
-                                </ion-item> 
-                                <ion-item v-if="addres2">                                     
-                                  <ion-label position="floating">{{$t('frontend.home.address')}} 2</ion-label>
-                                  <ion-input :value="addres2" readonly></ion-input>                     
-                                </ion-item> 
-                                <ion-item >
-                                  <ion-label position="floating">{{$t('frontend.orderType.code')}} <strong style="color: red">*</strong></ion-label>
-                                  <ion-input :value="zipCodeFlag" readonly></ion-input>
-                                </ion-item>
-                            </div>
-
-                            <ion-item  v-if="order.OrderType=='On Table' || isTable" @click="show()">
-                               <ion-label position="floating">{{$t('frontend.order.location')}} <strong style="color: red">*</strong></ion-label>
-                                <ion-input :value="order.tableService" readonly></ion-input>
-                            </ion-item> 
-
-                            <div v-if="order.OrderType==='Curbside' || isCurbside" @click="showCurbside()">
-                              <ion-item   >
-                               <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
-                               <ion-datetime style="text-align: left;" 
-                                 :value="dateToDay" ></ion-datetime>                                
-                              </ion-item>
-
-                              <ion-item   >
-                                <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
-                                <ion-datetime display-format="h:mm A" picker-format="h:mm A" style="text-align: left;"
-                                  :value="thisMinHour" ></ion-datetime>                                
-                              </ion-item>
-
-                              <ion-item   >
-                                <ion-label position="floating">{{$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong> </ion-label> 
-                                <ion-input :value="order.LicencePlate" ></ion-input>                                
-                              </ion-item>
-
-                              <ion-item   >
-                                <ion-label position="floating">{{$t('frontend.orderType.vehicleModel') }}<strong style="color: red">*</strong> </ion-label> 
-                                <ion-input :value="order.VehicleModel" ></ion-input>                                
-                              </ion-item>
-
-                               <ion-item   >
-                                <ion-label position="floating">{{$t('frontend.orderType.vehicleColor') }}<strong style="color: red">*</strong> </ion-label> 
-                                <ion-input :value="order.VehicleColor" ></ion-input>                                
-                              </ion-item>
-                            </div>
-                           </div>
-                        </ion-card>
-
-                        <cart
-                          :showButtons ="false" 
-                          :showAdd ="true">
-                        </cart>
+                      <div :key="keyCurbside+1">
                         
+                        <div v-if="order.OrderType==='PickUp' || isPick" @click="showPickUp()">
+                        <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-datetime :key="key1" style="text-align: left;" :min="minDay"
+                            :value="dateToDay" @ionChange="dateToDay=$event.target.value" ></ion-datetime>                                
+                        </ion-item>
+                        <ion-item  >
+                          <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key1" style="text-align: left;"
+                            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value), thisMinHour !==''? savePickUp() : ''" ></ion-datetime>                                
+                        </ion-item>
+                        </div>
+                      
 
-                  <ion-footer class="ion-no-border">
-                    
-                    <ion-toolbar v-if="$store.state.cart.length > 0 " >
-                     
-
-                      <div style="padding: 20px 0; text-align: center" v-if="$store.state.allTickets.length === 0 && !isCatering">
-                         <ion-item v-if="( ['SHIFT4', 'NAB'].includes(restaurantActive.payMethod) && order.OrderType === 'On Table' && (clientId !='' || staffName != '') ) ||
-                          (['TSYS','PayFabric'].includes(restaurantActive.payMethod) && order.OrderType === 'On Table'  && staffName != '')">
-                            <p style=" float: left;text-align: left;padding: 0" class="subtitles-order menu-col-4">{{$t('frontend.order.isTicket')}} </p>                               
-                            <ion-toggle color="primary" :value="isTicket" @ionChange="isTicket = !isTicket"></ion-toggle>
-                        </ion-item> 
-
-                        <ion-button                             
-                          @click="goHome()">{{$t('frontend.home.cancel')}}
-                        </ion-button>  
-
-                        <ion-button 
-                          v-if="!isTicket " 
-                          @click="segmentValue = 'order', openCardPayment()">{{$t('frontend.order.pay')}}
-                        </ion-button>
-
-                        <ion-button  
-                          v-if="isTicket " 
-                          @click="segmentValue = 'order', openCardPayment()">{{$t('frontend.order.payAsTicket')}}
-                        </ion-button>  
-
-                        <ion-button
-                          v-if="isTicket && staffName != ''" 
-                          @click="saveAsTicket()">{{$t('frontend.order.saveAsTicket')}}
-                        </ion-button>                          
+                      <div v-if="order.OrderType ==='Delivery' || isDelivery" @click="showDeliver()">
+                          <ion-item >
+                            <ion-label position="floating">{{$t('frontend.home.address')}} <strong style="color: red">*</strong></ion-label>
+                            <ion-input :value="addres1" readonly></ion-input>
+                          </ion-item> 
+                          <ion-item v-if="addres2">                                     
+                            <ion-label position="floating">{{$t('frontend.home.address')}} 2</ion-label>
+                            <ion-input :value="addres2" readonly></ion-input>                     
+                          </ion-item> 
+                          <ion-item >
+                            <ion-label position="floating">{{$t('frontend.orderType.code')}} <strong style="color: red">*</strong></ion-label>
+                            <ion-input :value="zipCodeFlag" readonly></ion-input>
+                          </ion-item>
                       </div>
-                      <div v-if="$store.state.allTickets.length > 0 && !isCatering" style="padding: 20px 0; text-align: center"> 
-                                           
-                        <ion-button  v-if="order.isTicket && $store.state.allTickets.length > 0" 
-                            @click="closeTicket()">
-                            {{$t('frontend.order.closeTicket')}}
-                         </ion-button> 
-                         <ion-button  
-                            @click="updateAuthorization()">
-                            {{$t('frontend.order.updateTicket')}}
-                          </ion-button>
+
+                      <ion-item  v-if="order.OrderType=='On Table' || isTable" @click="show()">
+                          <ion-label position="floating">{{$t('frontend.order.location')}} <strong style="color: red">*</strong></ion-label>
+                          <ion-input :value="order.tableService" readonly></ion-input>
+                      </ion-item> 
+
+                      <div v-if="order.OrderType==='Curbside' || isCurbside" @click="showCurbside()">
+                        <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-datetime style="text-align: left;" 
+                            :value="dateToDay" ></ion-datetime>                                
+                        </ion-item>
+
+                        <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-datetime display-format="h:mm A" picker-format="h:mm A" style="text-align: left;"
+                            :value="thisMinHour" ></ion-datetime>                                
+                        </ion-item>
+
+                        <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-input :value="order.LicencePlate" ></ion-input>                                
+                        </ion-item>
+
+                        <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.orderType.vehicleModel') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-input :value="order.VehicleModel" ></ion-input>                                
+                        </ion-item>
+
+                          <ion-item   >
+                          <ion-label position="floating">{{$t('frontend.orderType.vehicleColor') }}<strong style="color: red">*</strong> </ion-label> 
+                          <ion-input :value="order.VehicleColor" ></ion-input>                                
+                        </ion-item>
                       </div>
-                      <div v-if="isCatering" style="padding: 20px 0; text-align: center">
-
-                       <div>
-                          <ion-label v-if="order.OrderType=='Delivery' && configuration.minAmountCateringDelivery > 0 && configuration.minAmountCateringDelivery > order.Total" class="menu-col-12 catering-amount" >{{$t('frontend.orderType.minAmountDelivery') +' '+  getFormatPrice(configuration.minAmountCateringDelivery)}}</ion-label>
-                        <ion-label v-if="order.OrderType=='PickUp' && configuration.minAmoutCatering > 0 && configuration.minAmoutCatering > order.Total" class="menu-col-12 catering-amount">{{ $t('frontend.orderType.minAmountPickUp') + ' ' + getFormatPrice(configuration.minAmoutCatering)  }}</ion-label>                        
-                       </div>
-                        <ion-button                             
-                          @click="goHome()">{{$t('frontend.home.cancel')}}
-                        </ion-button> 
-                         <ion-button 
-                         :disabled="((clientId ==='' || !order.OrderType) && staffName === '') ||
-                         (order.OrderType=='Delivery' && configuration.minAmountCateringDelivery > 0 && configuration.minAmountCateringDelivery > order.Total) ||
-                         (order.OrderType=='PickUp' && configuration.minAmoutCatering > 0 && configuration.minAmoutCatering > order.Total)"
-                            @click="sendOrderCatering()">{{$t('frontend.order.sendRequest')}}
-                         </ion-button> 
                       </div>
-                     
-                    </ion-toolbar>
-                  </ion-footer>
-                    
-                        
+                  </ion-card>
 
-                    </div>
-                </span>
+                  <cart
+                    :showButtons ="false" 
+                    :showAdd ="true">
+                  </cart>
+                  
 
+            <ion-footer class="ion-no-border">
+              
+              <ion-toolbar v-if="$store.state.cart.length > 0 " >
+                
 
-               
+                <div style="padding: 20px 0; text-align: center" v-if="$store.state.allTickets.length === 0 && !isCatering">
+                    <ion-item v-if="( ['SHIFT4', 'NAB'].includes(restaurantActive.payMethod) && order.OrderType === 'On Table' && (clientId !='' || staffName != '') ) ||
+                    (['TSYS','PayFabric'].includes(restaurantActive.payMethod) && order.OrderType === 'On Table'  && staffName != '')">
+                      <p style=" float: left;text-align: left;padding: 0" class="subtitles-order menu-col-4">{{$t('frontend.order.isTicket')}} </p>                               
+                      <ion-toggle color="primary" :value="isTicket" @ionChange="isTicket = !isTicket"></ion-toggle>
+                  </ion-item> 
+
+                  <ion-button                             
+                    @click="goHome()">{{$t('frontend.home.cancel')}}
+                  </ion-button>  
+
+                  <ion-button 
+                    v-if="!isTicket " 
+                    @click="segmentValue = 'order', openCardPayment()">{{$t('frontend.order.pay')}}
+                  </ion-button>
+
+                  <ion-button  
+                    v-if="isTicket " 
+                    @click="segmentValue = 'order', openCardPayment()">{{$t('frontend.order.payAsTicket')}}
+                  </ion-button>  
+
+                  <ion-button
+                    v-if="isTicket && staffName != ''" 
+                    @click="saveAsTicket()">{{$t('frontend.order.saveAsTicket')}}
+                  </ion-button>                          
+                </div>
+                <div v-if="$store.state.allTickets.length > 0 && !isCatering" style="padding: 20px 0; text-align: center"> 
+                                      
+                  <ion-button  v-if="order.isTicket && $store.state.allTickets.length > 0" 
+                      @click="closeTicket()">
+                      {{$t('frontend.order.closeTicket')}}
+                    </ion-button> 
+                    <ion-button  
+                      @click="updateAuthorization()">
+                      {{$t('frontend.order.updateTicket')}}
+                    </ion-button>
+                </div>
+                <div v-if="isCatering" style="padding: 20px 0; text-align: center">
+
+                  <div>
+                    <ion-label v-if="order.OrderType=='Delivery' && configuration.minAmountCateringDelivery > 0 && configuration.minAmountCateringDelivery > order.Total" class="menu-col-12 catering-amount" >{{$t('frontend.orderType.minAmountDelivery') +' '+  getFormatPrice(configuration.minAmountCateringDelivery)}}</ion-label>
+                  <ion-label v-if="order.OrderType=='PickUp' && configuration.minAmoutCatering > 0 && configuration.minAmoutCatering > order.Total" class="menu-col-12 catering-amount">{{ $t('frontend.orderType.minAmountPickUp') + ' ' + getFormatPrice(configuration.minAmoutCatering)  }}</ion-label>                        
+                  </div>
+                  <ion-button                             
+                    @click="goHome()">{{$t('frontend.home.cancel')}}
+                  </ion-button> 
+                    <ion-button 
+                    :disabled="((clientId ==='' || !order.OrderType) && staffName === '') ||
+                    (order.OrderType=='Delivery' && configuration.minAmountCateringDelivery > 0 && configuration.minAmountCateringDelivery > order.Total) ||
+                    (order.OrderType=='PickUp' && configuration.minAmoutCatering > 0 && configuration.minAmoutCatering > order.Total)"
+                      @click="sendOrderCatering()">{{$t('frontend.order.sendRequest')}}
+                    </ion-button> 
+                </div>
+                
+              </ion-toolbar>
+            </ion-footer>
+              
+                  
+
+              </div>
+          
             </div>
-        </v-breakpoint>
 
        
 
@@ -343,7 +336,6 @@ addIcons({
 
 import { Api } from '../../backoffice/api/api.js';
 import { EventBus } from '../event-bus';
-import { VBreakpoint } from 'vue-breakpoint-component'
 import LibCodes from 'zipcodes'
 import { parsePhoneNumber } from 'libphonenumber-js'
 import moment from 'moment-timezone';
@@ -522,7 +514,6 @@ export default {
       }
   },
    components:{
-    VBreakpoint: VBreakpoint,
     QrcodeStream: QrcodeStream,
     Guess: Guess,
     Cart: Cart,
@@ -697,7 +688,7 @@ export default {
         if(!this.order.Total) return 
             
         const flag = this.validateBeforePay();
-        console.l
+       
         if(flag !== 1 )
             return this.alertRequiredDatas(flag);
         this.buildOrder()
@@ -758,7 +749,7 @@ export default {
         
       } catch (error) {
         this.spinner = false;
-        console.log(error);
+        error;
         
       }
 
@@ -825,7 +816,7 @@ export default {
               
           } catch (error) {
             this.spinner = false;
-            console.log(error);            
+            error;            
           }
 
         }
@@ -854,7 +845,7 @@ export default {
           this.spinner = false  
        } catch (error) {
          this.spinner = false 
-            console.log(error);
+            error;
        }       
     },
 
@@ -876,7 +867,7 @@ export default {
           this.spinner = false  
        } catch (error) {
          this.spinner = false 
-            console.log(error);
+            error;
        }       
     },
 
@@ -898,7 +889,7 @@ export default {
            }
             
         } catch (error) {            
-            console.log(error)
+           error
             this.spinner = false;
         }
 
@@ -907,7 +898,7 @@ export default {
      async sendOrderCatering(){
      
         const flag = this.validateBeforePay();
-        console.l
+       
         if(flag !== 1 )
             return this.alertRequiredDatas(flag);
         this.buildOrder()
@@ -982,7 +973,7 @@ export default {
             }
             
         } catch (error) {            
-            console.log(error)
+           error
             this.spinner = false; 
         }
       
@@ -1035,7 +1026,7 @@ export default {
                 }
                 
             } catch (error) {            
-                console.log(error)
+               error
                 this.spinner = false;
             }        
         },
@@ -1117,7 +1108,7 @@ export default {
            }
             
         } catch (error) {            
-            console.log(error)
+           error
             this.spinner = false;
         }
       
@@ -1129,9 +1120,9 @@ export default {
       if(flag){
         Commons.sendOrderEmail(value);
         this.goodPaymentToast();                  
-        if(this.discount > 0 && this.theCodeToDiscount != '');{
-              console.log(); // Ajustar descuento
-        }  
+        // if(this.discount > 0 && this.theCodeToDiscount != '');{
+        //        // Ajustar descuento
+        // }  
       }
         
         this.order = {};
@@ -1177,7 +1168,7 @@ export default {
                 this.spinnerCharge = false;
                 })
                 .catch(e => {
-                    console.log(e)
+                   e;
                      this.spinnerCharge = false;
                 });  
          }
@@ -1245,7 +1236,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -1270,7 +1261,7 @@ export default {
             return  this.$ionic.alertController
                 .create({
                     cssClass: 'my-custom-class',
-                    header: 'Error',
+                    header: '',
                     message: this.$t('frontend.order.notValidCC'),
                     buttons: [                   
                     {
@@ -1338,7 +1329,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.zipCodeNotValid') ,
         buttons: [                   
         {
@@ -1357,7 +1348,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.notZoneToDeliver') , 
         buttons: [                   
         {
@@ -1385,7 +1376,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.notValidEmail') , 
         buttons: [                   
         {
@@ -1577,7 +1568,6 @@ ValidateHour(value){
 
     onInit (promise) {
       promise.then(() => {
-        console.log('Successfully initilized! Ready for scanning now!')
       })
        .catch (error => {
         if (error.name === 'NotAllowedError') {
@@ -1664,7 +1654,7 @@ ValidateHour(value){
       })
       .catch(e => {
         this.spinner = false
-        console.log(e)
+        e;
         return this.notValidQr();
       });
    },
@@ -1891,7 +1881,7 @@ ValidateHour(value){
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notValidQr'),
           buttons: [                   
             {
@@ -1908,7 +1898,7 @@ ValidateHour(value){
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notSeatAvailable'),
           buttons: [                   
             {
@@ -1925,7 +1915,7 @@ ValidateHour(value){
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.$t('frontend.reservation.subtotalNotForDiscount'),
                 buttons: [                   
                     {
@@ -1942,7 +1932,7 @@ ValidateHour(value){
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.$t('frontend.reservation.notDiscountToApply'),
                 buttons: [                   
                     {
@@ -1959,7 +1949,7 @@ ValidateHour(value){
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.reservation.orderCloseToDiscount'),
           buttons: [                   
             {

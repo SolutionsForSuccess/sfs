@@ -40,13 +40,11 @@ export var Commons = {
         if(store.state.allRestaurant.length === 0)
          await this.getAllRestaurant();
 
-        console.log('store.state.staffName:' + store.state.staffName);
         if(store.state.staffName) 
          { 
           this.getAllRestaurantCustomers();
           await  this.getCompleteRestaurant();
           this.defaultData(restaurantId);
-          console.log('Aqui buscar todos los datos del restaurante');
          }
          else{
           await this.defaultData(restaurantId);   
@@ -377,9 +375,6 @@ export var Commons = {
             if (ytb !== -1)  dataRestaurant.restaurantYoutube =  response.data.Sociasls[ytb].SocialUrl;
   
              store.commit('setRestaurantActive', dataRestaurant)
-
-             console.log('ALL BACKOFFICE')
-            
             } 
             return flag;
           }
@@ -392,9 +387,6 @@ export var Commons = {
 
       getAllTaxes:async function(){      
         await Api.fetchAll("Tax").then(response => {    
-          
-          console.log('tax 111')
-          
           const taxes = response.data.filter(t => t.Available === true)        
           store.commit('setAllTaxes', JSON.parse(JSON.stringify(taxes)))   
           })
@@ -898,8 +890,6 @@ export var Commons = {
         response.data.allCustomer = allCustomer;
         response.data.tax = tax;
         store.commit('setBackConfig', JSON.parse(JSON.stringify(response.data))) ;    
-        console.log(JSON.parse(JSON.stringify(store.state.backConfig)))
-        console.log('HEIIIII')
       }
     },
 
@@ -909,15 +899,13 @@ export var Commons = {
       store.commit("setUser", staff);      
       payAuthorizeNet.setClerkId(staff.ServerId);
       let roles = [];
-      console.log(store.state.backConfig);
       let value = false
       for (const rol of staff.Roles) {
-        console.log(rol);
-        console.log(store.state.backConfig);
         const obj = store.state.backConfig.rol.find( r => r._id === rol);
-        console.log(obj);
-        if(obj) roles.push(obj)     
-        if (obj.canCreateHouseAccount) value = true         
+        if(obj){
+          roles.push(obj)     
+          if (obj.canCreateHouseAccount) value = true  
+        }       
       } 
       store.commit("setRoles", roles);
       store.commit('setStaffHouseAccount', value)

@@ -147,12 +147,10 @@ export var Devices = {
 			if(empty==0 && type=="additionalInformation"){
 				arr.push(this.mFS.hex);
 			}
-			//console.log(params);
 			return arr;
 		},
 
         AddBase64 : function(elements,type,objectInfo){
-			//console.log(objectInfo);
 			var empty = 0;
 			var arr = [];
 			arr = arr.concat(elements);
@@ -180,13 +178,11 @@ export var Devices = {
 			if(empty==0 && type=="additionalInformation"){
 				arr.push(this.mFS.code);
 			}
-			//console.log(arr);
 			return arr;
 		},
 
         //Connect to the server
         HttpCommunication : function(commandType,url,callback){
-            console.log(this)
             var xhr = null;
             if(window.XMLHttpRequest) 
             {
@@ -211,7 +207,6 @@ export var Devices = {
                     if(xhr.status==200)
                     {
                         var response = xhr.responseText;
-                        console.log("Raw response: "+response);
 
                         var checkParams = StrToHex(response).split(" ").pop();
                         var RedundancyCheck = StrToHex(response).split(" ").pop().substring(1);
@@ -225,7 +220,6 @@ export var Devices = {
                             var len = StrToHex(response).indexOf("03");
                             var hex = StrToHex(response).slice(0,len).split(/02|1c/);
 
-                            // console.log(hex);
                             if(commandType == "DoCredit")
                             {
                                 var subHex=[], subPacketInfo=[];
@@ -235,7 +229,6 @@ export var Devices = {
                                         if(hex[i].indexOf("1f")>0)
                                         {
                                             subHex = hex[i].split("1f");
-                                            // console.log(subHex);
                                             subPacketInfo = [];
                                             for(var j=0; j<subHex.length; j++)
                                             {
@@ -244,7 +237,6 @@ export var Devices = {
                                                     subPacketInfo.push(HexToString(subHex[j]));
                                                 }
                                             }
-                                            // console.log(subPacketInfo);
                                             packetInfo.push(subPacketInfo);
                                         }
                                         else
@@ -264,16 +256,11 @@ export var Devices = {
                                     }
                                 }
                             }
-                            
-                            // console.log("Separate package info: ");
-                            // console.log(packetInfo);
+                          
                             callback(packetInfo);	
                         }	
                     } 
-                    else 
-                    {
-                        console.log(xhr.status);
-                    }
+                   
                 } 
             };
             xhr.send(null);
@@ -287,7 +274,6 @@ export var Devices = {
             let params = [this.mStx.hex, command, this.mFS.hex, version,
                 this.mFS.hex, PrintCopy, this.mFS.hex, PrintData, this.mEtx.hex]
             let lrc = this.getLRC(params)
-            console.log(params)
             
             var command_hex = this.base64ToHex(window.btoa(command));
             var version_hex = this.base64ToHex(window.btoa(version));
@@ -299,20 +285,14 @@ export var Devices = {
                 this.base64ToHex(btoa(lrc))
             ];
 
-            console.log("elements");
-            console.log(elements);
-
+         
             var final_string = elements.join(" ");
             var final_b64 = this.hexToBase64(final_string);
-            console.log("LRC: " + lrc);
-            console.log("Base64: " + final_b64);
-
+          
             //Communication
             let endPointURL = 'http://'+ip+':'+port+'?'+final_b64
             if (ssl)
                 endPointURL = 'https://'+ip+':'+port+'?'+final_b64
-
-            // console.log(endPointURL)
 
             // return await axios.get(endPointURL, {headers: {'accessControlAllowed': 'Y'}})
             this.HttpCommunication('Printer',endPointURL,function(response){
@@ -334,7 +314,6 @@ export var Devices = {
             let count = 1
 
             // arr.push(this.base64ToHex(window.btoa(objectInfo[name].toString())));
-            // console.log(productInformation)
             productInformation.forEach(pi => {
                 res.push(this.base64ToHex(window.btoa(count.toString())))
                 res.push(this.mRS.code)
@@ -360,7 +339,6 @@ export var Devices = {
 
         DoCredit: async function(ip, port, ssl, data, callback){
 
-            // console.log(data)
             const invoiceSequence = await Api.getInvoiceSequence(null)
             if (invoiceSequence){
                 const command = 'T00'
@@ -418,7 +396,6 @@ export var Devices = {
                 //Process commercialInformation
                 const transDatetime = moment()
                 transDatetime.format('YYMMDD').toString()
-                console.log('TRANS DATETIME: ' + transDatetime.toISOString())
                 let productInformation = ''
                 let PONumber = ''
                 let orderDate = '' 
@@ -439,12 +416,6 @@ export var Devices = {
                     
                 }
                 
-                // console.log("PONumber: ", PONumber.toString())
-                // console.log("DestinationZipCode: ", destinationZipCode)
-                // console.log("ProductDescription: ", productDescription)
-                // console.log("orderDate: ", orderDate)
-                // console.log("productInformation: ", productInformation)
-
 
                 const commercialInformation = {
                     'PONumber': PONumber.toString(),
@@ -464,9 +435,6 @@ export var Devices = {
                     'OrderDate': orderDate,
                     'ProductInformation':  productInformation,
                 }
-
-                // console.log('COMMERCIAL INFORMATION:')
-                // console.log(commercialInformation)
 
                 const motoEcommerce = {
                     'MOTO_E_CommerceMode': '',
@@ -544,7 +512,6 @@ export var Devices = {
 
                 let lrc = this.getLRC(params)
 
-                console.log(params)
 
                 //prepare for base64 encoding.
                 var command_hex = this.base64ToHex(window.btoa(command));
@@ -585,20 +552,15 @@ export var Devices = {
 
                 elements.push(this.mEtx.code);
                 elements.push(this.base64ToHex(btoa(lrc)));
-                console.log("elements");
-                console.log(elements);
-
+               
                 var final_string = elements.join(" ");
                 var final_b64 = this.hexToBase64(final_string);
-                console.log("LRC: " + lrc);
-                console.log("Base64: " + final_b64);
-
+            
                 //Communication
                 let endPointURL = 'http://'+ip+':'+port+'?'+final_b64
                 if (ssl)
                     endPointURL = 'https://'+ip+':'+port+'?'+final_b64
 
-                console.log(endPointURL)
 
                 // return await axios.get(endPointURL, {headers: {'accessControlAllowed': 'Y'}})
                 this.HttpCommunication('DoCredit',endPointURL,function(response){
@@ -623,19 +585,14 @@ export var Devices = {
 			var elements = [this.mStx.code, command_hex, this.mFS.code, version_hex, this.mEtx.code, this.base64ToHex(window.btoa(lrc))];
 
 			var final_string = elements.join(" ");
-			console.log("final_string: " + final_string);
 
 			var final_b64 = this.hexToBase64(final_string);
-			console.log("LRC: " + lrc);
-			console.log("Base64: " + final_b64);
-            console.log("COMMAND_HEX: " + command_hex + " VERSION_HEX: " + version_hex);
 			
             //Communication
             let endPointURL = 'http://'+ip+':'+port+'?'+final_b64
             if (ssl)
                 endPointURL = 'https://'+ip+':'+port+'?'+final_b64
 
-            // console.log(endPointURL)
             // return await axios.get(endPointURL, {headers: {'accessControlAllowed': 'Y'}})
             this.HttpCommunication('Initialize',endPointURL,function(response){
 				callback(response);

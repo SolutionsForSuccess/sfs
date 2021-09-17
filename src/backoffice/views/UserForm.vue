@@ -1,195 +1,281 @@
 <template>
     <div class="screen">
-    <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-    <router-link to="/user"><ion-button expand="full" color="tertiary"><ion-icon name="arrow-round-back"></ion-icon>{{$t('backoffice.form.buttons.backToUsersList')}}</ion-button></router-link> -->
+      <ion-backdrop v-if="isBackdrop"></ion-backdrop>
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="backtoList()"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{title}}</h1>            
-            </ion-label>
-          </ion-toolbar>
+      <modal name="occupation-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideOccupation()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+        <ion-header>
+            <ion-toolbar>
+            <ion-title>{{$t('backoffice.form.titles.occupationNewTitle')}}</ion-title>          
+            </ion-toolbar>        
+        </ion-header>
 
-          <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" >
-              <ion-segment-button value="general">
-                  <span>{{$t('backoffice.form.titles.genaral')}}</span>
-              </ion-segment-button>
-              <ion-segment-button value="clock" v-if="$store.state.backConfig.attendance.length > 0">
-                  <span>ClockIn-ClockOut</span>
-              </ion-segment-button>
-              <ion-segment-button value="occupation">
-                  <span>{{$t('backoffice.form.fields.occupation')}}</span>
-              </ion-segment-button>
-              <ion-segment-button value="roles">
-                  <span>{{$t('backoffice.form.fields.roles')}}</span>
-              </ion-segment-button>
-             
-          </ion-segment>
-    </ion-header>
-    <br/>
+        <ion-card>  
+          <Occup 
+          :externalProp="true"
+          @reloadOccupation="reloadOccupation" />
 
-    <ion-loading
-        v-if="spinner"
-        cssClass="my-custom-class"
-        :message="$t('frontend.tooltips.loadRestaurant')"
+        </ion-card>
+      </modal>
+
+      <modal name="rol-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideRol()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+        <ion-header>
+            <ion-toolbar>
+            <ion-title>{{$t('backoffice.form.titles.roleNewTitle')}}</ion-title>          
+            </ion-toolbar>        
+        </ion-header>
+
+        <ion-card>  
+          <Roles 
+          :externalProp="true"
+          @reloadRol="reloadRol" />
+
+        </ion-card>
+      </modal>
+
+      <modal name="clock-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideClock()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+        <ion-header>
+            <ion-toolbar>
+            <ion-title>ClockIn-ClockOut</ion-title>          
+            </ion-toolbar>        
+        </ion-header>
+
+          <Clock :userId="id"/>
+      </modal>
+      
+      <ion-header>
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-back-button default-href="/controlPanel" @click="backtoList()"></ion-back-button>
+              </ion-buttons>
+              <ion-label style="padding: 20px 100px;">
+                <h1>{{title}}</h1>            
+              </ion-label>
+            </ion-toolbar>          
+      </ion-header>
+
+      <ion-loading
+          v-if="spinner"
+          cssClass="my-custom-class"
+          :message="$t('frontend.tooltips.loadRestaurant')"
       ></ion-loading>
-    <div >
-      <!-- <ion-card> -->
-        <div v-if="segmentValue==='general'">
-            <ion-item>
-                <ion-card v-if="checkImage()" >
-                    <ion-img :src="file"></ion-img>
-                </ion-card>
-                <ion-card v-else>
-                  {{ $t('backoffice.form.titles.imageText')}}
-                </ion-card>
-                <!-- <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
-                <ion-input type="file" accept=".jpg,.png,.gif" name="file"
-                @change="handleImage">
-                </ion-input> -->
-            </ion-item>
-            <ion-item>
-                <div>
-                    <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
-                </div>
-              <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
-            </ion-item>
+
+      <div >
+
+        <ion-row>
+
+          <ion-col size="12" size-md="6">
+
+              <ion-card style="width: 50%;">
+                  <label v-if="checkImage()"> 
+                      <img   :src="file">
+                      <input type="file" accept="image/png, image/jpeg" style="display:none"  @change="handleImage" >
+                  </label>
+                  <label v-else>  {{ $t('backoffice.form.titles.imageText')}} 
+                      <input type="file" accept="image/png, image/jpeg" style="display:block"  @change="handleImage" >
+                  </label>
+              </ion-card>       
+          
             <ion-item>
               <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.firstName')}}</ion-label>
-                <ion-input type="text" name="firstName"
+                <ion-input type="text" autocomplete="name" 
                 @input="firstName = $event.target.value" 
                 v-bind:value="firstName">
               </ion-input>
             </ion-item>
+
             <ion-item>
               <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.lastName')}}</ion-label>
-                <ion-input type="text" name="lastName"
+                <ion-input type="text" autocomplete="family-name" 
                 @input="lastName = $event.target.value" 
                 v-bind:value="lastName">
               </ion-input>
             </ion-item>
-            <ion-item>
-              <ion-label position="floating">{{$t('backoffice.form.fields.address')}}</ion-label>
-              <ion-textarea name="address" 
-              @input="address = $event.target.value" 
-              v-bind:value="address">
-              </ion-textarea>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
-                <ion-input type="text" name="phone"
-                @input="phone = $event.target.value" 
-                v-bind:value="phone">
-              </ion-input>
-            </ion-item>
+          
             <ion-item>
               <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-              <ion-input type="email" name="email"
+              <ion-input type="email" autocomplete="email" 
               @input="email = $event.target.value" 
               v-bind:value="email">
               </ion-input>
             </ion-item>
-            <ion-item v-if="!id">
-                <ion-label position="floating"><span style="color: red">*</span>Service Id</ion-label>
-                <ion-input type="number" name="serverId"
-                @input="serverId = $event.target.value"
-                v-bind:value="serverId">
-                </ion-input>
-            </ion-item>
-            <ion-list v-if="!isForDriversSupervisor">
-                <ion-list-header>
-                    <ion-label>
-                        <span style="color: red">*</span><router-link to="/occupation">{{$t('backoffice.form.fields.occupation')}}</router-link>
-                    </ion-label>
-                    <ion-label>
-                        <ion-button class="" @click="segmentChanged('occupation')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
-                    </ion-label>
-                </ion-list-header>
 
-                <ion-item>
-                    <ion-label>{{$t('backoffice.form.titles.selectAnOccupation')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                    @ionChange="occupationId = $event.target.value" v-bind:value="occupationId">
-                        <ion-select-option v-for="occupation in occupations" v-bind:key="occupation.Id" v-bind:value="occupation._id" >{{occupation.Name}}</ion-select-option>
-                    </ion-select>
-                </ion-item>
-
-            </ion-list>
-            <ion-item v-if="!isForDriversSupervisor">
-                <ion-label>{{$t('backoffice.form.fields.isDriver')}}</ion-label>
-                <ion-checkbox slot="end" name="isDriver" 
-                      @ionChange="isDriver=$event.target.checked" 
-                      :checked="isDriver">
-                </ion-checkbox>
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.phone')}}</ion-label>
+                <ion-input  type="number" autocomplete="tlf" 
+                @input="phone = $event.target.value" 
+                v-bind:value="phone">
+              </ion-input>
             </ion-item>
 
-            <div v-if="id==null">
-                <ion-item>
-                  <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
-                  <ion-input type="password" name="password"
-                  @input="password = $event.target.value" 
-                  v-bind:value="password">
-                  </ion-input>
-                </ion-item>
-                <ion-item>
-                  <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.confirmPassword')}}</ion-label>
-                  <ion-input type="password" name="confirmPassword"
-                  @input="confirmPassword = $event.target.value" 
-                  v-bind:value="confirmPassword">
-                  </ion-input>
-                </ion-item>
-            </div>
-            <div v-else>
-              <ion-item>
-                <ion-button expand="full" color="secondary" @click="changePassword()">Change password</ion-button>
-              </ion-item>
-            </div>
-            <div >
-              <ion-item>
-                <ion-button expand="full" color="secondary" @click="changeServerId()">{{ $t('backoffice.options.changeServerId') }}</ion-button>
-              </ion-item>
-            </div>
+            <ion-item>
+              <ion-label position="floating">{{$t('backoffice.form.fields.address')}}</ion-label>
+              <ion-textarea  autocomplete="address-line1" 
+              @input="address = $event.target.value" 
+              v-bind:value="address">
+              </ion-textarea>
+            </ion-item>
 
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+
+                <!-- isDriver -->
+                <div style="display: flex;justify-content: space-between; align-items: center; padding: 0 20px;"  >
+                    <ion-label>{{$t('backoffice.form.fields.isDriver')}}</ion-label>
+                    <ion-toggle slot="end" name="isDriver" :disabled="isForDriversSupervisor? true: false"
+                          @ionChange="isDriver=$event.target.checked" 
+                          :checked="isDriver">
+                    </ion-toggle>
+                </div>            
+              
+              <!-- occupation -->
+                <ion-list style="    padding: 0 20px;">
+                    <div style="display: flex;justify-content: space-between; align-items: center;">
+                        <ion-label>
+                            {{$t('backoffice.form.fields.occupation')}}
+                        </ion-label>
+                        <ion-select   interface="popover" :disabled="isForDriversSupervisor? true: false"
+                            @ionChange="occupationId = $event.target.value" v-bind:value="occupationId">
+                            <ion-select-option v-for="occupation in occupations" 
+                              v-bind:key="occupation.Id" 
+                              v-bind:value="occupation._id" >
+                              {{occupation.Name}}
+                          </ion-select-option>
+                        </ion-select>
+                        <ion-label>
+                          <ion-button
+                              v-if="!isForDriversSupervisor"
+                              fill="clear" 
+                              @click="showOccupation()"       
+                              >
+                              <ion-icon slot="icon-only" icon="add"></ion-icon>
+                          </ion-button> 
+                        </ion-label>
+                    </div>
+                </ion-list> 
+
+                <!-- rol -->
+              
+                <ion-list  style="    padding: 0 20px;" :key="key">
+                    <div style="display: flex;justify-content: space-between; align-items: center;">
+                        <ion-label>
+                            {{$t('backoffice.form.fields.roles')}}
+                        </ion-label>
+                        <ion-select multiple="true"  :disabled="isForDriversSupervisor? true: false"
+                          @ionChange="changeRol($event.target.value)">
+                            <ion-select-option  
+                              v-for="(rol, index) in allRoles" 
+                              :key="index" 
+                              :selected="hasId(rol._id)"
+                              :value="rol._id">
+                              {{rol.Name}}                       
+                            </ion-select-option>
+                        </ion-select>
+                        <ion-label>
+                          <ion-button
+                          v-if="!isForDriversSupervisor"
+                              fill="clear" 
+                              @click="showRol()"       
+                              >
+                              <ion-icon slot="icon-only" icon="add"></ion-icon>
+                          </ion-button> 
+                        </ion-label>
+                    </div>
+                </ion-list> 
+
+
+                <!-- password -->
+                <ion-list style="    padding: 0 20px;"  v-if="id!==null">
+                  <div style="display: flex;justify-content: space-between; align-items: center;">
+                    <ion-label> Change password </ion-label>               
+                    <ion-label>
+                      <ion-button
+                          fill="clear" 
+                          @click="changePassword()"       
+                          >
+                          <ion-icon slot="icon-only" icon="create"></ion-icon>
+                      </ion-button> 
+                    </ion-label>
+                  </div>
+                </ion-list> 
+
+                <div v-if="id==null">
+                    <ion-item>
+                      <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
+                      <ion-input type="password" name="password"
+                      @input="password = $event.target.value" 
+                      v-bind:value="password">
+                      </ion-input>
+                    </ion-item>
+                    <ion-item>
+                      <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.confirmPassword')}}</ion-label>
+                      <ion-input type="password" name="confirmPassword"
+                      @input="confirmPassword = $event.target.value" 
+                      v-bind:value="confirmPassword">
+                      </ion-input>
+                    </ion-item>
+                </div>
+
+
+                <!-- serverId -->
+                <ion-list style="    padding: 0 20px;">
+                  <div style="display: flex;justify-content: space-between; align-items: center;">
+                    <ion-label > Service Id </ion-label>
+                      <ion-item v-if="!id">
+                        
+                        <ion-label><span style="color: red">*</span></ion-label>
+                        <ion-input type="number" name="serverId"
+                        @input="serverId = $event.target.value"
+                        v-bind:value="serverId">
+                        </ion-input>
+                    </ion-item>
+                    <ion-label  v-if="id">
+                      <ion-button
+                          fill="clear" 
+                          @click="changeServerId()"       
+                          >
+                          <ion-icon slot="icon-only" icon="create"></ion-icon>
+                      </ion-button> 
+                    </ion-label>
+                  </div>
+                </ion-list> 
+
+                <!-- clockIn -->
+                <ion-list style="    padding: 0 20px;" v-if="id">
+                  <div style="display: flex;justify-content: space-between; align-items: center;">
+                    <ion-label >ClockIn-ClockOut</ion-label>                 
+                    <ion-label >
+                      <ion-button
+                          fill="clear" 
+                          @click="showTime()"       
+                          >
+                          <ion-icon slot="icon-only" icon="time"></ion-icon>
+                      </ion-button> 
+                    </ion-label>
+                  </div>
+                </ion-list> 
+
+                
               
 
-            <div v-if="!isForDriversSupervisor">
-                <ion-item>
-                    <p><router-link to="/role">{{$t('backoffice.form.fields.roles')}}</router-link></p>
-                    <ion-item-group slot="end">
-                        <ion-label>
-                            <ion-button class="" @click="segmentChanged('roles')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
-                        </ion-label>    
-                    </ion-item-group>
-                    
-                </ion-item>
-                <ion-list>
-                    <ion-item v-for="rol in allRoles" v-bind:key="rol._id">
-                    <ion-label>{{rol.Name}}</ion-label>
-                    <ion-checkbox
-                        slot="end"
-                        @ionChange="addDeleteRole($event.target.checked, rol._id)"
-                        :checked="hasUserRole(rol._id)">
-                    </ion-checkbox>
-                    </ion-item>
-                </ion-list>
-            </div>
-          <br/>
-          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveUser()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <div v-if="segmentValue==='occupation'">
-             <Occup :externalProp="true"/>
-        </div>
-        <div v-if="segmentValue==='roles'">
-            <Roles :externalProp="true"/>
-        </div>
-        <div v-if="segmentValue==='clock'">
-          <Clock/>
-        </div>
-    </div>
+                
+          </ion-col>
+
+        </ion-row>
+
+        <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveUser()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+          
+      </div>
     </div>
 </template>
 
@@ -246,10 +332,12 @@ export default {
       occupation: false,
       roles: false,
       sameConnected: false,
+      key: 0,
     }
   },
   created: function(){
       this.isForDriversSupervisor = this.$route.params.isForDriversSupervisor || false;
+      if(this.isForDriversSupervisor) this.isDriver = true;
       this.init();
      
   },
@@ -280,26 +368,11 @@ export default {
     init(){
         this.allRoles = this.$store.state.backConfig.rol;
         this.occupations = this.$store.state.backConfig.occupation;
-        this.id = this.$route.params.userId;
+        if(this.$route.params.userId) this.id = this.$route.params.userId;
         this.sameConnected = this.$route.params.sameConnected || false;
         this.isSupport = this.$route.params.isSupport || false;
-        if(this.sameConnected){
-          console.log('Buscar usuario guardado en store');
-          const data = this.$store.state.user;
-
-            this.file = data.ImageUrl;
-            this.firstName = data.FirstName;
-            this.lastName = data.LastName;
-            this.address = data.Address;
-            this.phone = data.Phone;
-            this.email = data.Email;
-            this.serverId = data.ServerId;
-            this.occupationId = data.OccupationId;
-            this.isDriver = data.IsDriver;                  
-            this.userRoles = data.Roles;
-            this.user = data;
-        }
-        if (this.id){
+        if(this.sameConnected || this.id){
+          // const data = this.$store.state.user; this.sameConnected
           const data = this.$store.state.backConfig.staff.find( s => s._id === this.id);
           if(data){
             this.file = data.ImageUrl;
@@ -309,11 +382,21 @@ export default {
             this.phone = data.Phone;
             this.email = data.Email;
             this.serverId = data.ServerId;
-            this.occupationId = data.OccupationId;
+            
             this.isDriver = data.IsDriver;                  
-            this.userRoles = data.Roles;
             this.user = data;
-          } 
+
+            if(Array.isArray(data.OccupationId)) this.occupationId = data.OccupationId[0].Occupation
+            else this.occupationId = data.OccupationId;
+           
+            // const listRR =[];
+            data.Roles.forEach(element => {
+             if(element.RolId) this.userRoles.push(element.RolId.toString());
+             else this.userRoles.push(element);              
+            });
+          
+          }
+
         }
         else{
             if (this.isForDriversSupervisor){
@@ -380,14 +463,23 @@ export default {
       }).then(a => a.present())
     },
 
+    changeRol(value){
+      if (!Array.isArray(value)) return;     
+      this.userRoles = JSON.parse(JSON.stringify(value))
+    },
+
+    hasId(id){   
+      return this.userRoles.includes(id)
+    },
+
 
     addDeleteRole(isChecked, rol_id){
-        if (isChecked){
-            if (!this.userRoles.includes(rol_id))
-                this.userRoles.push(rol_id)
-        }
-        else
-          this.userRoles.splice(this.userRoles.indexOf(rol_id), 1)
+      if (isChecked){
+        if (!this.userRoles.includes(rol_id))
+          this.userRoles.push(rol_id)
+      }
+      else
+        this.userRoles.splice(this.userRoles.indexOf(rol_id), 1)
     },
 
     backtoList(){
@@ -430,7 +522,7 @@ export default {
     },
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){
-      return this.file != null;
+      return  this.file != null && this.file !='';
     },
 
     handleImage: function(event)
@@ -453,7 +545,6 @@ export default {
         if (this.isValidForm())
         {
             this.isBackdrop = true;
-            //console.log(this.occupationId);
             let item = {
               "ImageUrl": "",
               "FirstName": this.firstName,
@@ -487,13 +578,11 @@ export default {
               
               this.spinner = true;
               await Api.putIn(this.modelName, item)
-                  .then(response => {
+                  .then(async response => {
 
                         const index = this.$store.state.backConfig.staff.findIndex(s => s._id === this.id);
-                        if(index !== -1) this.$store.state.backConfig.staff[index] = item;
-                        
+                        if(index !== -1) this.$store.state.backConfig.staff[index] = item;                       
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessUser'), "success");
-                        this.userRoles = [];
                         this.spinner = false;
                         if (this.isSupport)
                             this.$router.push({ name: 'Support', params: { tab: 'user', }  });
@@ -503,9 +592,8 @@ export default {
                         return response;
                   })
                   .catch(e => {
-                        this.isBackdrop = false;
-                        console.log("Error");
-                        console.log(e);
+                        this.isBackdrop = false;                       
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveUser);
                   })
@@ -517,7 +605,6 @@ export default {
                   .then(response => {
                       this.$store.state.backConfig.staff.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessUser'), "success");
-                      this.userRoles = [];
                       this.spinner = false;
                       if (this.isSupport)
                           this.$router.push({name: 'Support',  params: { tab: 'user', }  });
@@ -527,7 +614,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveUser)
                   })
@@ -566,6 +653,43 @@ export default {
                 })
                 .then(m => m.present())
     },
+
+    reloadOccupation(value){    
+      this.occupations =  this.$store.state.backConfig.occupation;
+      this.occupationId = value;
+      this.hideOccupation();
+    },
+
+    showOccupation () {
+      this.$modal.show('occupation-modal');
+    },
+    
+    hideOccupation () {
+      this.$modal.hide('occupation-modal');
+        },
+
+    reloadRol(value){    
+      this.allRoles =  this.$store.state.backConfig.rol;
+      this.userRoles.push(value);
+      this.key ++;
+      this.hideRol();
+    },
+
+    showRol () {
+      this.$modal.show('rol-modal');
+    },
+    
+    hideRol () {
+    this.$modal.hide('rol-modal');
+      },
+        
+    showTime () {
+      this.$modal.show('clock-modal');
+    },
+    
+    hideClock () {
+    this.$modal.hide('clock-modal');
+      },
   },
 
 }

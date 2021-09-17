@@ -27,42 +27,7 @@ export default {
             restaurantId: null,
             allRestaurant: []            
         }
-    },
-
-    // mounted: function(){
-    //     console.log("AQUIIII")
-    //     this.fetchAllRestaurant()
-    // },
-
-    // computed: {
-
-    //     allRestaurant(){
-    //         Api.fetchAll('Restaurant').then(response => {
-    //             if(response.status === 200){
-
-    //                 let restaurants = response.data
-    //                 let myRestaurants = this.$store.state.user.AllRestaurant
-
-    //                 let backRestaurants = []
-    //                 restaurants.forEach(restaurant => {
-    //                     if (myRestaurants.indexOf(restaurant._id) != -1)
-    //                         backRestaurants.push(restaurant)
-    //                 });
-
-    //                 console.log("Todos Restaurantes")
-    //                 console.log(backRestaurants)
-    //                 return backRestaurants
-    //             }
-    //         })
-    //         .catch(e => {
-    //             console.log(e)
-    //             return []
-    //         });
-    //     }
-
-    // },
-
-    methods: {
+    },    methods: {
         getAllRestaurant(){
             Api.fetchAll('Restaurant').then(response => {
                 if(response.status === 200){
@@ -75,12 +40,11 @@ export default {
                             this.allRestaurant.push(restaurant)
                     });
 
-                    console.log("Todos Restaurantes")
-                    console.log(this.allRestaurant)
+                  
                 }
             })
             .catch(e => {
-                console.log(e)
+                e
                 return []
             });
         },
@@ -96,12 +60,11 @@ export default {
                             this.backRestaurants.push(restaurant)
                     });
 
-                    console.log("Todos Restaurantes")
-                    console.log(this.backRestaurants)
+                   
                 }
             })
             .catch(e => {
-                console.log(e)
+                e
             });
         },
         changeRestaurant(value){
@@ -132,7 +95,7 @@ export default {
                     // this.init();
             })
             .catch(e => {
-                console.log(e)
+                e
                 // this.spinner = false
             });
         },
@@ -148,7 +111,7 @@ export default {
                 }
             })
             .catch(e => {
-            console.log(e)
+            e
             });
         },
     }

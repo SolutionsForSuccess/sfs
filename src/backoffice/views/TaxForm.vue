@@ -4,7 +4,7 @@
     <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
     <router-link to="/tax"><ion-button expand="full" color="tertiary"><ion-icon name="arrow-round-back"></ion-icon>{{$t('backoffice.form.buttons.backToTaxesList')}}</ion-button></router-link> -->
 
-    <ion-header>
+    <ion-header v-if="!externalProp">
           <ion-toolbar>
             <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Tax'})"></ion-back-button>
@@ -36,14 +36,7 @@
           @input="percent = $event.target.value" 
           v-bind:value="percent">
           </ion-input>
-        </ion-item>
-        <!-- <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.priority')}}</ion-label>
-          <ion-input type="number" name="priority"
-          @input="priority = $event.target.value" @change="validatePriority($event.target.value)"
-          v-bind:value="priority">
-          </ion-input>
-        </ion-item> -->
+        </ion-item>       
         <ion-item>
            <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
            <ion-checkbox slot="end" name="available"
@@ -51,7 +44,7 @@
                 :checked="available">    
           </ion-checkbox>
         </ion-item>
-      <!-- </ion-card>  -->
+      
       <br/>
       <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveTax()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
     </div>
@@ -84,6 +77,9 @@ export default {
   },
   created: function(){
       this.init();
+  },
+   props: {
+      externalProp: {type: Boolean, default: false},
   },
   computed: {
         title() {
@@ -195,7 +191,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveTax);
                   })
@@ -206,6 +202,7 @@ export default {
               Api.postIn(this.modelName, item)
                   .then(response => {
                       this.$store.state.backConfig.tax.push(response.data);
+                      if(this.externalProp) return this.$emit("reloadTax", response.data._id);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessTax'), "success");
                       this.name = '';
                       this.percent = 0;
@@ -218,7 +215,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveTax);
                   })

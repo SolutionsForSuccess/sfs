@@ -188,7 +188,9 @@ export default {
         this.i18n = i18n;   
         this.ip = this.datas.device.ip
         this.port = this.datas.device.port
-       
+        if(this.datas.device.ssl !== undefined)
+            this.ssl = this.datas.device.ssl;
+      
     },  
     data() {
         return { 
@@ -290,7 +292,7 @@ export default {
                     this.spinner = false;
                     return false;
                } catch (error) {
-                   console.log(error);
+                   error;
                     this.spinner = false;
                     return false;
                }        
@@ -327,6 +329,7 @@ export default {
                     }
 
                      this.spinner = true;
+                   
                     const resp = await OlaPay.saleManual(this.ip, this.port, this.ssl, item);
                     if(resp){                      
                         this.spinner = false   
@@ -336,7 +339,7 @@ export default {
                     return false;
                    
                } catch (error) {
-                   console.log(error);
+                  error
                   this.spinner = false;
                  return false;
                }        
@@ -349,10 +352,8 @@ export default {
             let response;
             if(this.isTicket) response = await this.senAuthoSwipe();
             else response = await this.senPaymentSwipe(); 
-            if(response){
-                console.log('RESPONSE SWIPE')
-            }
-            else this.paymentError('Try another payment method.');
+            if(!response)
+             this.paymentError('Try another payment method.');
         },
 
         async senAuthoSwipe(){            
@@ -370,7 +371,7 @@ export default {
                     return false;
                    
                } catch (error) {
-                    console.log(error);
+                    error
                     this.spinner = false;
                     return false;
                }        
@@ -396,7 +397,7 @@ export default {
                    return false; 
                    
                } catch (error) {
-                   console.log(error);
+                   error
                    this.spinner = false;
                     return false;
                }        
@@ -425,20 +426,15 @@ export default {
                     }
                      this.spinner = true;
                     const resp = await OlaPay.status(this.ip, this.port, this.ssl, item);
-                    if(resp){
-                        console.log(resp);
+                    if(resp){                        
                         this.spinner = false;
-                        
-                        // const itemPrint = { 'Print': {"Ref": this.referToFind}  }
-                        // OlaPay.print(this.ip, this.port, this.ssl, itemPrint);
-
                         return resp
                     }
                   this.spinner = false;
                     return false;
                    
                } catch (error) {
-                   console.log(error);
+                  error;
                   this.spinner = false;
                     return false;
                }        
@@ -492,7 +488,7 @@ export default {
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.i18n.t('frontend.home.zipCodeNotValid') ,
                 buttons: [                   
                 {
@@ -528,7 +524,7 @@ export default {
                 return  this.$ionic.alertController
                     .create({
                         cssClass: 'my-custom-class',
-                        header: 'Error',
+                        header: '',
                         message: this.i18n.t('frontend.order.notValidCC'),
                         buttons: [                   
                         {
@@ -550,7 +546,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -608,7 +604,7 @@ export default {
                     return false;
                    
                } catch (error) {
-                   console.log(error);
+                  error;
                    this.spinner = false;
                     return false;
                }        
@@ -637,7 +633,7 @@ export default {
                    this.spinner = false;
                     return false;
                } catch (error) {
-                   console.log(error);  
+                  error;  
                    this.spinner = false;
                     return false;                 
                }        
@@ -710,7 +706,7 @@ export default {
         async searchDevice(){
             if(this.ip !=='' && this.port !==''){
               try {
-                   this.spinner = true;        
+                   this.spinner = true;  
                    const resp = await OlaPay.getDevice(this.ip, this.port, this.ssl);
                     this.spinner = false;
                    if(resp){
@@ -720,7 +716,7 @@ export default {
                     return false;
                    
                } catch (error) {
-                   console.log(error)   
+                   error;   
                    this.spinner = false;
                     return false;                
                }                

@@ -1,353 +1,113 @@
 <template>
 <div class="screen">
   
-    <ion-header>  
-    <ion-toolbar>
-        <ion-buttons slot="start">
-            <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-        </ion-buttons>
-       <!-- <ion-card-title style="text-align: left;padding: 10px;">
-         
-           {{$t('frontend.reservation.reservations')}}
-
-      </ion-card-title> -->
-      
+    
+    <ion-toolbar>      
     <ion-segment id="reservationSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-      <ion-segment-button value="camera">
-        <span class="iconify" data-icon="ant-design:plus-outlined" data-inline="false"></span>
-         <!-- ADD -->
-      </ion-segment-button>
+     
       <ion-segment-button value="heart">
-        <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span>
-      <!-- LIST -->
+        <div style="display: flex;flex-direction: column;align-items: center;">
+            <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span>
+            <ion-text style="    font-size: 10px;">
+                {{$t('backoffice.options.manageReservation')}}
+            </ion-text>
+        </div>
       </ion-segment-button>
-      <!-- <ion-segment-button value="waitlist">
-        <span class="iconify" data-icon="mdi:playlist-plus" data-inline="false"></span>
-      </ion-segment-button> -->
+      <ion-segment-button value="waitlist">
+        <div style="display: flex;flex-direction: column;align-items: center;">
+            <span class="iconify" data-icon="mdi:playlist-plus" data-inline="false"></span>
+            <ion-text style="    font-size: 10px;">
+                {{$t('backoffice.options.manageWaitList')}}
+            </ion-text>
+        </div>
+      </ion-segment-button>
 
-    </ion-segment>
-   
+    </ion-segment>   
   </ion-toolbar>
-  </ion-header> 
-
-  <div v-if="camera" style="    width: 80%; margin: 0 auto;">
-      <hr>
-        <ion-card-title>{{$t('frontend.reservation.create')}} 
-          <ion-chip @click="toastInfoHorarios" style="background: transparent; padding: 0; margin: 0;">
-            <span  class="iconify" data-icon="ph:info-light" data-inline="false" style="width: 20px;height: 20px;"></span>
-          </ion-chip>
-        </ion-card-title>
-
-       
-
-        <ion-card >
-
-          <div v-if="spinner" class="menu-col-12">
-            <ion-spinner  name="lines" class="spinner"></ion-spinner>
-          </div>
-
-          <div  v-if="!spinner">
-                <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="CustomerName" @input="theName = $event.target.value"></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="email"  @input="theEmail = $event.target.value" @change="value=ValidateEmail()" ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="phone"  @input="thePhone = $event.target.value" ></ion-input>
-              </ion-item> 
-                <ion-item>
-                    <ion-label position="floating">{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong></ion-label>
-                    <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToReserv=$event.target.value" :min="dateToDay.format('YYYY-MM-DD')" >
-                   </ion-datetime>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong></ion-label>
-                <!-- <ion-datetime display-format="h:mm A" picker-format="h:mm A" :value="hourEstimateToPick"  @ionChange="hourEstimateToPick = $event.target.value"         -->
-                <ion-datetime display-format="h:mm A" picker-format="h:mm A" @ionChange="hourToReserv=$event.target.value "></ion-datetime>           
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="number" :value="guest" @ionChange="guest=$event.target.value "></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.reason')}}</ion-label>
-                <ion-input type="text"  @ionChange="reasonToReser=$event.target.value "></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.order.notes')}}</ion-label>
-                <ion-textarea type="text"  @ionChange="noteToReserv=$event.target.value "></ion-textarea>
-              </ion-item>
-          </div>           
-         
-        </ion-card>  
-
-        <ion-button @click="saveReservation()" v-if="!spinner" :disabled="!isValidForm()">{{ this.$t('frontend.home.acept') }}</ion-button>
-
-
-  </div>
   
-  <div v-if="bookmark">
-    <hr>
-       <ion-card-title>{{$t('frontend.reservation.find')}}</ion-card-title>
-      <ion-card>
 
-      <div class="ion-text-wrap menu-col-12">
-        <ion-searchbar 
-         inputmode="numeric"
-         animated :placeholder="$t('frontend.reservation.enterCode')" 
-         search-icon=false
-         class="menu-col-10"
-         style="float: left"
-         @ionChange="theCode= $event.target.value"
-         >        
-        </ion-searchbar >
 
-        <ion-button fill="outline"  style="float: left; margin: 10px 0;" @click="findByCode()">
-         <span class="iconify" data-icon="flat-ui:search" data-inline="false" style="margin: 0 -10px;"></span>
-        </ion-button>
-      </div>
-          
-      </ion-card>
 
-      <ion-card>
-          <div v-if="spinner" class="menu-col-12">
-            <ion-spinner  name="lines" class="spinner"></ion-spinner>
-          </div>
-
-          <div v-if="!spinner && reservationByCode.CustomerName"  class="menu-col-12">
-              <ion-item>
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.orderType.name')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.CustomerName}}</ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.orderType.email')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.CustomerEmail}}</ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.orderType.phone')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.CustomerPhone}}</ion-input>
-              </ion-item> 
-              <ion-item>
-                  <ion-label class="menu-col-4"><strong>{{$t('frontend.reservation.reservationDate')}}</strong></ion-label>
-                  <ion-input readonly=true type="text">{{getReservationDate(reservationByCode.Date)}}</ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label class="menu-col-4"><strong> {{$t('frontend.reservation.reservationHour')}}</strong></ion-label>
-                <ion-input readonly=true type="text">{{getReservationHour(reservationByCode.Hour)}}</ion-input>         
-              </ion-item>
-              <ion-item>
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.reservation.peoples')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.Capacity}}</ion-input>
-              </ion-item> 
-              <ion-item>
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.home.state')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{allState[reservationByCode.State]}}</ion-input>
-              </ion-item>   
-               <ion-item v-if="reservationByCode.Note">
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.order.notes')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.Note}}</ion-input>
-              </ion-item> 
-               <ion-item v-if="reservationByCode.Reason">
-                <ion-label class="menu-col-4"><strong>{{$t('frontend.reservation.reason')}} </strong></ion-label>
-                <ion-input readonly=true type="text">{{reservationByCode.Reason}}</ion-input>
-              </ion-item>
-              <ion-item>
-                  <ion-button v-if="reservationByCode.State === 0 && (reservationByCode.Hour == reservationHour && reservationByCode.Date == reservationDate)" color="success" @click="approve()">Approve</ion-button>
-                  <ion-button v-if="reservationByCode.State === 0 && (reservationByCode.Hour != reservationHour || reservationByCode.Date != reservationDate)"  color="primary" @click="proposedDateTime()">Proposed Date/Time</ion-button>
-                  <ion-button v-if="reservationByCode.State === 0"  color="danger" @click="reject()" >Reject</ion-button>
-                  <ion-button v-if="reservationByCode.State === 1 || reservationByCode.State === 2 || reservation.State === 4"  color="danger" @click="cancel()" >Cancel</ion-button>
-                  <ion-button v-if="reservationByCode.State === 4" color="success" @click="close()" >Close</ion-button>
-              </ion-item>        
-          </div>
-
-      </ion-card>
-      
-        
-  </div>
+  
 
   <div v-if="heart">
-        <hr>
-        <ion-card-title>
-        <!-- {{$t('frontend.reservation.yoursReservations')}} -->
-        <!-- <ion-button fill="outline" style="float: right; margin-right: 10px;" @click="segmentChanged('camera')"> +  </ion-button> -->
-
-        <!-- <ion-label class="ion-text-wrap"> 
-        </ion-label> -->
-         <!-- <ion-searchbar v-if="clientId !==''" -->
-         <!-- <ion-searchbar 
-                @ionClear="handleInput('')"
-                @input="$event.target.value?handleInput($event.target.value):handleInput('')"
-                :placeholder="$t('frontend.home.search')">           
-        </ion-searchbar> -->
-
-        <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="allReservations = reservations"
-                :placeholder="$t('frontend.home.search')">           
-        </ion-searchbar>
-        <div style="width: 100%">
-        <ion-segment scrollable color="tertiary" @ionChange="changeFilterStatus($event.target.value)" :value="filterStatus">
-            <ion-segment-button value="all">
-                  {{$t('frontend.reservation.all')}}
-            </ion-segment-button>
-            <ion-segment-button value="request">
-                  {{$t('frontend.reservation.state0')}}
-            </ion-segment-button>
-            <ion-segment-button value="approved">
-                  {{$t('frontend.reservation.state1')}}
-            </ion-segment-button>
-            <ion-segment-button value="proposed">
-                  {{$t('frontend.reservation.state2')}}
-            </ion-segment-button>
-            <ion-segment-button value="confirmed">
-                  {{$t('frontend.reservation.state4')}}
-            </ion-segment-button>
-            <ion-segment-button value="rejected">
-                  {{$t('frontend.reservation.state3')}}
-            </ion-segment-button>
-            <ion-segment-button value="canceled">
-                  {{$t('frontend.reservation.state5')}}
-            </ion-segment-button>
-            <ion-segment-button value="close">
-                  {{$t('frontend.reservation.state6')}}
-            </ion-segment-button>
-        </ion-segment>
-        </div>
-
-        </ion-card-title>
-
-      <div v-if="spinner">
-        <ion-spinner  name="lines" class="spinner"></ion-spinner>
-      </div>
-
-         <!-- <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
-            <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
-                <span class="iconify" data-icon="el:error-alt" data-inline="false" style="color: red; margin: 5px 0 0 15px; width: 18px;height: 18px;"></span>
-                {{$t('frontend.home.clientRequired')}}</p>
-        </ion-label>  -->
-
-         <!-- <div  v-if="clientId !=='' && !spinner">  -->
-         <div  v-if="!spinner">
-          <ion-item-sliding>
-
-            <ion-item >
-                <ion-label class="ion-text-wrap menu-col-3"><h2 style="font-size: 16px;font-weight: bold;"> {{$t('backoffice.form.fields.name')}}, {{$t('frontend.reservation.completeDateReservacion')}} </h2> </ion-label>
-                <ion-label class="ion-text-wrap menu-col-3"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.reservation.peoples')}}</h3></ion-label>
-                <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.home.state')}}</h3></ion-label>
-                <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.reservation.code')}}</h3></ion-label>
-                
-            </ion-item>
-
-          </ion-item-sliding>
-
-          <paginate
-              v-if="!spinner"
-              name="allReservations"
-              :list="allReservations"
-              :per="8"
-            >
-          <ion-item-sliding v-for="reservation in paginated('allReservations')" :key="reservation._id">
-                 
-            <ion-item
-              @click="getReservationState(reservation)"
-              style="width: 100%;"    
-              :style="
-               reservation.State===0 ? '--background: #edeb3038' // solicitada
-               :reservation.State===1 || reservation.State===2 ? '--background: #e8d21652' // aceptada o changedHour
-              :reservation.State=== 3 || reservation.State=== 5 ?'--background:#ff00001f' //cancelada
-              : reservation.State===4 ? '--background:#1ee81652' // confirmada  
-              : reservation.State===6 ? '--background: #71676738' // carrada
-              :'--background: '">
-                    
-              <ion-label class="ion-text-wrap menu-col-3">
-                  <h2>{{ reservation.CustomerName }}</h2>
-                  <h2>{{ getReservationDate(reservation.Date) }}</h2>               
-                  <h2>{{ getReservationHour(reservation.Hour) }}</h2>               
-              </ion-label>
-
-              <ion-label  class="ion-text-wrap menu-col-3">
-                  <h2>{{ reservation.Capacity }}</h2>               
-              </ion-label>
-
-              <ion-label class="ion-text-wrap menu-col-3">
-                  <h2>{{allState[reservation.State] }}</h2>               
-              </ion-label >
-
-              <ion-label class="ion-text-wrap menu-col-3">
-                  <h2>{{ reservation.Code }}</h2>   
-                  <div style="float: right; margin-top: -20px;color: #dbd4d4;">
-                    <span class="iconify" data-icon="eva:arrow-ios-back-outline" data-inline="false"></span>
-                  </div>  
-                            
-              </ion-label> 
-
-
-            </ion-item>
-
-            <ion-item-options side="end">
-                <ion-item-option v-if="reservation.State === 0 && hasPermission('canEditReservation')" color="success" @click="approve(reservation)">
-                    <span class="iconify" data-icon="ic:baseline-check" data-inline="false"></span>
-                </ion-item-option> 
-                <ion-item-option v-if="reservation.State === 4 && hasPermission('canEditReservation')" color="success" @click="close(reservation)">
-                    <span class="iconify" data-icon="ic:baseline-check" data-inline="false"></span>
-                </ion-item-option> 
-                <ion-item-option color="primary" @click="sendPrint(reservation)">
-                    <span class="iconify" data-icon="ic:round-local-printshop" data-inline="false"></span>
-                </ion-item-option>  
-            </ion-item-options>
-
-          </ion-item-sliding>
-
-          </paginate>
-
-          <paginate-links for="allReservations" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-
-        </div>
+    <div id="user" class="page">
+      <listView
+        :title="$t('backoffice.options.manageReservation')"
+        :filter="allReservations"
+        :elements="reservations"
+        :add="hasPermission('canCreateReservation')"
+        :edit="hasPermission('canEditReservation')"
+        :remove="false"
+        :viewSelected="'Sale'"
+        @handleInput="handleInput"
+        @handleAddClick="addReservation"   
+        @editElement="getReservationState"
+        @deleteElement="getReservationState"   
+      ></listView>
+    </div>
   </div>
 
-  <div v-if="waitlist">
+  <div v-if="waitlist" class="page">
 
-        <hr>
-        <ion-card-title>Wait List
-          <ion-chip @click="toastInfoHorarios" style="background: transparent; padding: 0; margin: 0;">
-            <span  class="iconify" data-icon="ph:info-light" data-inline="false" style="width: 20px;height: 20px;"></span>
-          </ion-chip>
-        </ion-card-title>
+         <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+
+        <div @click="goControlView()">
+            <div class="back-btn">
+                <ion-icon name="ios-arrow-back" color="#9D9D9D"></ion-icon>
+                <!-- <span>{{ $t("backoffice.form.buttons.back") }}</span> -->
+                <h1> Wait List</h1> 
+                <ion-chip @click.stop="toastInfoHorarios" style="background: transparent; padding: 0; margin: 0;">
+                  <span  class="iconify" data-icon="ph:info-light" data-inline="false" style="width: 20px;height: 20px;"></span>
+                </ion-chip>
+            </div>
+        </div>
+      
 
         <ion-card >
-          <div v-if="spinner" class="menu-col-12">
-            <ion-spinner  name="lines" class="spinner"></ion-spinner>
-          </div>
 
-          <div v-if="!spinner">
+          <ion-row>
+
+            <ion-col size="12" size-md="6">
                 <ion-item>
                 <ion-label position="floating">{{$t('frontend.orderType.name')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="text" :value="waitName" @input="waitName = $event.target.value"></ion-input>
+                <ion-input type="text" 
+                :value="waitName" 
+                autocomplete="Name"
+                @input="waitName = $event.target.value"></ion-input>
               </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">(* Required if phone is empty)</strong></ion-label>
-                <ion-input type="text" :value="waitEmail"  @input="waitEmail = $event.target.value" ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">(* Required if email is empty)</strong></ion-label>
-                <ion-input type="text" :value="waitPhone"  @input="waitPhone = $event.target.value" ></ion-input>
-              </ion-item>
-              <ion-item>
+             <ion-item>
                 <ion-label position="floating">{{$t('frontend.reservation.peoples')}} <strong style="color: red">*</strong></ion-label>
-                <ion-input type="number" :value="waitPeople" @ionChange="waitPeople=$event.target.value "></ion-input>
+                <ion-input type="number" autocomplete="0" :value="waitPeople" @ionChange="waitPeople=$event.target.value "></ion-input>
               </ion-item>
-          </div>
+             
+
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+               <ion-item>
+                <ion-label position="floating">{{$t('frontend.orderType.phone')}} <strong style="color: red">*</strong></ion-label>
+                <ion-input type="number" 
+                :value="waitPhone" 
+                 autocomplete="phone"
+                @input="waitPhone = $event.target.value" ></ion-input>
+              </ion-item>
+                <ion-item>
+                <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong></ion-label>
+                <ion-input type="text" :value="waitEmail"  autocomplete="email"  @input="waitEmail = $event.target.value" ></ion-input>
+              </ion-item>
+            </ion-col>
+
+          </ion-row>
+        
           <ion-button @click="saveWaitList()" v-if="!spinner" :disabled="!isValidWaitList()">{{ this.$t('frontend.home.acept') }}</ion-button>           
         </ion-card>
 
-        <div  v-if="!spinner">
+        <div >
 
           <div style="width: 100%">
               <ion-segment scrollable color="tertiary" @ionChange="changeWaitlistFilter($event.target.value)" :value="filterWaitList">
@@ -363,107 +123,65 @@
               </ion-segment>
           </div>
 
-          <ion-item-sliding>
+    
+          <paginate name="allWaitList" :list="allWaitList" :per="5">
+            <ion-list class="content-list" >
+              <ion-item
+                v-for="option in paginated('allWaitList')"
+                v-bind:key="option._id"               
+                >
+                <ion-label> 
+                  <h2>{{ option.CustomerName }} ({{option.Capacity}})</h2>
+                  <h3>
+                    {{option.CustomerEmail}} <br>
+                  {{ option.CustomerPhone}}
+                  </h3>                 
+                </ion-label>
 
-            <ion-item >
-                <ion-label class="ion-text-wrap menu-col-3"><h2 style="font-size: 16px;font-weight: bold;"> {{$t('backoffice.form.fields.name')}}</h2> </ion-label>
-                <ion-label class="ion-text-wrap menu-col-3"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('backoffice.form.fields.phone')}}</h3></ion-label>
-                <ion-label class="ion-text-wrap menu-col-3"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.reservation.peoples')}}</h3></ion-label>
-            </ion-item>
-
-          </ion-item-sliding>
-
-          <paginate
-              v-if="!spinner && screenWidth < 600"
-              name="allWaitList"
-              :list="allWaitList"
-              :per="5"
-            >
-          <ion-item-sliding v-for="wait in paginated('allWaitList')" :key="wait._id">
-                 
-            <ion-item style="width: 100%;" >
-                    
-              <ion-label class="ion-text-wrap menu-col-3">
-                  <h2>{{ wait.CustomerName }}</h2>               
-              </ion-label>
-
-              <ion-label class="ion-text-wrap menu-col-3">
-                  <h2>{{ wait.CustomerPhone }}</h2>               
-              </ion-label>
-
-              <ion-label  class="ion-text-wrap menu-col-3">
-                  <h2>{{ wait.Capacity }}</h2>               
-              </ion-label>
-
-            </ion-item>
-
-            <ion-item-options side="end">
-                <!-- delete -->
-                <ion-item-option v-if="hasPermission('canEditReservation')" color="danger" @click="deleteFromWaitList(wait._id)">
-                    <span class="iconify" data-icon="mdi:delete" data-inline="false"></span>
-                </ion-item-option>
-                <!-- send notification -->
-                <ion-item-option v-if="hasPermission('canEditReservation')" color="primary" @click="sendMessageWaitList(wait)">
+                <ion-button
+                  fill="clear"
+                  shape="round"
+                  class="list-gourp-btn"
+                  side="end"   
+                  v-tooltip="'Acept'"
+                  v-if="hasPermission('canEditReservation') && option.State !== 'Done'"       
+                  @click="acceptWaitListItem(option)"            
+                >
+                  <span class="iconify" data-icon="ic:baseline-check" data-inline="false"></span>
+                </ion-button>
+              
+                <ion-button
+                  fill="clear"
+                  shape="round"
+                  class="list-gourp-btn"
+                  side="end"  
+                    v-tooltip="'Resend Email'" 
+                  v-if="hasPermission('canEditReservation')"       
+                  @click="sendMessageWaitList(option)"            
+                >
                     <span class="iconify" data-icon="mdi:email-send" data-inline="false"></span>
-                </ion-item-option>
-                <!-- accept -->
-                <ion-item-option v-if="hasPermission('canEditReservation')" color="success" @click="acceptWaitListItem(wait)">
-                    <span class="iconify" data-icon="ic:baseline-check" data-inline="false"></span>
-                </ion-item-option>  
-            </ion-item-options>
-
-          </ion-item-sliding>
-
-          </paginate>
-
-         <paginate
-              v-if="!spinner && screenWidth >= 600"
-              name="allWaitList"
-              :list="allWaitList"
-              :per="5"
-            >
-          <ion-list>
-              <ion-item v-for="wait in paginated('allWaitList')" :key="wait._id" style="width: 100%;">
-                      
-                  <ion-label class="ion-text-wrap menu-col-3">
-                      <h2>{{ wait.CustomerName }}</h2>               
-                  </ion-label>
-
-                  <ion-label class="ion-text-wrap menu-col-3">
-                      <h2>{{ wait.CustomerPhone }}</h2>               
-                  </ion-label>
-
-                  <ion-label  class="ion-text-wrap menu-col-3">
-                      <h2>{{ wait.Capacity }}</h2>               
-                  </ion-label>
-
-
-                <ion-item-group side="end">
-                    <!-- delete -->
-                    <ion-button v-if="hasPermission('canEditReservation')" color="danger" @click="deleteFromWaitList(wait._id)">
-                        <span class="iconify" data-icon="mdi:delete" data-inline="false"></span>
-                    </ion-button>
-                    <!-- send notification -->
-                    <ion-button v-if="hasPermission('canEditReservation')" color="primary" @click="sendMessageWaitList(wait)">
-                        <span class="iconify" data-icon="mdi:email-send" data-inline="false"></span>
-                    </ion-button>
-                    <!-- accept -->
-                    <ion-button v-if="hasPermission('canEditReservation')" color="success" @click="acceptWaitListItem(wait)">
-                        <span class="iconify" data-icon="ic:baseline-check" data-inline="false"></span>
-                    </ion-button>  
-                </ion-item-group>
-
+                </ion-button>
+            
+                <ion-button
+                  fill="clear"
+                  shape="round"
+                  class="list-gourp-btn"
+                  side="end"   
+                    v-tooltip="'Remove'"
+                  v-if="hasPermission('canEditReservation')"       
+                  @click="deleteFromWaitList(option._id)"            
+                >
+                  <ion-icon
+                    slot="icon-only"
+                    icon="md-trash"
+                    class="more-grid"                   
+                  ></ion-icon>
+                </ion-button>
+                
               </ion-item>
-          </ion-list>
-
+            </ion-list>
           </paginate>
-
-          <paginate-links for="allWaitList" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-
+       
         </div>
 
   </div>
@@ -476,29 +194,26 @@
 import { Api } from '../../backoffice/api/api.js';
  import Moment from 'moment'
  import moment from 'moment-timezone';
-//  import { EventBus } from '../../frontend/event-bus';
+import listView from "../components/ListView";
 
 export default {
     name: 'Reservation',
      props: {   
-      restaurantEmail:  {type: String, default:"" } ,
-      allReservations: {type: Array, default:() => [] },
-      // allWaitList: {type: Array, default:() => [] },
-      reservationDaysAndTime: {type: Array, default:() => [] },
-      minDayToReservation: { type: Number, default: 0},
       clientId: {type: String, default: "" } ,
       CustomerName: {type: String, default: "" } , 
       email: {type: String, default: "" }, 
       phone: {type: String, default: "" },     
   },
+   components:{   
+    listView,
+  }, 
      data () {
       return {
          screenWidth: 0,
-         camera: false,
-         bookmark: false,
          heart: true,
          waitlist: false,
          spinner: false,
+         allReservations: [],        
          paginate: ['allReservations', 'allWaitList'],
          reservations: [],
          theCode: '',
@@ -515,11 +230,10 @@ export default {
                     this.$t('frontend.reservation.state2'), this.$t('frontend.reservation.state3'),
                     this.$t('frontend.reservation.state4'), this.$t('frontend.reservation.state5'),
                     this.$t('frontend.reservation.state6')],
-        segmentValue: 'bookmark',
+        segmentValue: 'heart',
         filterStatus: 'all',
         dateToDay: '',
         restaurantConfig: null,
-        restaurantCustomer: null,
 
         //Wait List
         waitlistL: [],
@@ -528,19 +242,20 @@ export default {
         waitEmail: '',
         waitPhone: '',
         waitPeople: 1,
-        filterWaitList: 'todaywaitlist'
+        filterWaitList: 'todaywaitlist',
+        keyList: 0
       }
      },
      created: function(){
         
        this.screenWidth = screen.width;
-      //  console.log(this.$route.params)
-      //  if(this.$route.params.showAllReservation){
+    
        this.segmentChanged('heart')
       //  }
        
        this.dateToDay = moment.tz(moment.tz.guess()).format('MM-DD-YYYY')    
-       this.dateToDay = moment(this.dateToDay, "MM-DD-YYYY").add('days', this.minDayToReservation)
+       const minD = this.$store.state.backConfig.setting.MinDayToReservation || 0;
+       this.dateToDay = moment(this.dateToDay, "MM-DD-YYYY").add('days', minD)
        this.getReservations()
        this.getWaitList()
        this.getRestaurantConfig()
@@ -548,14 +263,48 @@ export default {
        
      },
      methods: {
+
+      async doRefresh() {
+        this.spinner = true;
+        await Api.fetchAll('Reservation').then(response => {
+          this.$store.state.backConfig.reservation = response.data
+         
+        })
+        .catch(e => {
+          e;
+          this.spinner = false;
+        });
+
+        await Api.fetchAll('waitlist').then(response => {
+          this.$store.state.backConfig.waitlist = response.data
+        
+        })
+        .catch(e => {
+          e;
+          this.spinner = false;
+        });
+          
+      this.getReservations()
+      this.getWaitList()
+       this.keyList ++;
+       this.spinner = false
+   
+    },
+
+     ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.CustomerName;
+      if(count === 3) return null 
+      if(count === 4) return this.getReservationDate(option.Date)+ ' - ' + this.getReservationHour(option.Hour);
+      if(count === 5) return this.allState[option.State]
+
+    },
       
 
-      sendMessageWaitList(wait){
+     async sendMessageWaitList(wait){
 
-          this.$ionic.alertController.create({
-            // title: this.$t('backoffice.list.messages.confirmDelete'),
+          this.$ionic.alertController.create({           
             title: "Send message",
-            // message: this.$t('backoffice.list.messages.deleteCategory'),
             message: "Do you want to send a message to customer?",
             buttons: [
               {
@@ -565,29 +314,25 @@ export default {
                 }
               },
               {
-                // text: this.$t('backoffice.list.messages.buttons.delete'),
                 text: "Ok",
-                handler: () => {
+                handler: async() => {
                   
                   if (wait.CustomerEmail != "")
                   {
                       this.spinner = true
-                      //console.log("Sending email")
                       let email = {
                         "email": wait.CustomerEmail,
                         "mess": "Your reservation is ready. We are waiting for you. Thanks.",
-                        // "subject": this.$t('backoffice.form.marketingMessages.reservationChangeStatus')
                         "subject": "Reservation is Ready"
                       };
-                      Api.sendEmail(email)
+                      await Api.sendEmail(email)
                       .then(() => {
-                          //console.log(email)
                           this.spinner = false
                           this.showToastMessage('An email has been sent to the customer successfully.', 'success')
                           this.changeWaitlistFilter(this.filterWaitList)
                       })
                       .catch(e => {
-                          console.log(e)
+                          e
                           this.ifErrorOccured(mess => {
                             this.sendMessageWaitList(wait)
                             this.spinner = false
@@ -598,20 +343,18 @@ export default {
                   if (wait.CustomerPhone != "")
                   {
                       this.spinner = true
-                      //console.log("Sending sms")
                       let text = {
                         "phone": wait.CustomerPhone,
                         "mess": "Your reservation is ready. We are waiting for you. Thanks."
                       };
-                      Api.sendSms(text)
+                      await Api.sendSms(text)
                       .then(() => {
-                          //console.log(text)
                           this.spinner = false
                           this.showToastMessage('A text has been sent to the customer successfully.', 'success')
                           this.changeWaitlistFilter(this.filterWaitList)
                       })
                       .catch(e => {
-                          console.log(e)
+                          e
                           this.ifErrorOccured(mess => {
                             this.sendMessageWaitList(wait)
                             this.spinner = false
@@ -627,12 +370,10 @@ export default {
           .then(a => a.present());
 
       },
-      acceptWaitListItem(item){
+      async acceptWaitListItem(item){
 
           this.$ionic.alertController.create({
-            // title: this.$t('backoffice.list.messages.confirmDelete'),
             title: "Mark as done",
-            // message: this.$t('backoffice.list.messages.deleteCategory'),
             message: "Do you want to mark as done this wait list item?",
             buttons: [
               {
@@ -642,16 +383,15 @@ export default {
                 }
               },
               {
-                // text: this.$t('backoffice.list.messages.buttons.delete'),
                 text: "Done",
-                handler: () => {
+                handler: async () => {
                   
                   this.spinner = true;
                   item.State = "Done"
-                  //console.log(item)
-                  Api.putIn('waitlist', item)
+                  await Api.putIn('waitlist', item)
                     .then(response => {
-                      // this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessCategory'), "success");
+                      const index =  this.$store.state.backConfig.waitlist.findIndex( w => w._id === item._id);
+                      if(index !== -1)  this.$store.state.backConfig.waitlist[index] = item;
                       this.showToastMessage("The item was successfuly mark as done", "success");
                       this.getWaitList();
                       this.changeWaitlistFilter(this.filterWaitList)
@@ -659,7 +399,7 @@ export default {
                       return response;
                     })
                     .catch(e => {
-                      console.log(e);
+                      e;
                       this.ifErrorOccured(mess => {
                           this.acceptWaitListItem(item)
                           this.spinner = false
@@ -674,7 +414,7 @@ export default {
           .then(a => a.present());
 
       },
-      deleteFromWaitList(id){
+      async deleteFromWaitList(id){
 
             this.$ionic.alertController.create({
             title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -689,12 +429,13 @@ export default {
               },
               {
                 text: this.$t('backoffice.list.messages.buttons.delete'),
-                handler: () => {
+                handler: async() => {
                   
                   this.spinner = true;
-                  Api.deleteById('waitlist', id)
+                  await Api.deleteById('waitlist', id)
                     .then(response => {
-                      // this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessCategory'), "success");
+                      const index =  this.$store.state.backConfig.waitlist.findIndex( w => w._id === id);
+                      if(index !== -1)  this.$store.state.backConfig.waitlist.splice(index, 1);
                       this.showToastMessage("The item was successfuly deleted from the wait list", "success");
                       this.getWaitList();
                       this.changeWaitlistFilter(this.filterWaitList)
@@ -702,7 +443,7 @@ export default {
                       return response;
                     })
                     .catch(e => {
-                      console.log(e);
+                      e;
                       this.ifErrorOccured(mess => {
                           this.deleteFromWaitList(id)
                           this.spinner = false
@@ -719,7 +460,6 @@ export default {
       },
       changeWaitlistFilter(value){
 
-            //console.log(value)
             this.filterWaitList = value
             this.allWaitList = this.waitlistL
             if (value == 'allwaitlist')
@@ -739,20 +479,15 @@ export default {
             {
                 requestAnimationFrame(() => {   
                   let cat2 = this.allWaitList.filter(item => {
-                      //  const storeDate = moment(item.Date, 'YYYY/MM/DD')
                        const storeDate = item.Date.split('T')[0]
                        const now = moment().format('YYYY-MM-DD')
-                      //  console.log("SD: " + storeDate)
-                      //  console.log("NOW: " + now)
                        return storeDate == now 
                   })
-                  //console.log(cat2)
                   this.allWaitList = cat2
                 })
             }
         },
         changeFilterStatus(value){
-            //console.log(value)
             let status = -1
             this.filterStatus = value
             this.allReservations = this.reservations
@@ -789,7 +524,6 @@ export default {
             {
                 status = 6
             }
-            //console.log(status)
             requestAnimationFrame(() => {   
               let cat2 = this.allReservations.filter(item => item.State == status)
               this.allReservations = cat2
@@ -802,8 +536,10 @@ export default {
           if (value != '')
           {
               requestAnimationFrame(() => {   
-              let cat2 = this.allReservations.filter(item => item.CustomerName.toLowerCase().indexOf(query) > -1 ||
-                  item.Code.toLowerCase().indexOf(query) > -1 || item.CustomerEmail.toLowerCase().indexOf(query) > -1 ||
+              let cat2 = this.allReservations.filter(item => 
+                  item.CustomerName.toLowerCase().indexOf(query) > -1 ||
+                 this.allState[item.State].toLowerCase().indexOf(query) > -1 ||
+                  item.CustomerEmail.toLowerCase().indexOf(query) > -1 ||
                   item.CustomerPhone.toLowerCase().indexOf(query) > -1)
               if(cat2.length> 0)
                 this.allReservations = cat2
@@ -823,10 +559,9 @@ export default {
             };
             Api.sendEmail(email)
             .then(() => {
-                //console.log(email)
             })
             .catch(e => {
-                console.log(e);
+                e;
             })
         },
 
@@ -837,32 +572,17 @@ export default {
             };
             Api.sendSms(text)
             .then(() => {
-                //console.log(text)
             })
             .catch(e => {
-                console.log(e);
+                e;
             })
         },
 
         getRestaurantConfig: function(){
-            //console.log("Step1")
-            Api.fetchById('Restaurant', this.$store.state.user.RestaurantId).then(response => {
-                    this.restaurantConfig = response.data;
-                    this.getRestaurantCustomer();
-            })
-            .catch(e => {
-                console.log(e)
-            });
+           this.restaurantConfig =this.$store.state.backConfig.restaurant;
+                  
         },
-        getRestaurantCustomer: function(){
-            //console.log("AQUI")
-            Api.findCustomerByEmail(this.restaurantConfig.Email)
-            .then(response => { 
-                this.restaurantCustomer = response.data
-                //console.log("RESTAURANT CUSTOMER")
-                //console.log(this.restaurantCustomer)
-            })
-        },
+      
          
       hasPermission(permission){
         
@@ -894,29 +614,13 @@ export default {
         },
          
       segmentChanged(value){            
-             //console.log(value)
-             if(value === 'camera'){
-               console.log('Aquí va el código de crear nueva reservación')
-                 this.camera = false;
-                 this.bookmark = false;
-                 this.heart = false;
-                 this.waitlist = false;
-             }
-             if(value === 'bookmark'){
-                 this.camera = false;
-                 this.bookmark = true;
-                 this.heart = false;
-                 this.waitlist = false;
-             }  
+        
+            
              if(value === 'heart'){
-                 this.camera = false;
-                 this.bookmark = false;
                  this.heart = true;
                  this.waitlist = false;                
              }
              if(value === 'waitlist'){
-                 this.camera = false;
-                 this.bookmark = false;
                  this.heart = false;
                  this.waitlist = true;
                  this.changeWaitlistFilter('todaywaitlist')        
@@ -925,12 +629,13 @@ export default {
 
          },
 
-      approve(reservation){
+      async approve(reservation){
           this.spinner = true
           reservation.State = 1
-          Api.putIn('Reservation', reservation)
+          await Api.putIn('Reservation', reservation)
           .then(() => {
-              //console.log(response)
+              const index = this.$store.state.backConfig.reservation.findIndex( r => r._id === reservation._id);
+              if( index !== -1) this.$store.state.backConfig.reservation[index]= reservation;
               this.sendEmail(reservation, this.$t('backoffice.form.marketingMessages.reservationApproved'))
               this.sendSMS(reservation, this.$t('backoffice.form.marketingMessages.reservationApproved'))
               this.getReservations()
@@ -938,106 +643,42 @@ export default {
           })
           .catch(e => {
               this.spinner = false
-              console.log(e)
+              e
           })
 
       },
 
-      close(reservation){
+      async close(reservation){
           this.spinner = true
           reservation.State = 6
-          Api.putIn('Reservation', reservation)
+          await Api.putIn('Reservation', reservation)
           .then(() => {
-              //console.log(response)
-              // this.sendEmail(reservation, this.$t('backoffice.form.marketingMessages.reservationApproved'))
-              // this.sendSMS(reservation, this.$t('backoffice.form.marketingMessages.reservationApproved'))
+               const index = this.$store.state.backConfig.reservation.findIndex( r => r._id === reservation._id);
+              if( index !== -1) this.$store.state.backConfig.reservation[index]= reservation;
               this.getReservations()
               this.spinner = false
           })
           .catch(e => {
               this.spinner = false
-              console.log(e)
+              e
           })
 
       },
 
       getReservations: function(){
-        //   if(this.clientId =='')
-        //     return false;
-        //     this.spinner = true
-        //     Api.getCustomerReservations(this.clientId)
-        //     .then(response => {
-        //         this.allReservations = response.data  ;
-        //         EventBus.$emit('updateAllReservations', this.allReservations);
-        //         this.spinner = false 
-        //         console.log(response.data)         
-        //     })
-        //     .catch(e => {
-        //       this.spinner = false 
-        //         console.log(e);            
-        //     }) 
-            this.spinner = true 
-            Api.fetchAll('Reservation')
-            .then(response => {
-                this.allReservations = response.data
-                this.allReservations.reverse()
-                this.reservations = this.allReservations
-                this.spinner = false 
-                //console.log("ALL RESERVATIONS")
-                //console.log(this.allReservations)
-            })
-            .catch(e => {
-                this.spinner = false
-                console.log(e)
-            })
-
+        this.allReservations = this.$store.state.backConfig.reservation
+        this.allReservations.reverse()
+        this.reservations = this.allReservations
         },
 
       getWaitList: function(){
-          this.spinner = true 
-            Api.fetchAll('Waitlist')
-            .then(response => {
-                this.allWaitList = response.data
-                this.allWaitList.reverse()
-                this.waitlistL = this.allWaitList
-                this.spinner = false 
-                //console.log("ALL WAIT LIST")
-                //console.log(this.allWaitList)
-                this.changeWaitlistFilter(this.filterWaitList)
-            })
-            .catch(e => {
-                this.spinner = false
-                console.log(e)
-            })
+         this.allWaitList = this.$store.state.backConfig.waitlist
+          this.allWaitList.reverse()
+          this.waitlistL = this.allWaitList
       },
 
-      findByCode(){
-        //console.log('theCode :' + this.theCode);
-        if(this.theCode === '')
-          return ('inserte un codigo valido')
-         this.spinner = true;
-        Api.getReservationByCode(this.theCode)
-            .then(response => {
-                this.reservationByCode = response.data  
-                this.spinner = false;
-                //console.log(this.reservationByCode)       ;
-            })
-            .catch(e => {
-                this.spinner = false 
-                console.log(e);            
-            }) 
-      },
 
-      async createCustomer(client){
-            Api.postIn('Customer', client)
-            .then(response => {
-                //console.log(response)
-                return response.data;            
-            })
-            .catch(e => {
-                console.log(e) 
-            })
-        },
+    
 
       isValidForm(){
           if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
@@ -1048,43 +689,12 @@ export default {
     
       async saveReservation(){
 
-        // if(this.clientId !=''){
-        //   this.theName= this.CustomerName;
-        //  this.theEmail= this.email;
-        //  this.thePhone = this.phone ;
-        //   if(this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1)
-        //     return this.alertRequiredDatas();
-        // }
-        // else{
-        //     console.log(this.theName)
-        //     console.log(this.theEmail)
-        //     console.log(this.thePhone)
-        //     console.log(this.dateToReserv)
-        //     console.log(this.hourToReserv)
-        //     console.log(this.guest)
-        // if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
-        // this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1)
-        //     return this.alertRequiredDatas();
-        // }          
-
-
-        if (this.restaurantCustomer == null)
-        {
-            //console.log("Cliente no existe")
-            let client = {
-                'Name': this.restaurantConfig.Name,
-                'EmailAddress': this.restaurantConfig.Email,
-                'Phone':  this.restaurantConfig.Phone,
-            }
-            const res = await this.createCustomer(client);   
-            this.restaurantCustomer = res;
-        }
-
         const Reservation = {
-        "CustomerId" : this.restaurantCustomer._id,
+        "CustomerId" : '',
         "CustomerName": this.theName,
         "CustomerEmail": this.theEmail,
         "CustomerPhone":  this.thePhone,
+        "StaffName":  this.$store.state.staffName || '',
         "Capacity":  this.guest,
         "Date": Moment(this.dateToReserv).toISOString(),
         "Hour": Moment(this.hourToReserv).toISOString(),
@@ -1093,24 +703,22 @@ export default {
         "State": 0
         }
 
-        //console.log(Reservation)
+      
 
         try {
           this.spinner = true;
           const response = await Api.postIn('Reservation', Reservation);
-          //console.log(response);
           if(response.status === 200){
+            this.$store.state.backConfig.reservation.push(response.data);
             this.dateToReserv = ''; this.hourToReserv = '' ; this.guest = 1;
             this.noteToReserv = ''; this.reasonToReser = ''; this.spinner = false;
-            this.openToast();
-            //  if(this.clientId !== '') 
-            //   this.sendReservationEmail(Reservation);
+            this.openToast();      
             this.getReservations();  
             this.segmentChanged('heart');
           }
          
         } catch (error) {
-           console.log(error);
+           error;
            this.spinner = false;          
         }
       },
@@ -1121,9 +729,16 @@ export default {
       getReservationHour(thisHour){
         return  moment.tz(thisHour, moment.tz.guess()).format('hh:mm A') 
       },
-      getReservationState(reservation){
+
+      getReservationState(id){
+          const reservation = this.allReservations.find( r => r._id === id)
           return this.$router.push({ name: 'ReservationDetails', params: {reservation: reservation } })    
       },
+
+      addReservation(){
+         return this.$router.push({ name: 'Reservation', params: { url: this.$store.state.restaurantActive.restaurantUrl}  })    
+      },
+
       sendReservationEmail(reservation){
            
             var html =' <html><head>';    
@@ -1167,7 +782,7 @@ export default {
             
                     
             var items = {
-                "email": this.restaurantEmail,
+                "email": this.$store.state.backConfig.restaurant.Email,
                 "mess": html,
                 "subject": subject
             }
@@ -1181,7 +796,7 @@ export default {
               return  this.$ionic.alertController
               .create({
                   cssClass: 'my-custom-class',
-                  header: 'Error',
+                  header: '',
                   message: this.$t('frontend.home.notValidEmail') , 
                   buttons: [                   
                   {
@@ -1200,7 +815,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -1248,26 +863,23 @@ export default {
 
     },
 
-    saveWaitList(){
+    async saveWaitList(){
         let item = {
             'CustomerName': this.waitName,
             'CustomerEmail': this.waitEmail,
             'CustomerPhone': this.waitPhone,
             'Capacity': this.waitPeople,
-            // 'Date': moment().format('YYYY/MM/DD')
         }
-        //console.log(item)
-        Api.postIn('waitlist', item)
-        .then(() => {
-            //console.log(response.data)
+        await Api.postIn('waitlist', item)
+        .then((response) => {
+            this.$store.state.backConfig.waitlist.push(response.data);
             this.showToastMessage('Wait list update', 'success')
             this.getWaitList()
             this.clearWaitFields()
-            //console.log("Change waitlist: " + this.filterWaitList)
             this.changeWaitlistFilter(this.filterWaitList)
         })
         .catch(e => {
-            console.log(e)
+            e
         })
     },
 
@@ -1338,39 +950,42 @@ export default {
         this.waitPeople = 1
     },
 
-    async toastInfoHorarios() {
+      async toastInfoHorarios() {
 
-      let html = '';
-      for (const iterator of this.reservationDaysAndTime) {
-        html += '<ion-item>';
-        html += `<p>${iterator.Day}:   </p>`
-        html += `<p>${this.getReservationHour(iterator.OpenHour)}   -   </p>`
-        html += `<p>${this.getReservationHour(iterator.CloseHour)}</p>`
-        html += '</ion-item>';
+        let html = '';
+        const array = this.$store.state.backConfig.setting.ReservationDaysAndTime || [];
+        for (const iterator of array) {
+          html += '<ion-item>';
+          html += `<p>${iterator.Day}:   </p>`
+          html += `<p>${this.getReservationHour(iterator.OpenHour)}   -   </p>`
+          html += `<p>${this.getReservationHour(iterator.CloseHour)}</p>`
+          html += '</ion-item>';
+          
+        }
         
-      }
-       
 
-      return this.$ionic.toastController
-        .create({
-          header: 'Hora de reservaciones semanales',
-          message: html,
-          position: 'middle',
-          buttons: [
-            {
-              // side: 'start',
-              icon: 'close',
-              text: 'Done',
-              role: 'cancel',
-              handler: () => {
-                //console.log('Favorite clicked');
+        return this.$ionic.toastController
+          .create({
+            header: 'Hora de reservaciones semanales',
+            message: html,
+            position: 'middle',
+            buttons: [
+              {
+                // side: 'start',
+                icon: 'close',
+                text: 'Done',
+                role: 'cancel',
+                handler: () => {
+                }
               }
-            }
-          ]
-        })
-      .then(a => a.present())
-    },
+            ]
+          })
+        .then(a => a.present())
+      },
 
+      goControlView: function(){
+        return this.$router.push({ name: 'ControlPanel', params: {viewSelected: 'Sale'}  })
+    },
 
      }
 }

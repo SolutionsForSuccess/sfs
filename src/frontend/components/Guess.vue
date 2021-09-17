@@ -2,14 +2,15 @@
     <div>
          <ion-card  style="padding: 0 10px 10px 0;" :key="key"> 
 
+              <ion-card-title style="text-align: left;">
+                {{i18n.t('frontend.order.clientInfo') }}
+            </ion-card-title>
+
             <div  v-if="staffName !=''" style="display: flex">                                                 
                 <ion-label > <h2 class="titles-order" style="float: left;">  {{i18n.t('frontend.orderType.worker')}}: {{staffName}} </h2>
                 </ion-label> 
-
-               
             </div>
 
-             <h2 class="titles-order" style="color: black; font-weight: 500; font-size: 20px;">{{i18n.t('frontend.order.clientInfo')}}</h2>
               <ion-select interface="popover" icon="add" v-if="restaurantCustomers.length > 0 && staffName !=''"
                 style="font-size: 16px"
                 :ok-text="$t('backoffice.form.messages.buttons.ok')"
@@ -286,7 +287,7 @@ export default {
         return  this.$ionic.alertController
         .create({
             cssClass: 'my-custom-class',
-            header: 'Error',
+            header: '',
             message: this.i18n.t('frontend.home.notValidEmail') , 
             buttons: [                   
             {
@@ -377,7 +378,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.home.errorRequired'),
           buttons: [                   
           {

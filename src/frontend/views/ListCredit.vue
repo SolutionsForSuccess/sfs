@@ -7,9 +7,9 @@
            
       <ion-card-title>
       {{$t('frontend.credit.yourCredit')}}
-        <ion-label class="ion-text-wrap">           
+        <!-- <ion-label class="ion-text-wrap">           
             <ion-button fill="outline" v-if="!spinner" style="float: right; margin-right: 10px;" @click="addCredit()" v-tooltip="$t('frontend.tooltips.addOrder')"> +  </ion-button>
-        </ion-label>
+        </ion-label> -->
          <ion-searchbar 
                 @ionClear="handleInput('')"
                 @input="$event.target.value?handleInput($event.target.value):handleInput('')"
@@ -35,32 +35,6 @@
       </div>
 
   
-      <ion-item-sliding>
-        <v-breakpoint >
-            <div  slot-scope="scope">
-
-              <ion-item    v-if="!scope.isSmall && !scope.noMatch">
-                  <ion-label class="ion-text-wrap menu-col-3"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.type')}}</h2> </ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.state')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.date')}}</h3></ion-label>            
-              </ion-item>
-              <ion-item    v-if="scope.isSmall || scope.noMatch">
-                  <ion-label class="ion-text-wrap menu-col-4"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.type')}}</h2> </ion-label>
-                  <ion-label class="ion-text-wrap menu-col-4"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-4"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.date')}}</h3></ion-label>            
-              </ion-item>
-
-            </div>
-        </v-breakpoint>
-
-        <ion-item-options side="end">
-          <ion-item-option color="primary" >
-            <span class="iconify" data-icon="teenyicons:pdf-outline" data-inline="false"></span>
-          </ion-item-option>     
-        </ion-item-options>
-
-      </ion-item-sliding>
 
       <ion-label class="ion-text-wrap menu-col-12" v-if="clientId ===''">
         <p style="display: inline-block; text-align: center; font-style: italic;color: red;font-weight: 500;" color="danger" v-if="clientId ===''" class="ion-text-wrap menu-col-12">
@@ -76,7 +50,6 @@
         >
           <ion-item-sliding v-for="(cred, index) in paginated('languages')" :key="index">
 
-             <v-breakpoint >
                <div   :key="refreshKey">
 
                   <ion-item
@@ -128,13 +101,7 @@
                   </ion-item-options>
 
                </div>
-                 
-                  
-
-
-                 
-
-             </v-breakpoint>
+            
 
           </ion-item-sliding>
         </paginate>
@@ -158,7 +125,6 @@ import { EventBus } from '../event-bus';
 import moment from 'moment-timezone';
 // import { Api } from '../../backoffice/api/api.js';
 //  import Moment from 'moment';
-   import { VBreakpoint } from 'vue-breakpoint-component'
  import { Commons } from '../commons'
 
 
@@ -187,7 +153,6 @@ export default {
 
     this.credits = JSON.parse(JSON.stringify(this.allCredit));
 
-    console.log(JSON.parse(JSON.stringify(this.allCredit)))
 
     
      EventBus.$on('sendPrint', (value) => {           
@@ -202,7 +167,6 @@ export default {
        }
       },
    components:{
-      VBreakpoint: VBreakpoint,
   },
    props:{  
     fromMyAccount:  {type: String, default:"" },
@@ -257,7 +221,6 @@ export default {
     },
    
     addCredit: function(credit, index){
-      console.log(JSON.parse(JSON.stringify(credit)))  
       return this.$router.push({ name: 'ListCreditDetail', params: {credit: credit, index: index} })  
     },
 
@@ -286,8 +249,7 @@ export default {
    },
 
     async sendEmail(cred){
-      console.log(cred);
-      // Commons.sendOrderEmail(cred);
+      cred;
     },  
 
     async openToast(message) {

@@ -221,7 +221,6 @@ export default {
             setTimeout(() => {
                 //llamada ajax						
                 Api.fetchAll('category').then(response => {
-                  // console.log(response.data)
                   this.allCategories = response.data
                   if (this.addType == 'product')
                       this.allCategories = this.allCategories.filter(category => !category.Service || category.Service == false)
@@ -230,8 +229,7 @@ export default {
                       
                   loading.dismiss();
                 })
-                .catch(e => {
-                  console.log(e)
+                .catch(e => { e;
                   loading.dismiss()
                   this.ifErrorOccured(this.fetchMenus)
                 });
@@ -271,7 +269,6 @@ export default {
     },
 
     addProduct(product){
-        //console.log(product)
         if (!this.productsSelected.find(prod => product._id == prod._id))
             this.productsSelected.push(product)
     },

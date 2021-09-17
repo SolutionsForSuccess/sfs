@@ -32,6 +32,7 @@ export var payAuthorizeNet = {
         if (payMethod === 'SHIFT4')
         {
             items = {
+                "EndPointURLShift4": datas.EndPointURLShift4,
                 "authToken": datas.authToken,
                 "authTokenMoto": datas.authTokenMoto,
                 "authTokenFB": datas.authTokenFB
@@ -62,7 +63,7 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
         }
@@ -93,7 +94,7 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
         }
@@ -137,7 +138,7 @@ export var payAuthorizeNet = {
                 }
                  
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
         }
@@ -166,8 +167,6 @@ export var payAuthorizeNet = {
         }
         else if(payMethod === 'NAB'){
 
-            console.log('Amount in Capture: '+ total);
-            
             const items = {
                 "amount": parseFloat(total),                
                 }
@@ -322,7 +321,7 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 return false;
                // throw new Error("Try another payment method")  
             }
@@ -411,7 +410,7 @@ export var payAuthorizeNet = {
                     }
                     
                 } catch (error) {
-                    console.log(error)
+                   error
                     return false;
                    // throw new Error("Try another payment method")  
                 }
@@ -473,10 +472,7 @@ export var payAuthorizeNet = {
 
                 const responseInvoice = await Api.getInvoiceNAB(datas.invoiceNumber);
                 if(responseInvoice.status === 200){
-                    console.log('responseInvoice');
-                    console.log(responseInvoice);
-                    console.log(responseInvoice.data.authamount);
-    
+                  
                     const savedAmount = responseInvoice.data.authamount;
                     const incrementalAmount = parseFloat(datas.total) - parseFloat(savedAmount)
 
@@ -614,7 +610,7 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
 
@@ -664,7 +660,7 @@ export var payAuthorizeNet = {
                 }           
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Problem contact with Authorize.net")
             }
         } 
@@ -733,7 +729,7 @@ export var payAuthorizeNet = {
                 }           
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method");
             }
         } 
@@ -785,7 +781,7 @@ export var payAuthorizeNet = {
             }
                
            } catch (error) {
-            console.log(error)
+           error
             throw new Error("Try another payment method");
                
            }
@@ -829,13 +825,13 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Problem contact with Qr Shift4")  
             }             
         }
         if (payMethod === 'AUTH')
         {
-           console.log('qr payment y authorize net');
+        //  ('qr payment y authorize net');
         } 
 
 
@@ -877,13 +873,13 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Problem contact with Qr Shift4")  
             }             
         }
         if (payMethod === 'AUTH')
         {
-           console.log('qr payment y authorize net');
+        //    ('qr payment y authorize net');
         } 
     },
 
@@ -912,13 +908,13 @@ export var payAuthorizeNet = {
                 }
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Problem contact with Qr Shift4")  
             }             
         }
         if (payMethod === 'AUTH')
         {
-           console.log('qr payment y authorize net');
+          //('qr payment y authorize net');
         } 
     },
   
@@ -1001,7 +997,7 @@ export var payAuthorizeNet = {
               
             }
             catch(error){
-                console.log(error)
+               error
             }
         }
 
@@ -1055,7 +1051,7 @@ export var payAuthorizeNet = {
                 return res;
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
         }
@@ -1069,7 +1065,7 @@ export var payAuthorizeNet = {
                 return res;
                 
             } catch (error) {
-                console.log(error)
+               error
                 throw new Error("Try another payment method")  
             }
         }
@@ -1090,7 +1086,7 @@ export var payAuthorizeNet = {
               
             }
             catch(error){
-                console.log(error)
+               error
             }
         }
         if(payMethod === 'PayFabric'){
@@ -1325,7 +1321,6 @@ export var payAuthorizeNet = {
         //     request(options, function (error, response, body) {
         //     if (error) throw new Error(error);
 
-        //     console.log(body);
         //     });
 
 
@@ -1353,68 +1348,6 @@ export var payAuthorizeNet = {
                     mac: signature.toString() 
                 });
 
-                // var data = {
-                //     'customer[email]': payData.customer.email,
-                //     'customer[first_name]': payData.customer.first_name,
-                //     'customer[last_name]': payData.customer.last_name,
-                //     'order[merchant_order_id]': payData.order.merchant_order_id,
-                //     'order[total_subtotal]': payData.order.total_subtotal,
-                //     'order[total_tax]': payData.order.total_tax,
-                //     'order[total]': payData.order.total,
-                //     'order[total_shipping]': payData.total_shipping,
-                //     'return_url': payData.return_url,
-                //     'cancel_url': payData.cancel_url,
-                //     'code': payData.code,
-                //     'checkout_layout': 'iframe',
-                //     'action': 'order',
-                //     'return': 'json',
-                //     'create_token': '1', 
-                // };
-
-                // //Poner los items
-                // let count = 0;
-                // payData.order_item.forEach(item => {
-                //     data['order_item'][count]['sku'] = item[count].sku
-                //     data['order_item'][count]['name'] = item[count].name
-                //     data['order_item'][count]['price'] = item[count].price
-                //     data['order_item'][count]['tax'] = item[count].tax
-                //     data['order_item'][count]['qty'] = item[count].qty
-                // });
-
-                // //Generate mac
-                // const authKey = 'xrh6F4eGbPNJeypJ8hf8';
-                // const plaint = data.code+data.customer['email']+data.order['merchant_order_id']+
-                //                             data.order['total_subtotal']+data.order['total']+authKey;
-                // const signature = MD5(plaint);
-                // data['mac'] = signature;
-
-                //Convertir a cadena el objeto data
-                // data = qs.stringify(data);
-
-                // var config = {
-                //     method: 'post',
-                //     url: 'https://cert-hp.evosnap.com/srv/checkout/',
-                //     headers: { 
-                //         'Content-Type': 'application/x-www-form-urlencoded', 
-                //         // 'Cookie': 'EvoSnap=2474aaf05fe0bc4965411'
-                //     },
-                //     data : data
-                // };
-                
-                // axios(config)
-                // .then(function (response) {
-                //     // console.log(JSON.stringify(response.data));
-                //     if (response.data.success == 1)
-                //     {
-                //         console.log(response.data.url);    
-                //     }
-                //     else{
-                //         console.log(response.data)
-                //     }
-                // })
-                // .catch(function (error) {
-                //     console.log(error);
-                // });
 
         axios.post('https://cert-hp.evosnap.com/srv/checkout/', data, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 
@@ -1515,8 +1448,8 @@ export var payAuthorizeNet = {
                 ],
             "mac": signature
         }
-        console.log(datas)
-        console.log(plaint)
+       datas;
+        plaint;
 
         return;
 

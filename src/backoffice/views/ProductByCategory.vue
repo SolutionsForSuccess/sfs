@@ -1,13 +1,13 @@
 <template>
     <div id="productbycategory" class="screen">
 
-        <ion-header>
+        <ion-header >
             <ion-toolbar>
-                <ion-buttons slot="start">
+                <ion-buttons slot="start"  v-if="!externalProp">
                 <ion-back-button default-href="/controlPanel" @click="backToMenu()"></ion-back-button>
                 </ion-buttons>
                 <ion-label style="padding: 20px 100px;">
-                <h1>{{$t('backoffice.form.titles.allProducts')}} {{categoryName}}</h1>            
+                <h1>{{$t('backoffice.form.titles.allProducts')}}  {{categoryName}}</h1>            
                 </ion-label>
 
                 <ion-label slot="end">
@@ -21,98 +21,52 @@
         </ion-header>
         <br/>
 
-        <div v-if="spinner">
-            <ion-spinner name="lines" class="spinner"></ion-spinner>
-        </div>
-        <div v-else>
-          <div v-if="screenWidth < 600">
-            <paginate
-            name="languages"
-            :list="products"
-            :per="8"
-            >
-            
-            <ion-list>
-                <ion-item-sliding v-for="product in paginated('languages')" v-bind:key="product._id">
-                    <ion-item>
-                        <ion-thumbnail slot="start">
-                            <ion-img :src="product.ImageUrl"></ion-img>
-                        </ion-thumbnail>
-                        <ion-label class="ion-text-wrap">
-                            <h2>{{ product.Name }}</h2>
-                            <!-- <h3>{{ product.BarCode }}</h3> -->
-                        </ion-label>
+      <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
 
-                        <div v-if="hasPermission('canEditProduct')">      
-                            <ion-checkbox v-if="product.Available" checked="true" slot="end" @click="availableProduct(product, false)"></ion-checkbox>
-                            <ion-checkbox v-else checked="false" slot="end" @click="availableProduct(product, true)"></ion-checkbox>
-                        </div>
-                        <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                    </ion-item>
+        <ion-list class="content-list" style="margin: 0 15px;">
+          <ion-item
+              v-for="product in products"
+              v-bind:key="product._id"                               
+          >
+              <ion-item-group side="start" v-if="hasPermission('canEditProduct')" style="margin-right: 15px">
+                  <ion-toggle v-if="product.Available" checked="true" slot="end" @click="availableProduct(product, false)"></ion-toggle>
+                  <ion-toggle v-else checked="false" slot="end" @click="availableProduct(product, true)"></ion-toggle>
+              </ion-item-group>
 
-                    <ion-item-options side="end">
-                        <ion-item-option v-if="hasPermission('canEditProduct')" color="primary" @click="editProduct(product._id)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-item-option>
-                        <ion-item-option v-if="hasPermission('canDeleteProduct')" color="danger" @click="deleteProduct(product._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-item-option>
-                    </ion-item-options>
-                </ion-item-sliding>
-            </ion-list>
+              <ion-avatar >
+                <ion-img v-if="product.ImageUrl" :src="product.ImageUrl"></ion-img>                     
+              </ion-avatar>
 
-            </paginate>
+              <ion-label> 
+                  <h2> <span style="padding: 0 10px">  {{ product.Name }} </span>    </h2>    
+              </ion-label>
 
-            <paginate-links for="languages" color="primary" 
-                :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links>
-          </div>
-
-          <div v-if="screenWidth >= 600">
-            <paginate
-            name="languages"
-            :list="products"
-            :per="8"
-            >
-            
-            <ion-list>
-                <ion-item v-for="product in paginated('languages')" v-bind:key="product._id">
-                    <ion-item-group side="start" v-if="hasPermission('canEditProduct')" style="margin-right: 15px">
-                        <ion-checkbox v-if="product.Available" checked="true" slot="end" @click="availableProduct(product, false)"></ion-checkbox>
-                        <ion-checkbox v-else checked="false" slot="end" @click="availableProduct(product, true)"></ion-checkbox>
-                    </ion-item-group>
-                    <ion-thumbnail slot="start">
-                        <ion-img :src="product.ImageUrl"></ion-img>
-                    </ion-thumbnail>
-                    <ion-label class="ion-text-wrap">
-                        <h2>{{ product.Name }}</h2>
-                        <!-- <h3>{{ product.BarCode }}</h3> -->
-                    </ion-label>
-
-                    <ion-item-group side="end">
-                        <ion-button v-if="hasPermission('canEditProduct')" color="primary" @click="editProduct(product._id)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-button>
-                        <ion-button v-if="hasPermission('canDeleteProduct')" color="danger" @click="deleteProduct(product._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-button>
-                    </ion-item-group>
-                </ion-item>
-            </ion-list>
-
-            </paginate>
-
-            <paginate-links for="languages" color="primary" 
-                :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links>
-          </div>
-
-
-        </div>
+              <ion-button
+                  fill="clear"
+                  shape="round"
+                  class="list-gourp-btn"
+                  side="end"
+                    v-if="hasPermission('canEditProduct')"
+                  @click.stop="editProduct(product._id)"
+                  >
+                      <ion-icon  slot="icon-only"  icon="create"  class="more-grid" ></ion-icon>
+              </ion-button>
+              <ion-button
+                  fill="clear"
+                  shape="round"
+                  class="list-gourp-btn"
+                  side="end"
+                  v-if="hasPermission('canDeleteProduct')"
+                  @click.stop="deleteProduct(product._id)"
+                  >
+                      <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+              </ion-button>
+          </ion-item>
+      </ion-list>
 
     </div>
 </template>
@@ -127,12 +81,17 @@ export default {
       this.screenWidth = screen.width
       this.init()
    },
+    props: {
+      externalProp: {type: Boolean, default: false},
+      categoryId: {type: String, default: null},
+      sourceMenuId: {type: String, default: null},
+  },
    data () {
     return {
       modelName: 'Product',
       /****** Form Data ******/
-      categoryId: null,
-      sourceMenuId: null,
+      // categoryId: null,
+      // sourceMenuId: null,
       categoryName: "",
       products: [],
 
@@ -144,11 +103,11 @@ export default {
   },
    methods: {
      init(){
-        this.categoryId = this.$route.params.categoryId;
-        this.sourceMenuId = this.$route.params.menuId;
         this.fetchProductsByCategory();
-        this.getCategoryName();
+        const data = this.$store.state.backConfig.category.find(c =>c._id === this.categoryId)
+        if(data) this.categoryName = data.Name
      },
+
      ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -172,6 +131,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -200,6 +160,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -222,30 +183,19 @@ export default {
         .then(loading => {
             loading.present()
             setTimeout(() => {
-                //llamada ajax						
                 Api.getProductsByCategory(this.categoryId).then(response => {
-                // console.log(response.data)
                     this.products = response.data
                     loading.dismiss();
                 })
                 .catch(e => {
-                    console.log(e);
+                    e
                     loading.dismiss();
                     this.ifErrorOccured(this.init);
                 });
             })
         })
     },
-    getCategoryName: function(){
-        Api.fetchById('Category', this.categoryId).then(response => {
-          // console.log(response.data)
-          this.categoryName = response.data.Name
-        })
-        .catch(e => {
-            console.log(e);
-            this.ShowMessage('Error', 'Error', 'Fetch category');
-        });
-    },
+   
     backToMenu: function(){
         this.$router.push({
             name: 'MenuForm', 
@@ -254,19 +204,8 @@ export default {
                     }
           });
     },
-    // fetchCategoryById: function(id) {
-    //     let categoryName = '';
-    //     this.categories.forEach(category => {
-    //         if (category._id == id){
-    //             categoryName = category.Name;
-    //             return categoryName;
-    //         }
-    //     }
-    //     );
-
-    //     return categoryName;
-    // },
-    availableProduct(product, state){
+  
+    async availableProduct(product, state){
 
         let item = {
             "_id": product._id,
@@ -280,21 +219,24 @@ export default {
             "BarCode": product.BarCode,
         }
         this.spinner = true;
-        Api.putIn(this.modelName, item)
+        await Api.putIn(this.modelName, item)
               .then(response => {
+                    const index = this.$store.state.backConfig.product.findIndex( p => p._id === product._id);
+                    if(index !== -1) this.$store.state.backConfig.product[index] = item;
                     this.ShowMessage('Info', 'Product state was successfully change', 'Available product');
                     this.fetchProductsByCategory(this.categoryId);
                     this.spinner = false;
                     return response;
               })
               .catch(e => {
-                    console.log(e);
+                    e;
                     this.fetchProductsByCategory(this.categoryId);
                     this.ShowMessage('Error', 'Error', 'Available product');
                     this.spinner = false;
               })
 
     },
+
     editProduct: function(id){
         this.$router.push({
         name: 'ProductForm', 
@@ -305,10 +247,9 @@ export default {
                 }
       });
     },
-    deleteProduct: function(id){
 
-
-        return this.$ionic.alertController.create({
+    deleteProduct: async function(id){
+      return this.$ionic.alertController.create({
         title: 'Confirm delete',
         message: 'Do you want to delete this product?',
         buttons: [
@@ -321,18 +262,21 @@ export default {
           },
           {
             text: 'Delete',
-            handler: () => {
+            handler: async() => {
 
                 this.spinner = true;
-                Api.deleteById(this.modelName, id)
+                await Api.deleteById(this.modelName, id)
                 .then(response => {
+                   const index = this.$store.state.backConfig.product.findIndex( p => p._id === id);
+                    if(index !== -1) this.$store.state.backConfig.product.splice(index,1);
+                   
                     this.ShowMessage('Info', 'Product was successfully deleted', 'Delete product');
                     this.fetchProducts();
                     this.spinner = false;
                     return response;
                 })
                 .catch(e => {
-                    console.log(e);
+                    e;
                     this.ifErrorOccured(mess => {
                         this.deleteProduct(id)
                         this.spinner = false

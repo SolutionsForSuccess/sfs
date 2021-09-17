@@ -62,7 +62,6 @@ export default {
       else
         this.getQrPayment();    
 
-      console.log(JSON.parse(JSON.stringify(this.order)));
    },
    props: { 
     splitOrder: {type: Boolean, default: false},    
@@ -157,10 +156,10 @@ export default {
          return this.$ionic.modalController.dismiss()
     },
 
-    async setOrderQrCode(qrCode){     
-       this.order.OrderQrCode = qrCode; 
-       store.commit('setOrder', this.order)  
-       console.log(JSON.parse(JSON.stringify(this.order)));
+    async setOrderQrCode(qrCode){    
+       const item = this.order;
+       item.OrderQrCode = qrCode; 
+       store.commit('setOrder', item)  
     },
 
     getQrPayment: async function(){
@@ -188,7 +187,7 @@ export default {
         } 
      } catch (error) {
       this.spinner1 = false;
-       console.log(error)       
+       error;      
      }
   },
 

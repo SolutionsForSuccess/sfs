@@ -87,7 +87,7 @@ export default {
                   return response;
             })
             .catch(e => {
-                  console.log(e);
+                  e;
                   this.showToastMessage(this.parent.$t('backoffice.list.messages.errorMessage'), "danger");
             })
       } 

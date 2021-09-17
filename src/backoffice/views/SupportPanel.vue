@@ -4,577 +4,527 @@
 
     <ion-header>
           <ion-toolbar>
-            <!-- <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons> -->
+            <ion-buttons slot="start">
+              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel', params: {viewSelected: 'Config'}})"></ion-back-button>
+            </ion-buttons>
             <ion-label style="padding: 20px 100px;">
               <h1>{{$t('backoffice.titles.supportPanel')}} </h1>            
             </ion-label>
 
-            <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-                <ion-segment-button value="email">
-                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.fields.email')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="sms">
-                    <!-- <span class="iconify" data-icon="mdi:sitemap" data-inline="false"></span> -->
-                    <span>SMS</span>
-                </ion-segment-button>
-                <!-- <ion-segment-button value="payments"> -->
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <!-- <span>{{$t('backoffice.titles.payments')}}</span>
-                </ion-segment-button> -->
-                <ion-segment-button value="payments">
-                    <span>{{$t('backoffice.options.managePaymentSettings')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="capcha">
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.capcha')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="user">
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.supportUsers')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="restaurants">
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('frontend.createNew.restaurants')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="restaurantSetting">
-                    <span>{{$t('backoffice.options.manageRestaurantSettings')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="ads">
-                    <span>Ads</span>
-                </ion-segment-button>
-            </ion-segment>
+           
           </ion-toolbar>
     </ion-header>
-    <br/>
+        
+       
+        <ion-progress-bar v-if="spinner" type="indeterminate"></ion-progress-bar>
+        
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
-      <!-- <ion-card> -->
-        <div v-if="email">
-            <ion-item>
-            <ion-label>{{$t('backoffice.form.titles.emailConfiguration')}}</ion-label> 
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.smtpHost')}}</ion-label>
-                <ion-input type="text" name="SmtpHost"
-                @input="SmtpHost = $event.target.value" 
-                v-bind:value="SmtpHost">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.port')}}</ion-label>
-                <ion-input type="number" name="Port"
-                @input="Port = $event.target.value" 
-                v-bind:value="Port">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-            <ion-label>{{$t('backoffice.form.fields.secure')}}</ion-label>
-            <ion-checkbox slot="end" name="Secure" 
-                    @ionChange="Secure=$event.target.checked" 
-                    :checked="Secure">
-            </ion-checkbox>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-                <ion-input type="email" name="EmailHost"
-                @input="EmailHost = $event.target.value" 
-                v-bind:value="EmailHost">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
-                <ion-input type="password" name="Password"
-                @input="Password = $event.target.value" 
-                v-bind:value="Password">
-                </ion-input>
-            </ion-item>
-            
-            <ion-item>
-                <ion-item-group side="start">
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-                    <ion-input type="email" name="EmailTest"
-                    @input="EmailTest = $event.target.value" 
-                    v-bind:value="EmailTest">
-                    </ion-input>
-                </ion-item-group>
-                <ion-item-group side="end">
-                    <ion-button color="primary" :disabled="checkEmailTest()" @click="emailTest()">Test email <ion-spinner v-if="emailspinner" name="crescent"></ion-spinner></ion-button>
-                </ion-item-group>
-            </ion-item>
-            
+        <div >
 
-            <br/>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <div v-if="sms">
-            <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.twilioSMS')}}</ion-label> 
-            </ion-item>
-            <ion-item>
-                <ion-label >{{$t('backoffice.form.fields.acivateTwilio')}}
-                    <ion-toggle name="activateTwilio" style="top: 12px;" Key="other"
-                    @ionChange="setActivate($event.target.checked, 'twilio')" 
-                    :checked ="activateTwilio">
-                    </ion-toggle>
-                </ion-label>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twFromNumber')}}</ion-label>
-                <ion-input type="text" name="TwFromNumber"
-                    @input="TwFromNumber = $event.target.value" 
-                    v-bind:value="TwFromNumber">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twAccountSID')}}</ion-label>
-                <ion-input :type="showTwAccountSid" name="TwAccountSid"
-                @input="TwAccountSid = $event.target.value" 
-                v-bind:value="TwAccountSid">
-                </ion-input>
-                <ion-chip slot="end" color="primary" outline="true" @click="changeTwAccountSid()"><ion-icon name="eye"></ion-icon></ion-chip>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twToken')}}</ion-label>
-                <ion-input :type="showTwToken" name="TwToken"
-                @input="TwToken = $event.target.value" 
-                v-bind:value="TwToken">
-                </ion-input>
-                <ion-chip slot="end" color="primary" outline="true" @click="changeTwToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-            </ion-item>
-
-            <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.sinchSMS')}}</ion-label> 
-            </ion-item>
-            <ion-item>
-                <ion-label >{{$t('backoffice.form.fields.acivateSinch')}}
-                    <ion-toggle name="activateSinch" style="top: 12px;"
-                    @ionChange="setActivate($event.target.checked, 'sinch')" 
-                    :checked ="activateSinch">
-                    </ion-toggle>
-                </ion-label>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchFromNumber')}}</ion-label>
-                <ion-input type="text" name="SinchFromNumber"
-                    @input="SinchFromNumber = $event.target.value" 
-                    v-bind:value="SinchFromNumber">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchAccountSID')}}</ion-label>
-                <ion-input :type="showSinchAccountSid" name="SinchAccountSid"
-                @input="SinchAccountSid = $event.target.value" 
-                v-bind:value="SinchAccountSid">
-                </ion-input>
-                <ion-chip slot="end" color="primary" outline="true" @click="changeSinchAccountSid()"><ion-icon name="eye"></ion-icon></ion-chip>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchToken')}}</ion-label>
-                <ion-input :type="showSinchToken" name="SinchToken"
-                @input="SinchToken = $event.target.value" 
-                v-bind:value="SinchToken">
-                </ion-input>
-                <ion-chip slot="end" color="primary" outline="true" @click="changeSinchToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-            </ion-item>
-            <br/>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Capcha -->
-        <div v-if="capcha">
-            <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.capcha')}}</ion-label> 
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.capchaKey')}}</ion-label>
-                <ion-input type="text" name="capchaKey"
-                @input="capchaKey = $event.target.value" 
-                v-bind:value="capchaKey">
-                </ion-input>
-            </ion-item>
-        </div>
-        <!-- Payments -->
-        <div v-if="payments">
-            <Payments/>
-            <!-- <ion-segment id="paymentsSegment" @ionChange="paySegmentChanged($event.target.value)" :value="paySegmentValue" @input="value=paySegmentValue">
-                <ion-segment-button value="shift4">
-                    <span>{{$t('backoffice.form.titles.shift4')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="auth">
-                    <span>{{$t('backoffice.form.titles.auth')}}</span>
-                </ion-segment-button>
-            </ion-segment> -->
-            <!-- Shift4 -->
-            <!-- <div v-if="shift4">
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.endPointUrl')}}</ion-label>
-                    <ion-input type="text" name="EndPointURLShift4"
-                    @input="EndPointURLShift4 = $event.target.value" 
-                    v-bind:value="EndPointURLShift4">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.clientGuid')}}</ion-label>
-                    <ion-input type="text" name="ClientGUIDShift4"
-                    @input="ClientGUIDShift4 = $event.target.value" 
-                    v-bind:value="ClientGUIDShift4">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.interfazVersion')}}</ion-label>
-                    <ion-input type="text" name="InterfaceVersionShift4"
-                    @input="InterfaceVersionShift4 = $event.target.value" 
-                    v-bind:value="InterfaceVersionShift4">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.interfazName')}}</ion-label>
-                    <ion-input type="text" name="InterfaceNameShift4"
-                    @input="InterfaceNameShift4 = $event.target.value" 
-                    v-bind:value="InterfaceNameShift4">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.companyName')}}</ion-label>
-                    <ion-input type="text" name="CompanyNameShift4"
-                    @input="CompanyNameShift4 = $event.target.value" 
-                    v-bind:value="CompanyNameShift4">
-                    </ion-input>
-                </ion-item>
-
-                <div style="margin-top: 20px">
-                    <ion-item>
-                        Tokens:
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>Access Token</ion-label>
-                        <ion-input :type="showShift4AccessToken" name="Shift4AccessToken"
-                        @input="Shift4AccessToken = $event.target.value" 
-                        v-bind:value="Shift4AccessToken">
-                        </ion-input>
-                        <ion-chip slot="end" color="primary" outline="true" @click="changeShift4AccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>Moto Access Token</ion-label>
-                        <ion-input :type="showShift4MotoAccessToken" name="Shift4MotoAccessToken"
-                        @input="Shift4MotoAccessToken = $event.target.value" 
-                        v-bind:value="Shift4MotoAccessToken">
-                        </ion-input>
-                        <ion-chip slot="end" color="primary" outline="true" @click="changeShift4MotoAccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                    </ion-item>
-
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>FB Access Token</ion-label>
-                        <ion-input :type="showShift4FBAccessToken" name="Shift4FBAccessToken"
-                        @input="Shift4FBAccessToken = $event.target.value" 
-                        v-bind:value="Shift4FBAccessToken">
-                        </ion-input>
-                        <ion-chip slot="end" color="primary" outline="true" @click="changeShift4FBAccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                    </ion-item>
-                </div>
-
-                <div style="margin-top: 20px">
-                    <ion-item>
-                        <ion-label >Has Delivery Payment
-                        <ion-toggle name="HasDeliveryPayment" style="top: 12px;" Key="other"
-                            @ionChange="HasDeliveryPayment=$event.target.checked" 
-                            :checked ="HasDeliveryPayment">
-                        </ion-toggle>
-                        </ion-label>
-                    </ion-item>
-                    <div v-if="HasDeliveryPayment">
-                        <ion-item>
-                            Delivery Account Tokens:
-                        </ion-item>
-                        <ion-item>
-                            <ion-label position="floating"><span style="color: red">*</span>Delivery Access Token</ion-label>
-                            <ion-input :type="showShift4DeliveryAccessToken" name="Shift4DeliveryAccessToken"
-                            @input="Shift4DeliveryAccessToken = $event.target.value" 
-                            v-bind:value="Shift4DeliveryAccessToken">
-                            </ion-input>
-                            <ion-chip slot="end" color="primary" outline="true" @click="changeShift4DeliveryAccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                        </ion-item>
-                        <ion-item>
-                            <ion-label position="floating"><span style="color: red">*</span>Delivery Moto Access Token</ion-label>
-                            <ion-input :type="showShift4DeliveryMotoAccessToken" name="Shift4DeliveryMotoAccessToken"
-                            @input="Shift4DeliveryMotoAccessToken = $event.target.value" 
-                            v-bind:value="Shift4DeliveryMotoAccessToken">
-                            </ion-input>
-                            <ion-chip slot="end" color="primary" outline="true" @click="changeShift4DeliveryMotoAccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                        </ion-item>
-
-                        <ion-item>
-                            <ion-label position="floating"><span style="color: red">*</span>Delivery FB Access Token</ion-label>
-                            <ion-input :type="showShift4DeliveryFBAccessToken" name="Shift4DeliveryFBAccessToken"
-                            @input="Shift4DeliveryFBAccessToken = $event.target.value" 
-                            v-bind:value="Shift4DeliveryFBAccessToken">
-                            </ion-input>
-                            <ion-chip slot="end" color="primary" outline="true" @click="changeShift4DeliveryFBAccessToken()"><ion-icon name="eye"></ion-icon></ion-chip>
-                        </ion-item>
+             <ion-segment scrollable id="productSegment" @ionChange="segmentValueGeneral=$event.target.value,segmentValueBusiness=''" :value="segmentValueGeneral">
+               
+                <ion-segment-button value="Config">
+                    <div>
+                         <span class="iconify" data-icon="icon-park-outline:config"></span>
+                          Config
                     </div>
-                </div>
-
-            </div> -->
-            <!-- Authorize.net -->
-            <!-- <div v-if="auth">
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.endPointUrl')}}</ion-label>
-                    <ion-input type="text" name="endPointUrl"
-                    @input="endPointUrl = $event.target.value" 
-                    v-bind:value="endPointUrl">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.apiLoginId')}}</ion-label>
-                    <ion-input :type="showApiLoginId" name="apiLoginId"
-                    @input="apiLoginId = $event.target.value" 
-                    v-bind:value="apiLoginId">
-                    </ion-input>
-                    <ion-chip slot="end" color="primary" outline="true" @click="changeApiLoginId()"><ion-icon name="eye"></ion-icon></ion-chip>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.transactionKey')}}</ion-label>
-                    <ion-input :type="showTransactionKey" name="transactionKey"
-                    @input="transactionKey = $event.target.value" 
-                    v-bind:value="transactionKey">
-                    </ion-input>
-                    <ion-chip slot="end" color="primary" outline="true" @click="changeTransactionKey()"><ion-icon name="eye"></ion-icon></ion-chip>
-                </ion-item>
-            </div>
-            <br/> -->
-            <!-- <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}</ion-button> -->
-        </div>
-
-        <div v-if="user">
-            <ion-header>
-                <ion-toolbar>
-                    <ion-label style="padding: 20px 100px;">
-                        <h1>{{$t('backoffice.form.titles.supportUsers')}}</h1>         
-                    </ion-label>
-                    <ion-label slot="end">
-                        <ion-chip @click="newUser()" style="font-size: 30px" outline color="primary">
-                            <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                        </ion-chip>
-                    </ion-label>
-                </ion-toolbar>
-                <ion-searchbar  
-                    @input="handleInput($event.target.value)" @ionClear="filterUsers = users"
-                    :placeholder="$t('frontend.home.search')">           
-                </ion-searchbar>
-            </ion-header>
-            <div v-if="spinner">
-                <ion-spinner name="lines" class="spinner"></ion-spinner>
-            </div>
-            <div v-else>
-            <div v-if="screenWidth < 600">
-                <paginate
-                name="languages"
-                :list="filterUsers"
-                :per="8"
-                >
-                    <ion-list>
-                    <ion-item-sliding v-for="u in paginated('languages')" v-bind:key="u._id">
-                        <ion-item>
-                        <ion-thumbnail slot="start">
-                            <ion-img v-if="u.ImageUrl  != ''" :src="u.ImageUrl"></ion-img>
-                            <ion-img v-else :src="require('../assets/user.png')"></ion-img>
-                        </ion-thumbnail>
-                        <ion-label>
-                            <h2>{{ u.FirstName }} {{u.LastName}}</h2>
-                            <h3>{{ u.Email }}</h3>
-                        </ion-label>
-                        <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                        </ion-item>
-                        <ion-item-options side="end">
-                        <ion-item-option color="primary" @click="editUser(u._id)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-item-option>
-                        <ion-item-option color="danger" @click="deleteUser(u._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-item-option>
-                        </ion-item-options>
-                    </ion-item-sliding>
-                </ion-list>
-                </paginate>
-
-                <paginate-links for="languages" color="primary" 
-                :simple="{
-                    next:'»' ,
-                    prev: '« ' }"
-                ></paginate-links>  
-            </div>
-
-            <div v-if="screenWidth >= 600">
-                <paginate
-                name="languages"
-                :list="filterUsers"
-                :per="8"
-                >
-                    <ion-list>
-                    <ion-item v-for="u in paginated('languages')" v-bind:key="u._id">
-                        <ion-thumbnail slot="start">
-                            <ion-img v-if="u.ImageUrl  != ''" :src="u.ImageUrl"></ion-img>
-                            <ion-img v-else :src="require('../assets/user.png')"></ion-img>
-                        </ion-thumbnail>
-                        <ion-label>
-                            <h2>{{ u.FirstName }} {{u.LastName}}</h2>
-                            <h3>{{ u.Email }}</h3>
-                        </ion-label>
-                        <ion-item-group side="end">
-                        <ion-button color="primary" @click="editUser(u._id)">
-                            <ion-icon slot="icon-only" name="create"></ion-icon>
-                        </ion-button>
-                        <ion-button color="danger" @click="deleteUser(u._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-button>
-                        </ion-item-group>
-                    </ion-item>
-                </ion-list>
-                </paginate>
-
-                <paginate-links for="languages" color="primary" 
-                :simple="{
-                    next:'»' ,
-                    prev: '« ' }"
-                ></paginate-links>  
-            </div>
-
-            </div>
-        </div>
-        <!-- Restaurants -->
-        <div v-if="segmentValue === 'restaurants'">
-            <ion-segment :value="restaurantSegmentValue" @input="value=restaurantSegmentValue">
-                <ion-segment-button value="create" @click="restaurantSegmentValue='create'">
-                    <span>{{$t('frontend.createNew.restaurantType')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="deleter" @click="restaurantSegmentValue='deleter'">
-                    <span>Delete</span>
-                </ion-segment-button>
+                </ion-segment-button> 
+                <ion-segment-button value="thisBusiness">
+                    <div>
+                        <span class="iconify" data-icon="dashicons:pressthis"></span>
+                          {{businessName}}
+                    </div>
+                </ion-segment-button>  
+                 <ion-segment-button value="User">
+                  <span class="iconify" data-icon="dashicons:businessperson"></span>
+                  {{$t('backoffice.form.titles.supportUsers')}}
+                </ion-segment-button>      
+                 <ion-segment-button value="Business">
+                  <span class="iconify" data-icon="bx:bxs-business"></span>
+                  {{$t('frontend.createNew.business')}}
+                </ion-segment-button>  
             </ion-segment>
-            <!-- Crear -->
-            <div v-if="restaurantSegmentValue==='create'">
-                <RestaurantType/>
-            </div>
-            <!-- Delete -->
-            <div v-if="restaurantSegmentValue==='deleter'" >
-                
-                
-                 <div v-if="allRestaurant.length > 0"  style="display: flex;justify-content: center;padding: 40px 0;">
-                      <ion-thumbnail >
-                            <img  :src="imgRestaurant">
-                      </ion-thumbnail> 
-                              <ion-select interface="popover" icon="add"
-                              style="padding: 10px 50px;"
-                              :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                              :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                              :value="allRestaurant[0]._id"
-                              :placeholder="$t('frontend.menu.menu')"
-                                @ionChange="idDeleteRestaurant=$event.target.value,getRestaurantImg()" >
-                                  <ion-select-option v-for="res in allRestaurant"                    
-                                    :key="res._id" 
-                                    :value="res._id" > {{res.Name}}
-                                  </ion-select-option>                                
-                              </ion-select>
 
-                            <ion-button :disabled="idDeleteRestaurant ===''? true : false" color="light"
-                                v-if="!spinnerDelete"
-                                @click="deleteRestaurant()">
-                                <span  class="iconify" data-icon="fluent:delete-16-regular" data-inline="false" style="color: red;margin:0"></span>
-                            </ion-button>
-                            <ion-spinner v-if="spinnerDelete" color="danger"></ion-spinner>
+            
+
+                <div v-if="segmentValueGeneral==='Config'">
+
+                    <!-- email -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                            <h5> {{$t('backoffice.form.titles.emailConfiguration')}}</h5>                           
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='email'?mmsShow='' :mmsShow='email'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='email'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='email'">
+                            <ion-row>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.smtpHost')}}</ion-label>
+                                        <ion-input type="text" name="SmtpHost"
+                                        @input="SmtpHost = $event.target.value" 
+                                        v-bind:value="SmtpHost">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.port')}}</ion-label>
+                                        <ion-input type="number" name="Port"
+                                        @input="Port = $event.target.value" 
+                                        v-bind:value="Port">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label>{{$t('backoffice.form.fields.secure')}}</ion-label>
+                                        <ion-checkbox slot="end" name="Secure" 
+                                                @ionChange="Secure=$event.target.checked" 
+                                                :checked="Secure">
+                                        </ion-checkbox>
+                                    </ion-item>
+
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                     <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
+                                        <ion-input type="email" name="EmailHost"
+                                        @input="EmailHost = $event.target.value" 
+                                        v-bind:value="EmailHost">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
+                                        <ion-input type="password" name="Password"
+                                        @input="Password = $event.target.value" 
+                                        v-bind:value="Password">
+                                        </ion-input>
+                                    </ion-item>
+                                    
+                                    <ion-item>
+                                        <ion-item-group side="start">
+                                            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.emailTest.sendTest')}}</ion-label>
+                                            <ion-input type="email" name="EmailTest"
+                                            @input="EmailTest = $event.target.value" 
+                                            v-bind:value="EmailTest">
+                                            </ion-input>
+                                             <ion-button color="primary" :disabled="checkEmailTest()" @click="emailTest()">Send <ion-spinner v-if="emailspinner" name="crescent"></ion-spinner></ion-button>
+                                       
+                                        </ion-item-group>
+                                       
+                                    </ion-item>
+
+                                </ion-col>
+                            </ion-row>
+                                    
+                   
+                        </div>
+                        
+                    </ion-card>
+
+                    <!-- twilio -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                            <h5> {{$t('backoffice.form.titles.twilioSMS')}}</h5>
+                            <ion-toggle color="primary" 
+                                @ionChange="setActivate($event.target.checked, 'twilio')" 
+                                :checked ="activateTwilio"
+                            ></ion-toggle>
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='twilio'?mmsShow='' :mmsShow='twilio'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='twilio'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='twilio'">
+                            <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twFromNumber')}}</ion-label>
+                                    <ion-input type="text" name="TwFromNumber"
+                                        @input="TwFromNumber = $event.target.value" 
+                                        v-bind:value="TwFromNumber">
+                                    </ion-input>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twAccountSID')}}</ion-label>
+                                    <ion-input :type="showTwAccountSid" name="TwAccountSid"
+                                    @input="TwAccountSid = $event.target.value" 
+                                    v-bind:value="TwAccountSid">
+                                    </ion-input>
+                                    <ion-chip slot="end" color="primary" outline="true" @click="changeTwAccountSid()"><ion-icon name="eye"></ion-icon></ion-chip>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.twToken')}}</ion-label>
+                                    <ion-input :type="showTwToken" name="TwToken"
+                                    @input="TwToken = $event.target.value" 
+                                    v-bind:value="TwToken">
+                                    </ion-input>
+                                    <ion-chip slot="end" color="primary" outline="true" @click="changeTwToken()"><ion-icon name="eye"></ion-icon></ion-chip>
+                                </ion-item>
+                        </div>
+                        
+                    </ion-card>
+
+                    <!-- sinch -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                            <h5>{{$t('backoffice.form.titles.sinchSMS')}}</h5>
+                            <ion-toggle color="primary" 
+                                @ionChange="setActivate($event.target.checked, 'sinch')" 
+                                        :checked ="activateSinch"
+                            ></ion-toggle>
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='sinch'?mmsShow='' :mmsShow='sinch'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='sinch'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='sinch'">
+                            <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchFromNumber')}}</ion-label>
+                                    <ion-input type="text" name="SinchFromNumber"
+                                        @input="SinchFromNumber = $event.target.value" 
+                                        v-bind:value="SinchFromNumber">
+                                    </ion-input>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchAccountSID')}}</ion-label>
+                                    <ion-input :type="showSinchAccountSid" name="SinchAccountSid"
+                                    @input="SinchAccountSid = $event.target.value" 
+                                    v-bind:value="SinchAccountSid">
+                                    </ion-input>
+                                    <ion-chip slot="end" color="primary" outline="true" @click="changeSinchAccountSid()"><ion-icon name="eye"></ion-icon></ion-chip>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.sinchToken')}}</ion-label>
+                                    <ion-input :type="showSinchToken" name="SinchToken"
+                                    @input="SinchToken = $event.target.value" 
+                                    v-bind:value="SinchToken">
+                                    </ion-input>
+                                    <ion-chip slot="end" color="primary" outline="true" @click="changeSinchToken()"><ion-icon name="eye"></ion-icon></ion-chip>
+                                </ion-item>
+                        </div>
+                        
+                    </ion-card>
+
+                      <!-- shift4 -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                            <h5> CONFIG SHIF4</h5>                           
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='shift4'?mmsShow='' :mmsShow='shift4'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='shift4'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='shift4'">
+                            <ion-row>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>EndPoint URL Shift4 </ion-label>
+                                        <ion-input type="text" name="EndPointURLShift4"
+                                        @input="EndPointURLShift4 = $event.target.value" 
+                                        v-bind:value="EndPointURLShift4">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>Client GUID Shift4 </ion-label>
+                                        <ion-input  name="ClientGUIDShift4"
+                                        @input="ClientGUIDShift4 = $event.target.value" 
+                                        v-bind:value="ClientGUIDShift4">
+                                        </ion-input>
+                                    </ion-item>
+                                 
+
+                                </ion-col>
+                                <ion-col size="12" size-md="6">
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>Interface Version Shift4</ion-label>
+                                        <ion-input  name="InterfaceVersionShift4"
+                                            @input="InterfaceVersionShift4 = $event.target.value" 
+                                            v-bind:value="InterfaceVersionShift4">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>Interface Name Shift4</ion-label>
+                                        <ion-input  name="InterfaceNameShift4"
+                                            @input="InterfaceNameShift4 = $event.target.value" 
+                                            v-bind:value="InterfaceNameShift4">
+                                        </ion-input>
+                                    </ion-item>
+                                    <ion-item>
+                                        <ion-label position="floating"><span style="color: red">*</span>Company Name Shift4</ion-label>
+                                        <ion-input  name="CompanyNameShift4"
+                                            @input="CompanyNameShift4 = $event.target.value" 
+                                            v-bind:value="CompanyNameShift4">
+                                        </ion-input>
+                                    </ion-item>
+
+                                </ion-col>
+                            </ion-row>
+                                    
+                   
+                        </div>
+                        
+                    </ion-card>
+
+                      <!-- ads -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                                <h5> {{$t('frontend.menu.ads')}}</h5>
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='ads'?mmsShow='' :mmsShow='ads'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='ads'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='ads'">
+                            <ManageAds :typeProp="'app'"/>
+                        </div>
+                        
+                    </ion-card>
+
+                     <!-- captcha -->
+                    <ion-card>
+                        <div style="display: flex; justify-content: space-between;">
+                            <ion-item>
+                                <h5> {{$t('backoffice.form.titles.capcha')}}</h5>
+                            </ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"                             
+                                    class="list-gourp-btn"
+                                    side="end"   
+                                        @click="mmsShow=='capcha'?mmsShow='' :mmsShow='capcha'"                      
+                                    >
+                                    <ion-icon v-if="mmsShow==='capcha'" slot="icon-only"  icon="md-arrow-drop-down"  class="more-grid" ></ion-icon>
+                                    <ion-icon v-else slot="icon-only"  icon="md-arrow-drop-right"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                        </div>
+                        <div v-if="mmsShow==='capcha'">
+                            <ion-item>
+                                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.capchaKey')}}</ion-label>
+                                    <ion-input type="text" name="capchaKey"
+                                    @input="capchaKey = $event.target.value" 
+                                    v-bind:value="capchaKey">
+                                    </ion-input>
+                                </ion-item>
+                        </div>
+                        
+                    </ion-card>
+
+
+                   
+                    <ion-button 
+                        expand="full" 
+                        color="primary" 
+                        v-if="mmsShow!=='ads'"
+                        :disabled="!isValidForm()" @click="save()">{{ $t('backoffice.form.buttons.save') }}
+                    </ion-button>
+                </div>
+
+                <div v-if="segmentValueGeneral==='thisBusiness'">
+                   
+                    <ion-row >
+                        <ion-col size="12"> <h3 style="text-align: left">                            
+                             {{$t('backoffice.form.titles.generalConfiguration')}}
+                        </h3>
+                           </ion-col>
+
+                       <ion-col size="12" size-md="6">
+                           <ion-item>
+                               <ion-label>{{$t('frontend.createNew.restaurantType')}}</ion-label>
+                                <ion-select interface="popover" icon="add" 
+                                    style=""
+                                    :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                                    :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"                                    
+                                    :placeholder="$t('frontend.createNew.select')"
+                                    :value="businessType"
+                                    @ionChange="changeBusinessType($event.target.value)"                          
+                                    >
+                                        <ion-select-option v-for="(res) in businessTypeList" :key="res"
+                                        :value="res" >{{res}}
+                                        </ion-select-option>  
+                                </ion-select>
+                           </ion-item>
+                            <ion-item>
+                                <ion-label >View Catering</ion-label>
+                                <ion-toggle name="ViewCatering" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewCatering=$event.target.checked" 
+                                    :checked ="restaurantS.ViewCatering || 0">
+                                </ion-toggle>
+                                
+                            </ion-item>
+                      
+                            <ion-item>
+                                <ion-label >View Reservation  </ion-label>
+                                <ion-toggle name="ViewReservation" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewReservation=$event.target.checked" 
+                                    :checked ="restaurantS.ViewReservation">
+                                </ion-toggle>
+                            </ion-item>
+                        
+                            <ion-item>
+                                <ion-label >View Digital Signed </ion-label>
+                                <ion-toggle name="ViewDigitalSigned" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewDigitalSigned=$event.target.checked" 
+                                    :checked ="restaurantS.ViewDigitalSigned">
+                                </ion-toggle>
+                                
+                            </ion-item>
+                       
+                            
+                        </ion-col>
+
+                         <ion-col size="12" size-md="6">
+                             <ion-item>
+                                    <ion-label >View Loyalty Program</ion-label>
+                                    <ion-toggle name="ViewLoyalty" style="top: 12px;" Key="other"
+                                        @ionChange="restaurantS.ViewLoyalty=$event.target.checked" 
+                                        :checked ="restaurantS.ViewLoyalty">
+                                    </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label >View Special Prices</ion-label>
+                                <ion-toggle name="ViewSpecialPrice" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewSpecialPrice=$event.target.checked" 
+                                    :checked ="restaurantS.ViewSpecialPrice">
+                                </ion-toggle>
+                            </ion-item>
+                       
+                            <ion-item>
+                                <ion-label >View Drivers </ion-label>
+                                <ion-toggle name="ViewDrivers" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewDrivers=$event.target.checked" 
+                                    :checked ="restaurantS.ViewDrivers">
+                                </ion-toggle>
+                            </ion-item>
+                        
+                            <ion-item>
+                                <ion-label >View Suscriptors </ion-label>
+                                <ion-toggle name="ViewSuscriptors" style="top: 12px;" Key="other"
+                                    @ionChange="restaurantS.ViewSuscriptors=$event.target.checked" 
+                                    :checked ="restaurantS.ViewSuscriptors">
+                                </ion-toggle>
+                            </ion-item>
+                       </ion-col>
+                       
+                       
+
+                        <br/>
+                    </ion-row>
+
+                    <h3 style="text-align: left">
+                            {{$t('backoffice.form.titles.paymentConfiguration')}}
+                        </h3>
+                     <Payments/>
+                    <ion-button expand="full" color="primary"  @click="saveRestaurantData()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+                </div>
+
+                <div v-if="segmentValueGeneral==='User'">
+                    <div id="user" class="page">
+                        <listView
+                        :title="$t('backoffice.form.titles.supportUsers')"
+                        :filter="filterUsers"
+                        :elements="users"
+                        :hasImg="true"
+                        :add="true"
+                        :edit="true"
+                        :remove="true"
+                        @handleInput="handleInput"
+                        @handleAddClick="newUser"   
+                        @editElement="editUser"
+                        @deleteElement="deleteUser"   
+                        ></listView>
                     </div>
-            </div>
-        </div>
-        <!-- Restaurant Settings -->
-        <div v-if="restaurantSetting">
-            <ion-list>
-                <ion-list-header>
-                    <ion-label>
-                    {{$t('backoffice.options.manageBasicSettings')}}
-                    </ion-label>
-                </ion-list-header>             
-            </ion-list>
+                </div>
 
-            <div v-if="restaurantS">
+                <div v-if="segmentValueGeneral==='Business'">
+                    <ion-segment :value="restaurantSegmentValue" @input="value=restaurantSegmentValue">
+                        <ion-segment-button value="create" @click="restaurantSegmentValue='create'">
+                            <span>{{$t('frontend.createNew.restaurantType')}}</span>
+                        </ion-segment-button>
+                        <ion-segment-button value="deleter" @click="restaurantSegmentValue='deleter'">
+                            <span>Delete</span>
+                        </ion-segment-button>
+                    </ion-segment>
+                    <!-- Crear -->
+                    <div v-if="restaurantSegmentValue==='create'">
+                        <RestaurantType/>
+                    </div>
+                    <!-- Delete -->
+                    <div v-if="restaurantSegmentValue==='deleter'" >
+                        
+                        
+                        <div v-if="allRestaurant.length > 0"  style="display: flex;justify-content: center;padding: 40px 0;">
+                            <ion-thumbnail >
+                                    <img  :src="imgRestaurant">
+                            </ion-thumbnail> 
+                                    <ion-select interface="popover" icon="add"
+                                    style="padding: 10px 50px;"
+                                    :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                                    :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                                    :value="allRestaurant[0]._id"
+                                    :placeholder="$t('frontend.menu.menu')"
+                                        @ionChange="idDeleteRestaurant=$event.target.value,getRestaurantImg()" >
+                                        <ion-select-option v-for="res in allRestaurant"                    
+                                            :key="res._id" 
+                                            :value="res._id" > {{res.Name}}
+                                        </ion-select-option>                                
+                                    </ion-select>
 
-                <ion-item>
-                    <ion-label >View Catering
-                    <ion-toggle name="ViewCatering" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewCatering=$event.target.checked" 
-                        :checked ="restaurantS.ViewCatering">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Reservation
-                    <ion-toggle name="ViewReservation" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewReservation=$event.target.checked" 
-                        :checked ="restaurantS.ViewReservation">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Digital Signed
-                    <ion-toggle name="ViewDigitalSigned" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewDigitalSigned=$event.target.checked" 
-                        :checked ="restaurantS.ViewDigitalSigned">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Loyalty Program
-                    <ion-toggle name="ViewLoyalty" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewLoyalty=$event.target.checked" 
-                        :checked ="restaurantS.ViewLoyalty">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Special Prices
-                    <ion-toggle name="ViewSpecialPrice" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewSpecialPrice=$event.target.checked" 
-                        :checked ="restaurantS.ViewSpecialPrice">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Drivers
-                    <ion-toggle name="ViewDrivers" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewDrivers=$event.target.checked" 
-                        :checked ="restaurantS.ViewDrivers">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <ion-item>
-                    <ion-label >View Suscriptors
-                    <ion-toggle name="ViewSuscriptors" style="top: 12px;" Key="other"
-                        @ionChange="restaurantS.ViewSuscriptors=$event.target.checked" 
-                        :checked ="restaurantS.ViewSuscriptors">
-                    </ion-toggle>
-                    </ion-label>
-                </ion-item>
-
-                <br/>
-                <ion-button expand="full" color="primary"  @click="saveRestaurantData()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-            </div>
+                                    <ion-button :disabled="idDeleteRestaurant ===''? true : false" color="light"
+                                        v-if="!spinnerDelete"
+                                        @click="deleteRestaurant()">
+                                        <span  class="iconify" data-icon="fluent:delete-16-regular" data-inline="false" style="color: red;margin:0"></span>
+                                    </ion-button>
+                                    <ion-spinner v-if="spinnerDelete" color="danger"></ion-spinner>
+                            </div>
+                    </div>
+                </div>
+            
+            
+   
 
         </div>
-        <!-- Ads Setting -->
-        <div v-if="ads">
-            <ManageAds :typeProp="'app'"/>
-        </div>
-    </div>
+   
+    
+  
     </div>
 </template>
 
@@ -586,6 +536,7 @@ import { EventBus } from '../../frontend/event-bus';
 import RestaurantType from './RestaurantType.vue'
 import ManageAds from './manageAds.vue'
 import Payments from './PaymentSettingsForm.vue'
+import listView from "../components/ListView";
 
 export default {
 
@@ -594,24 +545,7 @@ export default {
   data () {
     return {
       modelName: 'imenusupport',
-      /****** Form Data ******/
-      /* 
-        SmtpHost: String,
-        EmailHost: String,
-        Port: Number,
-        Secure: Boolean,
-        Password: String,
-        TwFromNumber: String,
-        TwAccountSid: String,
-        TwToken: String,
-        EndPointURLShift4: { type: String, default: 'https://utgapi.shift4test.com/api/rest/v1/' },
-        ClientGUIDShift4: String,
-        InterfaceVersionShift4: String,
-        InterfaceNameShift4: String,
-        CompanyNameShift4: String,
-        FreeTwilioMessage: { type: Number, default: 0 },
-      */
-      //Email
+        businessName: '',
       emailspinner: false,
 
       SmtpHost: '',
@@ -619,6 +553,8 @@ export default {
       Port: 0,
       Secure: false,
       Password: '',
+
+   
 
       //SMS
       TwFromNumber: '',
@@ -689,7 +625,7 @@ export default {
       spinner: false,
 
       //Segment
-      segmentValue: 'email',
+      segmentValue: 'thisBusiness',
       paySegmentValue: 'shift4',
       email: true,
       sms: false,
@@ -726,25 +662,41 @@ export default {
 
       //Email Test
       EmailTest: '',
+      segmentValueBusiness:'Config',
+      segmentValueGeneral:'Config',
+
+      mmsShow: '',
+      businessTypeList: ['Hospitality','Reservations','Service','Entertainment','Retail'],
+      businessType: ''
     }
   },
   components:{
-    RestaurantType, ManageAds, Payments
+    RestaurantType, ManageAds, Payments, listView
   },
   created: async function(){
-      
-
-      if(this.$route.params.segmentValue)
-        this.segmentChanged(this.$route.params.segmentValue)
-      
-      await this.getAllRestaurant();
-    //   await this.fetchRestaurant();
-      await this.fetchSettings();
-    //   this.changeSetting();
-      this.imgRestaurant = this.allRestaurant[0].ImageUrl;
+     
+     this.businessName = this.$store.state.backConfig.restaurant.Name ;      
+     this.businessType = this.$store.state.backConfig.restaurant.BusinessType ;      
+     this.restaurantS = this.$store.state.backConfig.setting ;      
+    await this.getAllRestaurant();
+ 
+    this.imgRestaurant = this.allRestaurant[0].ImageUrl;
       this.init();
   },
   methods: {
+
+    doRefresh() {
+     
+    },
+
+     ListViewData(option, count){
+      if(count === 1) return option.ImageUrl;
+      if(count === 2) return option.FirstName
+      if(count === 3) return option.LastName;
+      if(count === 4) return option.Email;
+      if(count === 5) return null;
+    },
+
     checkEmailTest(){
         if (this.EmailTest == '')
             return true
@@ -756,72 +708,82 @@ export default {
         }
         return false
     },
-    emailTest(){
+
+    async emailTest(){
         this.emailspinner = true
         const test = {
             "Email": this.EmailTest,
             "mss": this.$t('backoffice.emailTest.message'),
             "subject": this.$t('backoffice.emailTest.subject')
         }
-        Api.testSupportEmail(test)
+        await Api.testSupportEmail(test)
         .then(() => {
             this.showToastMessage(this.$t('backoffice.emailTest.success'), 'success')
             this.emailspinner = false
         })
         .catch(e => {
             this.showToastMessage(e, 'danger')
-            console.log(e)
+            e
             this.emailspinner = false
         })
     },
+
     changeApiLoginId(){
         if (this.showApiLoginId == "password")
             this.showApiLoginId = "text"
         else
             this.showApiLoginId = "password"
     },
+
     changeTransactionKey(){
         if (this.showTransactionKey == "password")
             this.showTransactionKey = "text"
         else
             this.showTransactionKey = "password"
     },
+
     changeTwAccountSid(){
         if (this.showTwAccountSid == "password")
             this.showTwAccountSid = "text"
         else
             this.showTwAccountSid = "password"
     },
+
     changeTwToken(){
         if (this.showTwToken == "password")
             this.showTwToken = "text"
         else
             this.showTwToken = "password"
     },
+
     changeSinchAccountSid(){
         if (this.showSinchAccountSid == "password")
             this.showSinchAccountSid = "text"
         else
             this.showSinchAccountSid = "password"
     },
+
     changeSinchToken(){
         if (this.showSinchToken == "password")
             this.showSinchToken = "text"
         else
             this.showSinchToken = "password"
     },
+
     changeShift4AccessToken(){
         if (this.showShift4AccessToken == "password")
             this.showShift4AccessToken = "text"
         else
             this.showShift4AccessToken = "password"
     },
+
     changeShift4MotoAccessToken(){
         if (this.showShift4MotoAccessToken == "password")
             this.showShift4MotoAccessToken = "text"
         else
             this.showShift4MotoAccessToken = "password"
     },
+
     changeShift4FBAccessToken(){
         if (this.showShift4FBAccessToken == "password")
             this.showShift4FBAccessToken = "text"
@@ -835,18 +797,21 @@ export default {
         else
             this.showShift4DeliveryAccessToken = "password"
     },
+
     changeShift4DeliveryMotoAccessToken(){
         if (this.showShift4DeliveryMotoAccessToken == "password")
             this.showShift4DeliveryMotoAccessToken = "text"
         else
             this.showShift4DeliveryMotoAccessToken = "password"
     },
+
     changeShift4DeliveryFBAccessToken(){
         if (this.showShift4DeliveryFBAccessToken == "password")
             this.showShift4DeliveryFBAccessToken = "text"
         else
             this.showShift4DeliveryFBAccessToken = "password"
     },
+
     setActivate(val, system){
         if (system === 'twilio'){
             this.activateTwilio = val
@@ -859,82 +824,8 @@ export default {
             this.activateSinch = val
         }
     },
-    segmentChanged(value){            
-        //console.log(value)
-        if(value === 'email'){
-            this.email = true
-            this.sms = false
-            this.payments = false
-            this.capcha = false
-            this.user = false
-            this.restaurantSetting = false
-            this.ads = false
-        }
-        if(value === 'sms'){
-            this.email = false
-            this.sms = true
-            this.payments = false
-            this.capcha = false
-            this.user = false
-            this.restaurantSetting = false
-            this.ads = false
-        }
-        if(value === 'payments'){
-            this.email = false
-            this.sms = false
-            this.payments = true
-            this.capcha = false
-            this.user = false  
-            this.restaurantSetting = false        
-            this.ads = false
-        }
-        if(value === 'capcha'){
-            this.email = false
-            this.sms = false
-            this.payments = false
-            this.capcha = true
-            this.user = false     
-            this.restaurantSetting = false     
-            this.ads = false
-        }
-        if(value === 'user'){
-            this.email = false
-            this.sms = false
-            this.payments = false
-            this.capcha = false
-            this.user = true
-            this.restaurantSetting = false
-            this.ads = false
-        }
-        if(value === 'restaurants'){
-            this.email = false
-            this.sms = false
-            this.payments = false
-            this.capcha = false
-            this.user = false
-            this.restaurantSetting = false
-            this.ads = false
-        }
-        if (value === 'restaurantSetting'){
-            this.restaurantSetting = true
-            this.email = false
-            this.sms = false
-            this.payments = false
-            this.capcha = false
-            this.user = false
-            this.ads = false
-        }
-        if (value === 'ads'){
-            this.restaurantSetting = false
-            this.email = false
-            this.sms = false
-            this.payments = false
-            this.capcha = false
-            this.user = false
-            this.ads = true
-        }
-        this.segmentValue = value;
-    },
+
+
     paySegmentChanged(value){
         if(value === 'shift4'){
             this.shift4 = true
@@ -945,6 +836,7 @@ export default {
             this.auth = true
         }
     },
+
     handleInput(value){
       this.filterUsers = this.users
       const query = value.toLowerCase();
@@ -956,6 +848,7 @@ export default {
           this.filterUsers = this.users
       });
     },
+
     fetchUsers: function(){
         this.$ionic.loadingController
         .create({
@@ -974,47 +867,40 @@ export default {
                   loading.dismiss()
                 })
                 .catch(e => {
-                  console.log(e)
+                  e
                   loading.dismiss()
                   this.ifErrorOccured(this.fetchUsers)
                 });
             })
         })
     },
+
     fetchRestaurant: async function(){
         try{
             let response = await Api.fetchAll('Restaurant')
-            this.restaurants = response.data
-            this.restaurantId = this.$store.state.user.RestaurantId
+            return response.data;
         }
         catch(e){
-            console.log(e)
+            e
         }
     },
-    async fetchSettings(){
-        try{
-            //Aquí van los datos del restaurante que se van a cargar.
-            let response = await Api.fetchAll('Setting')
-            this.restaurantS = response.data[0]
-        }
-        catch(e){
-            console.log(e)
-        }
-    },
+
     
     async saveRestaurantData(){
         try{
             this.spinner = true
             await Api.putIn('Setting', this.restaurantS)
+            this.$store.state.backConfig.setting = this.restaurantS;
             this.showToastMessage('The setting was change successfully', 'success')
             this.spinner = false
         }
         catch(e){
-            console.log(e)
+            e
             this.spinner = false
             this.showToastMessage('There was an error saved settings.', 'danger')
         }
     },
+
     newUser: function(){
         this.$router.push({
         name: 'UserForm', 
@@ -1024,6 +910,7 @@ export default {
         }
       });
     },
+
     editUser: function(id){
         this.$router.push({
         name: 'UserForm', 
@@ -1033,6 +920,7 @@ export default {
         }
       });
     },
+
     deleteUser: function(id){
 
         return this.$ionic.alertController.create({
@@ -1062,7 +950,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteUser(id)
                       this.spinner = false
@@ -1076,106 +964,64 @@ export default {
       })
       .then(a => a.present());
     },
-    init(){
+
+    async init(){
         this.screenWidth = screen.width;
-        this.id = this.$route.params.settingId;
-        if (this.$route.params.tab === 'user')
-            this.segmentChanged('user');
+        this.id = this.$route.params.settingId;       
         this.fetchUsers();
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {  // Some AJAX call occurs
-                Api.fetchAll(this.modelName)
-                .then(response => {
-                  //console.log(response)
-                  if (response.data.length > 0)
-                  {
-                      //console.log("iMenuSupport")
-                      //console.log(response.data[0])
-                  if (response.data.length > 0)
-                  {
-                      this.id = response.data[0]._id
-                      this.SmtpHost = response.data[0].SmtpHost
-                      this.EmailHost = response.data[0].EmailHost
-                      this.Port = response.data[0].Port
-                      this.Secure = response.data[0].Secure
-                      this.Password = response.data[0].Password
-                      this.TwFromNumber = response.data[0].TwFromNumber
-                      this.TwAccountSid = response.data[0].TwAccountSid
-                      this.TwToken = response.data[0].TwToken
+     
+       const response = await Api.fetchAll(this.modelName);  
+        if(response.status === 200)             
+        if (response.data.length > 0)
+        {
+            this.id = response.data[0]._id
+            this.SmtpHost = response.data[0].SmtpHost
+            this.EmailHost = response.data[0].EmailHost
+            this.Port = response.data[0].Port
+            this.Secure = response.data[0].Secure
+            this.Password = response.data[0].Password
+            this.TwFromNumber = response.data[0].TwFromNumber
+            this.TwAccountSid = response.data[0].TwAccountSid
+            this.TwToken = response.data[0].TwToken
 
-                      if (response.data[0].smsSystem === 'twilio')
-                        this.activateTwilio = true
-                      if (response.data[0].smsSystem === 'sinch')
-                        this.activateSinch = true
+            if (response.data[0].smsSystem === 'twilio')
+            this.activateTwilio = true
+            if (response.data[0].smsSystem === 'sinch')
+            this.activateSinch = true
 
-                      this.SinchFromNumber = response.data[0].SinchFromNumber
-                      this.SinchAccountSid = response.data[0].SinchAccountSid
-                      this.SinchToken = response.data[0].SinchToken
+            this.SinchFromNumber = response.data[0].SinchFromNumber
+            this.SinchAccountSid = response.data[0].SinchAccountSid
+            this.SinchToken = response.data[0].SinchToken
 
-                      this.FreeTwilioMessage = response.data[0].FreeTwilioMessage
-                      this.EndPointURLShift4 = response.data[0].EndPointURLShift4
-                      this.ClientGUIDShift4 = response.data[0].ClientGUIDShift4
-                      this.InterfaceVersionShift4 = response.data[0].InterfaceVersionShift4
-                      this.InterfaceNameShift4 = response.data[0].InterfaceNameShift4
-                      this.CompanyNameShift4 = response.data[0].CompanyNameShift4
-                      this.capchaKey = response.data[0].CaptchaKey
-                  }
-                  
-                  loading.dismiss();
-                  return response;
-                }
-                })
-                // )
-                .catch(e => {
-                  console.log(e);
-                  loading.dismiss();
-                })
+            this.FreeTwilioMessage = response.data[0].FreeTwilioMessage
+            this.EndPointURLShift4 = response.data[0].EndPointURLShift4
+            this.ClientGUIDShift4 = response.data[0].ClientGUIDShift4
+            this.InterfaceVersionShift4 = response.data[0].InterfaceVersionShift4
+            this.InterfaceNameShift4 = response.data[0].InterfaceNameShift4
+            this.CompanyNameShift4 = response.data[0].CompanyNameShift4
+            this.capchaKey = response.data[0].CaptchaKey
+        }
 
-                //Has Delivery Payment
-                Api.fetchAll('setting')
-                .then(response => {
-                    if (response.data.length > 0){
-                        //console.log("SETTING")
-                        //console.log(response.data)
-                        this.Setting_id = response.data[response.data.length -1]._id
-                        this.HasDeliveryPayment = response.data[response.data.length -1].HasDeliveryPayment
-                    }
-                        
-                })
-                .catch(e => {
-                    console.log(e)
-                })
+        //Has Delivery Payment
+        this.Setting_id = this.$store.state.backConfig.setting._id
+        this.HasDeliveryPayment = this.$store.state.backConfig.setting.HasDeliveryPayment || false;
+            
 
-                //Payment Methods
-                Api.fetchAll('methodpay')
-                .then(response => {
-                    //console.log("METHODS PAY")
-                    //console.log(response.data)
-                    if (response.data.length > 0){
-                        this.methodPayment_id = response.data[0]._id
-                        this.Shift4AccessToken = response.data[0].AccessTokenShift4
-                        this.Shift4MotoAccessToken = response.data[0].MotoAccessTokenShift4
-                        this.Shift4FBAccessToken = response.data[0].FBAccessTokenShift4
-                        this.Shift4DeliveryAccessToken = response.data[0].DeliveryAccessTokenShift4
-                        this.Shift4DeliveryMotoAccessToken = response.data[0].DeliveryMotoAccessTokenShift4
-                        this.Shift4DeliveryFBAccessToken = response.data[0].DeliveryFBAccessTokenShift4
-                    }
-                })
-                .catch(e => {
-                    console.log(e)
-                })
-            })
-        })   
-        //console.log(this.$route.params);
         
+        //Payment Methods
+        const dataMethod = this.$store.state.backConfig.methodspay
+        if (dataMethod.length > 0){
+            this.methodPayment_id = dataMethod[0]._id
+            this.Shift4AccessToken = dataMethod[0].AccessTokenShift4
+            this.Shift4MotoAccessToken = dataMethod[0].MotoAccessTokenShift4
+            this.Shift4FBAccessToken = dataMethod[0].FBAccessTokenShift4
+            this.Shift4DeliveryAccessToken = dataMethod[0].DeliveryAccessTokenShift4
+            this.Shift4DeliveryMotoAccessToken = dataMethod[0].DeliveryMotoAccessTokenShift4
+            this.Shift4DeliveryFBAccessToken = dataMethod[0].DeliveryFBAccessTokenShift4
+        }
+
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -1199,9 +1045,11 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
         return true
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -1213,6 +1061,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -1222,13 +1071,12 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     save: function(){
 
         if (this.isValidForm()){
 
           this.isBackdrop = true;
-
-            //console.log(this.pickFrom);
 
             let smsSystem = ''
             if (this.activateTwilio)
@@ -1283,104 +1131,52 @@ export default {
                             methodPaymentItem["_id"] = this.methodPayment_id
                             Api.putIn("methodpay", methodPaymentItem)
                             .catch(error => {
-                                console.log(error)
+                                error
                             })
                         }
-                        // else{
-                        //     Api.postIn("methodpay", methodPaymentItem)
-                        //     .catch(error => {
-                        //         console.log(error)
-                        //     })
-                        // }
+                        
 
                         if (this.Setting_id){
                             settingItem["_id"] = this.Setting_id
                             Api.putIn("setting", settingItem)
                             .catch(error => {
-                                console.log(error)
+                                error
                             })
                         }
                         // else{
                         //     Api.postIn("setting", settingItem)
                         //     .catch(error => {
-                        //         console.log(error)
+                        //         error
                         //     })
                         // }
                         
                         return response;
                   })
                   .catch(e => {
-                        console.log(e);
+                        e;
                         this.spinner = false
                         this.ifErrorOccured(this.save);
                   })
 
 
             }
-            // else{
-            //   //Else, I am created a new category
-            //   this.spinner = true
-            //   Api.postIn(this.modelName, item)
-            //       .then(response => {
-            //           this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessSetting'), "success");
-            //           this.spinner = false
-            //           if (this.methodPayment_id){
-            //             methodPaymentItem["_id"] = this.methodPayment_id
-            //             Api.putIn("methodpay", methodPaymentItem)
-            //             .catch(error => {
-            //                 console.log(error)
-            //             })
-            //           }
-            //           else{
-            //             Api.postIn("methodpay", methodPaymentItem)
-            //             .catch(error => {
-            //                 console.log(error)
-            //             })
-            //           }
-
-            //           if (this.Setting_id){
-            //             settingItem["_id"] = this.Setting_id
-            //             Api.putIn("setting", settingItem)
-            //             .catch(error => {
-            //                 console.log(error)
-            //             })
-            //           }
-            //           else{
-            //             Api.postIn("setting", settingItem)
-            //             .catch(error => {
-            //                 console.log(error)
-            //             })
-            //           }
-
-            //           return response;
-            //       })
-            //       .catch(e => {
-            //           console.log(e);
-            //           this.spinner = false
-            //           this.ifErrorOccured(this.save);
-            //       })
-            // }
-
+           
         }
     },
     
     async getAllRestaurant(){
-        console.log("ALL RESTAURANT")
-        console.log(this.$store.state.user.AllRestaurant)
+         const all = await this.fetchRestaurant();
 
         for(var i =0; i < this.$store.state.user.AllRestaurant.length; i++){
             try{
-                const rest = await Api.fetchById('Restaurant', this.$store.state.user.AllRestaurant[i]);
-                console.log(rest)
-                if(rest.status === 200)
-                    this.allRestaurant.push(rest.data);
+                const rest =  all.find( r => r._id === this.$store.state.user.AllRestaurant[i]);
+                if(rest)
+                    this.allRestaurant.push(rest);
             }
             catch(e){
-                console.log(e)
+                e
             }   
         }
-
-        console.log(this.allRestaurant)
     },
 
     async deleteRestaurant(){
@@ -1406,7 +1202,6 @@ export default {
 
                     //DELETE RESTAURANT FROM STORAGE
                     let resIndex = this.$store.state.user.AllRestaurant.indexOf(this.idDeleteRestaurant);
-                    console.log(resIndex)
                     if (resIndex){
                         this.$store.state.user.AllRestaurant.splice(resIndex, 1);
                         
@@ -1414,9 +1209,6 @@ export default {
                         await this.getAllRestaurant()
                         EventBus.$emit('userRestaurant', this.allRestaurant)
                         this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessRestaurant'), 'success')
-
-                        console.log("Resto de restaurantes")
-                        console.log(this.$store.state.user.AllRestaurant)
                     }
                     
                     this.spinnerDelete = false;
@@ -1443,6 +1235,22 @@ export default {
                            
        
         this.imgRestaurant = '';
+    },
+
+    async changeBusinessType(value){
+       
+        const item = this.$store.state.backConfig.restaurant;
+        item.BusinessType = value;
+        if(value !== 'Reservations') item.RestaurantBussines = true
+        else item.RestaurantBussines = false
+        try {
+            this.spinner = true
+            await Api.putIn('Restaurant', item);
+            this.$store.state.backConfig.restaurant = item;
+            this.spinner = false
+        } catch (error) {
+            this.spinner = false
+        }
     }
   },
   

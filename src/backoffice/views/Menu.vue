@@ -1,135 +1,41 @@
 <template>
-  <div id="imenuapps_menus" name="imenuapps_menus" class="screen">
+    <div id="user" class="page">
 
-         <modal name="my-first-modal" height="80%">
-            <ion-header>
-            <ion-toolbar>
+    <modal name="my-first-modal" height="80%">
+        <ion-header>
+          <ion-toolbar >
+            <div style="display: flex">
                 <ion-title>Menu Qr</ion-title>
-            </ion-toolbar>
-            </ion-header>
-
-            <div style="    margin-top: 50px;    display: flex;flex-direction: column;align-items: center;">            
-            <qrcode-vue :value="qrMenu" :size=280 level="H"></qrcode-vue>
-             <ion-button style="text-align: center; padding: 5px 20px;" @click="printQr()"  >
-              <span class="iconify" data-icon="ic:round-local-printshop" data-inline="false"></span>
-              <ion-spinner v-if="spinnerPrint" name="dots"></ion-spinner></ion-button>
-              <a :href="qrMenu">{{qrMenu}}</a>
+                <ion-button @click="hide()"> X </ion-button>
             </div>
-        </modal>
-
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link> -->
-    <!-- <router-link to="/menu-form"><ion-button v-if="hasPermission('canCreateMenu')" expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.menu')}}</ion-button></router-link> -->
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.menus')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/menu-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateMenu')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-             <ion-label slot="end">            
-                <ion-chip style="font-size: 30px" outline color="primary" 
-                @click="show()" v-tooltip="'Show Menu Qr'">
-                    <ion-label> <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span></ion-label>
-                </ion-chip>
-          
-            </ion-label>
           </ion-toolbar>
+        </ion-header>
 
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterMenu = menus"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-
-      <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-        <div v-if="screenWidth < 600">
-            <paginate
-              name="languages"
-              :list="filterMenu"
-              :per="8"
-            >
-              <ion-list>
-                <ion-item-sliding v-for="menu in paginated('languages')" v-bind:key="menu._id">
-                  <ion-item style="width: 100%;">
-                    <ion-label>
-                        <h2>{{ menu.Name }}</h2>
-                        <!-- <h3>{{ getFormatedDate(menu.Date) }}</h3> -->
-                    </ion-label>
-                    <ion-checkbox v-if="menu.Active" checked="true" slot="end" @click="activeMenu(menu, false)"></ion-checkbox>
-                    <ion-checkbox v-else checked="false" slot="end" @click="activeMenu(menu, true)"></ion-checkbox>
-                    <div slot="end"><ion-icon slot="icon-only" name="arrowDropleft"></ion-icon></div>
-                    <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                  </ion-item>
-                  
-                  <ion-item-options side="end">
-                    <ion-item-option v-if="hasPermission('canEditMenu')" color="primary" @click="editMenu(menu._id)">
-                      <ion-icon slot="icon-only" name="create"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option v-if="hasPermission('canDeleteMenu')" color="danger" @click="deleteMenu(menu._id)">
-                      <ion-icon slot="icon-only" name="trash"></ion-icon>
-                    </ion-item-option>
-                  </ion-item-options>
-                </ion-item-sliding>
-              </ion-list>
-
-            </paginate>
-
-            <paginate-links for="languages" color="primary" 
-              :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links>
+        <div style="    margin-top: 50px;    display: flex;flex-direction: column;align-items: center;">            
+        <qrcode-vue :value="qrMenu" :size=280 level="H"></qrcode-vue>
+          <ion-button style="text-align: center; padding: 5px 20px;" @click="printQr()"  >
+          <span class="iconify" data-icon="ic:round-local-printshop" data-inline="false"></span>
+          <ion-spinner v-if="spinnerPrint" name="dots"></ion-spinner></ion-button>
+          <a :href="qrMenu">{{qrMenu}}</a>
         </div>
+    </modal>
 
-        <div v-if="screenWidth >= 600">
-            <paginate
-              name="languages"
-              :list="filterMenu"
-              :per="8"
-            >
-              <ion-list :key="key">
-                <ion-item  v-for="menu in paginated('languages')" v-bind:key="menu._id">
-                  <ion-item-group side="start">
-                      <ion-checkbox v-if="menu.Active" checked="true" slot="end" @click="activeMenu(menu, false)"></ion-checkbox>
-                      <ion-checkbox v-else checked="false" slot="end" @click="activeMenu(menu, true)"></ion-checkbox>
-                  </ion-item-group>
-                  <ion-label style="margin-left: 15px">
-                      <h2>{{ menu.Name }}</h2>
-                      <!-- <h3>{{ getFormatedDate(menu.Date) }}</h3> -->
-                  </ion-label>
-                  <ion-item-group side="end">
-                    <ion-button v-if="hasPermission('canEditMenu')" color="primary" @click="editMenu(menu._id)">
-                      <ion-icon slot="icon-only" name="create"></ion-icon>
-                    </ion-button>
-                    <ion-button v-if="hasPermission('canDeleteMenu')" color="danger" @click="deleteMenu(menu._id)">
-                      <ion-icon slot="icon-only" name="trash"></ion-icon>
-                    </ion-button>
-                  </ion-item-group>
-                </ion-item>
-              </ion-list>
-
-            </paginate>
-
-            <paginate-links for="languages" color="primary" 
-              :simple="{
-                next:'»' ,
-                prev: '« ' }"
-            ></paginate-links>
-        </div>
-
-    </div>
+    <listView
+      :title="$t('backoffice.titles.menus')"
+      :filter="filterMenu"
+      :elements="menus"
+      :add="hasPermission('canCreateMenu')"
+      :edit="hasPermission('canEditMenu')"
+      :remove="hasPermission('canDeleteMenu')"
+      :hasQr="true"
+      :viewSelected="'Admin'"
+      @handleInput="handleInput"
+      @handleAddClick="addMenu"   
+      @editElement="editMenu"
+      @deleteElement="deleteMenu"   
+      @showQr="show"   
+    ></listView>
+    
   </div>
 </template>
 
@@ -138,6 +44,7 @@
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js'
 import QrcodeVue from 'qrcode.vue';
+import listView from "../components/ListView";
 
 export default {
 
@@ -157,16 +64,44 @@ export default {
 
       spinner: false,
       screenWidth : 0,
-      qrMenu: `http://localhost:8080/?menu=${this.$store.state.user.RestaurantId}`,    
-      // qrMenu: `https://imenuapps.net/?menu=${this.$store.state.user.RestaurantId}`,    
+      // qrMenu: `http://localhost:8080/?menu=${this.$store.state.user.RestaurantId}`,    
+      qrMenu: `https://imenuapps.net/?menu=${this.$store.state.user.RestaurantId}`,    
       spinnerPrint: false,
       key: 0,
+      keyList: 0,
     }
   }, 
   components: {
-      QrcodeVue,
+      QrcodeVue,listView,
   },
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.menu = response.data;
+        this.fetchMenus(); 
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+  },
+
+   ListViewData(option, count){
+    if(count === 1) return null;
+    if(count === 2) return option.Name;
+    if(count === 3) return null;
+    if(count === 4) { 
+        if(option.Active) 
+          return 'Active'; 
+        else return 'No Active' 
+    }
+    if(count === 5) null;
+
+  },
     
     show () {     
       this.$modal.show('my-first-modal');
@@ -205,8 +140,7 @@ export default {
       this.filterMenu = this.menus
       const query = value.toLowerCase();
       requestAnimationFrame(() => {   
-        let cat2 = this.menus.filter(item => item.Name.toLowerCase().indexOf(query) > -1 ||
-                                          item.Date.indexOf(query) > -1 )
+        let cat2 = this.menus.filter(item => item.Name.toLowerCase().indexOf(query) > -1)
         if(cat2.length> 0)
           this.filterMenu = cat2
         else
@@ -289,7 +223,7 @@ export default {
                     return response;
               })
               .catch(e => {
-                    console.log(e);
+                    e;
                     this.fetchMenus();
                     this.ifErrorOccured(mess => {
                       this.activeMenu(value, state)
@@ -297,6 +231,11 @@ export default {
                       return mess
                     });
               })
+    },
+    addMenu: function(){
+        this.$router.push({
+        name: 'MenuForm'
+      });
     },
     editMenu: function(id){
         this.$router.push({
@@ -334,7 +273,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteMenu(id)
                       this.spinner = false
@@ -387,7 +326,7 @@ export default {
         }
          this.spinnerPrint = false;
       } catch (error) {
-        console.log(error); 
+        error; 
          this.spinnerPrint = false;       
       }
 

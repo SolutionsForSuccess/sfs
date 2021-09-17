@@ -84,7 +84,7 @@ export default {
         return false;
           
         } catch (error) {
-          console.log(error);
+          error;
           return false;
         }
       
@@ -107,13 +107,13 @@ export default {
                     this.consoleMsj += ' '+ 'Open payment setup successful' + ' ';
                   } else {
                     // Open payment setup failed
-                    console.error('Open payment setup failed')
+                   
                     this.consoleMsj += ' '+ 'Open payment setup failed' + ' ';
                   }
                 })
                 .catch(error => {
                   // Open payment setup error handling
-                  console.error(error)
+                  (error)
                    this.consoleMsj += ' '+ 'Error' + error+ ' ';
                 })
             }
@@ -144,7 +144,6 @@ export default {
           // this.session.onshippingcontactselected = this.onShippingContactSelected
           // this.session.onpaymentmethodselected = this.onPaymentMethodSelected
           this.session.begin()
-          console.log('ApplePaySession.begin() called')
         }
       
     },
@@ -174,7 +173,7 @@ export default {
           this.parent.responseApplePay(response);  
     },
     onCancel (event) {
-      console.log(event);
+      event;
       this.consoleMsj += ' '+ ' onCancel ' + ' '; 
       this.session.abort()
     },
@@ -213,16 +212,12 @@ export default {
     //   // See: https://developer.apple.com/documentation/passkit/pkpaymenttoken
     //   // const { token } = await ApplePay.makePaymentRequest(paymentRequest);    
         
-    //   // console.log('token de APPLE PAY')
-    //    console.log('paymentRequest');
-    //    console.log(paymentRequest);
+  
       
 
     //   } catch (e) {
-    //       console.log(e)
     //     //  this.parent.mssApplePay = 'Error Apple Payment '+ e + ' ';
     //   if (e.message === 'canceled') {
-    //       console.log('Payment widget was closed by user');
     //   }
     //   }
     // },
@@ -239,7 +234,7 @@ export default {
         return false;
           
         } catch (error) {
-          console.log(error);  
+          error;  
           return false;        
         }
       
@@ -262,17 +257,17 @@ export default {
                   // $(".apple-pay-button").show().removeClass("hidden").removeClass("pay-hidden");
                   } 
                 }, function(error) {
-              console.log("applePayInit Error: " + error.message);
+              error
               });
             } else {
-            console.log("Apple Pay not found");
+            ("Apple Pay not found");
             } 
           }else{
-            console.log("Apple Pay not configured");
+            ("Apple Pay not configured");
           } 
         }  
       }catch(e){
-        console.log("applePayInit Error: " + e.message);
+        ("applePayInit Error: " + e.message);
       } 
       }
 

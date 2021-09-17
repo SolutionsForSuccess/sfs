@@ -4,12 +4,12 @@
 
     <ion-header>
           <ion-toolbar>
-            <ion-buttons slot="start">
+            <!-- <ion-buttons slot="start">
               <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{title}}</h1>            
-            </ion-label>
+            </ion-buttons> -->
+            <!-- <ion-label style="padding: 20px 100px;"> -->
+              <h1 style="text-align: left">{{title}}</h1>            
+            <!-- </ion-label> -->
           </ion-toolbar>
     </ion-header>
     <br/>
@@ -21,10 +21,10 @@
         :message="$t('frontend.tooltips.loadRestaurant')"
     ></ion-loading>
 
-     <v-breakpoint :key="key">
-            <div slot-scope="scope"  @click.stop="chooseColor=''">               
+    
+            <ion-rol @click.stop="chooseColor=''" :key="key">               
                  
-                <div :class="scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-3 card-colors'" style="float: left">                   
+                <ion-col size="12" size-md="3"  style="float: left">                   
                     
                     <!-- <div >
                         <ion-button color="ligth" expand="block" style="color: black;"
@@ -144,9 +144,9 @@
                                 style="position: absolute;z-index: 10;"/>
                         </div>
                     </div>
-                </div>  
+                </ion-col>  
 
-                <div :class="scope.isSmall || scope.noMatch? 'menu-col-12' : 'menu-col-9 card-colors'" style="float: left">
+                <ion-col  size="12" size-md="9" style="float: left">
                     
                     <div  :style="[previewBackground()]">
                         <div :style="[getToolbarStyles()]"><ion-icon name="menu" class="menu-col-2" style="float: left;font-size: 30px"></ion-icon><div style="margin-top: 5px; width: 66%; float:left">{{$t('backoffice.titles.restaurantName')}}</div><ion-icon name="settings" class="menu-col-2" style="float: right;font-size: 30px;"></ion-icon></div>
@@ -161,12 +161,8 @@
                         <ion-button color="secondary" :disabled="id === null" @click="setDefault()">{{$t('backoffice.form.buttons.defaultColor')}}</ion-button>
                         
                     </div>
-                </div>
-
-            
-
-            </div>
-     </v-breakpoint>
+                </ion-col>
+            </ion-rol>
 
     </div>
 </template>
@@ -175,7 +171,6 @@
 
 import { Api } from '../api/api.js';
 import { Sketch } from "vue-color";
- import { VBreakpoint } from 'vue-breakpoint-component'
 
 export default {
 
@@ -223,7 +218,6 @@ export default {
   },
   components: {
     "sketch-picker": Sketch,
-    VBreakpoint: VBreakpoint,
     // ColorExample,
   },
   methods: {
@@ -235,7 +229,6 @@ export default {
         if (primary != ''){
             let pColors = primary.split('-')
             this.primaryBackground = {hex: pColors[0], rgba: {a: pColors[1], b: pColors[2], g: pColors[3], r: pColors[4]}}   
-            console.log('primaryBackground: '+ this.primaryBackground.hex)       
         }
         const pConstrast = data.PrimaryContrast
         if (pConstrast != ''){
@@ -324,7 +317,6 @@ export default {
       },
 
       getToolbarStyles(){
-          //console.log(this.primaryBackground);
           return {
                     'color': this.primaryContrast.hex,
                     'background-color': this.primaryBackground.hex,
@@ -337,7 +329,6 @@ export default {
       },
 
       getPrimaryStyles(){
-          //console.log(this.primaryBackground);
           return {
                     'color': this.primaryContrast.hex,
                     'background-color': this.primaryBackground.hex,
@@ -499,7 +490,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveSetting);
                   })
@@ -568,7 +559,7 @@ export default {
                       return response;
                   })
                   .catch(e => {
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.setDefault);
                   })

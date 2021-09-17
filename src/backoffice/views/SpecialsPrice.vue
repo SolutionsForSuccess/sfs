@@ -1,152 +1,18 @@
 <template>
-  <div id="order" class="screen">
-
-    
-    <ion-header>
-          <ion-toolbar>
-
-             <ion-toolbar>
-                <ion-buttons slot="start">
-                  <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-                </ion-buttons>
-
-                <ion-label style="padding: 20px 100px;">
-                  <h1>{{$t('frontend.specialsPrice.titles')}}</h1>   
-                           
-                </ion-label>
-
-                  <ion-label v-if="hasPermission('canCreateSpecialPrices')" slot="end">
-                      <ion-chip style="font-size: 30px" @click="viewOrder()">
-                          <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                      </ion-chip>
-                  </ion-label>
-          </ion-toolbar>
-           
-            
-                      
-          </ion-toolbar>
-
-          <ion-searchbar  
-              @ionClear="handleInput('')"
-                @input="$event.target.value?handleInput($event.target.value):handleInput('')"
-              :placeholder="$t('frontend.home.search')">           
-          </ion-searchbar>
-
-          
-          
-    </ion-header>
-
-      <ion-refresher 
-        style="position: relative"
-        slot="fixed"
-        @ionRefresh="doRefresh($event)">
-          <ion-refresher-content 
-            refreshing-spinner="crescent"
-          ></ion-refresher-content>
-      </ion-refresher>
-
-  
-      <div v-if="spinner">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div :key="key">  
-            
-
-        <div  v-if="menuactive==='list'">
-          <paginate
-            name="languages"
-            :list="filterOrders"
-            :per="8"                     
-          >
-          <h3>{{$t('frontend.specialsPrice.activeRule')}}</h3>
-            <ion-item-sliding  v-for="order in paginated('languages')" v-bind:key="order._id">
-              <ion-item :color="order.Active? 'success' : 'warning'"
-             
-              @click="viewOrder(order)">
-               <ion-label class="menu-col-4 elipsis-menu">                   
-                    <h6>{{ order.Name }}</h6>                   
-                </ion-label> 
-                <ion-label class="menu-col-4 ">                   
-                    <h6>{{ order.For }} {{order.Amount}} 
-                      <span v-if="order.Type==='Percent'">%</span>
-                      <span v-if="order.Type==='Amount'">$</span>
-                      </h6>                              
-                </ion-label>
-                <ion-label class="menu-col-2 elipsis-menu">                               
-                          {{order.Repeat}}                
-                </ion-label>
-                 <ion-label class="menu-col-2 elipsis-menu">    
-                   <span v-if="order.Active">{{$t('frontend.createNew.active')}}</span>                           
-                   <span v-else>{{$t('frontend.createNew.inactive')}}</span>                         
-                </ion-label>
-
-               
-                            
-              </ion-item>
-              <ion-item-options side="end">                   
-                  <ion-item-option v-if="hasPermission('canEditSpecialPrices')" color="primary" @click="viewOrder(order)">
-                    <ion-icon slot="icon-only" name="list"></ion-icon>
-                  </ion-item-option> 
-                   <ion-item-option v-if="hasPermission('canDeleteSpecialPrices')" color="danger" @click="deleteOrder(order._id)">
-                    <span class="iconify" data-icon="fluent:delete-48-regular" data-inline="false"></span>
-                  </ion-item-option>                  
-                </ion-item-options >
-            </ion-item-sliding>
-         
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-        </div>
-
-        <div v-if="menuactive==='grid'">
-          <v-breakpoint>
-                    <div slot-scope="scope" > 
-
-                      <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                        <ion-chip color="primary"
-                          @click="scrollToTop()"
-                        outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                          <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                        </ion-chip>
-
-                        <div  v-for="order in filterOrders" v-bind:key="order._id" 
-                            style="text-align: right;"             
-                            :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                                
-                            <ion-card style="text-align: left;"   
-                            :color="order.State === true ? 'success' : 'warning'">
-                                <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                                  <ion-card-title  style="color: black;"> 
-                                          {{ order.Type }}                  
-                                  </ion-card-title>
-                                  
-                              
-                                
-                                    
-                                  </ion-card-header>                                  
-                                
-                              <div style="display: flex;justify-content:center;align-items: center;"> 
-                                 <span v-if="order.State === true">{{$t('frontend.createNew.active')}}</span>                  
-                                    <span v-if="order.State === false">{{$t('frontend.createNew.inactive')}}</span>
-                                    <div v-tooltip="$t('frontend.tooltips.editTicket')" @click="viewOrder(order)">
-                                      <span   class="iconify" data-icon="el:file-edit-alt" data-inline="false" style="width: 20px;height: 20px;"></span>
-                                    </div>
-                              </div>                
-                            </ion-card>
-                        </div>
-
-                      </div>
-                    </div>
-                  </v-breakpoint>   
-        </div>
-
-    </div>
+   <div id="user" class="page">
+    <listView
+      :title="$t('frontend.specialsPrice.titles')"
+      :filter="filterOrders"
+      :elements="orders"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateSpecialPrices')"
+      :edit="hasPermission('canEditSpecialPrices')"
+      :remove="hasPermission('canDeleteSpecialPrices')"
+      @handleInput="handleInput"
+      @handleAddClick="createOrder"   
+      @editElement="viewOrder"
+      @deleteElement="deleteOrder"   
+    ></listView>
   </div>
 </template>
 
@@ -154,7 +20,7 @@
 
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js';
-// import { VBreakpoint } from 'vue-breakpoint-component'
+import listView from "../components/ListView";
 
 export default {
 
@@ -163,8 +29,8 @@ export default {
     this.fetchOrders();
   
   },
-  components:{   
-    // VBreakpoint: VBreakpoint,  
+   components: {
+    listView,
   },
   data () {
     return {
@@ -186,14 +52,33 @@ export default {
       currency: 'USD',
       menuactive:'list',
       showActive: false,
+      keyList: 0,
     }
   }, 
   methods: {
 
-    async doRefresh(event) {
-    
-      await this.fetchOrders();      
-      event.target.complete();
+    async doRefresh() {
+       this.spinner = true;
+      await Api.fetchAll(this.modelName).then(async response => {
+        this.$store.state.backConfig.specialprice = response.data;
+         await this.fetchOrders();
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+    },
+
+      ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name
+      if(count === 3) return  null;
+      if(count === 4) if(option.Type==='Percent') return option.Repeat +'-'+option.For +' '+ option.Amount + '%';
+                     else return option.Repeat +'-'+option.For +' '+ this.getFormatPrice(option.Amount);
+      if(count === 5)    if(option.Active) return  'Active';
+          else  return  'No Active';
     },
 
     showToastMessage(message, tColor){
@@ -207,7 +92,6 @@ export default {
     }, 
 
     handleInput(value){
-
        
       const query = value.toLowerCase();
       requestAnimationFrame(() => {   
@@ -220,14 +104,17 @@ export default {
       });
     },
 
-    viewOrder: function(specialsPrice){
+    viewOrder: function(id){
+       const specialsPrice = this.$store.state.backConfig.specialprice.find( s => s._id === id);
         return this.$router.push({ name: 'SpecialsPriceDetail', params: {specialsPrice: specialsPrice} })
+    },
+
+    createOrder: function(){
+        return this.$router.push({ name: 'SpecialsPriceDetail'})
     },
 
     
     async deleteOrder(id){
-
-      // console.log('delete specialsprice: ' + id)
       try {
         this.spinner = true;
         const response = await Api.deleteById('specialsprice', id);
@@ -249,21 +136,16 @@ export default {
         return Utils.getFormatedDate(date);         
     },
 
+    getFormatPrice: function(price){
+      return Utils.getFormatPrice(price);         
+    },
+
     /****** CRUD category methods ******/
     fetchOrders: async function(){
       this.orders = this.$store.state.backConfig.specialprice
       this.filterOrders = this.orders; 
     },
-  
-   getFormatPrice(price){
-       let result = price           
-          if (this.currency)
-            result = new Intl.NumberFormat('en', {style: "currency", currency: this.currency} ).format(price)      
-      
-         return result;
-    },
 
-   
     reverseOrders(){
       this.filterOrders.reverse();
     },

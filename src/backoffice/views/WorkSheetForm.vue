@@ -450,7 +450,6 @@ export default{
         const occ = this.allOccupations.filter(ocupp => ocupp._id === OccuppationId)
         if (occ.length > 0)
         {
-            console.log(occ[0].Name)
             return occ[0].Name
         }
         
@@ -513,10 +512,8 @@ export default{
         this.allStaff =  this.$store.state.backConfig.staff;
         this.allStaff = this.allStaff.filter(staff => !staff.IsSupport)
         this.id = this.$route.params.workSheetId;
-        console.log(this.id)
         if (this.id){
             const data =  this.$store.state.backConfig.shestHour.find( s=> s._id === this.id);
-            console.log(data);
                 if(data){
                     this.workSheet = data;
                     this.selectedStaff = this.mapStaff(this.workSheet.StaffHour);
@@ -575,8 +572,6 @@ export default{
         let inc = 1
         let diff = ed.diff(thisDate, 'days')
         
-        console.log(ed.diff(thisDate, "days"))
-
         let obj = {
             "day" : thisDate,
             "hourIn" : '',
@@ -616,7 +611,6 @@ export default{
             TotalMinutes: 0,
             DaysArray: this.getDaysArray()
         }
-        console.log(sh)
         this.staffHour.push(sh)
     },
 
@@ -643,8 +637,6 @@ export default{
 
     totalHoursWorked(IdStaff){
         const staffh = this.staffHour.find(sh => sh.IdStaff == IdStaff)
-        console.log(staffh)
-
         let count = 0
         staffh.DaysArray.forEach(d => {
             if (d.State == 1)
@@ -718,11 +710,8 @@ export default{
                 this.workSheet.StaffHour.forEach(staffh => {
 
                     if (staffh.IdStaff == sh.IdStaff){
-                        console.log(staffh.IdStaff)
                         staffh.DaysArray.forEach(day => {
                             sh.DaysArray.forEach(mday => {
-                                console.log("day",day.day)
-                                console.log("mday", mday.day.toISOString())
                                 if (day.day === mday.day.toISOString()){
                                     mday.State = 1
                                     mday.hourIn = day.hourIn
@@ -765,7 +754,7 @@ export default{
                 })
                 .catch(e => {
                     this.isBackdrop = false;
-                    console.log(e);
+                    e;
                     this.spinner = false;
                     this.ifErrorOccured(this.saveWorkSheet);
                 })
@@ -785,7 +774,7 @@ export default{
                 })
                 .catch(e => {
                     this.isBackdrop = false;
-                    console.log(e);
+                    e;
                     this.spinner = false;
                     this.ifErrorOccured(this.saveWorkSheet);
                 })

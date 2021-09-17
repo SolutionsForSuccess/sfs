@@ -41,10 +41,12 @@
                     @rating-selected ="setRating"
                     style="display: block; padding-top: 10px;"
                 > </star-rating>
+                
                 <a @click="goMenu" v-if="menuListSinCatering.length > 0 && hasOptionToShowMenu() && this.$store.state.restaurantActive.RestaurantBussines"  color="secondary" style="margin: 12px">
                     <span class="iconify" data-icon="bx:bx-food-menu" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>
                     <ion-label style=" width: 80%; text-align: center;">{{$t('frontend.menu.menu')}}</ion-label>   
                 </a>
+
                  <a @click="goCatering"  v-if="configuration.viewCatering && menuListConCatering.length > 0 && hasCardPayCat() && this.$store.state.restaurantActive.RestaurantBussines " color="secondary" style="margin: 12px">
                     <span class="iconify" data-icon="bx:bx-food-menu" data-inline="false"  style="width: 20px;height: 20px; margin: 0;"></span>
                     <ion-label style=" width: 80%; text-align: center;">{{$t('frontend.menu.menuCatering')}}</ion-label>   
@@ -96,14 +98,10 @@
             </ion-card>
 
             
-         <v-breakpoint> 
+      
            
-           <!-- size="6"  -->
-           
-            <ion-row slot-scope="scope">
-                <ion-col 
-                :size="scope.isSmall || scope.noMatch ?'12' :  '6'"
-                style="border: 0px !important;">
+            <ion-row >
+                <ion-col size="12" size-md="6" style="border: 0px !important;">
                      <ion-list>
                         <ion-icon name="pin" color="primary"></ion-icon> <div>{{restaurantActive.restaurantAddress}}</div>
                     </ion-list>  
@@ -120,7 +118,7 @@
                 
 
                 <ion-col 
-                :size="scope.isSmall || scope.noMatch ?'12' : '6' "
+               size="12" size-md="6"
                  style="border: 0px !important;">
 
                      <ion-list v-if="restaurantActive.restaurantPhone">
@@ -137,77 +135,36 @@
                 </ion-col>
             </ion-row>
 
-         </v-breakpoint>
-
-            <!-- <div>
-                <ion-label >
-                    <ion-card-title style="margin: 12px 0 0;">Constact US</ion-card-title>                   
-                </ion-label>
-
-                <div                
-                    style="max-width: 600px; margin: 0 auto; border: 1px solid #ececec;">
-                    <ion-item >
-                        <ion-label position="floating">{{$t('frontend.orderType.email')}} <strong style="color: red">*</strong> </ion-label> 
-                        <ion-input  
-                                :value="emailContact"
-                                @input="emailContact = $event.target.value" 
-                                @change="validateEmail" ></ion-input>
-                    </ion-item> 
-                    <ion-item >
-                        <ion-label position="floating">Su Mensaje <strong style="color: red">*</strong> </ion-label> 
-                        <ion-textarea @ionChange="msgContact = $event.target.value" :value="msgContact"></ion-textarea>
-                    </ion-item>                  
-                    <div style="display: inline-table;">
-                       <vue-recaptcha 
-                        :loadRecaptchaScript="true"
-                            @verify="onVerify"
-                            :sitekey="captchaKey">
-                        </vue-recaptcha>
-                    </div>
-                    <ion-button expand="full" color="primary" @click="sendContactMsg()">                        
-                        Send Message
-                        <ion-spinner v-if="spinnerEmail" name="crescent" style="margin: 0 20px;"></ion-spinner>
-                    </ion-button>
+      
+            <div style="display: flex;justify-content: center;">
+                <div v-if="restaurantActive.restaurantFacebok">
+                        <a :href="restaurantActive.restaurantFacebok" v-if="restaurantActive.restaurantFacebok !==''" target="_blanc" v-tooltip="'Facebook'">
+                        <span class="iconify" color="#3b5998"  data-icon="ion-logo-facebook" data-inline="false" ></span> 
+                    </a>
                 </div>
-               
-            </div> -->
-        
-       
-                <div style="display: flex;justify-content: center;">
-                    <div v-if="restaurantActive.restaurantFacebok">
-                         <a :href="restaurantActive.restaurantFacebok" v-if="restaurantActive.restaurantFacebok !==''" target="_blanc" v-tooltip="'Facebook'">
-                            <span class="iconify" color="#3b5998"  data-icon="ion-logo-facebook" data-inline="false" ></span> 
-                        </a>
-                    </div>
-                    <div  v-if="restaurantActive.restaurantTwitter">
-                         <a :href="restaurantActive.restaurantTwitter" v-if="restaurantActive.restaurantTwitter != ''" target="_blanc" v-tooltip="'Twitter'">
-                            <span class="iconify" color="#1DA1F2" data-icon="ion-logo-twitter" data-inline="false"></span> 
-                        </a>
-                    </div>
-                    <div v-if="restaurantActive.restaurantInstagram">
-                        <a :href="restaurantActive.restaurantInstagram" v-if="restaurantActive.restaurantInstagram != ''" target="_blanc" v-tooltip="'Instagram'">
-                            <span class="iconify" color="#8a3ab9" data-icon="ion-logo-instagram" data-inline="false"></span> 
-                        </a>
-                    </div>
-                    <div v-if="restaurantActive.restaurantYoutube">
-                         <a :href="restaurantActive.restaurantYoutube" v-if="restaurantActive.restaurantYoutube != ''" target="_blanc" v-tooltip="'Toutube'">
-                            <span class="iconify" color="#FF0000" data-icon="ion-logo-youtube" data-inline="false"></span>  
-                        </a>
-                    </div>
-                    <div v-if="restaurantActive.UrlLocation">
-                        <a @click="shareUrlLocation()" v-if="restaurantActive.UrlLocation != ''" target="_blanc" v-tooltip="$t('frontend.tooltips.shareLocation')">
-                            <span class="iconify" data-icon="si-glyph:pin-location-2" data-inline="false"></span> 
-                        </a>
-                    </div>
-                 
-                 
-                  
-                 
-                  <!-- <a :href="restaurantActive.restaurantWeb" v-if="restaurantActive.restaurantWeb != ''" target="_blanc">
-                    <span class="iconify" color="primary" data-icon="foundation:web" data-inline="false"></span>  
-                  </a> -->
-                  
-                </div> 
+                <div  v-if="restaurantActive.restaurantTwitter">
+                        <a :href="restaurantActive.restaurantTwitter" v-if="restaurantActive.restaurantTwitter != ''" target="_blanc" v-tooltip="'Twitter'">
+                        <span class="iconify" color="#1DA1F2" data-icon="ion-logo-twitter" data-inline="false"></span> 
+                    </a>
+                </div>
+                <div v-if="restaurantActive.restaurantInstagram">
+                    <a :href="restaurantActive.restaurantInstagram" v-if="restaurantActive.restaurantInstagram != ''" target="_blanc" v-tooltip="'Instagram'">
+                        <span class="iconify" color="#8a3ab9" data-icon="ion-logo-instagram" data-inline="false"></span> 
+                    </a>
+                </div>
+                <div v-if="restaurantActive.restaurantYoutube">
+                        <a :href="restaurantActive.restaurantYoutube" v-if="restaurantActive.restaurantYoutube != ''" target="_blanc" v-tooltip="'Toutube'">
+                        <span class="iconify" color="#FF0000" data-icon="ion-logo-youtube" data-inline="false"></span>  
+                    </a>
+                </div>
+                <div v-if="restaurantActive.UrlLocation">
+                    <a @click="shareUrlLocation()" v-if="restaurantActive.UrlLocation != ''" target="_blanc" v-tooltip="$t('frontend.tooltips.shareLocation')">
+                        <span class="iconify" data-icon="si-glyph:pin-location-2" data-inline="false"></span> 
+                    </a>
+                </div>
+                
+                
+            </div> 
       
          
            
@@ -229,7 +186,6 @@ import StarRating from 'vue-star-rating'
 import { add } from "ionicons/icons";
 import { addIcons } from "ionicons";
 import moment from 'moment-timezone';
-import { VBreakpoint } from 'vue-breakpoint-component'
 // import { Commons } from '../commons'
 
 addIcons({
@@ -286,7 +242,6 @@ export default {
   },  
   components:{
    StarRating,
-   VBreakpoint,
 //    VueRecaptcha ,
   }, 
   beforeRouteUpdate(to, from, next) {
@@ -332,7 +287,7 @@ export default {
                 
             } catch (error) {
                 this.spinner = false 
-                console.log(error);
+                error;
                 
             }          
         },
@@ -388,7 +343,7 @@ export default {
                          return  this.$ionic.alertController
                             .create({
                                 cssClass: 'my-custom-class',
-                                header: 'Error',
+                                header: '',
                                 message: e,
                                 buttons: [                   
                                 {
@@ -408,7 +363,7 @@ export default {
                  return  this.$ionic.alertController
                     .create({
                         cssClass: 'my-custom-class',
-                        header: 'Error',
+                        header: '',
                         message: e,
                         buttons: [                   
                         {
@@ -554,7 +509,7 @@ export default {
         return  this.$ionic.alertController
         .create({
             cssClass: 'my-custom-class',
-            header: 'Error',
+            header: '',
             message: this.$t('frontend.home.notValidEmail') , 
             buttons: [                   
             {
@@ -612,21 +567,19 @@ export default {
   },
 
   callback: function (response) {
-       console.log('callback')
-       console.log(response)
+      response;
       },
 
      onSubmit: function () {
       this.$refs.invisibleRecaptcha.execute()
     },
     onVerify: function (response) {
-      console.log('Verify: ' + response)
+     response
     },
     onExpired: function () {
-      console.log('Expired')
+      
     },
-    resetRecaptcha() {
-         console.log('resetRecaptcha')
+    resetRecaptcha() {      
       this.$refs.recaptcha.reset() // Direct call reset method
     },
 

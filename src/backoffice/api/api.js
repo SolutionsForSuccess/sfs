@@ -244,7 +244,7 @@ export var Api = {
                         
                 })
                 .catch(e => {
-                    console.log(e);
+                    e;
                 })
         }
         return res;

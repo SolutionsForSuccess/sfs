@@ -1,5 +1,5 @@
 <template>
-    <div class="screen">
+  <div class="screen">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
 
     <ion-header>
@@ -15,13 +15,16 @@
     <br/>
 
       <!-- <ion-card> -->
-   <ion-loading
-        v-if="spinner"
-        cssClass="my-custom-class"
-        :message="$t('frontend.tooltips.loadRestaurant')"
-  ></ion-loading>
+    <ion-loading
+          v-if="spinner"
+          cssClass="my-custom-class"
+          :message="$t('frontend.tooltips.loadRestaurant')"
+    ></ion-loading>
 
-    <div>
+    <ion-row>
+
+      <ion-col size="12" size-md="6">
+
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
@@ -29,6 +32,7 @@
           v-bind:value="name">
           </ion-input>
         </ion-item>
+
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.phone')}}</ion-label>
           <ion-input type="tel" name="name"
@@ -36,6 +40,12 @@
           v-bind:value="phone">
           </ion-input>
         </ion-item>
+
+      </ion-col>
+
+      <ion-col size="12" size-md="6">
+
+        
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
           <ion-input type="email" name="emailAddress"
@@ -43,30 +53,43 @@
           v-bind:value="emailAddress">
           </ion-input>
         </ion-item>
-        <ion-item>
-            <ion-label>{{$t('backoffice.form.fields.marketingConsent')}}</ion-label>
-        </ion-item>
-        <ion-item>
+
+            <p style="    text-align: left;">{{$t('backoffice.form.fields.marketingConsent')}}</p>
+         <ion-row>
+         
+          <ion-col size="12" size-md="6">
+              <ion-item>
            <ion-label>{{$t('backoffice.form.fields.email')}}</ion-label>
-           <ion-checkbox slot="end" name="mcemail" 
+           <ion-toggle slot="end" name="mcemail" 
                 @ionChange="mcemail = $event.target.checked"
                 :checked="mcemail"  >
-          </ion-checkbox>
+          </ion-toggle>
         </ion-item>
-        <ion-item>
+          </ion-col>
+          <ion-col size="12" size-md="6">
+             <ion-item>
            <ion-label>{{$t('backoffice.form.fields.phone')}}</ion-label>
-           <ion-checkbox slot="end" name="mcphone" 
+           <ion-toggle slot="end" name="mcphone" 
                 @ionChange="mcphone = $event.target.checked" 
                 v-bind:checked="mcphone">
-          </ion-checkbox>
+          </ion-toggle>
         </ion-item>
-    
-      <!-- </ion-card>  -->
-      <br/>
-      <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCustomer()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+          </ion-col>
+        </ion-row>
 
-    </div>
-    </div>
+       
+      
+       
+
+      </ion-col>
+
+      
+
+     
+    </ion-row>
+ <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCustomer()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+
+  </div>
 </template>
 
 <script>
@@ -122,8 +145,6 @@ export default {
           this.phone = this.$route.params.Phone;
         if(this.$route.params.EmailAddress)
           this.emailAddress = this.$route.params.EmailAddress;
-
-        //console.log(this.$route.params);
     },
 
     ifErrorOccured(action){
@@ -227,7 +248,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveCustomer)
                   })
@@ -251,7 +272,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveCustomer)
                   })

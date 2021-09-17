@@ -36,91 +36,107 @@
   
       <div :key="key"> 
 
-        <ion-item :disabled="spinner? true: false">                  
-            <ion-label position="floating">{{$t('frontend.specialsPrice.name')}} <strong style="color: red">*</strong></ion-label>                               
-            <ion-input type="text" required=true  
-            class="menu-col-8" 
-            :value="specialsPrice.Name" @input="specialsPrice.Name = $event.target.value"
-                ></ion-input>
+        <ion-row>
+          <ion-col size="12" size-md="6">
+
+             <ion-item :disabled="spinner? true: false">                  
+                  <ion-label position="floating">{{$t('frontend.specialsPrice.name')}} <strong style="color: red">*</strong></ion-label>                               
+                  <ion-input type="text" required=true  
+                  class="menu-col-8" 
+                  :value="specialsPrice.Name" @input="specialsPrice.Name = $event.target.value"
+                      ></ion-input>
+              </ion-item> 
+              
+              <ion-item :disabled="spinner? true: false" >                  
+                  <ion-label>{{$t('frontend.specialsPrice.active')}}                           
+                    <ion-toggle :checked ="specialsPrice.Active" @ionChange="specialsPrice.Active=$event.target.checked"></ion-toggle>
+                  </ion-label>   
+              </ion-item>
+
+              <ion-item :disabled="spinner? true: false">                  
+                    <ion-label position="floating">{{$t('frontend.specialsPrice.apply')}} <strong style="color: red">*</strong></ion-label>  
+                    <ion-select interface="popover" icon="add"                         
+                      :value="hasApply"
+                      :placeholder="$t('frontend.createNew.select')"
+                        @ionChange="changeApplyTo($event.target.value), keyShow+=1, specialsPrice.ApplyProduct = '', specialsPrice.ApplyCategory = ''" >
+                        <ion-select-option 
+                          value="-1" >All Products
+                        </ion-select-option> 
+                        <ion-select-option v-for="(res) in applyToList"                    
+                          :key="res.name" 
+                          :value="res.name" >{{res.value}}
+                        </ion-select-option>                                                
+                    </ion-select>
+              </ion-item> 
+
+              <div v-if="showToApply" :key="keyShow">
+                            
+                    <ion-select interface="popover" icon="add"  v-if="showProduct"                    
+                          :placeholder="$t('frontend.createNew.select')"
+                          :value="productApply"
+                          :key="keyShow+'P'"
+                            @ionChange="specialsPrice.ApplyProduct=$event.target.value" >                   
+                            <ion-select-option v-for="(res) in allProducts"                    
+                              :key="res._id" 
+                              :value="res._id" >{{res.Name}}
+                            </ion-select-option>                                                
+                    </ion-select>
             
-        </ion-item> 
+                    <ion-select interface="popover" icon="add"  v-if="!showProduct"
+                      :value="categoryApply"
+                      :key="keyShow+'C'"
+                      :placeholder="$t('frontend.createNew.select')"
+                        @ionChange="specialsPrice.ApplyCategory=$event.target.value" >                   
+                        <ion-select-option v-for="(res) in allCategories"                    
+                          :key="res._id" 
+                          :value="res._id" >{{res.Name}}
+                        </ion-select-option>                                                
+                    </ion-select>
+              </div>
+            
+          </ion-col>
 
-          <ion-item :disabled="spinner? true: false">                  
-              <ion-label position="floating">{{$t('frontend.specialsPrice.amount')}} <strong style="color: red">*</strong></ion-label>                               
-              <ion-input type="text" required=true  
-              class="menu-col-8" 
-              :value="specialsPrice.Amount" @input="specialsPrice.Amount = $event.target.value"
-                  ></ion-input>
-          </ion-item>  
+          <ion-col size="12" size-md="6">
+            
+              <ion-item :disabled="spinner? true: false">                  
+                  <ion-label position="floating">{{$t('frontend.specialsPrice.amount')}} <strong style="color: red">*</strong></ion-label>                               
+                  <ion-input type="text" required=true  
+                  class="menu-col-8" 
+                  :value="specialsPrice.Amount" @input="specialsPrice.Amount = $event.target.value"
+                      ></ion-input>
+              </ion-item>  
 
-        <ion-item :disabled="spinner? true: false">                  
-              <ion-label position="floating">{{$t('frontend.specialsPrice.type')}} <strong style="color: red">*</strong></ion-label>  
-              <ion-select interface="popover" icon="add"                         
-              :value="specialsPrice.Type"
-              :placeholder="$t('frontend.createNew.select')"
-                @ionChange="specialsPrice.Type=$event.target.value" >
-                  <ion-select-option v-for="(res) in ['Percent', 'Amount']"                    
-                    :key="res" 
-                    :value="res" >{{res}}
-                  </ion-select-option>                                
-              </ion-select>
-          </ion-item> 
+              <ion-item :disabled="spinner? true: false">                  
+                  <ion-label position="floating">{{$t('frontend.specialsPrice.type')}} <strong style="color: red">*</strong></ion-label>  
+                  <ion-select interface="popover" icon="add"                         
+                  :value="specialsPrice.Type"
+                  :placeholder="$t('frontend.createNew.select')"
+                    @ionChange="specialsPrice.Type=$event.target.value" >
+                      <ion-select-option v-for="(res) in ['Percent', 'Amount']"                    
+                        :key="res" 
+                        :value="res" >{{res}}
+                      </ion-select-option>                                
+                  </ion-select>
+              </ion-item> 
 
-        
-
-          <ion-item :disabled="spinner? true: false">                  
-              <ion-label position="floating">{{$t('frontend.specialsPrice.for')}} <strong style="color: red">*</strong></ion-label>  
-              <ion-select interface="popover" icon="add"                         
-                :value="specialsPrice.For"
-                :placeholder="$t('frontend.createNew.select')"
-                  @ionChange="specialsPrice.For=$event.target.value" >
-                  <ion-select-option v-for="(res) in ['Increase', 'Decrease']"                    
-                    :key="res" 
-                    :value="res" >{{res}}
-                  </ion-select-option>                                
-              </ion-select>
-          </ion-item>           
-       
-          <ion-item :disabled="spinner? true: false">                  
-            <ion-label position="floating">{{$t('frontend.specialsPrice.apply')}} <strong style="color: red">*</strong></ion-label>  
-            <ion-select interface="popover" icon="add"                         
-              :value="hasApply"
-              :placeholder="$t('frontend.createNew.select')"
-                @ionChange="changeApplyTo($event.target.value), keyShow+=1, specialsPrice.ApplyProduct = '', specialsPrice.ApplyCategory = ''" >
-                <ion-select-option 
-                  value="-1" >All Products
-                </ion-select-option> 
-                <ion-select-option v-for="(res) in applyToList"                    
-                  :key="res.name" 
-                  :value="res.name" >{{res.value}}
-                </ion-select-option>                                                
-            </ion-select>
-        </ion-item> 
-    
-        <div v-if="showToApply" :key="keyShow">
-                      
-               <ion-select interface="popover" icon="add"  v-if="showProduct"                    
+              <ion-item :disabled="spinner? true: false">                  
+                  <ion-label position="floating">{{$t('frontend.specialsPrice.for')}} <strong style="color: red">*</strong></ion-label>  
+                  <ion-select interface="popover" icon="add"                         
+                    :value="specialsPrice.For"
                     :placeholder="$t('frontend.createNew.select')"
-                    :value="productApply"
-                    :key="keyShow+'P'"
-                      @ionChange="specialsPrice.ApplyProduct=$event.target.value" >                   
-                      <ion-select-option v-for="(res) in allProducts"                    
-                        :key="res._id" 
-                        :value="res._id" >{{res.Name}}
-                      </ion-select-option>                                                
-              </ion-select>
-       
-              <ion-select interface="popover" icon="add"  v-if="!showProduct"
-                :value="categoryApply"
-                :key="keyShow+'C'"
-                :placeholder="$t('frontend.createNew.select')"
-                  @ionChange="specialsPrice.ApplyCategory=$event.target.value" >                   
-                  <ion-select-option v-for="(res) in allCategories"                    
-                    :key="res._id" 
-                    :value="res._id" >{{res.Name}}
-                  </ion-select-option>                                                
-              </ion-select>
-        </div>
+                      @ionChange="specialsPrice.For=$event.target.value" >
+                      <ion-select-option v-for="(res) in ['Increase', 'Decrease']"                    
+                        :key="res" 
+                        :value="res" >{{res}}
+                      </ion-select-option>                                
+                  </ion-select>
+              </ion-item>           
+          
+              
+
+          </ion-col>
+        </ion-row>
+
 
           <ion-item :disabled="spinner? true: false">                  
               <ion-label position="floating">{{$t('frontend.specialsPrice.repite')}} <strong style="color: red">*</strong></ion-label>  
@@ -134,8 +150,9 @@
                   </ion-select-option>                                
               </ion-select>
           </ion-item> 
+
          
-           <div style="display: flex;justify-content: space-evenly;">
+        <div style="display: flex;justify-content: space-evenly;">
 
             <div  style="display: flex;align-items: baseline;">
 
@@ -172,7 +189,6 @@
             </div>
          </div>
 
-
           <div v-if="specialsPrice.Repeat==='Weekly'" 
             style="display: flex;justify-content: space-between;padding: 10px;">
             <ion-card  
@@ -194,12 +210,7 @@
         
        
            
-          <ion-item :disabled="spinner? true: false" >                  
-              <ion-label>{{$t('frontend.specialsPrice.active')}}                           
-                <ion-toggle :checked ="specialsPrice.Active" @ionChange="specialsPrice.Active=$event.target.checked"></ion-toggle>
-              </ion-label>   
-          </ion-item>
-
+         
 
 
         
@@ -217,7 +228,6 @@
 
 import { Api } from '../api/api.js';
 // import { Utils } from '../utils/utils.js';
-// import { VBreakpoint } from 'vue-breakpoint-component'
 
 export default {
 
@@ -261,7 +271,6 @@ export default {
   
   },
   components:{   
-    // VBreakpoint: VBreakpoint,  
   },
   data () {
     return {
@@ -313,7 +322,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired') ,
           buttons: [                   
           {

@@ -1,69 +1,22 @@
 <template>
-  <div id="customer" class="screen">
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.customers')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/customer-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateCustomer')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterCustomers = customers"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-
-    <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div >
-        <paginate
-          name="languages"
-          :list="filterCustomers"
-          :per="8"
-        >
-          <ion-list>
-            <ion-item-sliding v-for="customer in paginated('languages')" v-bind:key="customer._id">
-              <ion-item>
-                <ion-label>
-                    <h2>{{ customer.Name }}</h2>
-                </ion-label>
-                <ion-label>
-                    <h3>{{ customer.Phone }}</h3>
-                    <h3>{{ customer.EmailAddress }}</h3>
-                </ion-label>
-              </ion-item>
-            </ion-item-sliding>
-        </ion-list>
-
-      </paginate>
-
-      <paginate-links for="languages" color="primary" 
-        :simple="{
-          next:'»' ,
-          prev: '« ' }"
-      ></paginate-links>  
-
-    </div>
+  <div id="customer" class="page">
+    <listView
+      :title="$t('backoffice.titles.customers')"
+      :filter="filterCustomers"
+      :elements="customers"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateCustomer')"  
+      :hasAction="false"  
+      @handleInput="handleInput"
+      @handleAddClick="addCustomer"  
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
-
+import listView from "../components/ListView";
 export default {
 
   name: 'customer',
@@ -78,9 +31,36 @@ export default {
       filterCustomers: [],
       paginate: ['languages'],
       spinner: false,
+      keyList: 0,
     }
   }, 
+  components: {
+    listView,
+  },
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+      this.$store.state.backConfig.allCustomer = response.data
+      this.fetchCustomers();    
+      this.spinner = false;
+      this.keyList ++;
+      })
+      .catch(e => { e;
+        this.spinner = false;
+      });
+     
+    },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return null;
+      if(count === 4) return option.EmailAddress;
+      if(count === 5) return option.Phone;
+
+    },
     
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -184,6 +164,12 @@ export default {
       });
     },
 
+    addCustomer: function(){
+        this.$router.push({
+        name: 'CustomerForm'
+      });
+    },
+
     deleteCustomer: async function(id){
 
       return this.$ionic.alertController.create({
@@ -211,7 +197,7 @@ export default {
                 return response;
               })
               .catch(e => {
-                console.log(e);
+                e;
                 this.ifErrorOccured(mess => {
                     this.deleteCustomer(id)
                     this.spinner = false;

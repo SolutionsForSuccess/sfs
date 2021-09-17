@@ -21,90 +21,217 @@
         >  </ProductDetail>       
       </modal>       
 
-        <div v-if="prod.length > 0">
+        <div v-if="prod.length > 0" class="page">
           
 
-         <h3 style="text-align: center;">{{category}}: {{categoryDescription}}</h3>                                     
+         <h6 style="text-align: center;">
+           <strong> {{category}} </strong> 
+           <span v-if="categoryDescription !==''">:  {{categoryDescription}}</span> 
+        </h6>                                     
            
           <ion-searchbar  
-                style="padding: 1px;"
+                class="header-searchbar"
                 @ionClear="handleInput('')"
                 @input="$event.target.value? handleInput($event.target.value): handleInput('')"
                 :placeholder="$t('frontend.home.search')">           
             </ion-searchbar>
 
-          <v-breakpoint>                        
-                <div v-if="menuactive!=='list'">
+            <ion-row v-if="menuactive!=='list'">
 
-                  <div  v-for="pr in filterProduct" :key="pr._id" 
-                  :class=" scopeM.isSmall || scopeM.noMatch? 'menu-col-6 card-category': 'menu-col-3 card-category'">
-                                  
-                    <ion-card color="primary" @click.stop=" productDetail(pr)"> 
-                        <ion-avatar style="margin-inline: auto; margin-top: 25px;"  v-if="menuactive==='gridPicture'">
-                          <img :src="pr.ImageUrl">
-                        </ion-avatar>  
-                        <h1 v-if="menuactive==='gridPicture'" class="elipsy-center" v-tooltip="pr.Name" style="margin: 5px;">{{pr.Name}}</h1>                       
-                        <ion-label v-else class="ion-text-wrap menu-col-6" >
-                          <h1 class="elipsy-center" v-tooltip="pr.Name">{{pr.Name}}</h1>
-                        </ion-label>
-                          <ion-label style="font-size: 12pt;font-weight: bold;text-align: center;">
-                            <h2>{{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }} </h2>
-                        </ion-label> 
-                        <div color="primary" class="item-native" style=" display: flex; justify-content: center;">
-                          <div >                            
-                          </div>
-                          <div >
-                            <ion-button color="light" style="padding:0; font-size:12px" @click.stop="share(pr.Name, staticUrl+pr._id)">
-                              {{$t('frontend.order.share')}}
-                              <span class="iconify" data-icon="fe:share" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
-                            </ion-button>
-                          </div>
-                          <div >
-                            <ion-button color="light" style="padding:0; font-size:12px" @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)">
-                              {{$t('frontend.order.add')}}
-                              <span class="iconify" data-icon="carbon:add" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
-                            </ion-button>
-                          </div>
-                            
-                        </div>
+                <ion-col
+                    size="12"
+                    size-xs="6"
+                    size-md="4"
+                    size-lg="3"
+                    class="ion-align-items-center header-col"
+                    v-for="pr in filterProduct" 
+                    v-bind:key="pr._id"                 
+                  >
+                    <ion-card  
+                         color="primary"                       
+                        style="margin:0"                 
+                        @click.stop="productDetail(pr)"
+                      >
+                      <ion-card-header class="card-header">
 
+                        <ion-avatar v-if="pr.ImageUrl" style="margin: 0 auto;">
+                          <img
+                            :src="pr.ImageUrl"
+                          />
+                        </ion-avatar>
+                        <ion-card-title color="white" class="card-title">
+                        {{pr.Name}} <br> {{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }}
+                        </ion-card-title>
+                          
+                      </ion-card-header>
+                       <ion-card-content class="ion-padding-vertical" style="background: white;display: flex;justify-content: space-around;">
+                          <ion-button                           
+                             fill="clear"
+                            shape="round"
+                            class="list-gourp-btn"
+                            @click.stop="share(pr.Name, staticUrl+pr._id)"
+                            side="end">
+                           <div class="div-button">
+                              <ion-icon
+                              slot="icon-only"
+                              icon="md-share"
+                              class="more-grid" 
+                             style="width: 25px;height: 25px;"                  
+                            ></ion-icon>
+                            <ion-text style="font-size: 10px;">share</ion-text>
+                           </div>
+                          </ion-button>
+
+                           <ion-button                           
+                             fill="clear"
+                            shape="round"
+                            class="list-gourp-btn"
+                             @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)"
+                            side="end">
+                             <div class="div-button">
+                                <ion-icon
+                                slot="icon-only"
+                                icon="md-add"
+                                class="more-grid" 
+                              style="width: 30px;height: 30px;"                  
+                              ></ion-icon>
+                              <ion-text style="font-size: 10px;">add</ion-text>
+                            </div>
+                          </ion-button>
+
+                        </ion-card-content>
+                        
+                    
                     </ion-card>
 
-                </div> 
-                  
-                </div> 
-                <div v-else>
 
-                  <div  v-for="pr in filterProduct" :key="pr._id" 
-                    >                                    
-                    <ion-item color="primary" class="menu-col-12 card-category" @click=" productDetail(pr)"> 
-                        <ion-thumbnail style="margin-top: 25px;" class="menu-col-2 " >
-                          <img :src="pr.ImageUrl">
-                        </ion-thumbnail>  
-                       <div class="menu-col-7 ">
-                          <h4  v-tooltip="pr.Name" style="margin: 5px;">{{pr.Name}} <br>
-                          {{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }} </h4>                                                 
-                        </div>                       
-                        <div color="primary" class="menu-col-3" :style=" scopeM.isSmall || scopeM.noMatch? 'display: display: flex;flex-direction: column; flex-wrap: wrap;align-content: flex-end;': 'display: flex; justify-content: center;'">
-                           
-                            <ion-button color="light" style="padding:0; font-size:12px" @click.stop="share(pr.Name, staticUrl+pr._id)">
-                               {{$t('frontend.order.share')}}
-                              <span class="iconify" data-icon="fe:share" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
-                            </ion-button>                         
-                            <ion-button color="light" style="padding:0; font-size:12px" @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)">
-                              {{$t('frontend.order.add')}}
-                              <span class="iconify" data-icon="carbon:add" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
-                            </ion-button>
-                         
-                            
+                  </ion-col>
+
+              <!-- <ion-col  v-for="pr in filterProduct" :key="pr._id" 
+                size="6" size-md="3" @click.stop=" productDetail(pr)" >
+                                
+                  <ion-card color="primary" @click.stop=" productDetail(pr)" style="margin:0"> 
+                      <ion-avatar style="margin-inline: auto; margin-top: 25px;"  v-if="menuactive==='gridPicture'">
+                        <img :src="pr.ImageUrl">
+                      </ion-avatar>  
+                      <h1 v-if="menuactive==='gridPicture'" class="elipsy-center" v-tooltip="pr.Name" style="margin: 5px;">{{pr.Name}}</h1>                       
+                      <ion-label v-else class="ion-text-wrap menu-col-6" >
+                        <h1 class="elipsy-center" v-tooltip="pr.Name">{{pr.Name}}</h1>
+                      </ion-label>
+                        <ion-label style="font-size: 12pt;font-weight: bold;text-align: center;">
+                          <h2>{{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }} </h2>
+                      </ion-label> 
+                      <div color="primary" class="item-native" style=" display: flex; justify-content: center;">
+                        <div >                            
                         </div>
+                        <div >
+                          <ion-button color="light" style="padding:0; font-size:12px" @click.stop="share(pr.Name, staticUrl+pr._id)">
+                            {{$t('frontend.order.share')}}
+                            <span class="iconify" data-icon="fe:share" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
+                          </ion-button>
+                        </div>
+                        <div >
+                          <ion-button color="light" style="padding:0; font-size:12px" @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)">
+                            {{$t('frontend.order.add')}}
+                            <span class="iconify" data-icon="carbon:add" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
+                          </ion-button>
+                        </div>
+                          
+                      </div>
 
-                    </ion-item>
+                  </ion-card>
 
-                </div> 
+              </ion-col> 
+               -->
+            </ion-row>
+
+             <ion-list class="content-list" v-else>
+                <ion-item
+                  v-for="pr in filterProduct"
+                  v-bind:key="pr._id"
+                 @click=" productDetail(pr)"
+                >
+                  <ion-avatar slot="start" v-if="pr.ImageUrl">
+                    <img :src="pr.ImageUrl" />
+                  </ion-avatar>
+
+                  <ion-label> 
+                    <h2>{{ pr.Name }}</h2>
+                    <h3>
+                      {{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }}
+                    </h3>
+                  </ion-label>
+                    
+                  <ion-button                           
+                      fill="clear"
+                    shape="round"
+                    class="list-gourp-btn"
+                    @click.stop="share(pr.Name, staticUrl+pr._id)"
+                    side="end">
+                    <div class="div-button">
+                      <ion-icon
+                      slot="icon-only"
+                      icon="md-share"
+                      class="more-grid"                                           
+                    ></ion-icon>
+                    <ion-text style="font-size: 10px;">share</ion-text>
+                    </div>
+                  </ion-button>
+
+                    <ion-button                           
+                      fill="clear"
+                    shape="round"
+                    class="list-gourp-btn"
+                      @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)"
+                    side="end">
+                      <div class="div-button">
+                        <ion-icon
+                        slot="icon-only"
+                        icon="md-add"
+                        class="more-grid"                                             
+                      ></ion-icon>
+                      <ion-text style="font-size: 10px;">add</ion-text>
+                    </div>
+                  </ion-button>
                   
-                </div>             
-          </v-breakpoint>
+                </ion-item>
+              </ion-list>
+
+            <!-- <div v-else>
+
+              <ion-card color="primary" v-for="pr in filterProduct" :key="pr._id" 
+                >                                    
+                <ion-row color="primary" @click=" productDetail(pr)"> 
+                    <ion-col size="2" class="list-prod">
+                      <ion-thumbnail >
+                        <img :src="pr.ImageUrl">
+                      </ion-thumbnail>  
+                    </ion-col>
+
+                    <ion-col size="7"  >
+                      <h4  v-tooltip="pr.Name" >{{pr.Name}} <br>
+                      {{ getPrice(pr.SalePrice, pr.VariantGroupId || '') }} </h4>                                                 
+                    </ion-col>   
+
+                    <ion-col size="3" color="primary" class="list-prod">
+                        
+                        <ion-button color="light" style="padding:0; font-size:12px" @click.stop="share(pr.Name, staticUrl+pr._id)">
+                          <ion-text>   {{$t('frontend.order.share')}}</ion-text>
+                          <span class="iconify" data-icon="fe:share" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
+                        </ion-button>                         
+                        <ion-button color="light" style="padding:0; font-size:12px" @click.stop="linkToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)">
+                          {{$t('frontend.order.add')}}
+                          <span class="iconify" data-icon="carbon:add" data-inline="false" style="  width: 20px; height: 20px; margin: 0;"></span>
+                        </ion-button>
+                      
+                        
+                    </ion-col>
+
+                </ion-row>
+
+            </ion-card> 
+              
+            </div>              -->
 
        
 
@@ -123,7 +250,6 @@
 <script>
 
 import { EventBus } from '../event-bus';
-import { VBreakpoint } from 'vue-breakpoint-component'
 import ProductDetail from '../components/ProductDetail'
 import { Plugins } from '@capacitor/core';
 const { Share } = Plugins;
@@ -148,8 +274,7 @@ export default {
     orderType: {type: String, default: "" }, 
     orderFromCatering: {type: Boolean, default: false},
     isService: {type: Boolean, default: false},
-    menuactive: {type: String, default: "grid" },
-    scopeM: {type: Object, default: () => {} },
+    menuactive: {type: String, default: "gridPicture" },
   },
  data () {
     return { 
@@ -166,7 +291,6 @@ export default {
     }
   },    
    components:{
-    VBreakpoint: VBreakpoint, 
     ProductDetail,
   },
   created: function(){    
@@ -388,7 +512,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.cantNotValid'),
           buttons: [                   
           {
@@ -490,7 +614,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style >
 
  .menu-col-2{
@@ -591,4 +714,20 @@ export default {
     -webkit-box-orient: vertical;  
     text-align: center;
   }
+  .list-prod{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+        align-items: center;
+  }
+  .div-button{
+        display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .page .card-header .card-title {
+    margin-left: 5px;
+    text-align: center;
+    font-size: 16px;
+}
 </style>

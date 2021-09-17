@@ -47,9 +47,6 @@ export default {
     },
 
     created(){
-
-        console.log('Aqdvdgui');
-        
         this.getNextAction()
     },
 
@@ -63,11 +60,9 @@ export default {
 
             if (this.attendanceDay.length > 0){
                 if (this.attendanceDay[this.attendanceDay.length - 1].Type == 'Clockin'){
-                    console.log("CLOCKOUT")
                     return this.nextAction = 'Clockout'
                 }   
                 else{
-                    console.log("CLOCKIN")
                     return this.nextAction = 'Clockin'
                 }
             }
@@ -90,7 +85,7 @@ export default {
                 EventBus.$emit('clockIn', true);
             })
             .catch(e => {
-                console.log(e)
+               e;
                 this.spinner = false;
             })
         },
@@ -108,7 +103,7 @@ export default {
                 this.getNextAction();               
             })
             .catch(e => {
-                console.log(e);
+                e;
                 this.spinner = false;
             })
         }

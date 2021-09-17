@@ -131,9 +131,6 @@
              SALES</ion-item>
                 <router-link to="/order" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewOrders') }}</ion-item></router-link>
                 <router-link to="/reservationbackoffice" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewReservation') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="ic:baseline-access-time" data-inline="false"></span>{{ $t('backoffice.options.manageReservation') }}</ion-item></router-link>
-                <router-link to="/ticket" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="ph:ticket-duotone" data-inline="false"></span>{{ $t('backoffice.titles.tickets') }}</ion-item></router-link>
-                <router-link to="/cateringOrder" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrder') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:order-bool-descending" data-inline="false"></span>{{ $t('backoffice.options.viewCateringOrders') }}</ion-item></router-link>
-                <router-link to="/orderForDelivered" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canViewOrderForDelivery') && session=='orderstickets'" @click="closeEnd()"><span class="iconify" data-icon="mdi:truck-delivery-outline" data-inline="false"></span>{{ $t('backoffice.titles.ordersForDelivery') }}</ion-item></router-link>
          
            <!-- ADMIN -->
             <ion-item color='light' 
@@ -183,14 +180,13 @@
                 <!-- <router-link to="/aboutDataSettings" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings" @click="closeEnd()"><span class="iconify" data-icon="grommet-icons:restaurant" data-inline="false"></span>{{ $t('backoffice.options.manageAboutSettings') }}</ion-item></router-link> -->
                 <!-- <a @click="manageBasicSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:settings-line" data-inline="false"></span>{{ $t('backoffice.options.manageBasicSettings') }}</ion-item></a> -->
                 <a @click="manageFunSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && session=='settings'"><span class="iconify" data-icon="clarity:file-settings-line" data-inline="false"></span>{{ $t('backoffice.menu.settings') }}</ion-item></a>
-                <!-- <a @click="manageColourSettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="vaadin:palete" data-inline="false"></span>{{ $t('backoffice.options.manageColourSettings') }}</ion-item></a> -->
                 <!-- <a @click="manageKeySettings()" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canChangeSetting') && settings"><span class="iconify" data-icon="clarity:network-settings-solid" data-inline="false"></span>{{ $t('backoffice.options.manageKeySettings') }}</ion-item></a> -->
                 <router-link to="/support" style="cursor: pointer; text-decoration: none; color: black;"><ion-item v-if="hasPermission('canSuperUser') && session=='settings'" @click="closeEnd()"><span class="iconify" data-icon="mdi:account-supervisor" data-inline="false"></span>{{ $t('backoffice.options.supportSettings') }}</ion-item></router-link>
                 <!-- <ion-item v-if="hasPermission('canViewVariantGroup')" @click="closeEnd()"><router-link to="/variantGroup" style="cursor: pointer; text-decoration: none; color: black;">{{ $t('backoffice.options.manageVariantGroup') }}</router-link></ion-item> -->
                 <!-- <ion-item><router-link to="/demo" style="cursor: pointer; text-decoration: none; color: black;">Demo</router-link></ion-item> -->
                 <ion-item v-if="$store.state.user && session=='settings'">
                   <span class="iconify" data-icon="ph:device-mobile-light"></span>
-                    <DeviceList/> </ion-item>
+                    <DeviceList /> </ion-item>
 
              <div v-if="$store.state.user"> <vue-clock></vue-clock> </div>
              <ion-item v-if="getAuthenticated" @click="logOut" style="cursor: pointer"><span class="iconify" data-icon="mdi:logout-variant" data-inline="false"></span>{{ $t('backoffice.options.logout') }}</ion-item>
@@ -299,7 +295,7 @@
               :key="res._id" 
               v-show="businessType==='All Businesses'? 1: businessType===res.BusinessType ? 1: 0"
               class="menu-col-12">
-              <ion-list  >
+              <ion-list style="cursor: pointer;" >
 
                 <ion-item  @click="changeRestaurant(res._id)">                      
                   <div class="menu-col-2" style="text-align: center;" >
@@ -404,7 +400,6 @@ addIcons({
 import { Api } from './backoffice/api/api.js';
 import orderType from './frontend/components/selectOrderType'
 import { EventBus } from './frontend/event-bus';
-import { VBreakpoint } from 'vue-breakpoint-component'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import ProductDetail from './frontend/components/ProductDetail'
 import Moment from 'moment'
@@ -431,9 +426,11 @@ export default {
  
   created: async function(){
 
+   
+
     //Backoffice
-    EventBus.$on('clockIn', async (value) => { 
-       if(value)   
+    EventBus.$on('clockIn', async (value) => {      
+       if(value)  
           this.vClockin = value;
     });
    
@@ -481,7 +478,7 @@ export default {
     EventBus.$on('startFrontCounter', (value) => {if(value) this.timeCounterFrontend(); });
     EventBus.$on('blockScreen', (value) => { if(value) this.timeCounterBack(); });
     EventBus.$on('updateStoreKey', (value) => { if(value) this.storeKey ++}); 
-    EventBus.$on('updateRestaurantSelectedId', (value) => { if (value != '')this.changeRestaurant(value);});
+    EventBus.$on('updateRestaurantSelectedId', (value) => {  if (value != '')this.changeRestaurant(value);});
     EventBus.$on('staffName', async (value)  => {
       this.staffName = value;
       this.$store.commit('setStaffName',value) ;      
@@ -596,13 +593,13 @@ export default {
       configuration: {},
       idleTracker: new IdleTracker(
             {timeout: 600000, // Cierra sesion tras 10 min de inactividad. 600000
-            onIdleCallback: () =>{// console.log('iddle end: ' + this.idleTracker.state.idle);
+            onIdleCallback: () =>{
             if (!this.idleTracker.state.idle) return  this.alertSesionExpired(); },
             throttle: 500
             }
           ),
       idleTrackerBack: new IdleTracker(
-            {timeout: 60000, // Cierra sesion tras 1 min de inactividad.
+            {timeout: 120000, // Cierra sesion tras 2 min de inactividad.
               onIdleCallback: () =>{
                  if (!this.idleTrackerBack.state.idle && !this.isBackLocked){
                     this.backgroundLockScreen()
@@ -613,9 +610,8 @@ export default {
       ),
       idleTrackerRestartFront: new IdleTracker(
             {timeout: 2700000,  //Reload from tras 45 min de inactividad. 600000
-            onIdleCallback: () =>{// console.log('iddle end front: ' + this.idleTrackerRestartFront.state.idle);
-              if (!this.idleTrackerRestartFront.state.idle){
-                // console.log('pasaron 45 minutos de inactividad')
+            onIdleCallback: () =>{
+              if (!this.idleTrackerRestartFront.state.idle){                
                 return this.changeRestaurant(this.restaurantSelectedId);
               } 
             },
@@ -645,7 +641,6 @@ export default {
     // RestaurantList: RestaurantList,
     Language,
     Login,
-    VBreakpoint: VBreakpoint,
     QrcodeStream: QrcodeStream,   
     StarRating,
     NewResturant,
@@ -667,6 +662,7 @@ export default {
   methods: {
     
     async changeStaffRestaurant(value){
+      this.session = '';
         this.userLoginRestaurantId = value;
         this.spinner = true;
         Api.setRestaurantId(this.userLoginRestaurantId);          
@@ -858,34 +854,10 @@ export default {
                 }
             })
             .catch(e => {
-            // console.log(e)
+            e;
             });
         },
-   
-   manageColourSettings(){
-            this.closeEnd();
-            Api.fetchAll('Setting').then(response => {
-                let colSettings = [];
-                colSettings = response.data;
-                if (colSettings.length > 0)
-                {
-                    this.$router.push({
-                        name: 'ColourSettingForm',
-                        params: {
-                            "settingId": colSettings[colSettings.length - 1]._id,
-                        }
-                    });
-                }
-                else{
-                    this.$router.push({
-                        name: 'ColourSettingForm',
-                    });
-                }
-            })
-            .catch(e => {
-            // console.log(e)
-            });
-        },
+
    
    manageKeySettings(){
         this.closeEnd();
@@ -937,12 +909,9 @@ export default {
       
     closeEnd () {
         document.querySelector('ion-menu-controller').close('end')
-
-       
         this.deliveriesreservations = false
         this.staffoccupationscustomers = false
-        this.settings = false
-
+        this.settings = false;
       },
       
     closeStart () {
@@ -1006,6 +975,8 @@ export default {
       EventBus.$emit('staffId', '');
       this.staffName = '';
       this.staffId = '';
+      this.$store.commit('setStaffName','') ;
+      this.$store.commit('setStaffId','') ;
 
       let onLine = rest != null ? rest.Online : false
       if (this.restaurantSelectedId && onLine)
@@ -1045,7 +1016,7 @@ export default {
          return  this.$ionic.alertController
           .create({
               cssClass: 'my-custom-class',
-              header: 'Error',
+              header: '',
               message: error,
               buttons: [                   
               {
@@ -1084,7 +1055,7 @@ export default {
                 this.$router.push({ name: 'AboutFront', params: {url: this.$store.state.restaurantActive.restaurantUrl, key: this.key}})
                 this.$forceUpdate();
               } catch (error) {
-                  // console.log(error)
+                  error;
                   loading.dismiss();
                 
               }
@@ -1201,7 +1172,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.tooltips.errorRestaurantOffline'),
           buttons: [                   
           {
@@ -1251,7 +1222,7 @@ export default {
             }
           )
           .catch(e => {
-          // console.log(e)
+          e;
           this.spinner = false
 
           });
@@ -1312,7 +1283,7 @@ export default {
         
       )
       .catch(e => {
-        // console.log(e)
+        e;
         this.spinner = false
         
       });
@@ -1531,8 +1502,7 @@ export default {
             dialogTitle: `Share Location ${this.$store.state.restaurantActive.restaurantName}`
           });
 
-      } catch (error) {        
-         // console.log(error)
+      } catch (error) {   
          this.getError(error);
         
       }
@@ -1677,5 +1647,13 @@ ion-button{
 }
 .loading-wrapper.sc-ion-loading-md {
     opacity: 1;
+}
+
+.inner-scroll {
+    overflow-y: visible !important;
+}
+
+ion-col {
+    border: none !important;
 }
 </style>

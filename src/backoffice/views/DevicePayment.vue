@@ -15,7 +15,7 @@
                     </ion-select>
                 </ion-item>
                 <ion-item>
-                    <ion-label>Communication mode</ion-label>
+                    <ion-label>Communication modeff</ion-label>
                     <ion-select interface="popover" ok-text="Ok" cancel-text="Cancel"
                     @ionChange="modeId = $event.target.value" v-bind:value="modeId">
                         <ion-select-option key="ipaddress" value="ipaddress" >Ip address</ion-select-option>
@@ -90,20 +90,21 @@
             spinner: false,
             deviceType: 'shift4',
             taxesName: '',
+            payData: {},
         }
         
     },
     created(){
         // this.getDeviceInfoBySerialNo('1170174939')
         this.serverId = this.grandfather.$store.state.user.ServerId.toString()
-        this.datas.ClerkID = this.serverId
-        this.datas.transactionType = this.transactionType
-        this.datas.destinationZipCode = this.grandfather.$store.state.restaurantActive.restaurantZipCode
+        this.payData = this.datas;
+        this.payData.ClerkID = this.serverId
+        this.payData.transactionType = this.transactionType
+        this.payData.destinationZipCode = this.grandfather.$store.state.restaurantActive.restaurantZipCode
         // this.getTax()
 
         //loading device
         const device = this.grandfather.$store.state.device
-        //console.log(device)
         this.ip = device.ip
         this.port = device.port
         this.sn = device.sn
@@ -142,7 +143,6 @@
                 }
                 else // Internet Explorer
                 {
-                    //console.log("Caso2");
                     let xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
                     xmlDoc.async = false;
                     xmlDoc.loadXML(res.data);
@@ -167,8 +167,7 @@
             }
         },
         callback(res){
-            console.log("SUCCESSFULLY---RESPONSE:")
-            console.log(res)
+            
             if (res[4] == '000000')
             {
                 const resData = {
@@ -208,7 +207,7 @@
                 Devices.a930.Initialize(this.ip, this.port, this.ssl, this.callback)
             }
             catch(e){
-                console.log(e)
+                e
                 this.showToastMessage('Ha ocurrido un error. El pago no se ha podido realizar', 'danger')
                 this.dismissModal()
             }
@@ -227,10 +226,10 @@
                         try{
                             
                             this.spinner = true
-                            await Devices.a930.DoCredit(this.ip, this.port, this.ssl, this.datas, this.callback);
+                            await Devices.a930.DoCredit(this.ip, this.port, this.ssl, this.payData, this.callback);
                         }
                         catch(e){
-                            console.log(e)
+                            e
                             this.showToastMessage(e, 'danger')
                             this.spinner = false;
                         }
@@ -252,11 +251,10 @@
 
                     try{    
                         this.spinner = true
-                        await Devices.a930.DoCredit(this.ip, this.port, this.ssl, this.datas, this.callback);
-                        let anw = console.log(anw)
+                        await Devices.a930.DoCredit(this.ip, this.port, this.ssl, this.payData, this.callback);
                     }
                     catch(e){
-                        console.log(e)
+                        e
                         this.showToastMessage(e, 'danger')
                         this.spinner = false;
                     }

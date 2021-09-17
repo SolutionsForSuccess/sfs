@@ -1,122 +1,26 @@
 <template>
-    <div id="otherCharge" class="screen">
-
-        <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-        <router-link to="/otherCharge-form"><ion-button v-if="hasPermission('canCreateOtherCharge')" expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.otherCharge')}}</ion-button></router-link> -->
-
-        <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.otherCharges')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/otherCharge-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateOtherCharge')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterOtherCharges = otherCharges"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-
-     <div v-if="spinner">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-      <div v-if="screenWidth < 600">
-          <paginate
-            name="languages"
-            :list="filterOtherCharges"
-            :per="8"
-          >
-              <ion-list :key="key">
-                  <ion-item-sliding v-for="otherCharge in paginated('languages')" v-bind:key="otherCharge._id">
-                      <ion-item>
-                          <ion-label class="ion-text-wrap">
-                              <h2>{{ otherCharge.Name }}</h2>
-                              <h3>{{ otherCharge.ProductMin }}-{{ otherCharge.ProductMax }}...{{$t('backoffice.form.fields.extraCharge')}}:{{otherCharge.Price}}</h3>
-                          </ion-label>
-                          <ion-checkbox v-if="otherCharge.Available" checked="true" slot="end" @click="availableOtherCharge(otherCharge, false)"></ion-checkbox>
-                          <ion-checkbox v-else checked="false" slot="end" @click="availableOtherCharge(otherCharge, true)"></ion-checkbox>
-                          <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                      </ion-item>
-                      <ion-item-options side="end">
-                          <ion-item-option v-if="hasPermission('canEditOtherCharge')" color="primary" @click="editOtherCharge(otherCharge._id)">
-                              <ion-icon slot="icon-only" name="create"></ion-icon>
-                          </ion-item-option>
-                          <ion-item-option v-if="hasPermission('canDeleteOtherCharge')" color="danger" @click="deleteOtherCharge(otherCharge._id)">
-                              <ion-icon slot="icon-only" name="trash"></ion-icon>
-                          </ion-item-option>
-                      </ion-item-options>
-                  </ion-item-sliding>
-              </ion-list>
-
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-      </div>
-
-      <div v-if="screenWidth >= 600">
-          <paginate
-            name="languages"
-            :list="filterOtherCharges"
-            :per="8"
-          >
-              <ion-list>
-                  <ion-item v-for="otherCharge in paginated('languages')" v-bind:key="otherCharge._id">
-                      <ion-item-group side="start">
-                          <ion-checkbox v-if="otherCharge.Available" checked="true" slot="end" @click="availableOtherCharge(otherCharge, false)"></ion-checkbox>
-                          <ion-checkbox v-else checked="false" slot="end" @click="availableOtherCharge(otherCharge, true)"></ion-checkbox>
-                      </ion-item-group>
-                      <ion-label style="margin-left: 20px" class="ion-text-wrap">
-                          <h2>{{ otherCharge.Name }}</h2>
-                          <h3>{{ otherCharge.ProductMin }}-{{ otherCharge.ProductMax }}...{{$t('backoffice.form.fields.extraCharge')}}:{{otherCharge.Price}}</h3>
-                      </ion-label>
-                      <ion-item-group side="end">
-                          <ion-button v-if="hasPermission('canEditOtherCharge')" color="primary" @click="editOtherCharge(otherCharge._id)">
-                              <ion-icon slot="icon-only" name="create"></ion-icon>
-                          </ion-button>
-                          <ion-button v-if="hasPermission('canDeleteOtherCharge')" color="danger" @click="deleteOtherCharge(otherCharge._id)">
-                              <ion-icon slot="icon-only" name="trash"></ion-icon>
-                          </ion-button>
-                      </ion-item-group>
-                  </ion-item>
-              </ion-list>
-
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-      </div>
-
-    </div>
-
-        <!-- <ion-infinite-scroll @ionInfinite="loadMore" threshold="100px" position="bottom">
-            <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll> -->
-
-    </div>
+   <div id="user" class="page">
+    <listView
+      :title="$t('backoffice.titles.otherCharges')"
+      :filter="filterOtherCharges"
+      :elements="otherCharges"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateOtherCharge')"
+      :edit="hasPermission('canEditOtherCharge')"
+      :remove="hasPermission('canDeleteOtherCharge')"
+      @handleInput="handleInput"
+      @handleAddClick="addOtherCharge"   
+      @editElement="editOtherCharge"
+      @deleteElement="deleteOtherCharge"   
+    ></listView>
+  </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import { Utils } from '../utils/utils.js';
+import listView from "../components/ListView";
 
 export default {
    name: 'product',
@@ -125,6 +29,9 @@ export default {
        this.fetchOtherCharges();
        this.screenWidth = screen.width;
    },
+  components: {
+    listView,
+  },
    data () {
     return {
       modelName: 'OtherCharges',
@@ -139,9 +46,35 @@ export default {
       spinner: false,
       screenWidth: 0,
       key: 0,
+      keyList: 0,
     }
   },
    methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.othercharges = response.data;
+        this.fetchOtherCharges();  
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+  },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name
+      if(count === 3) return  null;
+      
+         
+      if(count === 4) return option.ProductMin +'-'+ option.ProductMax + ' ( '+ this.getFormatPrice(option.Price) +' )';
+      if(count === 5)    if(option.Available) return  'Available';
+          else  return  'No Available';
+    },
     
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -254,7 +187,7 @@ export default {
                     return response;
               })
               .catch(e => {
-                    console.log(e);
+                    e;
                     this.fetchOtherCharges();
                     this.ifErrorOccured(mess => {
                       this.availableOtherCharge(otherCharge, state)
@@ -269,6 +202,12 @@ export default {
         this.$router.push({
         name: 'OtherChargeForm', 
         params: { otherChargeId: id }
+      });
+    },
+
+    addOtherCharge: function(){
+        this.$router.push({
+        name: 'OtherChargeForm'
       });
     },
 
@@ -301,7 +240,7 @@ export default {
                     return response;
                 })
                 .catch(e => {
-                    console.log(e);
+                    e;
                     this.ifErrorOccured(mess => {
                       this.deleteOtherCharge(id)
                       this.spinner = false;
@@ -316,6 +255,10 @@ export default {
       .then(a => a.present());  
 
      },
+
+    getFormatPrice: function(price){
+      return Utils.getFormatPrice(price);         
+    },
    } 
 }
 </script>

@@ -17,70 +17,91 @@
     <br/>
 
     <!-- <ion-card> -->
-     <div v-if="spinner">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-            <ion-input type="text" name="name"
-            @input="name = $event.target.value" 
-            v-bind:value="name">
-            </ion-input>
+      <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+
+      <ion-row>
+
+        <ion-col size="12" size-md="6">
+             <ion-item>
+                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+                <ion-input type="text" name="name"
+                @input="name = $event.target.value" 
+                v-bind:value="name">
+                </ion-input>
             </ion-item>
 
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.productMin')}}</ion-label>
-            <ion-input type="number" name="productMin"
-            @input="productMin = $event.target.value" 
-            v-bind:value="productMin">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.productMax')}}</ion-label>
-            <ion-input type="number" name="productMax"
-            @input="productMax = $event.target.value" 
-            v-bind:value="productMax">
-            </ion-input>
-            </ion-item>
-
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.extraCharge')}}</ion-label>
-            <ion-input type="number" name="price"
-            @input="price = $event.target.value" 
-            v-bind:value="price">
-            </ion-input>
-            </ion-item>
-
-            <ion-list>
-                <ion-list-header>
-                <ion-label>
-                    <span style="color: red">*</span><router-link to="/product">{{$t('backoffice.form.fields.product')}}</router-link>
-                </ion-label>
-                </ion-list-header>
-
+        
                 <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.selectAProduct')}}</ion-label>
-                <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                <ion-label>
+                  <span style="color: red">*</span><router-link to="/product">{{$t('backoffice.form.fields.product')}}</router-link>
+                </ion-label>
+                <ion-select   interface="popover"
                 @ionChange="productId = $event.target.value" v-bind:value="productId">
                     <ion-select-option v-for="product in products" v-bind:key="product.Id" v-bind:value="product._id" >{{product.Name}}</ion-select-option>
                 </ion-select>
-                </ion-item>
+              </ion-item>
 
-            </ion-list>
+         
 
-            <ion-item>
+          <ion-item>
             <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
-            <ion-checkbox slot="end" name="available" 
+            <ion-toggle slot="end" name="available" 
                 @ionChange="available = $event.target.checked"
                 :checked="available"  >    
-            </ion-checkbox>
+            </ion-toggle>
+          </ion-item>
+
+        </ion-col>
+
+        <ion-col size="12" size-md="6">
+
+        
+    <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.productMin')}}</ion-label>
+              <ion-input type="number" name="productMin"
+              @input="productMin = $event.target.value" 
+              v-bind:value="productMin">
+              </ion-input>
             </ion-item>
+
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.productMax')}}</ion-label>
+              <ion-input type="number" name="productMax"
+              @input="productMax = $event.target.value" 
+              v-bind:value="productMax">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.extraCharge')}}</ion-label>
+              <ion-input type="number" name="price"
+              @input="price = $event.target.value" 
+              v-bind:value="price">
+              </ion-input>
+            </ion-item>
+
+        
+           
+
+          
+
+
+        </ion-col>
+
+      </ion-row>
+
+    <div >
+         
+
+        
 
         <!-- </ion-card>  -->
 
-          <br/>fdg
+          <br/>
           <ion-button expand="full" color="primary" :disabled="!isValidForm() || spinner" @click="saveOtherCharge()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
     </div>
     </div>
@@ -235,7 +256,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveOtherCharge);
                   })
@@ -262,7 +283,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveOtherCharge);
                   })

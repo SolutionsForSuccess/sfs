@@ -1,215 +1,19 @@
 <template>
-
-  <div id="credit" class="screen" >
-   
-        <ion-header>
-              <ion-toolbar>
-                <ion-buttons slot="start">
-                  <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-                </ion-buttons>
-                <ion-label style="padding: 20px 100px;">
-                  <h1>{{$t('backoffice.titles.customerCredit')}}</h1>                               
-                </ion-label> 
-                <ion-label slot="end">  
-                    <!-- <ion-chip style="font-size: 30px" outline color="primary" @click="createCredit()" v-if="hasPermission('canCreateCredit')" > -->
-                    <ion-chip style="font-size: 30px" v-if="hasPermission('canCreateCredit')" outline color="primary" @click="createCredit()" >
-                        <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                    </ion-chip>
-                </ion-label> 
-                <ion-label slot="end">  
-                    <!-- <ion-chip style="font-size: 30px" outline color="primary" @click="createCredit()" v-if="hasPermission('canCreateCredit')" > -->
-                    <ion-chip style="font-size: 30px" v-if="hasPermission('canChangeSetting')" outline color="primary" @click="showSettingModal()" >
-                        <ion-label><span class="iconify" data-icon="ic:baseline-settings" data-inline="false"></span></ion-label>
-                    </ion-chip>
-                </ion-label> 
-              </ion-toolbar>
-
-                <div > 
-                    <ion-button @click="menuactive='list'" :style="menuactive==='list'? 'opacity: 1;;border: outset;' : 'opacity: 0.65;border: none;' ">
-                      <span class="iconify" data-icon="foundation:list-bullet" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                    </ion-button>  
-                    <ion-button    @click="menuactive='grid'" :style="menuactive==='grid'? 'opacity: 1;border: outset;' : 'opacity: 0.65;border: none;' ">
-                      <span class="iconify" data-icon="clarity:grid-chart-solid" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                    </ion-button>  
-                    <ion-button style="border: outset;" @click="reverseCredits()">
-                      <span class="iconify" data-icon="fluent:chevron-up-down-20-filled" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                    </ion-button>
-                </div> 
-
-              <ion-searchbar  
-                  @input="handleInput($event.target.value)" @ionClear="filterCredits = credits"
-                    :placeholder="$t('frontend.home.search')">           
-              </ion-searchbar>
-              <div style="width: 100%">
-                  <ion-segment scrollable color="tertiary" @ionChange="changeFilterStatus($event.target.value)" :value="filterStatus">
-                      <ion-segment-button value="home">
-                            <ion-icon name="home"></ion-icon>
-                      </ion-segment-button>
-                      <ion-segment-button value="all">
-                            {{$t('frontend.reservation.all')}}
-                      </ion-segment-button>
-                      <ion-segment-button value="active">
-                            {{$t('backoffice.form.fields.active')}}
-                      </ion-segment-button>
-                      <ion-segment-button value="requested">
-                            Requested
-                      </ion-segment-button>
-                      <ion-segment-button value="accepted">
-                            Accepted
-                      </ion-segment-button>
-                      <ion-segment-button value="closed">
-                            Closed
-                      </ion-segment-button>
-                      <ion-segment-button value="state6">
-                            {{$t('frontend.order.state6')}}
-                      </ion-segment-button>
-                  </ion-segment>
-              </div>
-        </ion-header>
-
-        <div v-if="spinner">
-          <ion-progress-bar type="indeterminate"></ion-progress-bar>
-        </div>
-
-        <div> 
-              <paginate v-if="filterCredits.length > 0 && menuactive==='list'"
-                name="languages"
-                :list="filterCredits"
-                :per="8">
-                
-                  <ion-item-sliding  v-for="credit in paginated('languages')" v-bind:key="credit._id">
-                    <ion-item
-                        @click="viewCredit(credit._id)"
-                        :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
-                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'">
-                        <ion-label class="menu-col-4 elipsis-menu">
-                            <h6><span style="color: white;">{{ credit.Name }}</span></h6>
-                            <h6 v-if="credit.CustomerId"><span style="color: white;">{{ getCustomerById(credit.CustomerId).Name }}</span></h6>           
-                        </ion-label>
-                        <ion-label class="menu-col-4 elipsis-menu">                   
-                            <h6><span style="color: white;"><b>{{ getFormatedDate(credit.DateFrom) }}/{{ getFormatedDate(credit.DateTo) }}</b></span></h6>
-                        </ion-label>
-                        <ion-label class="menu-col-4 elipsis-menu">
-                            <h6><span style="color: darkblue"><b>{{ getTotalPayed(credit) }}</b></span></h6>
-                            <h6><span style="color: darkblue"><b>{{ getFormatPrice(credit.Debt) }}</b></span></h6>
-                            <h6><span><b>{{ getFormatPrice(credit.CreditAmount) }}</b></span></h6>                 
-                        </ion-label>                
-                    </ion-item>
-                    <ion-item-options side="end"> 
-                        <ion-item-option color="primary" v-if="hasPermission('canEditCredit')" @click="viewCredit(credit._id)">
-                          <ion-icon slot="icon-only" name="list"></ion-icon>
-                        </ion-item-option>
-                        <ion-item-option v-if="credit.State != 1 && credit.State != 3 && hasPermission('canEditCredit')" color="primary" @click="showCreditApproveModal(credit._id)">
-                          <ion-icon slot="icon-only" name="checkmark"></ion-icon>
-                        </ion-item-option>
-                        <ion-item-option v-if="credit.State != 3 && hasPermission('canEditCredit')" color="danger" @click="cancelCredit(credit)">
-                          <ion-icon slot="icon-only" name="close"></ion-icon>
-                        </ion-item-option>
-                        <!-- <ion-item-option v-if="hasPermission('canDeleteCredit')" color="danger"
-                        @click="deleteCredit(credit._id)" v-tooltip="'Eliminar'"> -->
-                        <ion-item-option color="danger" v-if="hasPermission('canDeleteCredit')"
-                        @click="deleteCredit(credit._id)" v-tooltip="'Eliminar'">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-item-option>
-                    </ion-item-options >
-                  </ion-item-sliding>
-
-              </paginate>
-              <div v-if="filterCredits.length > 0  && menuactive==='list'">
-                  <paginate-links for="languages" color="primary" 
-                    :simple="{
-                      next:'»' ,
-                      prev: '« ' }"
-                  ></paginate-links>
-              </div>
-
-              <div v-if="menuactive==='grid'"  id="gridView">
-                  <v-breakpoint>
-                    <div slot-scope="scope" > 
-
-                      <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                        <ion-chip color="primary"
-                          @click="scrollToTop()"
-                        outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                          <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                        </ion-chip>
-
-                        <div  v-for="credit in filterCredits" v-bind:key="credit._id" 
-                            style="text-align: right;"             
-                            :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                                
-                              <ion-chip style="margin: 0;bottom: -10px; font-weight: bold;" outline
-                                 :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
-                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'"
-                                >
-                                {{ getFormatedDate(credit.DateFrom) }} - {{ getFormatedDate(credit.DateTo) }}
-                              </ion-chip>
-                            <ion-card style="text-align: left;"   
-                            :style="credit.State == 0 ? '--background:#b38448' : credit.State == 1 ? '--background:#74845e' :
-                        credit.State == 2 ? '--background:#76b6d5' : '--background:#e37b7b'">
-                                <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                                  <ion-card-title  style="color: black;">{{ credit.Name }}
-                                  </ion-card-title>
-                                  
-                                  <ion-card-subtitle style="color: black; display: flex;justify-content: space-between;">
-                                    <div style="text-align: center;"> 
-                                      <span class="iconify" data-icon="bx:bxs-user-circle" data-inline="false" 
-                                      style="color: #808080a6;width: 20px;  height: 20px; margin: 0;"></span>
-                                    </div>
-                                    <div style="text-align: right;"  >{{ getCustomerById(credit.CustomerId).Name }}</div>
-                                  </ion-card-subtitle>
-
-                                  <!-- <ion-card-subtitle v-if="order.StaffName"
-                                    style="color: black; display: flex;justify-content: space-between;">
-                                    <div style="text-align: center;"> 
-                                      <span class="iconify" data-icon="grommet-icons:restaurant"
-                                      style="color: #808080a6; width: 20px;  height: 20px; margin: 0;" data-inline="false"></span>
-                                    </div>
-                                    <span style="text-align: right;"  > {{ order.StaffName }}</span>
-                                  </ion-card-subtitle> -->
-                                    
-                                  </ion-card-header>
-
-                                  <ion-card-content style="margin: 1px 5px; padding: 5px;background:white;color: black;" :key="cartKey + 'C'">
-                                    <div>
-                                          <div style="display: flex;justify-content: space-between; padding: 2px;margin:5px 0">
-                                            <span>Total Amount: {{getFormatPrice(credit.CreditAmount)}}</span>
-                                            <span :style="credit.State == 3 ? 'text-decoration: line-through;':'text-decoration: none'">Debt: {{getFormatPrice(credit.Debt)}}</span> 
-                                          </div>                          
-                                    </div>
-                                    <div v-for="pay in credit.Payed" v-bind:key="pay.id" >
-                                        <span style="text-decoration: line-through;">{{pay.Date}} - {{getFormatPrice(pay.Amount)}}</span>
-                                    </div>
-                                  </ion-card-content>
-                                  
-                                  <ion-card-content style="margin:5px; background:white;color: black;text-align: center; padding: 0;" :key="stateKey + 'S'">
-                                        <ion-button color="primary" v-if="hasPermission('canEditCredit')" @click="viewCredit(credit._id)">
-                                            <ion-icon slot="icon-only" name="list"></ion-icon>
-                                        </ion-button>
-                                        <ion-button v-if="credit.State != 1 && credit.State != 3 && hasPermission('canEditCredit')" color="primary" @click="showCreditApproveModal(credit._id)">
-                                            <ion-icon slot="icon-only" name="checkmark"></ion-icon>
-                                        </ion-button>
-                                        <ion-button v-if="credit.State != 3 && hasPermission('canEditCredit')" color="danger" @click="cancelCredit(credit)">
-                                            <ion-icon slot="icon-only" name="close"></ion-icon>
-                                        </ion-button>
-                                        <ion-button color="danger" v-if="hasPermission('canDeleteCredit')" @click="deleteCredit(credit._id)" v-tooltip="'Eliminar'">
-                                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                                        </ion-button>
-                                  </ion-card-content>              
-                            </ion-card>
-                        </div>
-
-                      </div>
-                    </div>
-                  </v-breakpoint>
-              </div>
-
-
-              <div class="emptyResult" v-if="filterCredits.length === 0">
-                  {{$t('backoffice.titles.emptyResult')}}
-              </div>
-        </div>    
+  <div id="user" class="page">
+    <listView v-if="1"
+      :title="$t('backoffice.titles.customerCredit')"
+      :filter="filterCredits"
+      :elements="credits"
+      :hasConfig="true"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateCredit')"
+      :edit="hasPermission('canEditCredit')"
+      :remove="hasPermission('canDeleteCredit')"
+      @handleInput="handleInput"
+      @handleAddClick="createCredit"   
+      @editElement="viewCredit"
+      @deleteElement="deleteCredit"   
+    ></listView>
   </div>
 
 </template>
@@ -218,12 +22,10 @@
 
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js';
-// import { payAuthorizeNet } from '../api/payments.js';
-// import Modal from './cancelOrderModal.vue';
-// import { EventBus } from '../../frontend/event-bus';
- import { VBreakpoint } from 'vue-breakpoint-component'
+import listView from "../components/ListView";
+
  import CreditSetting from './creditSetting.vue'
- import CreditApprove from './CustomerCreditApprove.vue'
+
 export default {
 
   name: 'credit',
@@ -232,9 +34,10 @@ export default {
     this.credits = this.$store.state.backConfig.customerCredit;
     this.credits.reverse();
     this.filterCredits = this.credits; 
+     this.customers = this.$store.state.backConfig.allCustomer;
   },
    components:{   
-    VBreakpoint: VBreakpoint 
+    listView,
   },  
 
   data () {
@@ -259,35 +62,49 @@ export default {
       
       cartKey: 0,
       stateKey: 0,
-    //   statesAll: [
-    //     { state: 0,
-    //       name: this.$t('frontend.order.state0')},
-    //     { state: 1,
-    //       name: this.$t('frontend.order.state1')},
-    //     { state: 2,
-    //       name: this.$t('frontend.order.state2')},
-    //     { state: 3,
-    //       name: this.$t('frontend.order.state3')},
-    //     { state: 4,
-    //       name: this.$t('frontend.order.state4')},
-    //     { state: 5,
-    //       name: this.$t('frontend.order.state5')},
-    //     { state: 6,
-    //       name: this.$t('frontend.order.state6')},
-    //     { state: 7,
-    //       name: this.$t('frontend.order.state7')},
-    //     { state: 8,
-    //       name: this.$t('frontend.order.state8')} ],
-          
+      statesAll: [        
+        { state: 0,
+          name: 'Requested'},
+        { state: 1,
+          name: 'Accepted'},
+        { state: 2,
+          name:  'Closed' },
+        { state: 3,
+          name: 'Cancelled'},
+        ],
+    keyList: 0,      
     }
   }, 
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(async response => {
+        this.$store.state.backConfig.category = response.data
+         await this.fetchCategories();    
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+        
+    },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return '- ' + this.getCustomerById(option.CustomerId).Name 
+      if(count === 4) return this.getFormatedDate(option.DateFrom) +' - ' +this.getFormatedDate(option.DateTo);
+      if(count === 5) return this.statesAll[option.State].name
+
+    },
 
     initialize(){
         this.fetchCredit();
         this.fetchCustomers();
         this.changeFilterStatus('all');
-        //console.log("Update order");
     },
 
     showSettingModal(){
@@ -308,24 +125,6 @@ export default {
                 .then(m => m.present())
     },
 
-    showCreditApproveModal(creditId){
-
-        return this.$ionic.modalController
-                .create({
-                component: CreditApprove,
-                cssClass: 'my-custom-class',
-                componentProps: {
-                    data: {
-                      
-                    },
-                    propsData: {
-                       parent: this,
-                       cId: creditId
-                    },
-                },
-                })
-                .then(m => m.present())
-    },
 
     getTotalPayed(credit){
         let amount = 0;
@@ -339,8 +138,6 @@ export default {
     },
 
     changeFilterStatus(value){
-
-        //console.log(value)
         this.filterStatus = value
         let status = -1
         this.allReservations = this.reservations
@@ -444,7 +241,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteCredit(id)
                       this.spinner = false
@@ -460,18 +257,16 @@ export default {
 
     },
   
-    handleInput(value){
-      this.filterCredits = this.credits
+    handleInput(value) {
+       this.filterCredits = this.credits
       const query = value.toLowerCase();
-      requestAnimationFrame(() => {   
-        // let cat2 = this.credits.filter(item => 
-        //                                   item.Date.indexOf(query) > -1 || 
-        //                                        this.getOrderState(item.State).toLowerCase().indexOf(query) > -1)
-        let cat2 = this.getCreditByCustomerName(query);
-        if(cat2.length> 0)
-          this.filterCredits = cat2
-        else
-          this.filterCredits = this.credits
+      requestAnimationFrame(() => {
+        let cat2 = this.credits.filter(
+          (item) => item.Name.toLowerCase().indexOf(query) > -1 ||
+          this.statesAll[item.State].name.toLowerCase().indexOf(query) > -1
+        );
+        if (cat2.length > 0) this.filterCredits = cat2;
+        else this.filterCredits = this.credits;
       });
     },
 
@@ -496,7 +291,6 @@ export default {
         {
                 let cat2 = this.credits.filter(item => item.StaffName &&
                                                         item.StaffName != '')
-                //console.log(cat2)
                 if(cat2.length > 0)
                 {
                     this.filterCredits = cat2
@@ -584,29 +378,12 @@ export default {
     },
 
     getCustomerById: function(id){
-        var custom = '';
-        this.customers.forEach(customer => {
-            if (customer._id == id) {
-                custom = customer;                
-            }
-        });
-        return custom;
+        const customer  = this.customers.find(c => c._id === id)
+        if(customer) return customer
+        else return {}
     },
 
-    async cancelCredit(credit){
-        console.log(credit)
-        credit.State = 3
-        credit.Active = false
-        await Api.putIn('customercredit', credit)
-        .then(() => {
-            const index = this.$store.state.backConfig.customerCredit.find(c => c._id === credit._id);
-            if(index !== -1){
-              this.$store.state.backConfig.customerCredit[index].State = 3
-              this.$store.state.backConfig.customerCredit[index].Active = false
-            }
-            this.showToastMessage('The credit was canceled sucessfully', 'success')
-        })
-    },
+
 
     acceptCredit(credit){
         if (credit.DateTo != '' && credit.DateFrom != ''){

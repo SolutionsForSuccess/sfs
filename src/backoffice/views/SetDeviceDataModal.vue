@@ -13,7 +13,7 @@
                 </div>     -->
 
                 <ion-item>
-                    <ion-label>Server device</ion-label>
+                    <ion-label>Device</ion-label>
                     <ion-select  interface="popover" icon="add"
                     :ok-text="'ok'" 
                     :cancel-text="'cancel'"
@@ -69,9 +69,9 @@ import store from '../../main'
                 'company': dev.Company,
                 'ip': dev.Ip,
                 'port': dev.Port,
+                'ssl': dev.SSL,
             }
             store.commit("setDevice", obj);
-            // this.$ionic.modalController.dismiss(null);
         },
 
         dismissModal() {

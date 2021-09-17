@@ -12,12 +12,12 @@ export var Utils={
       },
 
       getFormatHour: function(date){
-        const hour = Moment(date).format('MM-DD | HH:mm A');
+        const hour = Moment(date).format('MM-DD | hh:mm A');
         return hour;
       },
 
       getFormatHourDate: function(date){
-        const hour = Moment(date).format('MM-DD-YYYY | HH:mm A');
+        const hour = Moment(date).format('MM-DD-YYYY | hh:mm A');
         return hour;
       },
       
@@ -27,7 +27,10 @@ export var Utils={
       },
 
       getFormatPrice(price){
-        const result = new Intl.NumberFormat('en', {style: "currency", currency: store.state.restaurantActive.currency} ).format(price)
+        let currencyActive= 'USD'
+        if(store.state.restaurantActive.currency)
+          currencyActive = store.state.restaurantActive.currency
+        const result = new Intl.NumberFormat('en', {style: "currency", currency: currencyActive} ).format(price)
         return result;
       },
 

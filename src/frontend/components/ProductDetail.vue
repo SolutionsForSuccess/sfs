@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="    height: inherit;    overflow: auto;">
     <ion-header>
       <ion-toolbar>
         <ion-row>
@@ -17,37 +17,35 @@
     </ion-header>
     <!-- <ion-content class="ion-padding">  -->
 
-        <ion-card  >
+        <div  >
           <ion-card-header>
               <h1 style="padding: 0;">{{Name}} {{thisName}}  </h1>
           </ion-card-header>
 
-          <ion-row>
-
-            <v-breakpoint>
-              <div slot-scope="scope" style="width: 100%;">
+          <div>
+                <ion-row >
                
 
-                  <div :class="scope.isSmall || scope.noMatch ?'menu-col-12 ' : 'menu-col-6 ' " style="border: 0px !important; float:left">
-                    <ion-list v-if="ImageUrl">                        
-                      <div>
-                        <img class="menu-col-12" :src="ImageUrl">                 
+                  <ion-col size="12" size-md="6">
+                    <!-- <ion-list v-if="ImageUrl">                         -->
+                      <div  v-if="ImageUrl">
+                        <img class="menu-col-12" :src="ImageUrl" style="width: 50%;height: 50%;margin: 0 auto;">                 
                       </div> 
-                    </ion-list>
+                    <!-- </ion-list> -->
 
-                    <ion-list>
-                      <ion-item>
+                    <!-- <ion-list> -->
+                      <!-- <ion-item> -->
                           <ion-label class="menu-col-12"   color="danger" style="font-size: 14pt;font-weight: bold;text-align: center;">{{ getFormatPrice(thisPrice) }}
                           <span style="color: #f82525;" v-if="isService">( {{i18n.t('frontend.home.priceEstimated')}} )</span>
  
                             </ion-label>                   
-                      </ion-item>                    
+                      <!-- </ion-item>                     -->
                         <ion-textarea v-if="!Description===''" style="padding: 0;" readonly>{{Description}}</ion-textarea>                    
-                    </ion-list>
+                    <!-- </ion-list> -->
 
-                  </div>
+                  </ion-col>
 
-                  <div :class="scope.isSmall || scope.noMatch ?'menu-col-12 ' : 'menu-col-6 ' " style="border: 0px !important; float:left">
+                  <ion-col size="12" size-md="6">
 
                     <div  v-if="productVariant.length > 0">
                       <ion-list  v-for="vari in productVariant" :key="vari._id"  style="padding: 0;border: 1px solid;"  >
@@ -55,8 +53,7 @@
                           <ion-radio-group :value="variantSelected.variant" @ionChange="changeVariant(vari._id, $event.target.value)">
                             <ion-item v-for="variant in vari.Variants" :key="variant._id"> 
                               <ion-avatar>
-                                <img :src="variant.ImageUrl">
-                                
+                                <img :src="variant.ImageUrl">                                
                               </ion-avatar> 
                               <ion-label>{{ variant.Name }}</ion-label>                          
                               <ion-label>( {{ getFormatPrice(variant.SalePrice) }} ) </ion-label>                          
@@ -100,8 +97,7 @@
                             <ion-toggle  slot="end"  
                              @ionChange="getIngredients($event.target.checked, index)" 
                              :checked="ing.selected === 1? true : false"> 
-                            </ion-toggle>{{ing.selected}}
-
+                            </ion-toggle>
                           </ion-item>
                       </ion-list>
                     </div>
@@ -120,23 +116,13 @@
                         
                       </ion-list>
                                                     
-                    </div>
+                    </ion-col>
 
                
-                  </div>
-            </v-breakpoint>
+              </ion-row>
+          </div>
 
-           
-          </ion-row>         
-
-          
-
-          
-
-          
-        
-        
-        </ion-card>
+        </div>
 
        
     <!-- </ion-content> -->
@@ -146,7 +132,6 @@
 <script>
 
 import { EventBus } from '../event-bus';
-import { VBreakpoint } from 'vue-breakpoint-component'
 import {i18n} from '@/plugins/i18n'
 import store from '../../main'
 
@@ -215,7 +200,6 @@ export default {
     }
   },
    components:{
-     VBreakpoint: VBreakpoint,    
   },
   computed:{
     getTotal() {
@@ -382,7 +366,7 @@ methods: {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.home.cantNotValid'),
           buttons: [                   
           {

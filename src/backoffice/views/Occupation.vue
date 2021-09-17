@@ -1,108 +1,29 @@
 <template>
-  <div id="occupation" class="screen">
+  <div id="user" class="page">
+    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
+    <router-link to="/user-form"><ion-button v-if="hasPermission('canCreateUser')" expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.user')}}</ion-button></router-link> -->
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.occupation')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/occupation-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateOccupation')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterOccupation = occupations"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-    
-   <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-      <div v-if="screenWidth < 600">
-          <paginate
-            name="languages"
-            :list="filterOccupation"
-            :per="8"
-          >
-            <ion-list>
-              <ion-item-sliding v-for="occupation in paginated('languages')" v-bind:key="occupation._id">
-                <ion-item>
-                  <ion-label>
-                      <h2>{{ occupation.Name }}</h2>
-                      <h3><div style="word-wrap: break-word">{{ occupation.Description }}</div></h3>
-                  </ion-label>
-                  <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                </ion-item>
-                <ion-item-options side="end">
-                  <ion-item-option v-if="isSupportUserLogin() || (hasPermission('canEditOccupation') && occupation.CanEdit)" color="primary" @click="editOccupation(occupation._id)">
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-item-option>
-                  <ion-item-option v-if="hasPermission('canDeleteOccupation') && occupation.CanEdit" color="danger" @click="deleteOccupation(occupation._id)">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-item-option>
-                </ion-item-options>
-              </ion-item-sliding>
-          </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>  
-    </div>
-
-    <div v-if="screenWidth >= 600">
-          <paginate
-            name="languages"
-            :list="filterOccupation"
-            :per="8"
-          >
-            <ion-list>
-              <ion-item v-for="occupation in paginated('languages')" v-bind:key="occupation._id">
-                <ion-label>
-                    <h2>{{ occupation.Name }}</h2>
-                    <h3><div style="word-wrap: break-word">{{ occupation.Description }}</div></h3>
-                </ion-label>
-                <ion-item-group side="end">
-                  <ion-button v-if="isSupportUserLogin() || (hasPermission('canEditOccupation') && occupation.CanEdit)" color="primary" @click="editOccupation(occupation._id)">
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-button>
-                  <ion-button v-if="hasPermission('canDeleteOccupation') && occupation.CanEdit" color="danger" @click="deleteOccupation(occupation._id)">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-button>
-                </ion-item-group>
-              </ion-item>
-          </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>  
-    </div>
-    </div>
+    <listView
+      :title="$t('backoffice.titles.occupation')"
+      :filter="filterOccupation"
+      :elements="occupations"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateOccupation')"
+      :edit="(hasPermission('canEditOccupation'))"
+      :remove="hasPermission('canDeleteOccupation')"
+      :isSupportUserLogin="isSupportUserLogin()"
+      @handleInput="handleInput"
+      @handleAddClick="addOccupation"     
+      @editElement="editOccupation"
+      @deleteElement="deleteOccupation" 
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
-
+import listView from "../components/ListView";
 export default {
 
   name: 'category',
@@ -120,9 +41,36 @@ export default {
 
       spinner: false,
       screenWidth: 0,
+      keyList: 0,
     }
   }, 
+  components: {
+    listView,
+  },
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.occupation = response.data
+        this.fetchOccupations();    
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+        
+  },
+   ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return null;
+      if(count === 4) return null;
+      if(count === 5) return null;
+
+    },
     
     isSupportUserLogin(){
         return this.$store.state.user.IsSupport
@@ -223,6 +171,12 @@ export default {
       this.filterOccupation = this.occupations;
   },
 
+    addOccupation: function(){
+        this.$router.push({
+        name: 'OccupationForm'
+      });
+    },
+
     editOccupation: function(id){
         this.$router.push({
         name: 'OccupationForm', 
@@ -258,7 +212,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteOccupation(id)
                       this.spinner = false

@@ -87,7 +87,6 @@ export default {
     },
     methods: {
         loadRestaurantData(){
-            console.log(this.$store.state.restaurantActive)
             this.restaurant = this.$store.state.restaurantActive;
             this.currentYear = Moment().format("yyyy");
         }

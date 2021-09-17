@@ -21,58 +21,71 @@
         :message="$t('frontend.tooltips.loadRestaurant')"
       ></ion-loading>
     <div >
-          <ion-item v-if="!externalProp">
-           <ion-label>{{$t('backoffice.form.fields.service')}}</ion-label>
-           <ion-checkbox slot="end" name="service" 
-            @ionChange="service = $event.target.checked"
-            :checked="service"  >    
-          </ion-checkbox>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-          <ion-input type="text" name="name"
-          @input="name = $event.target.value" 
-          v-bind:value="name">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
-          <ion-textarea name="description" 
-          @input="description = $event.target.value" 
-          v-bind:value="description">
-          </ion-textarea>
-        </ion-item>
-        <ion-item>
-          <ion-card v-if="checkImage()" >
-              <ion-img :src="file"></ion-img>
-          </ion-card>
-          <ion-card v-else>
-              {{ $t('backoffice.form.titles.imageText')}}
-          </ion-card>
-        </ion-item>
-        <ion-item>
-            <div>
-                <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
-            </div>
-           <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
-        </ion-item>
 
-        <ion-list>
-            <ion-list-header>
-                <ion-label>
-                   {{$t('backoffice.form.fields.parentCategory')}}
-                </ion-label>
-            </ion-list-header>
+      <div>
+        <ion-row>
+
+          <ion-col size="12" size-md="6" style="display: flex;align-items: center;justify-content: center;">
+
+            <ion-card style="width: 50%;"> 
+                <label v-if="checkImage()"> 
+                    <img   :src="file">
+                    <input type="file" accept="image/png, image/jpeg" style="display:none"  @change="handleImage" >
+                </label>
+                <label v-else>  {{ $t('backoffice.form.titles.imageText')}} 
+                    <input type="file" accept="image/png, image/jpeg" style="display:block"  @change="handleImage" >
+                </label>
+            </ion-card>
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+
+             <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+              <ion-input type="text" name="name"
+              @input="name = $event.target.value" 
+              v-bind:value="name">
+              </ion-input>
+            </ion-item>
 
             <ion-item>
-                <ion-label>{{$t('backoffice.form.titles.selectACategory')}}</ion-label>
-                <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                @ionChange="parentId = $event.target.value" v-bind:value="parentId">
-                    <ion-select-option :key="null" value="" >None</ion-select-option>
-                    <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
-                </ion-select>
+              <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
+              <ion-textarea name="description" 
+              @input="description = $event.target.value" 
+              v-bind:value="description">
+              </ion-textarea>
+            </ion-item>    
+
+            <ion-item>
+                {{$t('backoffice.form.fields.parentCategory')}}
+              <ion-select   interface="popover"
+              @ionChange="parentId = $event.target.value" v-bind:value="parentId">
+                  <ion-select-option :key="null" value="" >None</ion-select-option>
+                  <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
+              </ion-select>
             </ion-item>
-        </ion-list>
+
+            <ion-item v-if="!externalProp">
+                <ion-label>{{$t('backoffice.form.fields.service')}}</ion-label>
+                <ion-toggle slot="end" name="service" 
+                @ionChange="service = $event.target.checked"
+                :checked="service"  >    
+              </ion-toggle>
+            </ion-item>
+
+
+          </ion-col>
+        </ion-row>
+      </div>
+
+        
+       
+        
+      
+
+           
+          
 
       <!-- </ion-card>  -->
 
@@ -136,9 +149,6 @@ export default {
   },
   methods: {
     init(){
-
-        console.log(this.categTypeProp)
-
         this.fetchParentId();
         this.id = this.$route.params.categoryId;
         const data = this.$store.state.backConfig.category.find(c => c._id === this.id);
@@ -230,70 +240,21 @@ export default {
     checkImage: function(){
       return this.file != null;
     },
-    // pickImage(sourceType) {
-    //   const options = {
-    //     quality: 100,
-    //     sourceType: sourceType,
-    //     destinationType: Camera.DestinationType.FILE_URI,
-    //     encodingType: Camera.EncodingType.JPEG,
-    //     mediaType: Camera.MediaType.PICTURE
-    //   }
-    //   Camera.getPicture(options).then((imageData) => {
-    //     // imageData is either a base64 encoded string or a file URI
-    //     // let croppedImagePath = 'data:image/jpeg;base64,' + imageData;
-    //     alert("algo")
-    //     console.log(File)
-    //     console.log(imageData)
-    //   }, (err) => {
-    //     // Handle error
-    //     alert(err)
-    //     this.temp = "Noooo"
-    //     console.log("Se produjo el siguiente error: " + err)  
-    //   });
-    // },
+    
     handleImage: function(event)
     {
-        //    this.pickImage(Camera.PictureSourceType.PHOTOLIBRARY);
-
-        // ImagePicker.getPictures({}).then((results) => {
-        //   for (var i = 0; i < results.length; i++) {
-        //       console.log('Image URI: ' + results[i]);
-        //   }
-        // }, (err) => { console.log(err) });
+        
 
         const selectedImage = event.target.files[0];
         this.fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
-    // handleImage2: function(event){
-    //     const selectedImage = event.target.files[0];
-    //     this.fileName = selectedImage.name;
-    //     alert(this.fileName);
-    // },
-    // handleImage3: function(){
-    //     FileChooser.open()
-    //     .then(uri => console.log(uri))
-    //     .catch(e => {
-    //         console.log(e)
-    //         alert(e)
-    //     });
-    // },
-    // handleImage4: function(){
-    //     ImagePicker.getPictures({}).then((results) => {
-    //       for (var i = 0; i < results.length; i++) {
-    //           console.log('Image URI: ' + results[i]);
-    //       }
-    //     }, (err) => { 
-    //       alert(err)
-    //       console.log(err)
-    //     });
-    // },
+    
     createBase64Img: function(fileObject){
         const reader = new FileReader();
 
         reader.onload = (e) => {
             this.file = e.target.result;
-            //console.log(this.file);
         };
         reader.readAsDataURL(fileObject);
     },
@@ -360,7 +321,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveCategory)
                   })
@@ -375,6 +336,7 @@ export default {
                       //           this.$t('backoffice.list.messages.titleCreateCategory'));
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessCategory'), "success");                      
                       this.$store.state.backConfig.category.push(response.data);
+                       if(this.externalProp) return this.$emit("reloadCategory", response.data._id);
                       this.name = '';
                       this.description = '';
                       this.file = null;
@@ -390,7 +352,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveCategory)
                   })

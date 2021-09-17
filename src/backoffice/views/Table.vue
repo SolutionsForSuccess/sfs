@@ -1,214 +1,44 @@
 <template>
   <div id="mesa" class="screen">
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>            
-            <ion-label slot="end">
-            <router-link to="/table-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateTable')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterTables = tables"
-                :placeholder="$t('frontend.home.search')">           
-          </ion-searchbar>
-    </ion-header>
-
     <ion-segment id="reservationSegment" scrollable
       @ionChange="segmentChanged($event.target.value)"
-       :value="segmentValue"
+      :value="segmentValue"
         @input="value=segmentValue"
         style="widht: 100%">
         <ion-segment-button value="table">
-              {{$t('backoffice.titles.tables')}}                   
+            <span class="iconify" data-icon="vs:table"></span>                  
         </ion-segment-button>
+      
         <ion-segment-button value="maket">
-              {{$t('backoffice.titles.tables')}} - Maketa           
+            <span class="iconify" data-icon="ri:paint-brush-line"></span>        
         </ion-segment-button>
     </ion-segment>
 
-    <ion-spinner  v-if="spinnerState"></ion-spinner>                  
-
-     <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
       
     <div v-if="table">
-      <div v-if="screenWidth < 600">
-        <paginate
-          name="languages"
-          :list="filterTables"
-          :per="8"
-        >
-          <ion-list :key="key">
-            <ion-item-sliding v-for="table in paginated('languages')" v-bind:key="table._id">
-              <ion-item>
-                <ion-label>
-                    <h2>{{ table.Name }}</h2>
-                </ion-label>
-                <ion-label>
-                    <h3>{{ table.Description }}</h3>
-                    <h3>{{ table.Capacity }}</h3>
-                    <h3>{{ table.Barcode }}</h3>
-                </ion-label>
-                <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-              </ion-item>
-              <ion-item-options side="end">
-                <ion-item-option v-if="hasPermission('canEditTable')" color="primary" @click="editTable(table._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-item-option>
-                <ion-item-option v-if="hasPermission('canDeleteTable')" color="danger" @click="deleteTable(table._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-item-option>
-                <ion-item-option color="success" >
-                    <ion-icon slot="icon-only" name="list" @click="seeQrCode(table.Seats)"></ion-icon>
-                </ion-item-option>
-                <ion-item-option color="primary" v-if="(table.State=='Busy' || table.State=='Dirty') && hasPermission('canEditTable')">
-                    <ion-icon slot="icon-only" name="checkmark" @click="setAvailable(table)"></ion-icon>
-                </ion-item-option>
-                <ion-item-option color="danger" v-if="table.State=='Free' && hasPermission('canEditTable')">
-                    <ion-icon slot="icon-only" name="close" @click="setBusy(table)"></ion-icon>
-                </ion-item-option>
-              </ion-item-options>
-            </ion-item-sliding>
-        </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links> 
+   
+      <div id="user" class="page">
+        <listView
+          :title="$t('backoffice.titles.tables')"
+          :filter="filterTables"
+          :elements="tables"
+          :showQrTable="true"
+          :showOrderTable="true"
+          :viewSelected="'Admin'"
+          :add="hasPermission('canCreateTable')"
+          :edit="hasPermission('canEditTable')"
+          :remove="hasPermission('canDeleteTable')"
+          @handleInput="handleInput"
+          @handleAddClick="addTableForm"   
+          @editElement="editTable"
+          @deleteElement="deleteTable"   
+        ></listView>
       </div>
 
-      <div v-if="screenWidth >= 600">
-        <paginate
-          name="languages"
-          :list="filterTables"
-          :per="8"
-        >
-          <ion-list  :key="key">
-            <ion-item-sliding v-for="table in paginated('languages')" v-bind:key="table._id">
-              <ion-item  
-                 @click="hasPermission('canEditTable')? editTable(table._id): false"
-                :style="table.State=='Free' ? '--background:#76fb3838' :'--background:#ff00001f'">
-                <ion-label class="menu-col-4 elipsis-menu">
-                  <h2>{{ table.Name }}</h2>
-                </ion-label>
-                <ion-label class="menu-col-4 elipsis-menu">
-                    <h3>{{ table.Description }}</h3>                   
-                </ion-label>
-                 <ion-label class="menu-col-4 elipsis-menu">                   
-                    <h3 style="text-align: center;">{{ table.Seats.length }}</h3>
-                    <div style="position: absolute;right: 0;top: 30%;">
-                        <span class="iconify" data-icon="mdi:backburger" style="color: grey;margin:0;width: 20px; height: 20px;" data-inline="false"></span>                       
-                    </div> 
-                   
-
-                </ion-label>
-              </ion-item>
-
-               <ion-item-options side="end">
-                 
-                    <ion-item-option v-if="hasPermission('canEditTable')" color="primary" @click="editTable(table._id)" v-tooltip="'Editar'">
-                      <ion-icon slot="icon-only" name="create"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option v-if="hasPermission('canDeleteTable')" color="primary" @click="deleteTable(table._id)" v-tooltip="'Eliminar'">
-                      <ion-icon slot="icon-only" name="trash"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option  @click="seeQrCode(table.Seats)" v-tooltip="'Ver Qrs'">
-                       <span class="iconify" data-icon="ion:qr-code-sharp" data-inline="false"></span>  
-                    </ion-item-option>
-                    <ion-item-option color="primary" v-if="(table.State=='Busy' || table.State=='Dirty') && hasPermission('canEditTable')" v-tooltip="'Liberar'">
-                        <ion-icon slot="icon-only" name="checkmark" @click="setAvailable(table)"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option color="primary" v-if="table.State=='Free' && hasPermission('canEditTable')" v-tooltip="'Ocupar'">
-                        <ion-icon slot="icon-only" name="close" @click="setBusy(table)"></ion-icon>
-                    </ion-item-option>
-                  
-                 </ion-item-options>
-            </ion-item-sliding>
-        </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links> 
-      </div>
     </div>
 
-    <div  v-if="orderTable">
-
-      <v-breakpoint>
-          <div slot-scope="scope" :key="keyShape+'C'"   style="    display: flex;flex-wrap: wrap; align-items: center;">
-              <div  v-for="(table, index) in filterTables"  
-              
-                :key="index" style="float: left; padding: 5px; 2px" 
-                :class="scope.isLarge || scope.isXlarge ? 'menu-col-3' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-
-                <ion-card :key="keyShape"
-                    :class="table.Shape==='Square'?'square':table.Shape==='Circle'?'circle' :table.Shape==='Rectangular'? 'rectangle': 'oval'"
-                    :style="table.State=='Free' ? '--background:#76fb3838;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible' :'--background:#ff00001f;font-size: 18px;font-weight: 600;border: 1px solid grey;overflow: visible'"
-                   > 
-                    <div class="content">
-                      
-                        <ion-badge slot="start" style="padding: 10px; margin: 10px;position: absolute;left: 0;" @click="getOrdersDetails(table.Name)"
-                            color="light">{{getListOrder(table.Name).length}} / {{table.Seats.length}}
-                        </ion-badge> 
-        
-                        <ion-fab  vertical="top" horizontal="end" slot="fixed" style="overflow: visible;top: 0; right: 0;z-index: 10;">
-                          <ion-fab-button color="success">
-                            <span v-if="table.Shape==='Square'" class="iconify" data-icon="akar-icons:square" data-inline="false"></span>
-                            <span v-if="table.Shape==='Rectangular'" class="iconify" data-icon="cil:rectangle" data-inline="false"></span>
-                            <span v-if="table.Shape==='Circle'" class="iconify" data-icon="akar-icons:circle" data-inline="false"></span>
-                            <span v-if="table.Shape==='Oval'" class="iconify" data-icon="akar-icons:oval" data-inline="false" data-rotate="90deg" ></span>
-
-                          </ion-fab-button>
-                            <ion-fab-list side="botton">
-                              <ion-fab-button @click="setTableShape(table, 'Square')" 
-                              :color="table.Shape==='Square'? 'success': 'light'">
-                                <span class="iconify" data-icon="akar-icons:square" data-inline="false"></span>
-                              </ion-fab-button>
-                              <ion-fab-button @click="setTableShape(table, 'Rectangular')" 
-                              :color="table.Shape==='Rectangular'? 'success': 'light'">
-                                <span class="iconify" data-icon="cil:rectangle" data-inline="false"></span>
-                              </ion-fab-button>
-                              <ion-fab-button @click="setTableShape(table, 'Circle')"
-                              :color="table.Shape==='Circle'? 'success': 'light'">
-                                <span class="iconify" data-icon="akar-icons:circle" data-inline="false"></span>
-                              </ion-fab-button>                                   
-                              <ion-fab-button @click="setTableShape(table, 'Oval')"
-                              :color="table.Shape==='Oval'? 'success': 'light'">
-                                <span class="iconify" data-icon="akar-icons:oval" data-inline="false" data-rotate="90deg" ></span>
-                              </ion-fab-button>
-                            </ion-fab-list>
-                        </ion-fab>
-                                  
-                        <div style="display: flex; flex-direction: column; align-items: center;margin-top: 25%">
-                            {{table.Name}}
-                          <br>
-                          <p style="text-align: center;">TOTAL: {{ getAmoutByTable(table.Name) }}   </p>     
-                        </div>
-                    </div>     
-                    
-                </ion-card>  
-              </div>
-          </div>
-      </v-breakpoint>
-    
-    </div>
+   
 
     <div v-if="maket">
         <div style="display: flex;justify-content: flex-end;" :key="editMaket+keyRow">
@@ -335,7 +165,7 @@
 import { Api } from '../api/api.js';
 import Modal from './QrModal.vue';
 import TableOrderModal from './TableOrderModal';
-import { VBreakpoint } from 'vue-breakpoint-component'
+import listView from "../components/ListView";
 
 
 export default {
@@ -350,7 +180,7 @@ export default {
 
   },
    components:{   
-    VBreakpoint: VBreakpoint,  
+    listView,
   },
  
   data () {
@@ -365,7 +195,6 @@ export default {
       spinnerState: false,
       screenWidth: 0,
       table: true,
-      orderTable: false,
       maket: false,
       segmentValue: 'table',
       orders: [],
@@ -375,33 +204,47 @@ export default {
       restaurantSetting: {},
       rowC:1,
       editMaket: false,
-      keyEdit: false
+      keyEdit: false,
+      keyList: 0,
     }
   }, 
   methods: {
 
-    async segmentChanged(value){         
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.tables = response.data;
+        this.fetchTables();
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+    },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return null
+      if(count === 4) return option.Seats.length + ' Seats'
+      if(count === 5) return option.State
+    },
+
+    async segmentChanged(value){  
+       this.orders = this.$store.state.backConfig.order.filter(order => order.State < 5 && order.OrderType === 'On Table');       
             if(value === 'table'){
                 this.table = true;
-                this.orderTable = false;  
                 this.maket = false;              
-            }
-            if(value === 'orderTable'){
-              this.orders = this.$store.state.backConfig.order.filter(order => order.State < 5 && order.OrderType === 'On Table');
-              this.table = false;
-                this.maket = false;
-              this.orderTable = true;
-              //console.log('orders');
-              //console.log(this.orders.length);
-            }  
+            }          
             if(value === 'maket')   {
               this.table = false;
-              this.orderTable = false;
               this.maket = true;
             }          
             this.segmentValue = value;
 
-        },
+    },
    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -432,7 +275,8 @@ export default {
       this.filterTables = this.tables
       const query = value.toLowerCase();
       requestAnimationFrame(() => {   
-        let cat2 = this.tables.filter(item => item.Name.toLowerCase().indexOf(query) > -1)
+        let cat2 = this.tables.filter(item => item.Name.toLowerCase().indexOf(query) > -1 || 
+                                      item.State.toLowerCase().indexOf(query))
         if(cat2.length> 0)
           this.filterTables = cat2
         else
@@ -547,7 +391,7 @@ export default {
             return response
         })
         .catch(e => {
-            console.log(e)
+            e
             this.spinner = false
         })
     },
@@ -563,6 +407,12 @@ export default {
         this.$router.push({
         name: 'TableForm',
         params: { tableId: id }
+      });
+    },
+
+    addTableForm: function(){
+        this.$router.push({
+        name: 'TableForm'
       });
     },
 
@@ -594,7 +444,7 @@ export default {
                     return response;
                   })
                   .catch(e => {
-                    console.log(e);
+                    e;
                     this.ifErrorOccured(mess => {
                       this.deleteTable(id)
                       this.spinner = false
@@ -636,6 +486,7 @@ export default {
         })
         .then(m => m.present())
        }
+       return null;
        
      },
 
@@ -658,7 +509,7 @@ export default {
             response
         })
         .catch(e => {
-            console.log(e)            
+            e            
         })
     },
 
@@ -674,8 +525,6 @@ export default {
       this.keyShape ++;  
     },
 
-  
-
    async saveSetting(){ 
       this.keyEdit = true;
         await Api.putIn('Setting', this.restaurantSetting).then(response => {
@@ -685,7 +534,7 @@ export default {
             this.editMaket = false;
         })
         .catch(e => {
-            console.log(e)    
+            e    
             this.keyEdit = false;        
         })
     },  
@@ -697,7 +546,6 @@ export default {
       for (const tb of UJ) {
         for (const element of tb) {
           if(element.table === value){
-            console.log('Existe');   
             element.table = ''
           }                
         }        
@@ -717,14 +565,12 @@ export default {
     },
 
     deleteRow(index){
-      console.log(index)
       this.restaurantSetting.TableDesign.splice(index, 1);
       this.keyShape ++; 
       this.keyRow ++;  
     },
 
     deleteColRow(index, index1){
-      console.log(index, index1)
       this.restaurantSetting.TableDesign[index].splice(index1, 1);
        this.keyShape ++; 
         this.keyRow ++;  

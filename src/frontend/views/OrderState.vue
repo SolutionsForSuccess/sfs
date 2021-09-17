@@ -42,482 +42,467 @@
                 {{$t('frontend.home.clientRequired')}}</p>
         </ion-label>
 
-        <v-breakpoint v-if="!spinner1 && clientId !==''" :key="keyOrder">
-            <div slot-scope="scope" style="argin-top: 10px;">
+        <ion-card >
 
-                <span > 
-                    <ion-card :style="scope.isSmall || scope.isMedium || scope.noMatch? '' :'width: 80%; margin: 0 auto;'">
+            <p v-if="order.StaffName"> <ion-label class="ion-text-wrap" >
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                {{$t('frontend.orderType.worker')}}:<strong>  {{order.StaffName}} </strong> </h2>
+            </ion-label></p>   
+                
+            <p> <ion-label class="ion-text-wrap" >
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                {{$t('frontend.order.client')}}:<strong>  {{CustomerName}} </strong> </h2>
+            </ion-label></p>
+            
+            <p v-if="order.OrderForCatering && order.State !== 7"><ion-label class="ion-text-wrap">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.date')}}: <strong>  {{ dateEstimateToPick }} : {{ hourEstimateToPick }}</strong>  </h2>
+            </ion-label></p>
 
-                        <p v-if="order.StaffName"> <ion-label class="ion-text-wrap" >
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.orderType.worker')}}:<strong>  {{order.StaffName}} </strong> </h2>
-                        </ion-label></p>   
-                         
-                       <p> <ion-label class="ion-text-wrap" >
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.order.client')}}:<strong>  {{CustomerName}} </strong> </h2>
-                        </ion-label></p>
-                        
-                        <p v-if="order.OrderForCatering && order.State !== 7"><ion-label class="ion-text-wrap">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                               {{$t('frontend.order.date')}}: <strong>  {{ dateEstimateToPick }} : {{ hourEstimateToPick }}</strong>  </h2>
-                        </ion-label></p>
+            <p v-if="order.OrderForCatering && order.State === 7"><ion-label class="ion-text-wrap">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.dateToPickEstimated')}}: <strong>  {{ dateEstimateToPick }} </strong>  </h2>
+            </ion-label></p>
 
-                        <p v-if="order.OrderForCatering && order.State === 7"><ion-label class="ion-text-wrap">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                               {{$t('frontend.order.dateToPickEstimated')}}: <strong>  {{ dateEstimateToPick }} </strong>  </h2>
-                        </ion-label></p>
+            <p v-if="order.OrderForCatering && order.State === 7"><ion-label class="ion-text-wrap">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.hourToPickEstimated')}}: <strong> {{ hourEstimateToPick }}</strong>  </h2>
+            </ion-label></p>
 
-                        <p v-if="order.OrderForCatering && order.State === 7"><ion-label class="ion-text-wrap">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                               {{$t('frontend.order.hourToPickEstimated')}}: <strong> {{ hourEstimateToPick }}</strong>  </h2>
-                        </ion-label></p>
+            <p v-if="!order.OrderForCatering && order.OrderType !=='PickUp'"><ion-label class="ion-text-wrap">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.date')}}: <strong>  {{ date }}</strong>  </h2>
+            </ion-label></p>
 
-                        <p v-if="!order.OrderForCatering && order.OrderType !=='PickUp'"><ion-label class="ion-text-wrap">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                               {{$t('frontend.order.date')}}: <strong>  {{ date }}</strong>  </h2>
-                        </ion-label></p>
+            <p v-if="!order.OrderForCatering"><ion-label class="ion-text-wrap">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{ allTypeOrder[order.OrderType] }}: <strong>  {{ orderInfo}} </strong>  </h2>
+            </ion-label></p>
 
-                        <p v-if="!order.OrderForCatering"><ion-label class="ion-text-wrap">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{ allTypeOrder[order.OrderType] }}: <strong>  {{ orderInfo}} </strong>  </h2>
-                        </ion-label></p>
+            <div v-if="order.Payment || order.QuotationPaymentDetail || order.PaymentMethod">
+                <ion-label class="ion-text-wrap">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                        {{$t('frontend.order.payment')}}:  </h2>
+                </ion-label>
 
-                        <div v-if="order.Payment || order.QuotationPaymentDetail || order.PaymentMethod">
-                            <ion-label class="ion-text-wrap">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                    {{$t('frontend.order.payment')}}:  </h2>
-                            </ion-label>
+                <div v-if="order.QuotationPaymentDetail">
+                    <h2 v-if="order.QuotationPaymentDetail" style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
+                        {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(order.QuotationPaymentDetail.total)}} </strong>  |
+                        {{$t('frontend.order.transId')}}: <strong>  {{ order.QuotationPaymentDetail.transId}} </strong>  |
+                        {{$t('frontend.order.paymentMethod')}}: <strong>  {{ order.QuotationPaymentDetail.method}} -  {{ order.QuotationPaymentDetail.accountNumber}}</strong>  </h2>
 
-                            <div v-if="order.QuotationPaymentDetail">
-                                <h2 v-if="order.QuotationPaymentDetail" style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
-                                    {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(order.QuotationPaymentDetail.total)}} </strong>  |
-                                    {{$t('frontend.order.transId')}}: <strong>  {{ order.QuotationPaymentDetail.transId}} </strong>  |
-                                    {{$t('frontend.order.paymentMethod')}}: <strong>  {{ order.QuotationPaymentDetail.method}} -  {{ order.QuotationPaymentDetail.accountNumber}}</strong>  </h2>
+                </div>
+                    <div v-if="order.Payment">
+                    <p v-for="(payment, Index) of order.Payment" v-bind:key="Index"><ion-label class="ion-text-wrap">
+                        <h2 v-if="payment.paymentInfo" style="width: 100%;float: left;font-size: 16px;
+                        text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
+                            {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(payment.total)}} </strong>  |
+                            {{$t('frontend.order.transId')}}: <strong>  {{ payment.paymentInfo.transId}} </strong>  |
+                            {{$t('frontend.order.paymentMethod')}}: <strong>  {{ payment.PaymentMethod}} </strong>  </h2>
+                    </ion-label></p>
+                </div>
+                <div v-if="order.PaymentMethod">
+                    <p ><ion-label class="ion-text-wrap">                               
+                        <h2  style="width: 100%;float: left;font-size: 16px;
+                            text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
+                            {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(order.AmountCheckPayment)}} </strong>  |                                
+                            {{$t('frontend.order.paymentMethod')}}: <strong>  {{ order.PaymentMethod}} </strong>  </h2>
+                    </ion-label></p>
+                </div>
 
-                            </div>
-                             <div v-if="order.Payment">
-                                <p v-for="(payment, Index) of order.Payment" v-bind:key="Index"><ion-label class="ion-text-wrap">
-                                    <h2 v-if="payment.paymentInfo" style="width: 100%;float: left;font-size: 16px;
-                                    text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
-                                        {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(payment.total)}} </strong>  |
-                                        {{$t('frontend.order.transId')}}: <strong>  {{ payment.paymentInfo.transId}} </strong>  |
-                                        {{$t('frontend.order.paymentMethod')}}: <strong>  {{ payment.PaymentMethod}} </strong>  </h2>
-                                </ion-label></p>
-                            </div>
-                            <div v-if="order.PaymentMethod">
-                                <p ><ion-label class="ion-text-wrap">                               
-                                    <h2  style="width: 100%;float: left;font-size: 16px;
-                                        text-align: left; padding-left: 40px;color: black;margin: 5px !important;">
-                                        {{$t('frontend.order.total')}}: <strong>  {{ getFormatPrice(order.AmountCheckPayment)}} </strong>  |                                
-                                        {{$t('frontend.order.paymentMethod')}}: <strong>  {{ order.PaymentMethod}} </strong>  </h2>
-                                </ion-label></p>
-                            </div>
+            </div>
+            
 
-                        </div>
-                       
-
-                        <div v-if="order.OrderType ==='Curbside'" style="margin: 25px; 0px" :key="keyCurbside">
-                            <ion-item-divider />
-                            
-                            <ion-item class="ion-text-wrap">
-                                <h2 class="titles-order" style="float: left;">{{$t('frontend.home.curbsideDetail')}}</h2>
-                                <ion-button 
-                                v-if="order.State !=5 && !order.CarArrived"
-                                fill="outline"  
-                                style="float: left; margin-right: 10px;" 
-                                @click="updateCurbsideOrder()" 
-                                v-tooltip="$t('frontend.tooltips.editTicket')"> 
-                                   <ion-spinner v-if="spinnerUpdateCurbside" name="lines"  ></ion-spinner>
-                                   <span class="iconify" v-if="!spinnerUpdateCurbside" data-icon="ant-design:edit-filled" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>                                    
-                                </ion-button>                               
-                            </ion-item>                    
-                             <ion-item>
-                                <ion-label position="floating">{{$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong></ion-label>
-                                <ion-input 
-                                :readonly="order.State ===5 || order.CarArrived? true : false"
-                                :value="order.LicencePlate" 
-                                @input="licencePlate = $event.target.value"></ion-input>
-                            </ion-item>
-                            <ion-item>
-                                <ion-label position="floating">{{$t('frontend.orderType.vehicleModel') }}<strong style="color: red">*</strong></ion-label>
-                                <ion-input
-                                :readonly="order.State ===5 || order.CarArrived? true : false"
-                                :value="order.VehicleModel"
-                                @input="vehicleModel = $event.target.value"></ion-input>
-                            </ion-item>
-                            <ion-item>
-                                <ion-label position="floating">{{$t('frontend.orderType.vehicleColor') }}<strong style="color: red">*</strong></ion-label>
-                                <ion-input 
-                                :readonly="order.State ===5 || order.CarArrived? true : false"
-                                :value="order.VehicleColor" 
-                                @input="vehicleColor = $event.target.value"></ion-input>
-                            </ion-item>
-                             <ion-item v-if="order.State !==5 && !order.CarArrived" :key="keyCarArrived">
-                                <ion-label style="display: contents;">{{$t('frontend.tooltips.getToRestaurant') }}</ion-label>
-                                 <ion-button fill="outline"  style="float: left; margin: 15px;" @click="carArrived()" > 
-                                    <ion-spinner v-if="spinnerCarArrived" name="lines"  ></ion-spinner>
-                                    <span class="iconify" v-if="!spinnerCarArrived" data-icon="clarity:car-solid" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>
-                                </ion-button>
-                            </ion-item>
-                            <ion-item v-if="order.CarArrived && !spinnerCarArrived && order.State !==5" :key="keyCarArrived+'1'">
-                                <ion-label style="display: contents;">{{$t('frontend.tooltips.carInRestaurant') }}</ion-label>     
-                                <span class="iconify" data-icon="clarity:car-solid" data-inline="false" style="width: 20px;height: 20px; float: left; margin: 15px;color: #48bc76;"></span>                               
-                            </ion-item>
-                            
-                        </div>
-
-                                                                                                   
-                        <ion-item-divider v-else style="margin-bottom: 15px;"/>
-
-                        <div v-if="order.OrderForCatering">
-
-                            <ion-label class="ion-text-wrap"  v-if="order.EventName">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.order.eventName')}}: <strong> {{order.EventName}} </strong> </h2>
-                             </ion-label>
-                             <ion-label class="ion-text-wrap"  v-if="order.CateringEvent">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.home.eventType')}}: <strong> {{order.CateringEvent}} </strong> </h2>
-                             </ion-label>
-                             <ion-label class="ion-text-wrap"  v-if="order.NumberOfGuess">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.order.guessNumber')}}: <strong> {{order.NumberOfGuess}} </strong> </h2>
-                             </ion-label>
-                              <ion-label class="ion-text-wrap"  v-if="order.EventDate">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.order.eventDate')}}: <strong> {{order.EventDate}} </strong> </h2>
-                             </ion-label>
-                             <ion-label class="ion-text-wrap"  v-if="order.EventTimeStart">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.order.eventStartHour')}}: <strong> {{order.EventTimeStart}} </strong> </h2>
-                             </ion-label>
-                             <ion-label class="ion-text-wrap"  v-if="order.EventTimeEnd">
-                                <h2  style="width: 100%;float: left;font-size: 16px;
-                                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                                {{$t('frontend.order.eventEndHour')}}: <strong> {{order.EventTimeEnd}} </strong> </h2>
-                             </ion-label>
-                            <ion-item-divider style="margin-bottom: 15px;"/>
-                        </div>
-
-
-                        <ion-label class="ion-text-wrap"  v-if="showCooker && cooker!=''">
-                            <h2  style="width: 100%;float: left;font-size: 16px;
-                            text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
-                            {{$t('frontend.order.cooker')}}: <strong> {{cooker}} </strong> </h2>
-                        </ion-label>
-
-                        <ion-label class="ion-text-wrap col-md-12">                      
-                            <strong  class="state-menu" :style="order.State===6 ? 'padding: 10px;background:rgb(255 0 0 / 43%)' : ''">
-                                {{$t('frontend.order.orderState')}}: {{valEstate}}
-                                <span>
-                                    <ion-icon v-if="order.OrderType ==='Delivery' && !spinner && showStates<5" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
-                                    <ion-icon v-if="order.OrderType !=='Delivery' && !spinner && showStates < 4" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
-                                    <ion-icon v-if="!spinner && showStates === 7" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
-                                    <span v-if="!spinner && showStates !==8 && showStates !==6 && showStates !==5" style="font-size: 9px; display: contents;" color="success">{{$t('frontend.menu.refresh')}}</span>   
-                                </span>                               
-                               <ion-spinner v-if="spinner" name="lines"  color="success" style="top: 10px;position: relative;"></ion-spinner>                           
-                            </strong>                               
-                        </ion-label>
-
-                       <br>
-
-                        <ion-label class="ion-text-wrap" v-if="showStates ===6 && order.CancelNote">                      
-                            <strong  class="state-menu" :style="order.State===6 ? 'padding: 10px;background:rgb(255 0 0 / 43%)' : ''">
-                                {{$t('frontend.order.cancelReason')}}: {{order.CancelNote}}
-                       </strong> 
-                        </ion-label>
-
-
-                        <ion-range v-if="order.OrderType == 'Delivery' && showStates < 6 "
-                        min="1" max="5" step="1" snaps="true" :key="key"
-                         color="secondary" :value="showStates" pin="true" ticks="true"                    
-                        @ionChange="valueEstate($event.target.value)">
-                            <ion-label slot="start" ></ion-label>
-                             <ion-chip slot="end" color="secondary">
-                                <ion-label>{{currentState || valEstate}}</ion-label>
-                            </ion-chip>
-                        </ion-range>
-
-                        <ion-range
-                         v-if="order.OrderType != 'Delivery' && showStates < 5 "
-                         :key="key+'1'"
-                            min="1" 
-                            max="4"
-                            step="1" 
-                            snaps="true" 
-                            style="padding-top: 8px;"
-                            color="secondary" 
-                            :value="showStates" 
-                            pin="true"
-                            ticks="true"                    
-                            @ionChange="valueEstate($event.target.value)">
-                            <ion-label slot="start" ></ion-label>
-                             <ion-chip slot="end" color="secondary">
-                                <ion-label>{{currentState || valEstate}}</ion-label>
-                            </ion-chip>
-                        </ion-range>
-
-                        <Localization  
-                           v-if="order.OrderType == 'Delivery' && showStates ===4 && order.IsAccept && configuration.CanViewGeolocation"                          
-                            :orderProps="order" 
-                            :funProps="'read'"
-                            style="padding: 0 10px;"
-                        ></Localization>
-                          
-                        <ion-item-divider/>        
-
-                        <ion-list>
-                            <ion-label class="ion-text-wrap">
-                                <h2 class="titles-order" style="width: 50%;float: left;">{{$t('frontend.order.products')}}</h2>
-                            </ion-label>
-                            <ion-item-sliding>
-                                <ion-item >
-                                    <ion-label class="ion-text-wrap menu-col-4 elipsis-menu"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.name')}}</h2> </ion-label>
-                                    <ion-label class="ion-text-wrap menu-col-2 elipsis-menu"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.cant')}}</h3></ion-label>
-                                    <ion-label class="ion-text-wrap menu-col-3 elipsis-menu"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.price')}}</h3></ion-label>
-                                    <ion-label class="ion-text-wrap menu-col-3 elipsis-menu"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
-                                </ion-item>
-                            </ion-item-sliding>
-                            <ion-item-sliding v-for="(product, index2) in order.Products" v-bind:key="index2">
-
-                                <ion-item>
-                                    <div class="ion-text-wrap menu-col-4" >
-                                        <p> <strong>{{ product.Name }} <span v-if="product.VariantSelected"> {{ product.VariantSelected.name }}</span></strong></p>
-                                        <p v-if="hasSomeNote(product)" style="background: #f1f1004d;">{{getIngredientNote(product)}} <br> {{product.Note}}</p>
-                                    </div>
-                                    <ion-label class="ion-text-wrap menu-col-2">                        
-                                        <h3>{{ product.Cant }}</h3>                       
-                                    </ion-label>
-                                    <ion-label class="ion-text-wrap menu-col-3" >
-                                        <h3> {{ getFormatPrice(product.Price) }}</h3>
-                                    </ion-label>
-                                    <ion-label class="ion-text-wrap menu-col-3" >
-                                        <h3>{{ getFormatPrice(product.Price * product.Cant) }}</h3>
-                                         <div v-if="product.State === 1" style="position: absolute;right: 0;top: 30%;">
-                                            <span class="iconify" data-icon="websymbol:ok" data-inline="false" style="color: green;margin:0;width: 20px; height: 20px;" ></span>
-                                        </div> 
-                                    </ion-label>
-                                </ion-item>
-
-                                 <ion-list-header v-if="product.Aggregates.length > 0" style="padding: 20px 35px;">
-                                    {{$t('frontend.home.aggregateFree')}}: {{product.CantAggr=product.AggregatesCant * product.Cant}}
-                                </ion-list-header>
-
-                                <ion-item v-for="(agg, index1) in product.Aggregates" :key="index1"  >
-                                               
-                                    <div class="menu-col-4" style="    text-align: left;padding-left: 30px;">
-                                        <p>{{agg.Name}} <br> </p>  
-                                    </div>                                                             
-                                    <div class="menu-col-2">  
-                                        <ion-label>{{agg.Cant}} </ion-label>  
-                                    </div> 
-                                     <div class="menu-col-3">  
-                                        <ion-label>{{getFormatPrice(agg.SalePrice)}}</ion-label>  
-                                    </div>                                      
-                                     <div class="menu-col-3">  
-                                        <ion-label>{{getFormatPrice(agg.AllTotal) }} </ion-label>  
-                                    </div>                                   
-                                </ion-item>
-                                
-                            </ion-item-sliding>
-
-                            <ion-item-sliding>
-                                <ion-label class="ion-text-wrap" v-if="order.OtherCharges.length >0">
-                                    <h2 class="titles-order">{{$t('frontend.order.otherCharges')}}</h2> 
-                                </ion-label>
-                                <ion-item-sliding  v-for="charge in order.OtherCharges" v-bind:key="charge.Id">
-                                    <ion-item>
-                                        <div class="menu-col-4">
-                                            <p>{{ charge.Name }} </p>
-                                        </div>
-                                        <ion-label  class="menu-col-2"> </ion-label>
-                                        <ion-label  class="menu-col-3"> </ion-label>
-                                        <ion-label  class="menu-col-3" >
-                                            <h3> {{ getFormatPrice(charge.Price) }} </h3>
-                                        </ion-label>
-                                        
-                                    </ion-item>
-                                </ion-item-sliding>
-                            </ion-item-sliding>
-
-
-                            <ion-item-slidin style="border-top: 1px solid grey;" >
-
-                                <ion-item style="font-size: 16px;font-weight: bold;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"></ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p  style="text-align:right">{{$t('frontend.order.subtotal')}} </p></div>
-                                    <div :class="scope.isSmall ||  scope.noMatch? 'menu-col-5 padding-menu' : 'menu-col-3'"  style="text-align:right">{{getFormatPrice(order.SubTotal)}}</div>                    
-                                </ion-item>                               
-
-                                <ion-item style="font-size: 16px;font-weight: bold;" v-for="(tax, index) in order.AllTaxes" :key="index"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{tax.Name}} ({{tax.Percentage}} %)</p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5' : 'menu-col-3'"  style="text-align:right">{{ getFormatPrice(tax.Percentage * order.SubTotal / 100)}} </p>                    
-                                </ion-item>
-
-                                <ion-item v-if="order.OrderType =='Delivery' && order.Shipping" style="font-size: 16px;font-weight: bold;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'"> <p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.deliver')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5' : 'menu-col-3'"  style="text-align:right">{{getFormatPrice(order.Shipping)}}</p>                    
-                                </ion-item>
-
-                                <ion-item style="font-size: 16px;font-weight: bold;" v-if="order.Tip"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" > <p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.tip')}} {{order.Tip }}%</p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5' : 'menu-col-3'"  style="text-align:right" >{{ getFormatPrice(order.Tip * order.SubTotal / 100) }} </p>                    
-                                </ion-item>
-
-                                <ion-item v-if="order.Discount" style="font-size: 16px;font-weight: bold;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"></ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p  style="text-align:right">{{$t('frontend.reservation.discount')}} </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5' : 'menu-col-3'"  style="text-align:right"> {{getFormatPrice(order.Discount) }}</p>                    
-                                </ion-item>
-                                
-                                <ion-item style="    color: red;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.total')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'"  style="text-align:right">{{getFormatPrice(order.Total)}}</p>                    
-                                </ion-item>
-
-                                <ion-item  v-if="order.QuotationPayment" style="color: #399922;font-size: 16px;font-weight: bold;text-transform: uppercase;"> 
-                                    <ion-label  :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.quotationPayment')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'" style="text-align:right">{{getFormatPrice(order.QuotationPayment)}}</p>                    
-                                </ion-item>
-
-                                <ion-item  v-if="order.QuotationPayment && !parcialPayment && order.PendingPayment === undefined" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'" style="text-align:right">{{ getFormatPrice(order.Total - order.QuotationPayment)}}</p>                    
-                                </ion-item>
-
-                                 <ion-item  v-if="parcialPayment && order.Deadline && order.State === 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.parcialPayment')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'" style="text-align:right"> {{ getFormatPrice(totalWithoutQuotation * order.Deadline[0].Percent / 100) }}</p>                    
-                                </ion-item>
-
-                                <ion-item  v-if="parcialPayment && order.Deadline && order.State === 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'"  ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'" style="text-align:right"> {{ getFormatPrice(pendingPayment()) }}</p>                    
-                                </ion-item>
-
-                                <ion-item  v-if="order.PendingPayment !== undefined && order.State !== 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
-                                    <ion-label :class="scope.isSmall ||  scope.noMatch? '' : 'menu-col-4'"> </ion-label>
-                                    <div :class="scope.isSmall || scope.noMatch? 'menu-col-6' : 'menu-col-3'" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></div>
-                                    <p :class="scope.isSmall || scope.noMatch? 'menu-col-5 menu-bold-title' : 'menu-col-3 menu-bold-title'" style="text-align:right"> {{ getFormatPrice(order.PendingPayment) }}</p>                    
-                                </ion-item>
-
-                                <div v-if="order.State !== 8 && order.Deadline">
-                                     <ion-card-title v-if="order.State !== 8 && order.Deadline.length > 0" >                                         
-                                       {{$t('frontend.order.parcialPayment')}}  
-                                </ion-card-title>
-
-                                <div v-if="order.State !== 8 && order.Deadline.length > 0" class="subtitles-order" style="display: flex;overflow: auto;">
-
-                                   
-                                                               
-                                    <ion-card v-for="dead in order.Deadline" v-bind:key="dead.Date" 
-                                     :class="scope.isSmall || scope.noMatch ? 'subtitles-order menu-col-6 sc-ion-card-md-h sc-ion-card-md-s md hydrated' :'subtitles-order menu-col-3 sc-ion-card-md-h sc-ion-card-md-s md hydrated'"
-                                     style="text-align: center;display: inline-block; visibility: visible;">
-                                                                                                                  
-                                        <ion-label> <p class="percent-payment"> {{dead.Percent}}% </p> 
-                                                    <span class="iconify" data-icon="ic:baseline-update" data-inline="false" style="width: 18px;height: 18px;float: left;"></span>
-                                                    <p style="text-align: left; font-weight: bold"> {{ getFormatDate(dead.Date) }} </p>
-                                        </ion-label> 
-                                        <ion-progress-bar color="success" :value="dead.State=== 0 ? 0 : 1" ></ion-progress-bar>
-                                        <ion-label :color="dead.State=== 1 ?'success': 'danger'">
-                                            <strong>  {{getFormatPrice(totalWithoutQuotation * dead.Percent / 100)}} </strong>
-                                            <span v-if="dead.State=== 1" class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="width: 18px;height: 18px;float: right;"></span>   
-                                        </ion-label>
-                                    
-                                    </ion-card>
-                                </div>
-
-                                </div>
-
-                               
-                            </ion-item-slidin>
-
-                        </ion-list>
-
-                        <ion-card v-if="order.Note">
-                            <ion-label class="ion-text-wrap" >
-                                <h2 class="titles-order"> {{$t('frontend.order.notes')}}</h2> 
-                            </ion-label>
-                            <ion-label style="-webkit-user-modify: read-write-plaintext-only;text-align: left;display: inline-table;">
-                                {{order.Note}} </ion-label>
-                        </ion-card>
-
-                    </ion-card>
-
-                    
-                    <ion-card  style="padding: 0 10px" v-if="order.State === 8">
-
-                        <ion-label class="ion-text-wrap" >
-                                <h2 class="titles-order">{{$t('frontend.order.payment')}}: </h2> 
-                        </ion-label>
-
-                        
-
-                         <ion-item v-if="order.Deadline">
-                            <p style=" float: left;text-align: left;padding: 0" class="subtitles-order menu-col-4">{{$t('frontend.order.parcialPayment')}} </p>                               
-                            <ion-toggle color="primary" :value="parcialPayment" @ionChange="parcialPayment = !parcialPayment"></ion-toggle>
-                        </ion-item>
-
-                        <div v-if="parcialPayment && order.Deadline" class="subtitles-order" style="display: flex;overflow: auto;">
-                            
-                            <ion-card v-for="(dead, index3) in order.Deadline" v-bind:key="index3" 
-                             :class="scope.isSmall || scope.noMatch ? 'subtitles-order menu-col-6' :'subtitles-order menu-col-3'" 
-                             :style="index === 0 ? 'text-align: center;display: inline-block; border: 2px solid #21e321a6;' : 'display: inline-block; text-align: center;'">
-                                
-                                
-                               
-                                <ion-label> <p class="percent-payment"> {{dead.Percent}}% </p> 
-                                    <span class="iconify" data-icon="ic:baseline-update" data-inline="false" style="width: 18px;height: 18px;float: left;"></span>
-                                    <p style="text-align: left; font-weight: bold"> {{ getFormatDate(dead.Date) }} </p>
-                                </ion-label> 
-                                <ion-progress-bar color="success" :value="dead.State=== 0 ? 0 : 1" ></ion-progress-bar>
-                                <ion-label :color="dead.State=== 1 ?'success': 'danger'">
-                                    <strong> {{ getFormatPrice(totalWithoutQuotation * dead.Percent / 100)}} </strong>
-                                    <span v-if="dead.State=== 1" class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="width: 18px;height: 18px;float: right;"></span>   
-                                </ion-label>
-                               
-                            </ion-card>
-                        </div>
-
-
-                        <ion-button  color="danger"   @click.stop=" cancelOrder"> {{$t('frontend.home.cancel')}}</ion-button>
-                        <ion-button  color="primary"  @click.stop="payOrder">{{$t('frontend.order.pay')}}</ion-button>
-
-                                        
-                    </ion-card>
-                    
-                </span>
-
+            <div v-if="order.OrderType ==='Curbside'" style="margin: 25px; 0px" :key="keyCurbside">
+                <ion-item-divider />
+                
+                <ion-item class="ion-text-wrap">
+                    <h2 class="titles-order" style="float: left;">{{$t('frontend.home.curbsideDetail')}}</h2>
+                    <ion-button 
+                    v-if="order.State !=5 && !order.CarArrived"
+                    fill="outline"  
+                    style="float: left; margin-right: 10px;" 
+                    @click="updateCurbsideOrder()" 
+                    v-tooltip="$t('frontend.tooltips.editTicket')"> 
+                        <ion-spinner v-if="spinnerUpdateCurbside" name="lines"  ></ion-spinner>
+                        <span class="iconify" v-if="!spinnerUpdateCurbside" data-icon="ant-design:edit-filled" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>                                    
+                    </ion-button>                               
+                </ion-item>                    
+                    <ion-item>
+                    <ion-label position="floating">{{$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong></ion-label>
+                    <ion-input 
+                    :readonly="order.State ===5 || order.CarArrived? true : false"
+                    :value="order.LicencePlate" 
+                    @input="licencePlate = $event.target.value"></ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating">{{$t('frontend.orderType.vehicleModel') }}<strong style="color: red">*</strong></ion-label>
+                    <ion-input
+                    :readonly="order.State ===5 || order.CarArrived? true : false"
+                    :value="order.VehicleModel"
+                    @input="vehicleModel = $event.target.value"></ion-input>
+                </ion-item>
+                <ion-item>
+                    <ion-label position="floating">{{$t('frontend.orderType.vehicleColor') }}<strong style="color: red">*</strong></ion-label>
+                    <ion-input 
+                    :readonly="order.State ===5 || order.CarArrived? true : false"
+                    :value="order.VehicleColor" 
+                    @input="vehicleColor = $event.target.value"></ion-input>
+                </ion-item>
+                    <ion-item v-if="order.State !==5 && !order.CarArrived" :key="keyCarArrived">
+                    <ion-label style="display: contents;">{{$t('frontend.tooltips.getToRestaurant') }}</ion-label>
+                        <ion-button fill="outline"  style="float: left; margin: 15px;" @click="carArrived()" > 
+                        <ion-spinner v-if="spinnerCarArrived" name="lines"  ></ion-spinner>
+                        <span class="iconify" v-if="!spinnerCarArrived" data-icon="clarity:car-solid" data-inline="false" style="width: 20px;height: 20px; margin: 0;"></span>
+                    </ion-button>
+                </ion-item>
+                <ion-item v-if="order.CarArrived && !spinnerCarArrived && order.State !==5" :key="keyCarArrived+'1'">
+                    <ion-label style="display: contents;">{{$t('frontend.tooltips.carInRestaurant') }}</ion-label>     
+                    <span class="iconify" data-icon="clarity:car-solid" data-inline="false" style="width: 20px;height: 20px; float: left; margin: 15px;color: #48bc76;"></span>                               
+                </ion-item>
                 
             </div>
-        </v-breakpoint>
+
+                                                                                        
+            <ion-item-divider v-else style="margin-bottom: 15px;"/>
+
+            <div v-if="order.OrderForCatering">
+
+                <ion-label class="ion-text-wrap"  v-if="order.EventName">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.eventName')}}: <strong> {{order.EventName}} </strong> </h2>
+                    </ion-label>
+                    <ion-label class="ion-text-wrap"  v-if="order.CateringEvent">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.home.eventType')}}: <strong> {{order.CateringEvent}} </strong> </h2>
+                    </ion-label>
+                    <ion-label class="ion-text-wrap"  v-if="order.NumberOfGuess">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.guessNumber')}}: <strong> {{order.NumberOfGuess}} </strong> </h2>
+                    </ion-label>
+                    <ion-label class="ion-text-wrap"  v-if="order.EventDate">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.eventDate')}}: <strong> {{order.EventDate}} </strong> </h2>
+                    </ion-label>
+                    <ion-label class="ion-text-wrap"  v-if="order.EventTimeStart">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.eventStartHour')}}: <strong> {{order.EventTimeStart}} </strong> </h2>
+                    </ion-label>
+                    <ion-label class="ion-text-wrap"  v-if="order.EventTimeEnd">
+                    <h2  style="width: 100%;float: left;font-size: 16px;
+                    text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                    {{$t('frontend.order.eventEndHour')}}: <strong> {{order.EventTimeEnd}} </strong> </h2>
+                    </ion-label>
+                <ion-item-divider style="margin-bottom: 15px;"/>
+            </div>
+
+
+            <ion-label class="ion-text-wrap"  v-if="showCooker && cooker!=''">
+                <h2  style="width: 100%;float: left;font-size: 16px;
+                text-align: left; padding-left: 20px;color: black;margin: 5px !important;">
+                {{$t('frontend.order.cooker')}}: <strong> {{cooker}} </strong> </h2>
+            </ion-label>
+
+            <ion-label class="ion-text-wrap col-md-12">                      
+                <strong  class="state-menu" :style="order.State===6 ? 'padding: 10px;background:rgb(255 0 0 / 43%)' : ''">
+                    {{$t('frontend.order.orderState')}}: {{valEstate}}
+                    <span>
+                        <ion-icon v-if="order.OrderType ==='Delivery' && !spinner && showStates<5" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
+                        <ion-icon v-if="order.OrderType !=='Delivery' && !spinner && showStates < 4" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
+                        <ion-icon v-if="!spinner && showStates === 7" name="refresh" @click="chargeOrder" color="success" size="large" style="top: 10px;position: relative;" v-tooltip="$t('frontend.tooltips.refreshOrder')"> </ion-icon>  
+                        <span v-if="!spinner && showStates !==8 && showStates !==6 && showStates !==5" style="font-size: 9px; display: contents;" color="success">{{$t('frontend.menu.refresh')}}</span>   
+                    </span>                               
+                    <ion-spinner v-if="spinner" name="lines"  color="success" style="top: 10px;position: relative;"></ion-spinner>                           
+                </strong>                               
+            </ion-label>
+
+            <br>
+
+            <ion-label class="ion-text-wrap" v-if="showStates ===6 && order.CancelNote">                      
+                <strong  class="state-menu" :style="order.State===6 ? 'padding: 10px;background:rgb(255 0 0 / 43%)' : ''">
+                    {{$t('frontend.order.cancelReason')}}: {{order.CancelNote}}
+            </strong> 
+            </ion-label>
+
+
+            <ion-range v-if="order.OrderType == 'Delivery' && showStates < 6 "
+            min="1" max="5" step="1" snaps="true" :key="key"
+                color="secondary" :value="showStates" pin="true" ticks="true"                    
+            @ionChange="valueEstate($event.target.value)">
+                <ion-label slot="start" ></ion-label>
+                    <ion-chip slot="end" color="secondary">
+                    <ion-label>{{currentState || valEstate}}</ion-label>
+                </ion-chip>
+            </ion-range>
+
+            <ion-range
+                v-if="order.OrderType != 'Delivery' && showStates < 5 "
+                :key="key+'1'"
+                min="1" 
+                max="4"
+                step="1" 
+                snaps="true" 
+                style="padding-top: 8px;"
+                color="secondary" 
+                :value="showStates" 
+                pin="true"
+                ticks="true"                    
+                @ionChange="valueEstate($event.target.value)">
+                <ion-label slot="start" ></ion-label>
+                    <ion-chip slot="end" color="secondary">
+                    <ion-label>{{currentState || valEstate}}</ion-label>
+                </ion-chip>
+            </ion-range>
+
+            <Localization  
+                v-if="order.OrderType == 'Delivery' && showStates ===4 && order.IsAccept && configuration.CanViewGeolocation"                          
+                :orderProps="order" 
+                :funProps="'read'"
+                style="padding: 0 10px;"
+            ></Localization>
+                
+            <ion-item-divider/>        
+
+            <ion-list>
+                <ion-label class="ion-text-wrap">
+                    <h2 class="titles-order" style="width: 50%;float: left;">{{$t('frontend.order.products')}}</h2>
+                </ion-label>
+                <ion-item-sliding>
+                    <ion-item >
+                        <ion-label class="ion-text-wrap menu-col-4 elipsis-menu"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.name')}}</h2> </ion-label>
+                        <ion-label class="ion-text-wrap menu-col-2 elipsis-menu"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.cant')}}</h3></ion-label>
+                        <ion-label class="ion-text-wrap menu-col-3 elipsis-menu"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.price')}}</h3></ion-label>
+                        <ion-label class="ion-text-wrap menu-col-3 elipsis-menu"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
+                    </ion-item>
+                </ion-item-sliding>
+                <ion-item-sliding v-for="(product, index2) in order.Products" v-bind:key="index2">
+
+                    <ion-item>
+                        <div class="ion-text-wrap menu-col-4" >
+                            <p> <strong>{{ product.Name }} <span v-if="product.VariantSelected"> {{ product.VariantSelected.name }}</span></strong></p>
+                            <p v-if="hasSomeNote(product)" style="background: #f1f1004d;">{{getIngredientNote(product)}} <br> {{product.Note}}</p>
+                        </div>
+                        <ion-label class="ion-text-wrap menu-col-2">                        
+                            <h3>{{ product.Cant }}</h3>                       
+                        </ion-label>
+                        <ion-label class="ion-text-wrap menu-col-3" >
+                            <h3> {{ getFormatPrice(product.Price) }}</h3>
+                        </ion-label>
+                        <ion-label class="ion-text-wrap menu-col-3" >
+                            <h3>{{ getFormatPrice(product.Price * product.Cant) }}</h3>
+                                <div v-if="product.State === 1" style="position: absolute;right: 0;top: 30%;">
+                                <span class="iconify" data-icon="websymbol:ok" data-inline="false" style="color: green;margin:0;width: 20px; height: 20px;" ></span>
+                            </div> 
+                        </ion-label>
+                    </ion-item>
+
+                        <ion-list-header v-if="product.Aggregates.length > 0" style="padding: 20px 35px;">
+                        {{$t('frontend.home.aggregateFree')}}: {{product.CantAggr=product.AggregatesCant * product.Cant}}
+                    </ion-list-header>
+
+                    <ion-item v-for="(agg, index1) in product.Aggregates" :key="index1"  >
+                                    
+                        <div class="menu-col-4" style="    text-align: left;padding-left: 30px;">
+                            <p>{{agg.Name}} <br> </p>  
+                        </div>                                                             
+                        <div class="menu-col-2">  
+                            <ion-label>{{agg.Cant}} </ion-label>  
+                        </div> 
+                            <div class="menu-col-3">  
+                            <ion-label>{{getFormatPrice(agg.SalePrice)}}</ion-label>  
+                        </div>                                      
+                            <div class="menu-col-3">  
+                            <ion-label>{{getFormatPrice(agg.AllTotal) }} </ion-label>  
+                        </div>                                   
+                    </ion-item>
+                    
+                </ion-item-sliding>
+
+                <ion-item-sliding>
+                    <ion-label class="ion-text-wrap" v-if="order.OtherCharges.length >0">
+                        <h2 class="titles-order">{{$t('frontend.order.otherCharges')}}</h2> 
+                    </ion-label>
+                    <ion-item-sliding  v-for="charge in order.OtherCharges" v-bind:key="charge.Id">
+                        <ion-item>
+                            <div class="menu-col-4">
+                                <p>{{ charge.Name }} </p>
+                            </div>
+                            <ion-label  class="menu-col-2"> </ion-label>
+                            <ion-label  class="menu-col-3"> </ion-label>
+                            <ion-label  class="menu-col-3" >
+                                <h3> {{ getFormatPrice(charge.Price) }} </h3>
+                            </ion-label>
+                            
+                        </ion-item>
+                    </ion-item-sliding>
+                </ion-item-sliding>
+
+
+                <ion-item-slidin style="border-top: 1px solid grey;" >
+
+                    <ion-item style="font-size: 16px;font-weight: bold;">                         
+                        <ion-label  class="menu-col-9"  ><p  style="text-align:right">{{$t('frontend.order.subtotal')}} </p></ion-label>
+                        <ion-label  class="menu-col-3 padding-menu"    style="text-align:right">{{getFormatPrice(order.SubTotal)}}</ion-label>                    
+                    </ion-item>                               
+
+                    <ion-item style="font-size: 16px;font-weight: bold;" v-for="(tax, index) in order.AllTaxes" :key="index"> 
+                        
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{tax.Name}} ({{tax.Percentage}} %)</p></ion-label>
+                        <ion-label class="menu-col-3 padding-menu"  style="text-align:right">{{ getFormatPrice(tax.Percentage * order.SubTotal / 100)}} </ion-label>                    
+                    </ion-item>
+
+                    <ion-item v-if="order.OrderType =='Delivery' && order.Shipping" style="font-size: 16px;font-weight: bold;"> 
+                        
+                        <ion-label class="menu-col-9"> <p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.deliver')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 padding-menu"  style="text-align:right">{{getFormatPrice(order.Shipping)}}</ion-label>                    
+                    </ion-item>
+
+                    <ion-item style="font-size: 16px;font-weight: bold;" v-if="order.Tip"> 
+                        
+                        <ion-label class="menu-col-9" > <p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.tip')}} {{order.Tip }}%</p></ion-label>
+                        <ion-label class="menu-col-3 padding-menu"  style="text-align:right" >{{ getFormatPrice(order.Tip * order.SubTotal / 100) }} </ion-label>                    
+                    </ion-item>
+
+                    <ion-item v-if="order.Discount" style="font-size: 16px;font-weight: bold;"> 
+                        <ion-label  size="4"></ion-label>
+                        <ion-label class="menu-col-9" ><p  style="text-align:right">{{$t('frontend.reservation.discount')}} </p></ion-label>
+                        <ion-label class="menu-col-3 padding-menu"  style="text-align:right"> {{getFormatPrice(order.Discount) }}</ion-label>                    
+                    </ion-item>
+                    
+                    <ion-item style="    color: red;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
+                        
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.total')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right">{{getFormatPrice(order.Total)}}</ion-label>                    
+                    </ion-item>
+
+                    <ion-item  v-if="order.QuotationPayment" style="color: #399922;font-size: 16px;font-weight: bold;text-transform: uppercase;"> 
+                        <ion-label   size="4"> </ion-label>
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.quotationPayment')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right">{{getFormatPrice(order.QuotationPayment)}}</ion-label>                    
+                    </ion-item>
+
+                    <ion-item  v-if="order.QuotationPayment && !parcialPayment && order.PendingPayment === undefined" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
+                        
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right">{{ getFormatPrice(order.Total - order.QuotationPayment)}}</ion-label>                    
+                    </ion-item>
+
+                        <ion-item  v-if="parcialPayment && order.Deadline && order.State === 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
+                        
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.parcialPayment')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right"> {{ getFormatPrice(totalWithoutQuotation * order.Deadline[0].Percent / 100) }}</ion-label>                    
+                    </ion-item>
+
+                    <ion-item  v-if="parcialPayment && order.Deadline && order.State === 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
+                        
+                        <ion-label class="menu-col-9"  ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right"> {{ getFormatPrice(pendingPayment()) }}</ion-label>                    
+                    </ion-item>
+
+                    <ion-item  v-if="order.PendingPayment !== undefined && order.State !== 8" style="    color: #ff5500;    font-size: 16px;    font-weight: bold;    text-transform: uppercase;"> 
+                        
+                        <ion-label class="menu-col-9" ><p class="menu-bold-title" style="text-align:right">{{$t('frontend.order.pendingPayment')}}  </p></ion-label>
+                        <ion-label class="menu-col-3 bold-title" style="text-align:right"> {{ getFormatPrice(order.PendingPayment) }}</ion-label>                    
+                    </ion-item>
+
+                    <div v-if="order.State !== 8 && order.Deadline">
+                            <ion-card-title v-if="order.State !== 8 && order.Deadline.length > 0" >                                         
+                            {{$t('frontend.order.parcialPayment')}}  
+                    </ion-card-title>
+
+                    <div v-if="order.State !== 8 && order.Deadline.length > 0" class="subtitles-order" style="display: flex;overflow: auto;">
+
+                        
+                                                    
+                        <ion-card v-for="dead in order.Deadline" v-bind:key="dead.Date" 
+                            class="menu-col-9 subtitles-order"
+                            style="text-align: center;display: inline-block; visibility: visible;">
+                                                                                                        
+                            <ion-label> <p class="percent-payment"> {{dead.Percent}}% </p> 
+                                        <span class="iconify" data-icon="ic:baseline-update" data-inline="false" style="width: 18px;height: 18px;float: left;"></span>
+                                        <p style="text-align: left; font-weight: bold"> {{ getFormatDate(dead.Date) }} </p>
+                            </ion-label> 
+                            <ion-progress-bar color="success" :value="dead.State=== 0 ? 0 : 1" ></ion-progress-bar>
+                            <ion-label :color="dead.State=== 1 ?'success': 'danger'">
+                                <strong>  {{getFormatPrice(totalWithoutQuotation * dead.Percent / 100)}} </strong>
+                                <span v-if="dead.State=== 1" class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="width: 18px;height: 18px;float: right;"></span>   
+                            </ion-label>
+                        
+                        </ion-card>
+                    </div>
+
+                    </div>
+
+                    
+                </ion-item-slidin>
+
+            </ion-list>
+
+            <ion-card v-if="order.Note">
+                <ion-label class="ion-text-wrap" >
+                    <h2 class="titles-order"> {{$t('frontend.order.notes')}}</h2> 
+                </ion-label>
+                <ion-label style="-webkit-user-modify: read-write-plaintext-only;text-align: left;display: inline-table;">
+                    {{order.Note}} </ion-label>
+            </ion-card>
+
+        </ion-card>
 
         
+        <ion-card  style="padding: 0 10px" v-if="order.State === 8">
+
+            <ion-label class="ion-text-wrap" >
+                    <h2 class="titles-order">{{$t('frontend.order.payment')}}: </h2> 
+            </ion-label>
+
+            
+
+                <ion-item v-if="order.Deadline">
+                <p style=" float: left;text-align: left;padding: 0" class="subtitles-order menu-col-4">{{$t('frontend.order.parcialPayment')}} </p>                               
+                <ion-toggle color="primary" :value="parcialPayment" @ionChange="parcialPayment = !parcialPayment"></ion-toggle>
+            </ion-item>
+
+            <div v-if="parcialPayment && order.Deadline" class="subtitles-order" style="display: flex;overflow: auto;">
+                
+                <ion-card v-for="(dead, index3) in order.Deadline" v-bind:key="index3" 
+                    class="menu-col-9 subtitles-order" 
+                    :style="index === 0 ? 'text-align: center;display: inline-block; border: 2px solid #21e321a6;' : 'display: inline-block; text-align: center;'">
+                    
+                    
+                    
+                    <ion-label> <p class="percent-payment"> {{dead.Percent}}% </p> 
+                        <span class="iconify" data-icon="ic:baseline-update" data-inline="false" style="width: 18px;height: 18px;float: left;"></span>
+                        <p style="text-align: left; font-weight: bold"> {{ getFormatDate(dead.Date) }} </p>
+                    </ion-label> 
+                    <ion-progress-bar color="success" :value="dead.State=== 0 ? 0 : 1" ></ion-progress-bar>
+                    <ion-label :color="dead.State=== 1 ?'success': 'danger'">
+                        <strong> {{ getFormatPrice(totalWithoutQuotation * dead.Percent / 100)}} </strong>
+                        <span v-if="dead.State=== 1" class="iconify" data-icon="emojione-v1:left-check-mark" data-inline="false" style="width: 18px;height: 18px;float: right;"></span>   
+                    </ion-label>
+                    
+                </ion-card>
+            </div>
 
 
+            <ion-button  color="danger"   @click.stop=" cancelOrder"> {{$t('frontend.home.cancel')}}</ion-button>
+            <ion-button  color="primary"  @click.stop="payOrder">{{$t('frontend.order.pay')}}</ion-button>
+
+                            
+        </ion-card>
     </div>
 </template>
 
@@ -525,7 +510,6 @@
 import PaymentModal from '../components/PaymentModal'
 import { add } from "ionicons/icons";
 import { addIcons } from "ionicons";
-import { VBreakpoint } from 'vue-breakpoint-component'
 import { Api } from '../../backoffice/api/api.js';
 import moment from 'moment-timezone';
 import Localization from '../../backoffice/views/Localization'
@@ -542,7 +526,6 @@ export default {
     name: 'OrderState', 
     components:{
         Localization,
-        VBreakpoint: VBreakpoint
     },     
     created: function(){
 
@@ -589,11 +572,11 @@ export default {
             }                   
         })
             .catch(e => {
-            console.log(e)
+            e
              return  this.$ionic.alertController
                 .create({
                     cssClass: 'my-custom-class',
-                    header: 'Error',
+                    header: '',
                     message: e,
                     buttons: [                   
                     {
@@ -766,7 +749,7 @@ export default {
                 })
                 .catch(e => {  
                     let msg = e;
-                    console.log(e)
+                    e
                     this.spinner1 = false;
                     this.errorPaymentDetail(msg);                     
                 }); 
@@ -898,7 +881,7 @@ export default {
                 }  
             }            
             } catch (error) {            
-                console.log(error)
+                error;
                 this.spinner1 = false;           
             }        
         },
@@ -934,11 +917,11 @@ export default {
                             }                   
                         })
                         .catch(e => {
-                        console.log(e)
+                        e
                          return  this.$ionic.alertController
                             .create({
                                 cssClass: 'my-custom-class',
-                                header: 'Error',
+                                header: '',
                                 message: e,
                                 buttons: [                   
                                 {
@@ -964,12 +947,12 @@ export default {
                                 }                   
         })
         .catch(e => {
-        console.log(e)
+        e
         this.spinner = false;
          return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: e,
                 buttons: [                   
                 {
@@ -1000,7 +983,7 @@ export default {
         return  this.$ionic.alertController
         .create({
             cssClass: 'my-custom-class',
-            header: 'Error',
+            header: '',
             message: this.$t('frontend.home.errorRequired'),
             buttons: [                   
             {
@@ -1027,7 +1010,7 @@ export default {
             return  this.$ionic.alertController
                 .create({
                     cssClass: 'my-custom-class',
-                    header: 'Error',
+                    header: '',
                     message: this.$t('frontend.order.notValidCC'),
                     buttons: [                   
                     {
@@ -1054,7 +1037,7 @@ export default {
             return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: this.$t('frontend.home.noProductForReorder'),
                 buttons: [                   
                 {
@@ -1110,7 +1093,7 @@ export default {
                 this.spinner = false  
             } catch (error) {
                 this.spinner = false 
-                    console.log(error);
+                    error;
             }       
             },
 
@@ -1131,7 +1114,7 @@ export default {
                 return this.openToastProd(); 
                 
             } catch (error) {
-                console.log(error);
+                error;
                 
             }
 
@@ -1148,7 +1131,7 @@ export default {
                 return this.openToastProd(); 
                 
             } catch (error) {
-                console.log(error);                
+                error;                
             }
             
         },
@@ -1174,7 +1157,6 @@ export default {
       return Commons.hasSomeNote(car);
     },
     ordenFor(){
-        console.log('for ')
          if(this.indexPosition < this.allOrders.length -1){
              this.indexPosition +=1;
              this.order = this.allOrders[this.indexPosition];
@@ -1182,7 +1164,6 @@ export default {
          }
     },
     ordenBack(){
-        console.log('back ')
           if(this.indexPosition > 0){
              this.indexPosition -=1;
              this.order = this.allOrders[this.indexPosition];

@@ -165,7 +165,6 @@ export default {
 
         reader.onload = (e) => {
             this.file = e.target.result;
-            //console.log(this.file);
         };
         reader.readAsDataURL(fileObject);
     },
@@ -208,7 +207,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                                this.$t('backoffice.list.messages.errorMessage'),
@@ -235,7 +234,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ShowMessage(this.$t('backoffice.list.messages.errorTitle'),
                           this.$t('backoffice.list.messages.errorMessage'),

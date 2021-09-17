@@ -22,19 +22,12 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.AuthorizeResponse);
-
-                           if (json.AuthorizeResponse.Status == 'FAIL') {
-                               console.log('Transaction Failed');
-                           }
-                           if (json.AuthorizeResponse.Status == 'PASS') {
-                               console.log('Transaction Success');
-                           }
+                          json
 
                     }, 'authorize' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Auth Error:', err);
                 }
             },
@@ -57,18 +50,17 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.CaptureResponse);
 
                            if (json.CaptureResponse.Status == 'FAIL') {
-                               console.log('Transaction Failed');
+                            //    ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //   ('Transaction Success');
                            }
 
                     }, 'capture' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Capture Error:', err);
                 }
             },
@@ -91,16 +83,15 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.saleResponse);
                            if (json.saleResponse.error == '0') {
-                               console.log('Transaction Success');
+                            //   ('Transaction Success');
                            } else {
-                               console.log('Transaction Fail');
+                            //   ('Transaction Fail');
                            }
                     }, 'sale/emv' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Sale Error:', err);
                 }
             },
@@ -123,16 +114,15 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.saleResponse);
                             if (json.saleResponse.error == '0') {
-                                console.log('Transaction Success');
+                                // ('Transaction Success');
                             } else {
-                                console.log('Transaction Fail');
+                                // ('Transaction Fail');
                             }
                      }, 'sale/manual' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Sale Error:', err);
                 }
             },
@@ -155,18 +145,17 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json);
 
                            if (json.Error == '99') {
-                               console.log('Transaction Failed');
+                            //    ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //    ('Transaction Success');
                            }
 
                     }, 'device' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Device Error:', err);
                 }
             },
@@ -192,18 +181,16 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json);
-
                            if (json.Error == '99') {
-                               console.log('Transaction Failed');
+                            //   ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //  ('Transaction Success');
                            }
 
                     }, 'device/set' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('DeviceSet Error:', err);
                 }
             },
@@ -220,18 +207,16 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.ReturnResponse);
-
                            if (json.ReturnResponse.Status == 'FAIL') {
-                               console.log('Transaction Failed');
+                            //  ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //  ('Transaction Success');
                            }
 
                     }, 'return' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Refund: Error', err);
                 }
             },
@@ -247,18 +232,17 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-                           console.log(json.TipAdjustResponse);
 
                            if (json.TipAdjustResponse.Status == 'FAIL') {
-                               console.log('Transaction Failed');
+                            //   ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //   ('Transaction Success');
                            }
 
                     }, 'tipadjust' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Refund: Error', err);
                 }
             },
@@ -274,13 +258,13 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-
-                             console.log(json.SearchResponse);
+                                    json
+                            // (json.SearchResponse);
 
                     }, 'search' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Void: Error', err);
                 }
             },
@@ -314,12 +298,12 @@
                              //json.response.trans_id
                              //json.response.trans_date
                              //json.response.trans_type
-                             console.log(json.response);
+                            // (json.response);
 
                     }, 'status' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Void: Error', err);
                 }
             },
@@ -335,19 +319,16 @@
 
                     /* @ Send command and capture response */
                     response = Tsys.https.send(request, function (json) {
-
-                             console.log(json.VoidResponse);
-
                            if (json.VoidResponse.Status == 'FAIL') {
-                               console.log('Transaction Failed');
+                            //   ('Transaction Failed');
                            } else {
-                               console.log('Transaction Success');
+                            //   ('Transaction Success');
                            }
 
                     }, 'void' );
 
                 } catch (err) {
-                    console.log(err);
+                    err;
                     Tsys.log.error('Void: Error', err);
                 }
             }
@@ -372,13 +353,12 @@
                         body;
 
                     /* Output the supplied params */
-                    console.log(params);
 
                     /* Disable SSL verification -
                      * NOTE: ONLY USE IN DEVELOPMENT */
                     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-                    console.log(Tsys.https.URI_sandbox + '/api/' + service);
+                //    (Tsys.https.URI_sandbox + '/api/' + service);
 
                     Request.post({
                         "headers": { "content-type": "application/json" },
@@ -386,17 +366,15 @@
                         "body": JSON.stringify( params )
                     }, (error, response, json) => {
                         if (error) {
-                            return console.log('error' , error);
-                        }
-                        console.log(json);
-
+                            return error
+                        }  
                         /* Return data, execute callback */
                         if (typeof(json) === "string" && callback && typeof(callback) === "function") {
 						    return callback(JSON.parse(json));
                         }
                     });
                 } catch (err) {
-                    console.log(err);
+                    err;
                 }
             },
 

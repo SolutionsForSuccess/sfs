@@ -102,7 +102,7 @@ export default {
               }
           })
           .catch(e => {
-              console.log(e)
+              e
           });
       },
       forgotPassword(){
@@ -130,7 +130,6 @@ export default {
           }
           Api.loginForgot(item)
           .then(() => {
-              //console.log(response)
               this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), this.$t('backoffice.list.messages.newPasswordSent'), this.$t('backoffice.options.login'))
 
               this.forgotEmail = ''
@@ -138,7 +137,7 @@ export default {
               this.spinner = false
           })
           .catch(e => {
-              console.log(e)
+              e
               this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), this.$t('backoffice.form.validate.emailDontExist'), this.$t('backoffice.options.login'))
               this.spinner = false
           })
@@ -201,7 +200,7 @@ export default {
             });
           })
           .catch(e => {
-            console.log(e)
+            e
             this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), this.$t('backoffice.list.messages.emailOrPasswordIncorrect'), this.$t('backoffice.options.login'));
             this.loginButtonPush = false
             this.spinner = false

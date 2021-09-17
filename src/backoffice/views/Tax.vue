@@ -1,131 +1,25 @@
 <template>
-  <div id="tax" class="screen">
-
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-    <router-link to="/tax-form"><ion-button v-if="hasPermission('canCreateTax')"  expand="full" color="primary"><ion-icon name="add"></ion-icon>{{$t('backoffice.list.actions.addANew')}} {{$t('backoffice.list.entitiesName.tax')}}</ion-button></router-link> -->
-
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.taxes')}}</h1>            
-            </ion-label>
-
-            <ion-label slot="end">
-            <router-link to="/tax-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateTax')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterTaxes = taxes"
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-
-     <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-      <div v-if="screenWidth < 600">
-        <paginate
-          name="languages"
-          :list="filterTaxes"
-          :per="8"
-        >
-          <ion-list :key="key">
-            <ion-item-sliding v-for="tax in paginated('languages')" v-bind:key="tax._id">
-              <ion-item>
-                <ion-label>
-                    <h2>{{ tax.Name }}</h2>
-                    <h3>Tax percentage: {{ tax.Percentage }}%</h3>
-                    <!-- <h3>Tax priority: {{ tax.Priority }}</h3> -->
-                </ion-label>
-                <div v-if="hasPermission('canEditTax')">
-                   <ion-checkbox :checked="tax.Available" slot="end" @ionChange="activeTax(tax, $event.target.checked)"></ion-checkbox>
-                </div>                 <!-- <ion-label>
-                    <ion-checkbox v-if="tax.Available" disabled="true" checked="true"></ion-checkbox>
-                    <ion-checkbox v-else disabled="true" checked="false"></ion-checkbox>
-                </ion-label> -->
-                <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-              </ion-item>
-              
-              <ion-item-options side="end">
-                <ion-item-option v-if="hasPermission('canEditTax')" color="primary" @click="editTax(tax._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-item-option>
-                <ion-item-option v-if="hasPermission('canDeleteTax')" color="danger" @click="deleteTax(tax._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-item-option>
-              </ion-item-options>
-            </ion-item-sliding>
-        </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>
-      </div>
-
-      <div v-if="screenWidth >= 600">
-        <paginate
-          name="languages"
-          :list="filterTaxes"
-          :per="8"
-        >
-          <ion-list :key="key">
-            <ion-item v-for="tax in paginated('languages')" v-bind:key="tax._id">
-                <ion-item-group side="start">
-                  <div v-if="hasPermission('canEditTax')"> 
-                      <ion-checkbox :checked="tax.Available" slot="end" @ionChange="activeTax(tax, $event.target.checked)"></ion-checkbox>
-                  </div>
-                </ion-item-group>               
-                <ion-label style="margin-left: 15px">
-                    <h2>{{ tax.Name }} </h2>
-                    <h3>Tax percentage: {{ tax.Percentage }}%</h3>
-                    <!-- <h3>Tax priority: {{ tax.Priority }}</h3> -->
-                </ion-label>
-                <!-- <ion-label>
-                    <ion-checkbox v-if="tax.Available" disabled="true" checked="true"></ion-checkbox>
-                    <ion-checkbox v-else disabled="true" checked="false"></ion-checkbox>
-                </ion-label> -->
-              
-              <ion-item-group side="end">
-                <ion-button v-if="hasPermission('canEditTax')" color="primary" @click="editTax(tax._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-button>
-                <ion-button v-if="hasPermission('canDeleteTax')" color="danger" @click="deleteTax(tax._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-button>
-              </ion-item-group>
-            </ion-item>
-        </ion-list>
-
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>
-      </div>
-
-
-    </div>
+    <div id="tax" class="page">
+      <listView
+        :title="$t('backoffice.titles.taxes')"
+        :filter="filterTaxes"
+        :elements="taxes"
+        :viewSelected="'Admin'"
+        :add="hasPermission('canCreateTax')"
+        :edit="hasPermission('canEditTax')"
+        :remove="hasPermission('canDeleteTax')"
+        @handleInput="handleInput"
+        @handleAddClick="createTax"   
+        @editElement="editTax"
+        @deleteElement="deleteTax"   
+      ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
 
 export default {
 
@@ -133,6 +27,9 @@ export default {
   created: function(){
       this.screenWidth = screen.width;
       this.fetchTaxes();
+  },
+  components: {
+    listView,
   },
   data () {
     return {
@@ -145,9 +42,38 @@ export default {
       spinner: false,
       screenWidth: 0,
       key: 0,
+      keyList: 0,
     }
   }, 
   methods: {
+
+    async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.tax = response.data;
+         this.fetchTaxes();    
+        this.spinner = false;
+         this.keyList ++;
+
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+     
+  },
+
+  ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3) return null;
+      if(count === 4) return option.Percentage + '%';
+      if(count === 5){ 
+        if(option.Available) 
+          return 'Available'; 
+        else return 'No Available' }
+
+    },
    
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -282,6 +208,13 @@ export default {
         params: { taxId: id }
       });
     },
+
+    createTax: function(){
+        this.$router.push({
+        name: 'TaxForm'
+      });
+    },
+
 
     deleteTax: async function(id){
 

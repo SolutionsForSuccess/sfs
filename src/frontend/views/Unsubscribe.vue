@@ -21,11 +21,9 @@
                 </ion-toolbar>
             </ion-header> 
             
-         <v-breakpoint> 
 
-             <div slot-scope="scope">
 
-                 <ion-card   :class="scope.isSmall || scope.noMatch ? 'menu-col-12' : 'menu-col-8'" style="margin: 0 auto;">
+                 <ion-card   style="margin: 0 auto;">
 
                      <ion-card-header>
                         <strong style="font-size: 18px;">{{$t('frontend.unsubscribe.title')}}</strong>
@@ -55,9 +53,7 @@
                                         
                  </ion-card>
 
-             </div> 
 
-         </v-breakpoint>
 
         </div>
     </div>
@@ -68,7 +64,6 @@
 
      
 
-import { VBreakpoint } from 'vue-breakpoint-component'
 import { Api } from '../../backoffice/api/api.js';
 export default {
     name: 'Unsubscribe',
@@ -97,7 +92,6 @@ export default {
         }
     },  
     components:{
-        VBreakpoint,        
     },
     methods:{
         goInit(){
@@ -145,7 +139,7 @@ export default {
                 }
             
             } catch (error) {
-                console.log(error);
+                error;
                 this.show = false;
                 return this.openMs( this.$t('frontend.unsubscribe.restaurantFail'), "danger")
             }
@@ -154,18 +148,16 @@ export default {
 
          async unsubscribeCustomer(){
              if(this.unsubscribeEmail !== ''){
-                console.log('Unsubscribe a '+ this.unsubscribeEmail);
                 try {
                   this.spinner = true;
                     const response = await  Api.unsubscribe(this.restaurantId,  {"Email": this.unsubscribeEmail});
                     if(response.status ===200){
-                        console.log(response) 
                         this.spinner = false;                   
                         return this.done = true;
                     }  
                 } catch (error) {
                     this.spinner = false;
-                    console.log(error)
+                    error;
                     return this.openMs(this.$t('frontend.unsubscribe.unsubscribeFail'), 'danger')
                 }
                 

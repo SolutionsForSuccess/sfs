@@ -326,7 +326,6 @@ export default {
 
         reader.onload = (e) => {
             this.vf_file = e.target.result;
-            //console.log(this.vf_file);
         };
         reader.readAsDataURL(fileObject);
     },
@@ -419,7 +418,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveVariantGroup) //Traduccion
                   })
@@ -441,7 +440,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveVariantGroup); //Traducion
                   })

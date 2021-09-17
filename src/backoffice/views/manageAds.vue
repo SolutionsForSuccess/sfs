@@ -1,6 +1,14 @@
 <template>
 
+
     <div>
+        <ion-header>
+          <ion-toolbar>
+         <h1 style="text-align: left">{{$t('frontend.menu.ads')}}</h1>            
+          
+          </ion-toolbar>
+    </ion-header>
+    <br/>
         <div v-if="typeProp == 'setting'">
             <div style="display: flex;">
                 <ion-select style="border: 1px solid darkred; margin-left:5px; border-radius: 3px" interface="popover" icon="add"
@@ -142,66 +150,50 @@ export default {
             card_filename: '',
         }
     },
+
     created(){
-        Api.fetchAll('Menu')
-        .then(response => {
-            this.menus = response.data
-        })
-        .catch(e => {
-            console.log(e)
-        })
-        this.init()
+       this.menus =  this.$store.state.backConfig.menu;   
+       this.setting = this.$store.state.backConfig.setting;
+       this.adsList = this.setting.Ads || [];             
     },
     props:{
         typeProp: {type: String, default: 'setting'}
     },
     methods:{
-        init(){
-            if (this.typeProp == 'setting'){
-                Api.fetchAll('Setting')
-                .then(response => {
-                    if (response.data.length > 0)
-                    {
-                        this.setting = response.data[0]
-                        this.adsList = this.setting.Ads
-                    }
-                })
-                .catch(e => {
-                    console.log(e)
-                })
-            }
-            
-            // if (this.typeProp == 'app'){
-
-            // }
-        },
+     
         checkImage(){
             return this.adsImage != null;
         },
+
         checkImageMarq(){
             return this.marq_img != null;
         },
+
         checkImageCard(){
             return this.card_img != null;
         },
+
         handleImage: function(event)
         {
             const selectedImage = event.target.files[0];
             this.fileName = selectedImage.name;
             this.createBase64Img(selectedImage);
         },
+
         handleImageMarq: function(event)
         {
             const selectedImage = event.target.files[0];
             this.marq_filename = selectedImage.name;
             this.createBase64ImgMarq(selectedImage);
         },
+
         handleImageCard: function(event)
         {
             const selectedImage = event.target.files[0];
             this.card_filename = selectedImage.name;
             this.createBase64ImgCard(selectedImage);
         },
+
         createBase64Img: function(fileObject){
             const reader = new FileReader();
 
@@ -210,6 +202,7 @@ export default {
             };
             reader.readAsDataURL(fileObject);
         },
+
         createBase64ImgMarq: function(fileObject){
             const reader = new FileReader();
 
@@ -218,6 +211,7 @@ export default {
             };
             reader.readAsDataURL(fileObject);
         },
+
         createBase64ImgCard: function(fileObject){
             const reader = new FileReader();
 
@@ -226,6 +220,7 @@ export default {
             };
             reader.readAsDataURL(fileObject);
         },
+
         clearFields(){
             this.adsMenu = ''
             this.adsImage = null
@@ -233,23 +228,14 @@ export default {
             this.adsMap = ''
             this.adsUrl = ''
         },
+
         addAds(){
             let val = ''
-            if (this.adsType == 'menu'){
-                val = this.adsMenu
-            }
-            if (this.adsType == 'image'){
-                val = this.adsImage
-            }
-            if (this.adsType == 'video'){
-                val = this.adsVideo
-            }
-            if (this.adsType == 'map'){
-                val = this.adsMap
-            }
-            if (this.adsType == 'url'){
-                val = this.adsUrl
-            }
+            if (this.adsType == 'menu')val = this.adsMenu
+            if (this.adsType == 'image')  val = this.adsImage
+            if (this.adsType == 'video') val = this.adsVideo
+            if (this.adsType == 'map')  val = this.adsMap
+            if (this.adsType == 'url')  val = this.adsUrl
             let ads = {
                 "Type": this.adsType,
                 "Value": val,
@@ -258,14 +244,16 @@ export default {
             this.adsList.push(ads)
             this.clearFields()
         },
+
         deleteAds(ads){
-            console.log(ads)
             const index = this.adsList.indexOf(ads)
             this.adsList.splice(index, 1)
         },
+
         isValidForm(){
             return true;
         },
+
         showToastMessage(message, tColor){
             return this.$ionic.toastController.create({
                 color: tColor,
@@ -275,15 +263,17 @@ export default {
                 showCloseButton: false
             }).then(a => a.present())
         },
+
         async save(){
             if (this.typeProp == 'setting'){
                 this.setting.Ads = this.adsList
-                Api.putIn('Setting', this.setting)
+                await Api.putIn('Setting', this.setting)
                 .then(() => {
+                    this.$store.state.backConfig.setting = this.setting;
                     this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
                 })  
                 .catch(e => {
-                    console.log(e)
+                   e;
                 })
             }
 

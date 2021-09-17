@@ -121,7 +121,7 @@ export default {
                     this.$ionic.modalController.dismiss(null);
                 })
                 .catch(e => {
-                    console.log(e)
+                   e;
                     this.showToastMessage(e, 'danger')
                     this.spinner = false
                     this.$ionic.modalController.dismiss(null);

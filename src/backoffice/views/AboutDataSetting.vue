@@ -1,80 +1,26 @@
 <template>
-  <div id="category">
 
-    <ion-header>
-          <ion-toolbar>
-            <!-- <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons> -->
-            <!-- <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.about')}}</h1>            
-            </ion-label> -->
-
-            <ion-label slot="end">
-            <router-link v-if="abouts.length < 3" to="/aboutDataSettingsForm">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canChangeSetting')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-    </ion-header>
-
-     <div v-if="spinner">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div>
-      <div v-if="screenWidth < 600">
-          <ion-list>
-            <ion-item-sliding v-for="about in abouts" v-bind:key="about._id">
-              <ion-item>
-                <ion-label>
-                    <h2>{{ about.Title }}</h2>
-                    <h3>{{ about.Subtitle }}</h3>
-                    <h3><div style="word-wrap: break-word">{{ about.Description }}</div></h3>
-                </ion-label>
-                <span class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-              </ion-item>
-              <ion-item-options side="end">
-                <ion-item-option v-if="hasPermission('canChangeSetting')" color="primary" @click="editAbout(about._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-item-option>
-                <ion-item-option v-if="hasPermission('canChangeSetting')" color="danger" @click="deleteAbout(about._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-item-option>
-              </ion-item-options>
-            </ion-item-sliding>
-        </ion-list>
-    </div>
-    <div v-if="screenWidth >= 600">
-
-        <ion-list>
-            <ion-item v-for="about in abouts" v-bind:key="about._id">
-              <ion-label>
-                  <h2>{{ about.Title }}</h2>
-                  <h3>{{ about.Subtitle }}</h3>
-              </ion-label>
-              <ion-item-group side="end">
-                <ion-button v-if="hasPermission('canChangeSetting')" color="primary" @click="editAbout(about._id)">
-                  <ion-icon slot="icon-only" name="create"></ion-icon>
-                </ion-button>
-                <ion-button v-if="hasPermission('canChangeSetting')" color="danger" @click="deleteAbout(about._id)">
-                  <ion-icon slot="icon-only" name="trash"></ion-icon>
-                </ion-button>
-              </ion-item-group>
-            </ion-item>
-        </ion-list>
-
-    </div>
-  </div>
-
+    <div id="user" class="page">
+    <listView
+      :title="$t('backoffice.titles.about')"
+      :filter="filterAbouts"
+      :elements="abouts"
+      :hasImg="true"
+      :add="hasPermission('canChangeSetting')"
+      :edit="hasPermission('canChangeSetting')"
+      :remove="hasPermission('canChangeSetting')"
+      @handleInput="handleInput"
+      @handleAddClick="addAbout"   
+      @editElement="editAbout"
+      @deleteElement="deleteAbout"   
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
 
 export default {
 
@@ -83,17 +29,48 @@ export default {
    
    this.screenWidth = screen.width;
    this.abouts =  this.$store.state.backConfig.about;
+   this.filterAbouts = this.abouts;
   },
+  components: {
+    listView,
+  }, 
   data () {
     return {
       modelName: 'About',
       abouts: [],
+      filterAbouts: [],
 
       spinner: false,
       screenWidth: 0,
     }
   }, 
   methods: {
+
+     async doRefresh() {
+     
+  },
+
+     ListViewData(option, count){
+      if(count === 1) return option.ImageUrl;
+      if(count === 2) return option.Title
+      if(count === 3) return null;
+         
+      if(count === 4) return null;
+      if(count === 5)  return option.Subtitle
+    },
+
+    handleInput(value){
+
+      this.filterAbouts = this.abouts
+      const query = value.toLowerCase();
+      requestAnimationFrame(() => {   
+        let cat2 = this.abouts.filter(item => item.Title.toLowerCase().indexOf(query) > -1)
+        if(cat2.length> 0)
+          this.filterAbouts = cat2
+        else
+          this.filterAbouts = this.abouts
+      });
+    },
   
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -162,6 +139,12 @@ export default {
       });
     },
 
+      addAbout: function(){
+        this.$router.push({
+        name: 'AboutForm'
+      });
+    },
+
     deleteAbout: async function(id){
 
         return this.$ionic.alertController.create({
@@ -183,6 +166,7 @@ export default {
                   const index = this.$store.state.backConfig.about.findIndex(a => a._id === id)
                   if(index !==-1) this.$store.state.backConfig.about.splice(index, 1)
                   this.abouts =  this.$store.state.backConfig.about;
+                  this.filterAbouts = this.abouts
                   this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'), 
                                         this.$t('backoffice.list.messages.messageDeleteSuccessAbout'), 
                                                 this.$t('backoffice.list.messages.deleteSubtitleAbout'));
@@ -190,7 +174,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                    this.ifErrorOccured(mess => {
                       this.deleteAbout(id)
                       this.spinner = false

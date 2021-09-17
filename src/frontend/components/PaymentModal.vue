@@ -653,7 +653,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -678,7 +678,7 @@ export default {
             return  this.$ionic.alertController
                 .create({
                     cssClass: 'my-custom-class',
-                    header: 'Error',
+                    header: '',
                     message:  this.i18n.t('frontend.order.notValidCC'),
                     buttons: [                   
                     {
@@ -721,7 +721,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.home.zipCodeNotValid') ,
         buttons: [                   
         {
@@ -753,7 +753,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.home.notValidEmail'),
         buttons: [                   
         {
@@ -1157,7 +1157,6 @@ export default {
           data.tip = 0;
         }
 
-        console.log('11112')
 
       this.$ionic.loadingController
       .create({
@@ -1181,7 +1180,6 @@ export default {
                     return this.errorPaymentDetail(this.i18n.t('frontend.payment.insuficientFunds')); 
                    }  
                    else{
-                     console.log('0000')
                       response.returnTo = this.returnTo;
                       await this.parent.recivePayment(response);
                       this.dismissModal();						
@@ -1202,7 +1200,7 @@ export default {
                 }
                 
               } catch (error) {
-                console.log(error);
+                error;
                 loading.dismiss();
                   return this.errorPaymentDetail(error); 
                 
@@ -1290,10 +1288,6 @@ export default {
         if(this.order.Payment[i].paymentInfo)
           splitTotal += parseFloat(this.order.Payment[i].total);        
       }  
-
-      console.log('Order Total: ' + this.order.Total)
-      console.log('splitTotal: ' + splitTotal)
-      console.log('isPaymentComplete: ' + parseFloat(this.order.Total) === parseFloat(splitTotal) || parseFloat(this.order.Total) < parseFloat(splitTotal))
      
       if(parseFloat(this.order.Total) === parseFloat(splitTotal) || parseFloat(this.order.Total) < parseFloat(splitTotal))
         return true; 
@@ -1426,7 +1420,7 @@ export default {
             EventBus.$emit('chargeOrder', this.order);  
             return true;
            }
-        } catch (error) { console.log(error)}
+        } catch (error) { error;}
          
       }
       return true;
@@ -1493,7 +1487,7 @@ export default {
          this.readyButton = false;
         
       } catch (error) {
-        console.log(error);
+        error;
          this.readyButton = false;
         
       }
@@ -1668,7 +1662,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.order.badroutingNumber'),
           buttons: [                   
           {
@@ -1802,7 +1796,6 @@ export default {
     async setOrderQrCode(qrCode){     
        this.order.OrderQrCode = qrCode; 
        store.commit('setOrder', this.order)  
-       console.log(JSON.parse(JSON.stringify(this.order)));
     },
 
 }, 

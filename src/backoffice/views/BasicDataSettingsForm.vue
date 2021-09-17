@@ -2,16 +2,6 @@
     <div>
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
 
-     <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{title}}</h1>            
-            </ion-label>
-          </ion-toolbar>
-    </ion-header>
     <br/>
 
     <!-- <ion-card> -->
@@ -20,200 +10,159 @@
         cssClass="my-custom-class"
         :message="$t('frontend.tooltips.loadRestaurant')"
     ></ion-loading>
-    <div>
-        <ion-item>
-          <ion-label >{{$t('backoffice.form.fields.online')}}
-          <ion-toggle name="online" style="top: 12px;"
-          @ionChange="online=$event.target.checked" 
-          :checked ="online">
-          </ion-toggle></ion-label>
-        </ion-item>
-
-        <!-- <ion-item>
-          <ion-label >{{$t('backoffice.form.fields.showOtherRestaurant')}}
-          <ion-toggle name="showOthersRestaurant" style="top: 12px;"
-          @ionChange="showOthersRestaurant=$event.target.checked" 
-          :checked ="showOthersRestaurant">
-          </ion-toggle></ion-label>
-        </ion-item> -->
-
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-          <ion-input type="text" name="name"
-          @input="name = $event.target.value" 
-          v-bind:value="name">
-          </ion-input>
-        </ion-item>        
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.address')}}</ion-label>
-          <ion-textarea name="address" 
-          @input="address = $event.target.value" 
-          v-bind:value="address">
-          </ion-textarea>
-        </ion-item>
+    <ion-row>
+        <ion-col  size="12"   size-md="6" >
         
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-          <ion-input type="email" name="email"
-          @input="email = $event.target.value" 
-          v-bind:value="email">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>Email host</ion-label>
-          <ion-input type="email" name="emailHost"
-          @input="emailHost = $event.target.value" 
-          v-bind:value="emailHost">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
-            <ion-input type="password" name="Password"
-            @input="Password = $event.target.value" 
-            v-bind:value="Password">
-            </ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.smtpHost')}}</ion-label>
-            <ion-input type="text" name="SmtpHost"
-            @input="SmtpHost = $event.target.value" 
-            v-bind:value="SmtpHost">
-            </ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.port')}}</ion-label>
-            <ion-input type="number" name="Port"
-            @input="Port = $event.target.value" 
-            v-bind:value="Port">
-            </ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label>{{$t('backoffice.form.fields.secure')}}</ion-label>
-            <ion-checkbox slot="end" name="Secure" 
-                    @ionChange="Secure=$event.target.checked" 
-                    :checked="Secure">
-            </ion-checkbox>
-        </ion-item>
-        <ion-item>
-            <ion-item-group side="start">
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-                <ion-input type="email" name="EmailTest"
-                @input="EmailTest = $event.target.value" 
-                v-bind:value="EmailTest">
-                </ion-input>
-            </ion-item-group>
-            <ion-item-group side="end">
-                <ion-button color="primary" :disabled="checkEmailTest()" @click="emailTest()">Test email <ion-spinner v-if="emailspinner" name="crescent"></ion-spinner></ion-button>
-            </ion-item-group>
-        </ion-item>
+          <ion-list>
 
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.phone')}}</ion-label>
-          <ion-input type="tel" name="phone"
-          @input="phone = $event.target.value" 
-          v-bind:value="phone">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.web')}}</ion-label>
-          <ion-input type="text" name="web"
-          @input="web = $event.target.value" 
-          v-bind:value="web">
-          </ion-input>
-        </ion-item>
+            <ion-card style="width: 50%;"> 
+              <label> 
+                <img v-if="checkImage()"  :src="file">
+                <input type="file" accept="image/png, image/jpeg" style="display:none"  @change="handleImage" >
+              </label>
+          </ion-card>
 
-        <ion-item>
+            <ion-item   class="row-config">
+              <ion-label >{{$t('backoffice.form.fields.online')}}
+              <ion-toggle name="online" style="top: 12px;"
+              @ionChange="online=$event.target.checked" 
+              :checked ="online">
+              </ion-toggle></ion-label>
+            </ion-item>
+
+              
+            
+            <ion-item  class="row-config">
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+              <ion-input type="text" name="name"
+              @input="name = $event.target.value" 
+              v-bind:value="name">
+              </ion-input>
+            </ion-item> 
+
+            <ion-item class="row-config">
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.address')}}</ion-label>
+              <ion-input name="address" type="text"
+              @input="address = $event.target.value" 
+              v-bind:value="address">
+              </ion-input>
+            </ion-item>
+          
+            <ion-item class="row-config">
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
+              <ion-input type="email" name="email"
+              @input="email = $event.target.value" 
+              v-bind:value="email">
+              </ion-input>
+            </ion-item>
+
+            <ion-item  class="row-config">
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.phone')}}</ion-label>
+              <ion-input type="tel" name="phone"
+              @input="phone = $event.target.value" 
+              v-bind:value="phone">
+              </ion-input>
+            </ion-item>
+
+                 <!-- Currency -->
+          <ion-item  class="row-config">
+            <ion-label position="floating">Restaturant currency</ion-label>
+              <ion-select interface="popover" icon="add"
+                :ok-text="$t('backoffice.form.messages.buttons.ok')"
+                :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                :value="currencyCode"
+                placeholder="Select a currency"
+                @ionChange="currencyCode = $event.target.value; change()">
+                  <ion-select-option v-for="curr in allCurrencies"                    
+                    :key="curr.code" 
+                    :value="curr.code" > {{curr.currency}} - {{curr.code}}
+                  </ion-select-option>
+                  
+              </ion-select>
+          </ion-item>
+     
+
+          </ion-list>
+
+        </ion-col>
+
+        <ion-col  size="12"   size-md="6"  >
+          <ion-list>
+
+              
+          <ion-item    class="row-config">
+            <ion-label position="floating">{{$t('backoffice.form.fields.web')}}</ion-label>
+            <ion-input type="text" name="web"
+            @input="web = $event.target.value" 
+            v-bind:value="web">
+            </ion-input>
+          </ion-item>
+
+          <ion-item    class="row-config">
+            <ion-label position="floating">{{$t('backoffice.form.fields.urlLocation')}}</ion-label>
+            <ion-input type="text" name="urlLocation"
+            @input="urlLocation = $event.target.value" 
+            v-bind:value="urlLocation">
+            </ion-input>
+          </ion-item>
+
+          <ion-item  class="row-config">
+            <ion-label position="floating">{{$t('backoffice.form.fields.fax')}}</ion-label>
+            <ion-input type="text" name="fax"
+            @input="fax = $event.target.value" 
+            v-bind:value="fax">
+            </ion-input>
+          </ion-item>
+
+          
+
+          <ion-item class="row-config">
             <ion-label >Social Networks
-                <ion-toggle name="socials" style="top: 12px;"
+               
+            </ion-label>
+             <ion-toggle name="socials" style="top: 12px;"
                 @ionChange="socials=$event.target.checked" 
                 :checked ="socials">
                 </ion-toggle>
-            </ion-label>
-        </ion-item>
-        <div v-if="socials">
-          <ion-item>
-            <ion-label position="floating">Facabook</ion-label>
-            <ion-input type="text" name="facebook"
-            @input="facebook = $event.target.value" 
-            v-bind:value="facebook">
-            </ion-input>
           </ion-item>
+
+          <div v-if="socials">
+            <ion-item>
+              <ion-label position="floating">Facebook</ion-label>
+              <ion-input type="text" name="facebook"
+              @input="facebook = $event.target.value" 
+              v-bind:value="facebook">
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Instagram</ion-label>
+              <ion-input type="text" name="instagram"
+              @input="instagram = $event.target.value" 
+              v-bind:value="instagram">
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Twitter</ion-label>
+              <ion-input type="text" name="twitter"
+              @input="twitter = $event.target.value" 
+              v-bind:value="twitter">
+              </ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">YouTube</ion-label>
+              <ion-input type="text" name="youtube"
+              @input="youtube = $event.target.value" 
+              v-bind:value="youtube">
+              </ion-input>
+            </ion-item>
+          </div>
+
           <ion-item>
-            <ion-label position="floating">Instagram</ion-label>
-            <ion-input type="text" name="instagram"
-            @input="instagram = $event.target.value" 
-            v-bind:value="instagram">
-            </ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Twitter</ion-label>
-            <ion-input type="text" name="twitter"
-            @input="twitter = $event.target.value" 
-            v-bind:value="twitter">
-            </ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">YouTube</ion-label>
-            <ion-input type="text" name="youtube"
-            @input="youtube = $event.target.value" 
-            v-bind:value="youtube">
-            </ion-input>
-          </ion-item>
-        </div>
-
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.urlLocation')}}</ion-label>
-          <ion-input type="text" name="urlLocation"
-          @input="urlLocation = $event.target.value" 
-          v-bind:value="urlLocation">
-          </ion-input>
+            <ion-label>{{$t('backoffice.form.titles.restaurantHours')}}</ion-label>
+            <ion-toggle :checked="showHE==='horario'" @ionChange="$event.target.checked? showHE='horario' : showHE='' "></ion-toggle>
         </ion-item>
-
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.fax')}}</ion-label>
-          <ion-input type="text" name="fax"
-          @input="fax = $event.target.value" 
-          v-bind:value="fax">
-          </ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-card v-if="checkImage()" >
-              <ion-img :src="file"></ion-img>
-          </ion-card>
-        </ion-item>
-        <ion-item>
-            <div>
-                <ion-label><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
-            </div>
-          <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
-        </ion-item>
-
-        <!-- Currency -->
-        <ion-item style="margin-top: 20px; margin-bottom: 20px">
-          <ion-label>Restaturant currency</ion-label>
-            <ion-select interface="popover" icon="add"
-              :ok-text="$t('backoffice.form.messages.buttons.ok')"
-              :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-              :value="currencyCode"
-              placeholder="Select a currency"
-              @ionChange="currencyCode = $event.target.value; change()">
-                <ion-select-option v-for="curr in allCurrencies"                    
-                  :key="curr.code" 
-                  :value="curr.code" > {{curr.currency}} - {{curr.code}}
-                </ion-select-option>
-                
-            </ion-select>
-        </ion-item>
-        <ion-item>
-            {{example}}
-        </ion-item>
-
-        <!-- Horario del restaurante -->
-        <ion-item>
-            <h2>{{$t('backoffice.form.titles.restaurantHours')}}</h2>
-        </ion-item>
-        <ion-item>
+        <div v-if="showHE==='horario'">
+            <ion-item>
               <ion-label>{{$t('backoffice.form.fields.sameHourForAllDays')}}</ion-label>
               <ion-checkbox slot="end" name="sameHourForAllDays" 
                     @ionChange="sameHourForAllDays = $event.target.checked; activeMonday = true"
@@ -364,14 +313,75 @@
             </ion-item>
 
         </div>
+        </div>
 
-        <!-- Fin del horario del restaurante -->
+          <ion-item>
+            <ion-label>Servidor de Correo</ion-label>
+            <ion-toggle :checked="showHE==='email'" @ionChange="$event.target.checked? showHE='email' : showHE='' "></ion-toggle>
+          </ion-item>
+           <div v-if="showHE==='email'">
+             
+            <ion-item   class="row-config">
+              <ion-label  position="floating"><span style="color: red">*</span>Email host</ion-label>
+              <ion-input type="email" name="emailHost"
+              @input="emailHost = $event.target.value" 
+              v-bind:value="emailHost">
+              </ion-input>
+            </ion-item>
 
-      <!-- </ion-card>  -->
+            <ion-item class="row-config">
+                <ion-label  position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.password')}}</ion-label>
+                <ion-input type="password" name="Password"
+                @input="Password = $event.target.value" 
+                v-bind:value="Password">
+                </ion-input>
+            </ion-item>
 
-      <br/>
+            <ion-item   class="row-config">
+                <ion-label  position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.smtpHost')}}</ion-label>
+                <ion-input type="text" name="SmtpHost"
+                @input="SmtpHost = $event.target.value" 
+                v-bind:value="SmtpHost">
+                </ion-input>
+            </ion-item>
+
+            <ion-item   class="row-config">
+                <ion-label  position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.port')}}</ion-label>
+                <ion-input type="number" name="Port"
+                @input="Port = $event.target.value" 
+                v-bind:value="Port">
+                </ion-input>
+            </ion-item>
+
+            <ion-item   class="row-config">
+                <ion-label >{{$t('backoffice.form.fields.secure')}}</ion-label>
+                <ion-toggle slot="end" name="Secure" 
+                        @ionChange="Secure=$event.target.checked" 
+                        :checked="Secure">
+                </ion-toggle>
+            </ion-item>
+
+            <ion-item class="row-config">
+                <ion-item-group side="start">
+                    <ion-label  position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
+                    <ion-input type="email" name="EmailTest"
+                    @input="EmailTest = $event.target.value" 
+                    v-bind:value="EmailTest">
+                    </ion-input>
+                </ion-item-group>
+                <ion-item-group side="end">
+                    <ion-button color="primary" :disabled="checkEmailTest()" @click="emailTest()">Test email <ion-spinner v-if="emailspinner" name="crescent"></ion-spinner></ion-button>
+                </ion-item-group>
+            </ion-item>
+           </div>
+        
+          </ion-list>
+        </ion-col>
+    
+     </ion-row>
+
       <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-    </div>
+    
     </div>
 </template>
 
@@ -390,6 +400,7 @@ export default {
       modelName: 'Restaurant',
       /****** Form Data ******/
       emailspinner: false,
+      showHE: '',
 
       id: null,
       name: '',
@@ -459,7 +470,7 @@ export default {
       spinner: false,
 
       //Socials network
-      socials: false,
+      socials: true,
       socialList: [],
       facebook: '',
       instagram: '',
@@ -496,14 +507,13 @@ export default {
             "mss": this.$t('backoffice.emailTest.message'),
             "subject": this.$t('backoffice.emailTest.subject')
         }
-        console.log(this.Password)
         Api.testRestaurantEmail(test)
         .then(() => {
             this.showToastMessage(this.$t('backoffice.emailTest.success'), 'success')
             this.emailspinner = false
         })
         .catch(e => {
-            console.log(e)
+           e;
             this.showToastMessage(e, 'danger')
             this.emailspinner = false
         })
@@ -684,7 +694,6 @@ export default {
 
         reader.onload = (e) => {
             this.file = e.target.result;
-            //console.log(this.file);
         };
         reader.readAsDataURL(fileObject);
     },
@@ -833,7 +842,7 @@ export default {
           this.spinner = true
           await Api.putIn(this.modelName, item)
               .then(response => {
-                    this.$store.state.backConfig.restaurant = response.data;
+                    this.$store.state.backConfig.restaurant = item;
                     this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
                     // this.$router.push({
                     //   name: 'ControlPanel', 
@@ -843,7 +852,7 @@ export default {
               })
               .catch(e => {
                     this.isBackdrop = false
-                    console.log(e);
+                    e;
                     this.spinner = false;
                     this.ifErrorOccured(this.saveSetting);
               })
@@ -857,6 +866,13 @@ export default {
 </script>
 
 <style>
+
+.row-config{
+  display: flex;
+    justify-content: flex-start;
+    align-items: center;
+        text-align: left;
+}
 
 @media only screen and (min-width : 1024px){
 

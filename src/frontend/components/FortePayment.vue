@@ -48,39 +48,7 @@ export default {
 
          document.getElementById('send-form').submit();
 
-    //      window.addEventListener('message',function(event) {
-    //   var objMsg
-    // //   objMsg = JSON.parse(event.data);
-    //   console.log(event);
-    //   // For best security practice, only accept event message from specified 
-    //   //domain.
-    //   if(event.origin !== 'https://swp.paymentsgateway.net/co/default.aspx?pg_api_login_id=hfIU9scKMj&pg_total_amount=59.00&pg_scheduled_transaction=1&pg_schedule_frequency=20&pg_schedule_continuous=1&pg_schedule_quantity=0') 
-    //   return;
-    //   // your code
-    //   console.log("FORTE Respose")
-    //   console.log(objMsg)
-    //   switch(objMsg.Event) {
-    //     case "begin":
-    //         alert("begin transaction")
-    //         break
-    //     case "success":
-    //         alert("Transaction complete")
-    //         break
-    //     case "failure":
-    //         alert("Failure")
-    //         break
-    //     case "error":
-    //         alert("error..")
-    //         break
-    //      case "abort":
-    //         alert("abor..")
-    //         break
-    //      case "expired":
-    //         alert("expired..")
-    //         break
-    //   }
-    //   },false)
-         
+  
     },
     data() {
         return {  
@@ -115,7 +83,6 @@ export default {
             switch (response.event)
             {
             case 'begin':
-                console.log('begin')
                 break;
             case 'success':
                 //transaction successful 
@@ -137,7 +104,7 @@ export default {
                 resp = resp.replace(';', '');
                 this.utc = resp
             } catch (error) {
-              console.log(error)  ;
+              error
             }
         },
     },

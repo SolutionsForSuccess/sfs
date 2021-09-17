@@ -27,81 +27,74 @@
         <div v-if="state == 2" style="height:45px; width:100%; background-color:#76b6d5; padding:10px; color:white">State: Closed</div>
         <div v-if="state == 3" style="height:45px; width:100%; background-color:#e37b7b; padding:10px; color:white">State: Canceled</div>
 
-        <div v-if="state == 0 || state == -1">
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-            <ion-input name="creditName" 
-                @input="creditName = $event.target.value"
-                v-bind:value="creditName">    
-                </ion-input>
-            </ion-item>
+        <ion-row v-if="[0,-1].includes(state)">
 
-            <ion-list>
-                <ion-list-header>
-                    <ion-label>
-                    <span style="color: red">*</span>{{$t('backoffice.form.titles.customer')}}
-                    </ion-label>
-                </ion-list-header>
+            <ion-col size="12" size-md="6">
 
                 <ion-item>
-                    <ion-label>{{$t('backoffice.form.titles.selectACustomer')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
+                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+                    <ion-input name="creditName" 
+                        @input="creditName = $event.target.value"
+                        v-bind:value="creditName">    
+                        </ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <span style="color: red">*</span>{{$t('backoffice.form.titles.customer')}}
+                    <ion-select  interface="popover"
                     @ionChange="customerId = $event.target.value" v-bind:value="customerId">
                         <ion-select-option v-for="customer in customers" v-bind:key="customer.Id" v-bind:value="customer._id" >{{customer.Name}}</ion-select-option>
                     </ion-select>
                 </ion-item>
-            </ion-list>
 
-            <ion-item>
-                <span style="color: red">*</span><ion-label position="floating">{{$t('backoffice.form.fields.CreditAmount')}}</ion-label>
-                <ion-input type="number" name="CreditAmount"
-                @input="creditAmount = $event.target.value" 
-                v-bind:value="creditAmount">
-                </ion-input>
-            </ion-item>
+                <ion-item>
+                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.CreditAmount')}}</ion-label>
+                    <ion-input type="number" name="CreditAmount"
+                    @input="creditAmount = $event.target.value" 
+                    v-bind:value="creditAmount">
+                    </ion-input>
+                </ion-item>
+                
+            </ion-col>
 
-            <!-- <ion-item>
-                <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
-                <ion-checkbox slot="end" name="active" 
-                @ionChange="active = $event.target.checked"
-                :checked="active"  >    
-                </ion-checkbox>
-            </ion-item> -->
+            <ion-col size="12" size-md="6">
+                <ion-item>
+                    <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateFrom')}}</ion-label>
+                    <ion-datetime name="dateFrom" @ionChange="dateFrom = $event.target.value" 
+                                    v-bind:value="dateFrom"
+                                    :placeholder="$t('backoffice.form.titles.dateFromSelect')" display-format="YYYY-DD-MM">
+                    </ion-datetime>
+                </ion-item>
 
-            <ion-item>
-                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateFrom')}}(yyyy-dd-MM)</ion-label>
-                <ion-datetime name="dateFrom" @ionChange="dateFrom = $event.target.value" 
-                                v-bind:value="dateFrom"
-                                :placeholder="$t('backoffice.form.titles.dateFromSelect')" display-format="YYYY-DD-MM">
-                </ion-datetime>
-            </ion-item>
+                <ion-item>
+                    <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateTo')}}</ion-label>
+                    <ion-datetime name="dateFrom" @ionChange="dateTo = $event.target.value" 
+                                    v-bind:value="dateTo"
+                                    :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
+                    </ion-datetime>
+                </ion-item>
 
-            <ion-item>
-                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateTo')}}(yyyy-dd-MM)</ion-label>
-                <ion-datetime name="dateFrom" @ionChange="dateTo = $event.target.value" 
-                                v-bind:value="dateTo"
-                                :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
-                </ion-datetime>
-            </ion-item>
+                <ion-item>
+                    <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateLimit')}}</ion-label>
+                    <ion-datetime name="dateFrom" @ionChange="dateLimit = $event.target.value" 
+                                    v-bind:value="dateLimit"
+                                    :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
+                    </ion-datetime>
+                </ion-item>
 
-            <ion-item>
-                <span style="color: red">*</span><ion-label>{{$t('backoffice.form.fields.DateLimit')}}(yyyy-dd-MM)</ion-label>
-                <ion-datetime name="dateFrom" @ionChange="dateLimit = $event.target.value" 
-                                v-bind:value="dateLimit"
-                                :placeholder="$t('backoffice.form.titles.dateToSelect')" display-format="YYYY-DD-MM">
-                </ion-datetime>
-            </ion-item>
+                <ion-item v-if="state == 0 && othersRestaurants.length > 1">
+                    <ion-label>Extend for All Restaurants</ion-label>
+                        <ion-checkbox slot="end" name="active" 
+                        @ionChange="extendAll = $event.target.checked"
+                        :checked="extendAll"  >    
+                    </ion-checkbox>
+                </ion-item>
 
-            <ion-item v-if="state == 0 && othersRestaurants.length > 1">
-                <ion-label>Extend for All Restaurants</ion-label>
-                    <ion-checkbox slot="end" name="active" 
-                    @ionChange="extendAll = $event.target.checked"
-                    :checked="extendAll"  >    
-                </ion-checkbox>
-            </ion-item>
-        </div>
+            </ion-col>
 
-        <div v-if="state == 1 || state == 2 || state == 3">
+        </ion-row>
+
+        <div v-if="[1,2,3].includes(state)">
             <ion-grid>
                 <ion-row class="left">
                     <ion-col>
@@ -154,10 +147,9 @@
             </ion-grid>
         </div>
 
-      <br/>
+    
 
-      <ion-card v-if="state == 1 || state == 2 || state == 3">
-          <ion-item v-if="debt > 0">
+          <ion-item v-if="debt > 0 && [1,2,3].includes(state)">
               <ion-label position="floating"></ion-label>
               <ion-input :placeholder="'Please, enter an amount to pay. Total for pay: ' + pendingAmount()" name="amountToPay" 
                     @input="amountToPay = $event.target.value" @change="verifyAmount()"
@@ -166,7 +158,7 @@
                   <ion-button :disabled="!isValidAmount()" color="primary" @click="payCredit()">{{ $t('frontend.order.pay') }}</ion-button>
               </ion-item-group>
           </ion-item>
-          <ion-grid v-if="Payed.length > 0">
+          <ion-grid v-if="Payed.length > 0 && [1,2,3].includes(state)">
               <ion-row style="text-align: center">
                   <ion-col>
                       <b>Transaction</b>
@@ -191,11 +183,25 @@
               </ion-row>
           </ion-grid>
 
-      </ion-card>
+   
+        <ion-button 
+          v-if="[0,-1].includes(state)"
+          :disabled="!isValidForm()"
+           @click="saveCredit()">
+           {{ $t('backoffice.form.buttons.save') }}
+        </ion-button>
 
-      <div v-if="state == 0 || state == -1">
-          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveCredit()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-      </div>
+        <ion-button  v-if="![1,3].includes(state)" 
+            :disabled="!isValidForm()" 
+            @click="showCreditApproveModal(id)">
+            Aprobal
+        </ion-button>
+
+        <ion-button v-if="state != 3 " 
+            :disabled="!isValidForm()" 
+            @click="cancelCredit()">
+            Cancel
+        </ion-button>
     </div>
     </div>
 </template>
@@ -206,6 +212,7 @@ import { Api } from '../api/api.js';
 import PaymentSplited from '../../frontend/components/PaymentSplited';
 import moment from 'moment-timezone';
 import { Utils } from '../utils/utils.js';
+ import CreditApprove from './CustomerCreditApprove.vue'
 
 export default {
 
@@ -257,8 +264,6 @@ export default {
   methods: {
 
     init(){
-        console.log(this.$route.params.creditId)
-
         this.id = this.$route.params.creditId;
          this.customers = this.$store.state.backConfig.allCustomer;
 
@@ -414,7 +419,7 @@ export default {
                             return response;
                       })
                       .catch(e => {
-                            console.log(e);
+                            e;
                             this.spinner = false;
                             this.ifErrorOccured(this.saveCredit)
                       })
@@ -445,7 +450,7 @@ export default {
                             return response;
                       })
                      .catch(e => {
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveCredit)
                      })
@@ -465,7 +470,7 @@ export default {
                             return response;
                         })
                         .catch(e => {
-                            console.log(e);
+                            e;
                             this.spinner = false;
                             this.ifErrorOccured(this.saveCredit)
                         })
@@ -507,7 +512,6 @@ export default {
 
                let countM = 1
                let feeArr = [payDatas.amountToPay]
-               console.log("FeeArr", feeArr)
                let lastFee = 0
                while (countM <= months){
                    if (payDatas.feeType === 'Percent'){
@@ -524,7 +528,6 @@ export default {
            }
        }
 
-       console.log("Amount to pay: ", totalAmountToPay.toFixed(2))
        return totalAmountToPay.toFixed(2)
 
     },
@@ -623,7 +626,7 @@ export default {
                 this.spinner = false;
             
         } catch (error) {            
-            console.log(error)
+            error;
             this.spinner = false;
         }
     
@@ -639,6 +642,39 @@ export default {
 
     pendingAmount(){
       return this.debt - this.getPayed();
+    },
+
+    showCreditApproveModal(){
+        return this.$ionic.modalController
+                .create({
+                component: CreditApprove,
+                cssClass: 'my-custom-class',
+                componentProps: {
+                    data: {
+                      
+                    },
+                    propsData: {
+                       parent: this,
+                       cId: this.id
+                    },
+                },
+                })
+                .then(m => m.present())
+    },
+
+    async cancelCredit(){
+        const credit = this.$store.state.backConfig.customerCredit.find(c => c._id === this.id);
+        credit.State = 3
+        credit.Active = false
+        await Api.putIn('customercredit', credit)
+        .then(() => {
+            const index = this.$store.state.backConfig.customerCredit.find(c => c._id === this.id);
+            if(index !== -1){
+              this.$store.state.backConfig.customerCredit[index].State = 3
+              this.$store.state.backConfig.customerCredit[index].Active = false
+            }
+            this.showToastMessage('The credit was canceled sucessfully', 'success')
+        })
     },
     
 

@@ -26,10 +26,15 @@
             </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+         <ion-refresher 
+            style="position: relative"
+            slot="fixed"
+            @ionRefresh="doRefresh($event)">             
+          </ion-refresher>
+    <div >
       <div v-if="screenWidth < 600">
         <paginate
           name="languages"
@@ -124,6 +129,21 @@ export default {
     }
   }, 
   methods: {
+
+    async doRefresh(event) {
+        this.spinner = true;
+        await Api.fetchAll(this.modelName).then(response => {
+          this.$store.state.backConfig.variantgroup = response.data
+          this.spinner = false;
+        })
+        .catch(e => {
+          e;
+          this.spinner = false;
+        });
+          
+      this.fetchVariantGroup();    
+      event.target.complete();
+    },
     
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -253,7 +273,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteVariantGroup(id)
                       this.spinner = false

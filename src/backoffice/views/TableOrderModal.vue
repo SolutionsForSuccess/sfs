@@ -178,22 +178,14 @@ created(){
     },
 
     async changeOrderState(order, index, state){
-        const orderUpd = order;
-        //console.log('state: '+ state);
-        //console.log('order');
-        //console.log(order.State);
-
+        const orderUpd = order;    
         orderUpd.State = state;
         this.spinner = true;
-
-        //console.log('orderUpd');
-        //console.log(orderUpd.State);
-
         const response = await Api.putIn('Order', orderUpd);
         if(response.status === 200){
-             this.spinner = false;
-            //console.log('update order')
-            //console.log(response.data)
+            this.spinner = false;
+            const indexX = this.$store.state.backConfig.order.findIndex( o => o._id ===orderUpd._id )
+            if(indexX !== -1) this.$store.state.backConfig.order[indexX] = orderUpd;
             if(state === 5){
                 this.content.splice(index, 1);
             }else{
@@ -205,21 +197,14 @@ created(){
     },
 
     async setProductReady(order, index, product, indexP){
-        //console.log(order)
-        //console.log(index)
-        //console.log(product)
-        //console.log(indexP)
-
         this.key ++;
         const orderUpd = order;
         orderUpd.Products[indexP].State = 1;
 
         this.spinner = true;
-
-        //console.log('orderUpd');
-        //console.log(orderUpd.State);
-
         const response = await Api.putIn('Order', orderUpd);
+        const indexX = this.$store.state.backConfig.order.findIndex( o => o._id ===orderUpd._id )
+        if(indexX !== -1) this.$store.state.backConfig.order[indexX] = orderUpd;
         if(response.status === 200){
              this.spinner = false;           
                this.content[index].Products[indexP].State = 1;
@@ -251,16 +236,19 @@ created(){
 
       order.Products[index].State = 1;
       await Api.putIn('Order', order);
+      const indexX = this.$store.state.backConfig.order.findIndex( o => o._id ===order._id )
+      if(indexX !== -1) this.$store.state.backConfig.order[indexX] = order;
       this.cartKey ++;
 
     },
 
     async stateToChange(order, state){      
       const index = this.statesAll.findIndex(s => s.name === state)
-      //console.log(index);
       if(index !== -1 ){
         order.State = index;
-        await Api.putIn('Order', order);       
+        await Api.putIn('Order', order);    
+        const index = this.$store.state.backConfig.order.findIndex( o => o._id ===order._id )
+        if(index !== -1) this.$store.state.backConfig.order[index] = order;   
         this.stateKey ++;
       }      
     },
@@ -273,7 +261,7 @@ created(){
       });
     },
 
-        async showOrderNote(order){
+    async showOrderNote(order){
       const alert = await this.$ionic.alertController
       .create({
         cssClass: 'my-custom-class',
@@ -294,6 +282,8 @@ created(){
                   const n = order.Note || ''
                   order.Note = n + "\n" + data.address;
                   await Api.putIn('Order', order);
+                  const index = this.$store.state.backConfig.order.findIndex( o => o._id ===order._id )
+                  if(index !== -1) this.$store.state.backConfig.order[index] = order;
                 }              
             },
           },

@@ -148,15 +148,12 @@ export default {
     
     if(this.$route.params.credit){
       this.credit = this.$route.params.credit;    
-      console.log(JSON.parse(JSON.stringify(this.credit)))  
       this.amountForPay = this.pendingAmount();
     }   
     else
      this.credit.State = 0
      
 
-     console.log(this.$store.state.customer._id)
-     console.log(this.credit)
 
      if(this.$route.params.index){
       this.index = this.$route.params.index;      
@@ -166,7 +163,6 @@ export default {
   
   },
   components:{   
-    // VBreakpoint: VBreakpoint,  
   },
   data () {
     return {
@@ -216,7 +212,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired') ,
           buttons: [                   
           {
@@ -356,7 +352,6 @@ export default {
                 }
 
                 this.credit.Payed.push(pay);
-                console.log(this.pendingAmount());
                 if(this.pendingAmount() === 0){
                     this.credit.Active = false;
                     this.credit.State = 3;
@@ -368,7 +363,7 @@ export default {
                 this.spinner = false;
             
         } catch (error) {            
-            console.log(error)
+           error;
             this.spinner = false;
         }
     

@@ -171,16 +171,25 @@ export default {
         
         this.order = this.$route.params.order || this.orderProps;
         this.fun = this.$route.params.fun || this.funProps;
-        console.log(this.fun)
         this.driver = this.order.Driver;
-        this.drivers = this.$store.state.backConfig.staff.filter(urs => urs.IsDriver)
-        this.currency = this.$store.state.backConfig.restaurant.Currency;
-
-        const data = this.$store.state.backConfig.staff.find(x => x._id === this.driver)
-        if(data)  this.driverName = data.FirstName + " " + data.LastName
-
-         const dataCust = this.$store.state.backConfig.customer.find(c => c._id === this.order.ClientId)
-        if(dataCust)   this.customer = dataCust;
+        
+         if(this.$store.state.backConfig){
+             if(this.$store.state.backConfig.restaurant)
+                this.currency = this.$store.state.backConfig.restaurant.Currency;
+            if(this.$store.state.backConfig.staff){
+                this.drivers = this.$store.state.backConfig.staff.filter(urs => urs.IsDriver)
+                const data = this.$store.state.backConfig.staff.find(x => x._id === this.driver)
+                if(data)  this.driverName = data.FirstName + " " + data.LastName
+            }
+            if(this.order.ClientId &&  this.$store.state.backConfig.allCustomer){
+            const dataCust = this.$store.state.backConfig.allCustomer.find(c => c._id === this.order.ClientId)
+            if(dataCust)   this.customer = dataCust; 
+            }
+       
+         }
+            
+      
+        
 
        
         if (this.fun == 'write')
@@ -204,11 +213,9 @@ export default {
         }
     },
 
-    destroyed(){
-        console.log(this.writeInterval)
+    unmounted(){
         if (this.writeInterval != null)
             clearInterval(this.writeInterval);
-        console.log(this.readInterval)
         if (this.readInterval != null)
             clearInterval(this.readInterval);
     },
@@ -226,12 +233,11 @@ export default {
 
             await Api.putIn('Order', item)
             .then( () => {
-                console.log("Driver was set successfully")
                 this.showToastMessage("The order was assigned successfully", "success");
             })
             .catch(e => {
                 this.showToastMessage("There was an error assing the order", "success");
-                console.log(e);
+                e;
             })
         },
         
@@ -244,7 +250,6 @@ export default {
         },
 
         readAndPutPosition(){
-            console.log(this.order.IsAccept)
             // if (this.order.IsAccept){
                 Geolocation.getCurrentPosition({   
                 timeout: 30000     
@@ -252,9 +257,8 @@ export default {
                     this.coordinates.lat = response.coords.latitude
                     this.coordinates.lng = response.coords.longitude
                     this.putPosition();
-                    console.log("Writing position");
                 }).catch(e => {
-                    console.log(e);
+                    e;
                 });
             // }
         },
@@ -265,11 +269,10 @@ export default {
                 .then(response => {
                 this.coordinates.lat = response.data.lat
                 this.coordinates.lng = response.data.lng
-                console.log("Read successfully")
                 return response;
                 })
                 .catch(e => {
-                console.log(e);
+                e;
                 }) 
             // }
         },
@@ -295,14 +298,13 @@ export default {
             
             Api.putIn('Order', item)
             .then( () => {
-                console.log("Writing successfully")
                 if (!this.order.Travel)
                 {
                     this.order["Travel"] = travel
                 }
             })
             .catch(e => {
-                console.log(e);
+                e;
             })
         },
 
@@ -310,7 +312,7 @@ export default {
             
             await Api.sendEmail(item)
             .catch(e => {
-                console.log(e)
+                e
             })
         },
 
@@ -357,7 +359,7 @@ export default {
                 });
             })
             .catch(e => {
-                console.log(e);
+                e;
             })
         },
 

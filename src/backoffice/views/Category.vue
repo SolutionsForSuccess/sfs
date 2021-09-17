@@ -1,116 +1,28 @@
 <template>
-  <div id="category" class="screen">
+    <div id="user" class="page">
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.categories')}}</h1>            
-            </ion-label>
 
-            <ion-label slot="end">
-            <router-link to="/category-form">
-                <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateCategory')">
-                    <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                </ion-chip>
-            </router-link>
-            </ion-label>
-          </ion-toolbar>
-
-            <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterCategories = categories" 
-                :placeholder="$t('frontend.home.search')">           
-            </ion-searchbar>
-    </ion-header>
-
-    <div v-if="spinner">
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-    <div >
-
-        <div v-if="screenWidth < 600">
-            <paginate
-              name="languages"
-              :list="filterCategories"
-              :per="8"
-            >
-            <ion-list>
-              <ion-item-sliding v-for="category in paginated('languages')" v-bind:key="category._id">
-                <ion-item>
-                  <ion-thumbnail slot="start">
-                    <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
-                    <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                  </ion-thumbnail>
-                  <ion-label>
-                      <h2>{{ category.Name }} | <div v-if="category.Service" style="display: inline-block">{{$t('backoffice.form.fields.service')}}</div><div style="display: inline-block" v-else>{{$t('backoffice.form.fields.product')}}</div></h2>
-                      <h3><div style="word-wrap: break-word">{{ category.Description }}</div></h3>
-                  </ion-label>
-                  <span class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                </ion-item>
-                <ion-item-options side="end">
-                  <ion-item-option v-if="hasPermission('canEditCategory')" color="primary" @click="editCategory(category._id)">
-                      <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-item-option>
-                  <ion-item-option v-if="hasPermission('canDeleteCategory')" color="danger" @click="deleteCategory(category._id)">
-                      <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-item-option>
-                </ion-item-options>
-              </ion-item-sliding>
-          </ion-list>
-
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>      
-      </div>
-
-      <div v-if="screenWidth >= 600">
-            <paginate
-              name="languages"
-              :list="filterCategories"
-              :per="8"
-            >
-            <ion-list :key="key">
-              <ion-item v-for="category in paginated('languages')" v-bind:key="category._id">
-                <ion-thumbnail slot="start">
-                  <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
-                  <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                </ion-thumbnail>
-                <ion-label>
-                    <h2>{{ category.Name }} | <div v-if="category.Service" style="display: inline-block">{{$t('backoffice.form.fields.service')}}</div><div style="display: inline-block" v-else>{{$t('backoffice.form.fields.product')}}</div></h2>
-                    <h3><div style="word-wrap: break-word">{{ category.Description }}</div></h3>
-                </ion-label>
-                <ion-item-group side="end">
-                  <ion-button v-if="hasPermission('canEditCategory')" color="primary" @click="editCategory(category._id)">
-                      <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-button>
-                  <ion-button v-if="hasPermission('canDeleteCategory')" color="danger" @click="deleteCategory(category._id)">
-                      <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-button>
-                </ion-item-group>
-              </ion-item>
-          </ion-list>
-
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>      
-      </div>
-  </div>
+    <listView      
+      :title="$t('backoffice.titles.categories')"
+      :filter="filterCategories"
+      :elements="categories"
+      :hasImg="true"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateCategory')"
+      :edit="hasPermission('canEditCategory')"
+      :remove="hasPermission('canDeleteCategory')"
+      @handleInput="handleInput"
+      @handleAddClick="addCategory"   
+      @editElement="editCategory"
+      @deleteElement="deleteCategory"   
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
 
 export default {
 
@@ -130,11 +42,36 @@ export default {
       spinner: false,
       screenWidth: 0,
       key: 0,
+      keyList: 0
     }
+  },
+  components: {
+    listView,
   }, 
   methods: {
-    doRefresh(){
-        this.fetchCategories();
+   async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.category = response.data;
+        this.fetchCategories(); 
+        this.spinner = false;
+        this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+  },
+
+     ListViewData(option, count){
+      if(count === 1) return option.ImageUrl;
+      if(count === 2) return option.Name
+      if(count === 3) return null;
+         
+      if(count === 4) return null;
+      if(count === 5)  
+        if(option.Service) return  this.$t('backoffice.form.fields.service');
+          else  return  this.$t('backoffice.form.fields.product');
     },
     
     ifErrorOccured(action){
@@ -227,12 +164,19 @@ export default {
        this.filterCategories = this.categories; 
        },
 
+    addCategory: function(){
+        this.$router.push({
+        name: 'CategoryForm'
+      });
+    },
+
     editCategory: function(id){
         this.$router.push({
         name: 'CategoryForm', 
         params: { categoryId: id }
       });
     },
+
     deleteCategory: function(id){
 
         this.$ionic.alertController.create({
@@ -265,7 +209,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteCategory(id)
                       this.spinner = false

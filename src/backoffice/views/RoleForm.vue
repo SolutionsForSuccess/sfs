@@ -20,8 +20,7 @@
         cssClass="my-custom-class"
         :message="$t('frontend.tooltips.loadRestaurant')"
       ></ion-loading>
-    
-    <div >
+
         <ion-item v-if="canEdit || id==null">
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
           <ion-input type="text" name="name"
@@ -36,446 +35,461 @@
           v-bind:value="description">
           </ion-textarea>
         </ion-item>
-       
-        <ion-item>
+
+          <ion-item >
             <p>{{$t('backoffice.form.fields.permissions')}}</p>
-            <ion-chip slot="end" :color="all_color" @click="selectDeselectAll()">
+            <ion-toggle slot="end" @ionChange="all=$event.target.checked,selectDeselectAll()" :checked="all"></ion-toggle>
+            <!-- <ion-chip slot="end" :color="all_color" @click="selectDeselectAll()">
                 <ion-icon name="checkmark-circle"></ion-icon>
                 <ion-label>{{all_title}}</ion-label>
-            </ion-chip>
+            </ion-chip> -->
         </ion-item>
+    
+    <ion-row :key="key">
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionMenu')}}</p>
-            <ion-chip slot="end" :color="menu_color" @click="selectDeselectMenu()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{menu_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in menuPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
+          <ion-col size="12" size-md="6">
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionMenu')}}</p>
+                <ion-chip slot="end" :color="menu_color" @click="selectDeselectMenu()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{menu_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in menuPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionCategory')}}</p>
-            <ion-chip slot="end" :color="category_color" @click="selectDeselectCategory()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{category_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in categoryPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionProduct')}}</p>
+                <ion-chip slot="end" :color="product_color" @click="selectDeselectProduct()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{product_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in productPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionProduct')}}</p>
-            <ion-chip slot="end" :color="product_color" @click="selectDeselectProduct()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{product_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in productPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
+            
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionReservation')}}</p>
+                <ion-chip slot="end" :color="reservation_color" @click="selectDeselectReservation()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{reservation_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in reservationPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionSpecialPrice')}}</p>
-            <ion-chip slot="end" :color="specialprice_color" @click="selectDeselectSpecialPrice()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{specialprice_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in specialpricePermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionCustomer')}}</p>
+                <ion-chip slot="end" :color="customer_color" @click="selectDeselectCustomer()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{customer_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in customerPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionReservation')}}</p>
-            <ion-chip slot="end" :color="reservation_color" @click="selectDeselectReservation()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{reservation_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in reservationPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionSuscriptors')}}</p>
+                <ion-chip slot="end" :color="suscriptor_color" @click="selectDeselectSuscriptor()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{suscriptor_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in suscriptorPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionTax')}}</p>
+                <ion-chip slot="end" :color="tax_color" @click="selectDeselectTax()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{tax_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in taxPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+                <ion-item>
+                    <p>{{$t('backoffice.form.permissionsGroup.permissionOtherCharge')}}</p>
+                    <ion-chip slot="end" :color="otherCharge_color" @click="selectDeselectOtherCharge()">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        <ion-label>{{otherCharge_title}}</ion-label>
+                    </ion-chip>
+                </ion-item>
+                 <ion-list style="padding-left: 35px;">
+                    <ion-item v-for="permission in otherChargePermissions" v-bind:key="permission.val">
+                    <ion-label>{{permission.val}}</ion-label>
+                    <ion-checkbox
+                        slot="end"
+                        @ionChange="permission.isChecked=$event.target.checked"
+                        :checked="permission.isChecked">
+                    </ion-checkbox>
+                    </ion-item>
+                </ion-list>
+
+                 <ion-item>
+                    <p>{{$t('backoffice.form.permissionsGroup.permissionDriver')}}</p>
+                    <ion-chip slot="end" :color="driver_color" @click="selectDeselectDriver()">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        <ion-label>{{driver_title}}</ion-label>
+                    </ion-chip>
+                </ion-item>
+                 <ion-list style="padding-left: 35px;">
+                    <ion-item v-for="permission in driverPermissions" v-bind:key="permission.val">
+                    <ion-label>{{permission.val}}</ion-label>
+                    <ion-checkbox
+                        slot="end"
+                        @ionChange="permission.isChecked=$event.target.checked"
+                        :checked="permission.isChecked">
+                    </ion-checkbox>
+                    </ion-item>
+                </ion-list>
+
+                 <ion-item>
+                    <p>{{$t('backoffice.form.permissionsGroup.permissionRole')}}</p>
+                    <ion-chip slot="end" :color="role_color" @click="selectDeselectRole()">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        <ion-label>{{role_title}}</ion-label>
+                    </ion-chip>
+                </ion-item>
+                 <ion-list style="padding-left: 35px;">
+                    <ion-item v-for="permission in rolePermissions" v-bind:key="permission.val">
+                    <ion-label>{{permission.val}}</ion-label>
+                    <ion-checkbox
+                        slot="end"
+                        @ionChange="permission.isChecked=$event.target.checked"
+                        :checked="permission.isChecked"
+                        >
+                    </ion-checkbox>
+                    </ion-item>
+                </ion-list>
+
+                  <ion-item>
+                    <p>{{$t('backoffice.form.permissionsGroup.permissionOrder')}}</p>
+                    <ion-chip slot="end" :color="order_color" @click="selectDeselectOrder()">
+                        <ion-icon name="checkmark-circle"></ion-icon>
+                        <ion-label>{{order_title}}</ion-label>
+                    </ion-chip>
+                </ion-item>
+                 <ion-list style="padding-left: 35px;">
+                    <ion-item v-for="permission in orderPermissions" v-bind:key="permission.val">
+                    <ion-label>{{permission.val}}</ion-label>
+                    <ion-checkbox
+                        slot="end"
+                        @ionChange="permission.isChecked=$event.target.checked"
+                        :checked="permission.isChecked"
+                        >
+                    </ion-checkbox>
+                    </ion-item>
+                </ion-list>
+
+                   <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionPayment')}}</p>
+                <ion-chip slot="end" :color="payment_color" @click="selectDeselectPayment()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{payment_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;" >
+                <ion-item v-for="permission in paymentPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionCategory')}}</p>
+                <ion-chip slot="end" :color="category_color" @click="selectDeselectCategory()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{category_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in categoryPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionSpecialPrice')}}</p>
+                <ion-chip slot="end" :color="specialprice_color" @click="selectDeselectSpecialPrice()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{specialprice_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in specialpricePermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+             <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionVariantGroup')}}</p>
+                <ion-chip slot="end" :color="variant_color" @click="selectDeselectVariantGroup()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{variant_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in variantGroupPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+             <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionCredit')}}</p>
+                <ion-chip slot="end" :color="customer_color" @click="selectDeselectCredit()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{credit_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in creditPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionTable')}}</p>
+                <ion-chip slot="end" :color="table_color" @click="selectDeselectTable()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{table_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in tablePermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionShipping')}}</p>
+                <ion-chip slot="end" :color="shipping_color" @click="selectDeselectShipping()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{shipping_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in shippingPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionUser')}}</p>
+                <ion-chip slot="end" :color="user_color" @click="selectDeselectUser()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{user_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in userPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionOccupation')}}</p>
+                <ion-chip slot="end" :color="occupation_color" @click="selectDeselectOccupation()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{occupation_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in occupationPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked">
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+             <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionWorkSheet')}}</p>
+                <ion-chip slot="end" :color="worksheet_color" @click="selectDeselectWorksheet()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{worksheet_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in worksheetPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
+
+             <!-- Permisos House Account -->
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionHouseAccount')}}</p>
+                <ion-chip slot="end" :color="house_color" @click="selectDeselectHouseAccount()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{house_title}}</ion-label>
+                </ion-chip>
+            </ion-item>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in housePermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
         
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionVariantGroup')}}</p>
-            <ion-chip slot="end" :color="variant_color" @click="selectDeselectVariantGroup()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{variant_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in variantGroupPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionSetting')}}</p>
+                <ion-chip slot="end" :color="setting_color" @click="selectDeselectSetting()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{setting_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in settingPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionCustomer')}}</p>
-            <ion-chip slot="end" :color="customer_color" @click="selectDeselectCustomer()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{customer_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in customerPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
+         
+
+            <ion-item>
+                <p>{{$t('backoffice.form.permissionsGroup.permissionClockin')}}</p>
+                <ion-chip slot="end" :color="clockin_color" @click="selectDeselectClockin()">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-label>{{clockin_title}}</ion-label>
+                </ion-chip>
             </ion-item>
-        </ion-list>
+             <ion-list style="padding-left: 35px;">
+                <ion-item v-for="permission in clockinPermissions" v-bind:key="permission.val">
+                <ion-label>{{permission.val}}</ion-label>
+                <ion-checkbox
+                    slot="end"
+                    @ionChange="permission.isChecked=$event.target.checked"
+                    :checked="permission.isChecked"
+                    >
+                </ion-checkbox>
+                </ion-item>
+            </ion-list>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionCredit')}}</p>
-            <ion-chip slot="end" :color="customer_color" @click="selectDeselectCredit()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{credit_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in creditPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
+          </ion-col>
+       
 
-        <!-- Permisos House Account -->
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionHouseAccount')}}</p>
-            <ion-chip slot="end" :color="house_color" @click="selectDeselectHouseAccount()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{house_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in housePermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
+    </ion-row>
+          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveRole()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
 
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionSuscriptors')}}</p>
-            <ion-chip slot="end" :color="suscriptor_color" @click="selectDeselectSuscriptor()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{suscriptor_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in suscriptorPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionTable')}}</p>
-            <ion-chip slot="end" :color="table_color" @click="selectDeselectTable()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{table_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in tablePermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionTax')}}</p>
-            <ion-chip slot="end" :color="tax_color" @click="selectDeselectTax()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{tax_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in taxPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionShipping')}}</p>
-            <ion-chip slot="end" :color="shipping_color" @click="selectDeselectShipping()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{shipping_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in shippingPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOtherCharge')}}</p>
-            <ion-chip slot="end" :color="otherCharge_color" @click="selectDeselectOtherCharge()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{otherCharge_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in otherChargePermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionUser')}}</p>
-            <ion-chip slot="end" :color="user_color" @click="selectDeselectUser()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{user_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in userPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionDriver')}}</p>
-            <ion-chip slot="end" :color="driver_color" @click="selectDeselectDriver()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{driver_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in driverPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOccupation')}}</p>
-            <ion-chip slot="end" :color="occupation_color" @click="selectDeselectOccupation()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{occupation_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in occupationPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked">
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionRole')}}</p>
-            <ion-chip slot="end" :color="role_color" @click="selectDeselectRole()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{role_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in rolePermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionWorkSheet')}}</p>
-            <ion-chip slot="end" :color="worksheet_color" @click="selectDeselectWorksheet()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{worksheet_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in worksheetPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionOrder')}}</p>
-            <ion-chip slot="end" :color="order_color" @click="selectDeselectOrder()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{order_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in orderPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionSetting')}}</p>
-            <ion-chip slot="end" :color="setting_color" @click="selectDeselectSetting()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{setting_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in settingPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionPayment')}}</p>
-            <ion-chip slot="end" :color="payment_color" @click="selectDeselectPayment()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{payment_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in paymentPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-        <ion-item>
-            <p>{{$t('backoffice.form.permissionsGroup.permissionClockin')}}</p>
-            <ion-chip slot="end" :color="clockin_color" @click="selectDeselectClockin()">
-                <ion-icon name="checkmark-circle"></ion-icon>
-                <ion-label>{{clockin_title}}</ion-label>
-            </ion-chip>
-        </ion-item>
-        <ion-list>
-            <ion-item v-for="permission in clockinPermissions" v-bind:key="permission.val">
-            <ion-label>{{permission.val}}</ion-label>
-            <ion-checkbox
-                slot="end"
-                @ionChange="permission.isChecked=$event.target.checked"
-                :checked="permission.isChecked"
-                >
-            </ion-checkbox>
-            </ion-item>
-        </ion-list>
-
-      <br/>
-      <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveRole()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-    </div>
     </div>
 </template>
 
@@ -495,6 +509,7 @@ export default {
       name: '',
       description: '',
       canEdit: false,
+      key: 0,
 
       menuPermissions: [
         { id: 'canViewMenu', val: this.$t('backoffice.form.permissionsGroup.canViewMenu'), isChecked: false },
@@ -899,7 +914,7 @@ export default {
     },
 
     selectDeselectMenu(){
-        this.menu = !this.menu;
+         this.menu = !this.menu;
         if (this.menu_color == 'success')
         {
             this.menu_color = 'danger'
@@ -1097,7 +1112,6 @@ export default {
             else
                 permission.isChecked = false;
         });
-        //console.log(this.tablePermissions);
     },
 
     selectDeselectTax(){
@@ -1361,7 +1375,7 @@ export default {
     },
 
     selectDeselectAll(){
-        this.all = !this.all;
+        // this.all = !this.all;
         if (this.all_color == 'success')
         {
             this.all_color = 'danger'
@@ -1394,6 +1408,7 @@ export default {
         this.selectDeselectPayment(this.all);
         this.selectDeselectClockin(this.all);
         this.selectDeselectDriver(this.all);
+      
     },
 
     isValidForm(){      
@@ -1493,7 +1508,6 @@ export default {
                 "canEditDriver": this.driverPermissions[2].isChecked,
                 "canDeleteDriver": this.driverPermissions[3].isChecked,
             }
-            console.log(item)
             //If I am editing
             if (this.id){
               item['_id'] = this.id;
@@ -1511,7 +1525,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveRole);
                   })
@@ -1521,21 +1535,20 @@ export default {
               this.spinner = true;
               await Api.postIn(this.modelName, item)
                   .then(response => {
-                      this.$store.state.backConfig.rol.push(response.data);
-                      this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessRole'), "success");
-                      this.spinner = false;
+                        this.$store.state.backConfig.rol.push(response.data);
+                        if(this.externalProp) return this.$emit("reloadRol", response.data._id);
+                        this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessRole'), "success");
+                        this.spinner = false;
                       
-                      if (!this.externalProp){
-                            this.$router.push({
-                                name: 'Role', 
-                            });
-                      }
+                        this.$router.push({
+                            name: 'Role', 
+                        });
                       
-                      return response;
+                        return response;
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveRole);
                   })

@@ -135,55 +135,54 @@ export default {
         return true
 
     },
-    pay(){
+    async pay(){
         if (this.isValidForm())
         {
-            this.order.Deadline[this.deadline].State = 1
-            this.order.Deadline[this.deadline].Date = this.date
-            const amontToPay = this.toPay(this.order.Deadline[this.deadline].Percent)
-            this.order.Deadline[this.deadline].AmountPayed  = amontToPay
-            this.order.PendingPayment -= amontToPay
+            const item = this.order;
+           item.Deadline[this.deadline].State = 1
+           item.Deadline[this.deadline].Date = this.date
+            const amontToPay = this.toPay(item.Deadline[this.deadline].Percent)
+           item.Deadline[this.deadline].AmountPayed  = amontToPay
+            item.PendingPayment -= amontToPay
             
-            Api.putIn("order", this.order).then(() => {
-                //console.log(response)
+            await Api.putIn("order", item).then(() => {                
                 this.dismissModal()
             }).catch(e => {
-                console.log(e)
+                e;
                 this.ifErrorOccured(this.pay)
             })
 
-            // console.log(this.order.Deadline)
-            // alert("Pay")
-            // this.dismissModal()
+          
         }
 
     },
     
-      sendEmail(email, mess){
+    async sendEmail(email, mess){
            let item = {
               "email": email,
               "mess": mess
             };
-            Api.sendEmail(this.modelName, item)
+            await Api.sendEmail(this.modelName, item)
                 .then(() => {
                     return;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.showToastMessage('Ocurrió un error al enviar el email', "danger");
                 })
       },
-      sendSms(phone, mess){
+
+    async  sendSms(phone, mess){
             let item = {
               "phone": phone,
               "mess": mess
             };
-            Api.sendSms(this.modelName, item)
+            await Api.sendSms(this.modelName, item)
                 .then(() => {
                     return;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.showToastMessage('Ocurrió un error al enviar el sms', "danger");
                 })
       },

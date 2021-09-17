@@ -28,10 +28,11 @@
             </ion-searchbar>
     </ion-header>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
+     <div v-if="spinner">
+        <ion-progress-bar type="indeterminate"></ion-progress-bar>
     </div>
-    <div v-else>
+
+    <div >
       <div v-if="screenWidth < 600">
           <paginate
             name="languages"
@@ -131,6 +132,7 @@ export default {
     init(){
        this.fetchNewsletter();
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -154,6 +156,7 @@ export default {
         })
         .then(a => a.present());
     },
+
     handleInput(value){
 
       this.filterNewsletter = this.newsletter
@@ -166,6 +169,7 @@ export default {
           this.filterNewsletter = this.newsletter
       });
     },
+
     hasPermission(permission){
         
         let res = false;
@@ -194,6 +198,7 @@ export default {
         }
         return res;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -205,6 +210,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
       return this.$ionic.toastController.create({
         color: tColor,
@@ -216,38 +222,18 @@ export default {
     },
     /****** CRUD category methods ******/
     fetchNewsletter: function(){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {
-                //llamada ajax						
-                Api.fetchAll(this.modelName).then(response => {
-                  // console.log(response.data)
-                  this.newsletter = response.data
-                  this.filterNewsletter = this.newsletter
-                  loading.dismiss()
-                })
-                .catch(e => {
-                    console.log(e);
-                    loading.dismiss();
-                    this.ifErrorOccured(this.init);
-                    // this.ShowMessage('Error', 'Error', 'Fetch other charges');
-                });
-            })
-        })
+      this.newsletter = this.$store.state.backConfig.newsletter
+      this.filterNewsletter = this.newsletter
     },
+
     editNewsletter: function(id){
         this.$router.push({
         name: 'NewsletterForm', 
         params: { newsletterId: id }
       });
     },
-    deleteNewsletter: function(id){
+
+    deleteNewsletter: async function(id){
 
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -261,21 +247,20 @@ export default {
           },
           {
             text: this.$t('backoffice.list.messages.buttons.delete'),
-            handler: () => {
+            handler: async() => {
               
                 this.spinner = true
-                Api.deleteById(this.modelName, id)
+                await Api.deleteById(this.modelName, id)
                 .then(response => {
-                  // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                  //     this.$t('backoffice.list.messages.messageDeleteSuccessOtherCharges'),
-                  //         this.$t('backoffice.list.messages.deleteSubtitleOtherCharges'));
+                    const index = this.$store.state.backConfig.newsletter.findIndex( n => n._id === id)
+                    if(index !== -1) this.$store.state.backConfig.newsletter.splice(index, 1);
                     this.showToastMessage(this.$t('backoffice.list.messages.messageDeleteSuccessNewsletter'), "success");
                     this.fetchNewsletter();
                     this.spinner = false;
                     return response;
                 })
                 .catch(e => {
-                    console.log(e);
+                    e;
                     this.ifErrorOccured(mess => {
                       this.deleteNewsletter(id)
                       this.spinner = false;

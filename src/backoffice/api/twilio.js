@@ -11,7 +11,7 @@ export var Twilio = {
             to: phone,
             from: this.sysNumber,
             body: mess,
-        }).then(message => console.log(message.sid));
+        }).then(message => (message.sid));
     },
 
 }

@@ -9,9 +9,9 @@
             <ion-buttons  v-if="showButtons" slot="start" @click="dismiss()">
               <ion-back-button default-href="home"></ion-back-button>
             </ion-buttons>
-            
+            {{i18n.t('frontend.home.cardTitle')}} 
               <ion-label>
-                {{i18n.t('frontend.home.cardTitle')}} 
+                
                 <div v-if="order.isTicket && !spinnerOrder" @click="refreshOrder()" style="display: contents">
                    <ion-icon name="refresh" color="primary" size="large" style="margin-top: 0px;width: 35px;" > </ion-icon>   
                 </div>  
@@ -619,7 +619,7 @@ methods: {
             // }  
           // }
         } catch (error) {
-          console.log(error)
+          error;
           this.theCodeToDiscount = '';
            this.showDiscount = false;  
           this.spinnerDiscount = false;
@@ -648,7 +648,7 @@ methods: {
           } 
           this.spinnerOrder = false;          
          } catch (error) {         
-              console.log(error);
+              error;
               this.spinnerOrder = false;
          }   
       }

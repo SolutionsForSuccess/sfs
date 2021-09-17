@@ -7,7 +7,7 @@
     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Ticket'})"></ion-back-button>
+              <ion-back-button default-href="/controlPanel"  @click="$router.push({ name: 'Order'})"></ion-back-button>
             </ion-buttons>
             <ion-label style="padding: 20px 100px;">
               <h1>{{title}}</h1>            
@@ -467,24 +467,15 @@ export default {
   },
   mounted: function(){
     EventBus.$on('ProductsSelected', (productsSelected) => {
-      //console.log(productsSelected)
       productsSelected.forEach(prod => {
           prod.State = 0
           this.products.push(prod)
-          //console.log("El Product")
-          //console.log(prod)
       })
       this.calcTotal()
     });
-    // EventBus.$on('ServicesSelected', (servicesSelected) => {
-    //   console.log(servicesSelected)
-    //   servicesSelected.forEach(serv => {
-    //       this.products.push(serv) 
-    //   })  
-    // });
+   
   },
   created: async function(){
-    //console.log(this.order)
     await this.init();
     this.screenWidth = screen.width;
   },
@@ -517,24 +508,18 @@ export default {
            await Api.fetchById('Restaurant', restaurantID).then(response => {
                 this.currency = response.data.Currency
                 this.restaurantActive = response.data
-                //Restaurant Active.
-                //console.log("RESTAURANT ACTIVE")
-                //console.log(this.restaurantActive)
+               
             }).catch(e => {
-                console.log(e)
+                e
             })
         } 
     },
     getTaxName(){
       Api.getAvailbleTax().then(response => {
           this.taxName = response.data.Name
-          //TaxName
-          //console.log("TAXNAME")
-          //console.log(response.data)
-          //console.log(this.taxName)
       })
       .catch(e => {
-          console.log("ERROR TAXNAME: " + e)
+         e
       })
     },
     changeDiscountType(value){
@@ -576,11 +561,8 @@ export default {
         partialSubtotal -= this.discountAmount
 
         this.subtotal = partialSubtotal.toString()
-        //console.log("SUBTOTAL")
-        //console.log(this.subtotal)
     },
     calcTotal(){
-        //console.log("HELLO")
         let partialTotal = 0
         
         this.calcSubtotal()
@@ -589,8 +571,6 @@ export default {
         partialTotal +=  parseFloat(this.calcTax)
         partialTotal += parseFloat(this.calcTip)    
         this.total = partialTotal.toFixed(2)
-        //console.log("TOTAL")
-        //console.log(this.total)
     },
     pendingPay(){
         this.calcTotal()
@@ -610,8 +590,6 @@ export default {
                 setTimeout(() => {  // Some AJAX call occurs    
                     Api.fetchById(this.modelName, this.id)
                     .then(response => {
-                        //console.log("ORDER");
-                        //console.log(response.data);
                         this.order = response.data;
                         this.date = this.order.Date;
                         this.orderType = this.order.OrderType;
@@ -630,7 +608,7 @@ export default {
                         return this.getCustomer(this.order.ClientId);
                     })
                     .catch(e => {
-                        console.log(e);
+                        e;
                         loading.dismiss();
                         this.ifErrorOccured(this._init)
                     })     
@@ -653,8 +631,6 @@ export default {
               {
                 text: this.$t('backoffice.form.messages.buttons.ok'),
                 handler: () => {
-                    //console.log("Change State")
-                    //console.log(this.products[this.products.indexOf(product)])
                     this.products[this.products.indexOf(product)].State = 1         
                 }
               }
@@ -686,11 +662,7 @@ export default {
           })
           .then(a => a.present());
     },
-    // delService(id){
-    //     // console.log(this.products.findIndex(prod => prod._id === id));
-    //     this.products.splice(this.products.findIndex(serv => serv._id === id), 1);
-    //     this.calcTotal();
-    // },
+   
     addProduct(){
         return this.$ionic.modalController
                 .create({
@@ -765,7 +737,7 @@ export default {
             return response;
         })
         .catch(e => {
-            console.log(e);
+            e;
             return e;
         })  
     },
@@ -799,30 +771,6 @@ export default {
         .then(a => a.present());
     },
     isValidForm(){
-        
-        // console.log("VALID FORM")
-        // this.deadLinePercentInc++
-        // if (this.products.length == 0)
-        // {
-        //     return false
-        // }
-        // if (this.haveDeadlines)
-        // {
-        //     let s = 0
-        //     this.deadLines.forEach(dl => {
-        //         if (dl.Date == '')
-        //             return false
-        //         if (isNaN(dl.Percent))
-        //             return false
-        //         s +=  parseFloat(dl.Percent)
-
-        //     })
-        //     if(s != 100) return false
-            
-        // }
-
-        // console.log("TRUE EN ESTE PUNTO");
-        // return true;
         return
     },
     ShowMessage(type, message, topic='') {
@@ -884,7 +832,6 @@ export default {
         }
     },
     async cancelTicket(){
-            //console.log('IN cancel Ticket');
 
         if(this.order.AuthorizationPayment){
     
@@ -898,8 +845,7 @@ export default {
 
                     this.spinner = true; 
                     const resVoid = await payAuthorizeNet.void(transId, moto, restaurantId, payMethod, isDelivery)
-                    //console.log("Response Void")
-                    //console.log(resVoid)
+                  
                     if(resVoid){
                         this.order.State = 6;
                         await  Api.putIn('order', this.order);
@@ -908,7 +854,7 @@ export default {
                     }
                     
                 } catch (error) {
-                    console.log(error);
+                    error;
                     
                 }
             
@@ -932,8 +878,7 @@ export default {
                 firstName : this.order.CustomerName || ''      
         }
 
-        //console.log("AddToTicket")
-        //console.log(data)
+      
 
         if(this.order.AuthorizationPayment){
         
@@ -947,15 +892,11 @@ export default {
                 if(this.order.AuthorizationPayment[0].paymentInfo.accountNumber)
                     data.cardNumber = this.order.AuthorizationPayment[0].paymentInfo.accountNumber;
 
-                //console.log('data');
-                //console.log(data);
-                //console.log("1");
+               
                 const response = await payAuthorizeNet.firstAuthorizeOrder(data, moto);
-                //console.log("2");
-                //console.log(response)
+              
                 if(response){
-                    //console.log('response');
-                    //console.log(response);
+                   
                     this.order.AuthorizationPayment = [{
                         state: 1,
                         total: response.total,
@@ -977,13 +918,12 @@ export default {
             } 
             catch (error) {
                 this.spinner = false;
-                console.log(error);
+                error;
                 return false;
             }
 
             }
             else{
-                //console.log('No tiene transId');
                 this.showToastMessage('TransId not found', 'danger')
                 return false;
             }
@@ -999,18 +939,13 @@ export default {
              if(this.order.AuthorizationPayment){
                 this.spinner = true;
                 let autho = true;
-                //console.log('Payment Method  '+ this.restaurantActive.PayMethod )
                 if(this.restaurantActive.PayMethod !== 'TSYS')                
                      autho =  await this.addToTicket();
-                //console.log('autho in TICKET FORM: ' + autho)
                 if(autho)
                 {
                     const invoiceNumber = this.order.AuthorizationPayment[0].paymentInfo.transId;
                     const moto = this.order.AuthorizationPayment[0].paymentInfo.moto;
-                    console.log('MOTO Capture del Authorization '  + moto);
                     const response = await payAuthorizeNet.captureOrder(invoiceNumber, moto,  this.restaurantActive._id, this.restaurantActive.PayMethod, this.order.Total);      
-                    //console.log('RESPONSE CAPTURE');
-                    //console.log(response);
                     delete this.order.AuthorizationPayment;
                     this.recivePayment(response);
                     this.showToastMessage('The payment was complete successfully', 'success')
@@ -1063,8 +998,6 @@ export default {
                             isTicket: true,
                         }
 
-                    //console.log("PROPS DATA")
-                    //console.log(modalProps)
 
                  return this.$ionic.modalController
                     .create({
@@ -1087,7 +1020,7 @@ export default {
         catch (error)
         {
             this.spinner = false;
-            console.log(error);
+            error;
             this.showToastMessage('An error was occur', 'danger')
         }
     },
@@ -1136,333 +1069,13 @@ export default {
             }    
         } 
         catch (error) {            
-            console.log(error)
+         error;
             this.spinner = false;
             // this.errorPaymentDetail(error); 
         }
     },
 
-    // fetchProducts: function(){
-    //     Api.fetchAll('Product').then(response => {
-    //       // console.log(response.data)
-    //       this.products = response.data
-    //     })
-    //     .catch(e => {
-    //       console.log(e)
-    //     });
-    // },
-    //Create or edit a new product
-    // cancel: function(){
-    //     let item = {
-    //         "_id": this.id,
-    //         "State": 6,
-    //     }
-    //     // console.log(item)
-    //     // return
-    //     this.spinner = true;  
-    //         Api.putIn(this.modelName, item)
-    //         .then(response => {
-    //             const orderInfo = this.customer.Name + this.$t('backoffice.form.marketingMessages.cateringCancel');
-    //             if (this.customer)
-    //             {
-    //                 if (this.customer.MarketingConsent.Phone)
-    //                     this.sendSms(this.customer.Phone, orderInfo);
-    //                 if (this.customer.MarketingConsent.Email)
-    //                     this.sendCancelEmail(this.customer.Email)
-    //             }
-    //             else
-    //             {
-    //                 this.sendCancelEmail(this.order.CustomerEmail);
-    //             }
-    //             this.spinner = false;
-    //             this.showToastMessage(this.$t('backoffice.list.messages.messageCateringCancelled'), "success");
-    //             this.$router.push({
-    //                 name: 'CateringOrder', 
-    //             });
-    //             return response;
-    //         })
-    //         .catch(e => {
-    //             this.isBackdrop = false;
-    //             console.log(e);
-    //             this.spinner = false;
-    //             this.ifErrorOccured(this.approve);
-    //         })
-
-    // },
-    // approve: function(){
-
-    //   if (this.isValidForm()){
-
-    //         // this.isBackdrop = true;
-            
-    //         this.order.Date = this.date;
-    //         this.order.OrderType = this.orderType;
-    //         this.order.Products = this.products;
-    //         this.order.OtherCharges = this.otherCharges;
-    //         this.order.SubTotal = this.subtotal;
-    //         this.order.Discount = this.discountAmount;
-    //         this.order.Taxe = this.taxe;
-    //         this.order.Total = this.total;
-    //         this.order.State = 8;
-
-    //         // let item = {
-    //         // "_id": this.id,
-    //         // "Date": this.date,
-    //         // "OrderType": this.orderType,
-    //         // "Products": this.products,
-    //         // "OtherCharges": this.otherCharges,
-    //         // "SubTotal": this.subtotal,
-    //         // "Taxe": this.taxe,
-    //         // "Total": this.total,
-    //         // "State": 8,
-    //         // }
-    //         if(this.orderType == 'Delivery')
-    //         {
-    //             if (this.shipping < 1)
-    //             {
-    //                 this.ShowMessage('Debe rellenar un precio de envío')
-    //                 return
-    //             }
-    //             else{
-    //                 // item["Shipping"] = this.shipping
-    //                 this.order.Shipping = this.shipping;
-    //             }
-    //             // item["AddressToDeliver"] = this.address
-    //             this.order.AddressToDeliver = this.address;
-    //         }
-    //         if(this.orderType == 'PickUp')
-    //         {
-    //             // item["HourToPick"] = this.hourToPick
-    //             this.order.HourToPick = this.hourToPick;
-    //         }
-    //         if (this.haveDeadlines && this.deadLines.length > 1)
-    //         {
-    //             // item["DeadLines"] = this.deadLines
-    //             this.order.Deadline = this.deadLines;
-    //         }
-    //         if(this.note != ""){
-    //             // item["Note"] = this.note
-    //             this.order.Note = this.note;
-    //         }
-
-    //         // console.log(item);
-    //         // return;
-    //         this.spinner = true;  
-    //         Api.putIn(this.modelName, this.order)
-    //         .then(response => {
-    //             this.sendEmail(this.order);
-
-    //             if (this.customer && this.customer.MarketingConsent.Phone)
-    //             {
-    //                 const orderInfo = this.customer.Name + this.$t('backoffice.form.marketingMessages.cateringApproved');
-    //                 this.sendSms(this.customer.Phone, orderInfo);
-    //             }
-                    
-    //             this.spinner = false;
-    //             this.showToastMessage(this.$t('backoffice.list.messages.messageCateringApproved'), "success");
-    //             this.$router.push({
-    //                 name: 'CateringOrder', 
-    //             });
-    //             return response;
-    //         })
-    //         .catch(e => {
-    //             this.isBackdrop = false;
-    //             console.log(e);
-    //             this.spinner = false;
-    //             this.ifErrorOccured(this.approve);
-    //         })
-            
-    //     }  
-    // },
-//     sendCancelEmail(email){
-//           console.log(email);
-//            let items = {
-//               "email": email,
-//               "mess": this.$t('backoffice.list.messages.cateringCancel'),
-//               "subject": this.$t('backoffice.form.marketingMessages.orderInfo')
-//             };
-//             Api.sendEmail(items)
-//             .then(() => {
-//                 console.log(items)
-//             })
-//             .catch(e => {
-//                 console.log(e);
-//                 this.spinner = false;
-//             })
-//     },
-//     sendSms(phone, mess){
-//         console.log(phone);
-//             console.log(mess);
-//         let items = {
-//             "phone": phone,
-//             "mess": mess
-//         };
-//         // let item = {
-//         //   "phone": "+1 973-832-3170",
-//         //   "mess": "message"
-//         // };
-//         Api.sendSms(items)
-//             .then(() => {
-//                 console.log(items)
-//             })
-//             .catch(e => {
-//                 console.log(e);
-//                 this.spinner = false;
-//             })
-//     },
-//     sendEmail(order){
-//         var date = this.dateEstimateToPick + " : " + this.hourToPickEstimated;
-
-//         const  allStates = [this.$t('frontend.order.state0'),this.$t('frontend.order.state1'), this.$t('frontend.order.state2'),
-//         this.$t('frontend.order.state3'), this.$t('frontend.order.state4'), this.$t('frontend.order.state5')];
-
-//         let orderInfo = '';
-//         if(order.OrderType == 'Delivery Catering')
-//             orderInfo = order.AddressToDeliver
-//         if(order.OrderType == 'PickUp Catering')
-//             orderInfo = date
-//         if(order.OrderType == 'On Table Catering')
-//             orderInfo = order.tableServices
-
-        
-//         var html =' <html><head>';    
-//         html +='<style> .progressBar { width: 100%;  border-bottom: 1px solid black;display: list-item;list-style: unset; padding: 0}';
-//         html += '.progressBar li {list-style-type: none; float: left; position: relative; text-align: center; margin:0}';
-//         html += '.progressBar li .before {content: " "; line-height: 30px; border-radius: 50%; width: 30px; height: 30px; border: 1px solid #ddd;';
-//         html += 'display: block;text-align: center;margin: 0 auto 10px;background-color: white}';
-//         html += '.progressBar li .after { content: "";position: absolute;width: 100%;height: 4px;background-color: #ddd;top: 15px;left: -50%;z-index: -1;}';
-//         html += '.progressBar li .one .after {content: none;}.progressBar li.active {color: black;}';
-//         html += '.progressBar li.active .before { border-color: #63ee68; background-color: #63ee68}.progressBar .active:after {background-color: #4ca44f;} </style>';
-        
-//         html += '</head><body><div >';
-//         html += '<table  align=center style="width: 90%;">';
-//         html += '<tr><td colspan=6 style="text-align: center;">';
-//         html += `<h2>${this.restaurantName}</h2>  `;
-//         html += `<img src="${this.restaurantLogo}" style="max-width: 100px;"></img> `;     
-//         html +=`</td>`;     
-//         html += `</tr>`;          
-//         html += '<tr><td colspan=6 >'
-//         if(order.PaymentMethod)
-//         html += `<br> <h4> ${this.$t('frontend.order.paymentMethod')}: ${order.PaymentMethod}</h4>`;
-//         if(order.PaymentTransId)
-//             html += `<h4> ${this.$t('frontend.order.transId')}: ${order.PaymentTransId} </h4>`;
-//         html += `<h4>${this.$t('frontend.order.date')}: ${date} </h4><hr>`;
-//         html += `<h4>${this.$t('frontend.order.client')}: ${order.CustomerName} </h4>`;
-//         html += `<h4>${this.$t('frontend.orderType.phone')}: ${order.CustomerPhone} </h4>`;      
-//         html += `<h4>${this.$t('frontend.order.orderFor')} ${this.allTypeOrder[order.OrderType]}: ${orderInfo} </h4>`;
-//         // if(this.showCooker && order.Cooker)
-//         // html += `<h4>${this.$t('frontend.order.cooker')}: ${Cookername} </h4>`;
-//         html += `<h4>${this.$t('frontend.order.orderState')}: ${allStates[order.State]} </h4>`;
-//         if(order.State == 6)
-//             html += `<h4>${this.$t('frontend.order.cancelReason')}: ${order.CancelNote}</h4>`;
-    
-//         html += '<hr>';
-//         html += '<tr><td colspan=6 >'
-//         if(order.EventName)
-//             html += `<h4> ${this.$t('frontend.order.eventName')}: ${order.EventName} </h4>`;
-//         if(order.CateringEvent)
-//             html += `<h4> ${this.$t('frontend.home.eventType')}: ${order.CateringEvent} </h4>`;
-//         if(order.NumberOfGuess)
-//             html += `<h4> ${this.$t('frontend.order.guessNumber')}: ${order.NumberOfGuess} </h4>`;
-//         if(order.EventDate)
-//             html += `<h4> ${this.$t('frontend.order.eventDate')}: ${Moment( order.EventDate ,'kk:mm').format('MM-DD-YYYY')} </h4>`;
-//         if(order.EventTimeStart)
-//             html += `<h4> ${this.$t('frontend.order.eventStartHour')}: ${ Moment( order.EventTimeStart ,'kk:mm').format('hh:mm A')} </h4>`;
-//         if(order.EventTimeEnd)
-//             html += `<h4> ${this.$t('frontend.order.eventEndHour')}: ${ Moment( order.EventTimeEnd ,'kk:mm').format('hh:mm A')} </h4>`;
-//         html += `</td></tr>`;
-//         html += '<hr>'; 
-
-//         html += `</td></tr>`;      
-//         html += `<tr ><td colspan=6 ><h4 ><strong>${this.$t('frontend.order.products')}</strong></h4></td></tr> <tr></tr>`;
-//         for(var i = 0; i<order.Products.length ; i++){
-//             html += `<tr ><td  colspan=4 style="width: 50%;border-bottom: 1px solid #dbd1d1;" ><strong >${order.Products[i].Name}</strong>` ;
-//             if(order.Products[i].Note !='')
-//                 html +=`<p style="background: #f1f1004d;">${order.Products[i].Note}</p> `;
-//             html +=`</td><td style="width: 25%;border-bottom: 1px solid #dbd1d1;" > <p >( ${order.Products[i].Cant} X $ ${order.Products[i].Price.toFixed(2)})</p> </td>`;
-//             html += `<td style="width: 25%;border-bottom: 1px solid #dbd1d1;"> <p >$ ${ ( order.Products[i].Price * order.Products[i].Cant ).toFixed(2)}</p> </td>`;
-//             html += `</tr>`;
-//         if(order.Products[i].Aggregates.length > 0){
-//                 html +=`<tr style="padding: 20px 35px;"> ${this.$t('frontend.home.aggregateFree')}: ${order.Products[i].CantAggr=order.Products[i].AggregatesCant * order.Products[i].Cant} </tr>`;
-
-//                 for(var a=0; a<order.Products[i].Aggregates.length; a++){
-//                     let agg = order.Products[i].Aggregates[a]
-//                     html += `<tr ><td  colspan=4 style="width: 50%;border-bottom: 1px solid #dbd1d1;" ><p style="padding-left: 20px;">${agg.Name} <br> $ ${agg.SalePrice.toFixed(2)}</p>` ;
-//                     html +=`</td><td style="width: 25%;border-bottom: 1px solid #dbd1d1;" > <p > ${agg.Cant}</p> </td>`;
-//                     html += `<td style="width: 25%;border-bottom: 1px solid #dbd1d1;"> <p >$ ${ ( agg.AllTotal ).toFixed(2) }</p> </td></tr >`;            
-//                 }
-//             }
-            
-//         }
-
-//         if(order.OtherCharges.length >0){
-//             html += `<tr ><td colspan=6 ><h4 ><strong>${this.$t('frontend.order.otherCharges')}</strong></h4></td></tr>`;
-//             for(var e = 0; e< order.OtherCharges.length ; e++){
-//                 html += ` <tr ><td colspan=5 style="width: 75%;border-bottom: 1px solid #dbd1d1;"><p >${order.OtherCharges[e].Name}</p></td> <td style="border-bottom: 1px solid #dbd1d1;"> <p>$ ${order.OtherCharges[e].Price.toFixed(2)}</p></td></tr>`;
-//             }
-//         }
-//         html += `<tr ><td colspan=5 ><p ><strong>${this.$t('frontend.order.subtotal')}</strong></p></td> <td > <p >$ ${order.SubTotal}</p></td></tr>`;
-//         html += `<tr><td  colspan=5><p  ><strong>${this.$t('frontend.order.taxe')}</strong></p></td> <td > <p >${order.Taxe} %</p> </td></tr>`;
-//         if(order.OrderType == 'Delivery' && order.Shipping)
-//             html +=  `<tr ><td colspan=5 ><p  ><strong>${this.$t('frontend.order.deliver')}</strong></p></td><td  ><p >$ ${order.Shipping}</p></td></tr>`;
-//         if(order.Tip)
-//             html += `<tr ><td  colspan=5 ><p ><strong>${this.$t('frontend.order.tip')}</strong></p></td><td ><p>% ${ parseInt(order.Tip).toFixed(2) }</p> </td></tr>`;
-//         html += `<tr><td colspan=5 style="border-bottom: 1px solid #dbd1d1;"><p  ><strong>${this.$t('frontend.order.total')}</strong></p></td> <td style="border-bottom: 1px solid #dbd1d1;"> <strong >$ ${order.Total}</strong> </td></tr>`;
-//         if(order.QuotationPayment)
-//             html += `<tr><td colspan=5 style="border-bottom: 1px solid #399922;"><p  ><strong>${this.$t('frontend.order.quotationPayment')}</strong></p></td> <td style="border-bottom: 1px solid #399922;"> <strong >$ ${order.QuotationPayment}</strong> </td></tr>`;
-//             if(order.PendingPayment)
-//             html += `<tr><td colspan=5 style="border-bottom: 1px solid #ff5500;"><p  ><strong>${this.$t('frontend.order.pendingPayment')}</strong></p></td> <td style="border-bottom: 1px solid #ff5500;"> <strong >$ ${order.PendingPayment}</strong> </td></tr>`;
-//         if(order.PendingPayment > 0 && order.Deadline){
-//             html += `<tr ><td colspan=6 ><h4 ><strong>${this.$t('frontend.order.parcialPayment')}</strong></h4></td></tr>`;
-//             for(var dead = 0; dead < order.Deadline.length ; dead ++){
-//                 html += ` <tr ><td colspan=3 style="border-bottom: 1px solid #dbd1d1;"><p >${order.Deadline[dead].Date}  </p></td> `
-//                 html += ` <td colspan=3 style="border-bottom: 1px solid #dbd1d1;"><strong >  ${order.Deadline[dead].Percent}%  =  $ ${ (this.totalWithoutQuotation * order.Deadline[dead].Percent / 100).toFixed(2)}</strong></td> `
-//                 if(order.Deadline[dead].State === 1)
-//                 html += ` <td style="border-bottom: 1px solid #dbd1d1;"> <strong  style= "color: #399922;  ">${this.$t('frontend.order.payed')}</strong></td>`;
-//                 else html += ` <td style="border-bottom: 1px solid #dbd1d1;"><strong  style= "color: #ff5500; ">${this.$t('frontend.order.toPay')}</strong> </td>`;
-//                 html += ` </tr>`;
-//             }
-//         }
-//         if(order.Note)
-//             html += `<tr ><td style="width: 20%;border-bottom: 1px solid grey;"><h4 >${this.$t('frontend.order.notes')}</h4></td><td colspan=5 style="width: 80%;border-bottom: 1px solid grey;" ><p >${order.Note}</p></td></tr>`;
-//         html += '<tr><td colspan=6 style=" text-align: center;">';
-//         html += `<h2>${this.restaurantName}</h2>  `;
-//         html += `<h4>${this.restaurantPhone} </h4> `;
-//         html += `<h4>${this.restaurantAddress}  </h4>`; 
-//         if(this.restaurantWeb)  
-//             html += `<h4>${this.restaurantWeb}  </h4>`;   
-//         html +=`</td>`;     
-//         html += `</tr>`; 
-//         html += '<tr> <td colspan=6 align="center"  style="border-bottom: 1px solid grey;">';
-//         html += `<a href="mailto:${this.restaurantEmail}" style="margin: 0 10px;"><img style="width: 32px;" src="https://storagemenusuccess.blob.core.windows.net/logo/email-icon.png"></img> </a>`;
-//         if(this.restaurantFacebok)
-//             html += `<a href="${this.restaurantFacebok}" style="margin: 0 10px;"><img style="width: 32px;" src="https://storagemenusuccess.blob.core.windows.net/logo/Facebook-icon.png"></img> </a>`;
-//         if(this.restaurantInstagram)
-//             html += `<a  href="${this.restaurantInstagram}" style="margin: 0 10px;"><img style="width: 32px;"  src="https://storagemenusuccess.blob.core.windows.net/logo/instagram-icon.png"></img> </a>`;
-//         if(this.restaurantTwitter)
-//             html += `<a href="${this.restaurantTwitter}" style="margin: 0 10px;"><img style="width: 32px;"  src="https://storagemenusuccess.blob.core.windows.net/logo/Twitter-icon.png"></img> </a>`;
-//         if(this.restaurantYoutube)
-//             html += `<a href="${this.restaurantYoutube}" style="margin: 0 10px;"><img style="width: 32px;"  src="https://storagemenusuccess.blob.core.windows.net/logo/Youtube-icon.png"></img> </a>`;
-        
-//         html += '</td></tr>'
-//         html += `</table></div></body></html>`;
-
-//         let subject = this.$t('frontend.order.invoice') ;
-//         if(order.PaymentTransId)
-//             subject += '-'+ order.PaymentTransId
-//         if(order.OrderForCatering)
-//             subject += ' | '+ this.$t('frontend.menu.catering') ;
-//         subject += ' ' + this.restaurantName    
-            
-                
-//         var items = {
-//             "email": order.CustomerEmail,
-//             "mess": html,
-//             "subject": subject
-//         }
-//         Api.sendEmail(items);
-
-//         }
+   
 
    },
 

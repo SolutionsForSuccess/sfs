@@ -62,36 +62,7 @@ export default {
         isTravel: {type: Boolean, default: false}
     },
     created(){
-        //console.log(this.coordinates)
-        //console.log(this.isTravel)
-        //console.log(this.travel)
-    // Geolocation.getCurrentPosition({   
-        //         timeout: 3000      
-        //     }).then(response => {
-        //         this.coordinates.lat = response.coords.latitude
-        //         this.coordinates.lng = response.coords.longitude
-        //         console.log(response)
-        //     }).catch(e => {
-        //         console.log(e);
-        // });
-
-        // navigator.geolocation.getCurrentPosition(function(position) {
-
-        //     var latitude = position.coords.latitude;
-        //     var longitude = position.coords.longitude;
-        //     // var altitude = position.coords.altitude;
-        //     // var accuracy = position.coords.accuracy;
-        //     // var altitudeAccuracy = position.coords.altitudeAccuracy;
-        //     // var heading = position.coords.height;
-        //     // var speed = position.coords.speed;
-        //     // var timestamp = position.timestamp;
-
-        //     // work with this information however you'd like!
-        //     console.log("Latitude: " + latitude + "Longitude: " + longitude);
-        // });
+     
     },
-    // mounted(){
-    //     this.$refs.mapRef.$mapPromise.then(map => this.map = map)
-    // }
 }
 </script>

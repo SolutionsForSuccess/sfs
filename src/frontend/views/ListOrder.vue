@@ -47,24 +47,7 @@
       </modal>
 
       <ion-item-sliding>
-        <v-breakpoint >
-            <div  slot-scope="scope">
-
-
-              <ion-item    v-if="!scope.isSmall && !scope.noMatch">
-                  <ion-label class="ion-text-wrap menu-col-3"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.type')}}</h2> </ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"> <h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.state')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-3"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.date')}}</h3></ion-label>            
-              </ion-item>
-              <ion-item    v-if="scope.isSmall || scope.noMatch">
-                  <ion-label class="ion-text-wrap menu-col-4"><h2 style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.type')}}</h2> </ion-label>
-                  <ion-label class="ion-text-wrap menu-col-4"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.total')}}</h3></ion-label>
-                  <ion-label class="ion-text-wrap menu-col-4"><h3  style="font-size: 16px;font-weight: bold;">{{$t('frontend.order.date')}}</h3></ion-label>            
-              </ion-item>
-
-            </div>
-        </v-breakpoint>
+     
 
         <ion-item-options side="end">
           <ion-item-option color="primary" >
@@ -88,45 +71,11 @@
         >
           <ion-item-sliding v-for="(order, index) in paginated('languages')" :key="index">
 
-             <v-breakpoint >
-               <div  slot-scope="scope" :key="refreshKey">
+               <div  :key="refreshKey">
 
-                  <ion-item
-                    v-if="!scope.isSmall && !scope.noMatch"
-                  
-                   style="width: 100%;"
-                   @click="seeDetail(order, index)"
-                   :style="order.State===6 ? '--background:#ff00001f' : order.State===5 ? '--background: #71676738': order.State===7 ? '--background: #edeb3038' : order.State===8 ? '--background: #ef914938' :'--background: #14eb1412'">
+                
 
-                    
-                    <ion-label v-if="order.OrderForCatering" 
-                      class="ion-text-wrap menu-col-3 elipsis-menu"> 
-                        <h2>{{ allTypeOrder[order.OrderType] }}(Catering)</h2>           
-                    </ion-label> 
-                    <ion-label v-else 
-                     class="ion-text-wrap menu-col-3 elipsis-menu"> 
-                        <h2>{{ allTypeOrder[order.OrderType] }}</h2>                
-                    </ion-label>
-                    <ion-label 
-                    class="ion-text-wrap menu-col-3 elipsis-menu">        
-                        <h2>{{allStates[ order.State] }}</h2>               
-                    </ion-label >
-                    <ion-label 
-                     class="ion-text-wrap menu-col-3 elipsis-menu"> 
-                        <h2>{{ getFormatPrice(order.Total) }}</h2>               
-                    </ion-label>
-                   <ion-label 
-                      class="ion-text-wrap menu-col-3 elipsis-menu"> 
-                        <h2 style="display: contents"> {{getDate(order.Date)}}</h2>     
-                        <div style="position: absolute; right: 0px; top: 30%;">
-                           <span class="iconify" data-icon="mdi:backburger" style="color: grey;margin:0;width: 20px; height: 20px;" data-inline="false"></span>
-                        </div>          
-                    </ion-label>
-                    
-                  </ion-item>
-
-                   <ion-item
-                    v-if="scope.isSmall || scope.noMatch"
+                   <ion-item                 
                   
                    style="width: 100%;"
                    @click="seeDetail(order, index)"
@@ -176,12 +125,6 @@
 
                </div>
                  
-                  
-
-
-                 
-
-             </v-breakpoint>
 
           </ion-item-sliding>
         </paginate>
@@ -207,7 +150,6 @@ import { Api } from '../../backoffice/api/api.js';
 import { QrcodeStream } from 'vue-qrcode-reader';
  import Moment from 'moment';
   import LibCodes from 'zipcodes'
-   import { VBreakpoint } from 'vue-breakpoint-component'
  import { Commons } from '../commons'
 
 
@@ -256,7 +198,6 @@ export default {
       },
    components:{
      QrcodeStream: QrcodeStream,
-      VBreakpoint: VBreakpoint,
   },
    props:{  
     fromMyAccount:  {type: String, default:"" },
@@ -468,7 +409,6 @@ export default {
 
     onInit (promise) {
       promise.then(() => {
-        console.log('Successfully initilized! Ready for scanning now!')
       })
        .catch (error => {
         if (error.name === 'NotAllowedError') {
@@ -601,7 +541,7 @@ export default {
       })
       .catch(e => {
         this.spinner = false
-        console.log(e)
+        e;
         return this.notValidQr();
       });
     },
@@ -610,7 +550,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -629,7 +569,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.noProductForReorder'),
           buttons: [                   
           {
@@ -669,7 +609,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.zipCodeNotValid') + ' << ' + this.deliveryZone + ' >>',
         buttons: [                   
         {
@@ -688,7 +628,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.notZoneToDeliver') , 
         buttons: [                   
         {
@@ -720,7 +660,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notValidQr'),
           buttons: [                   
             {
@@ -737,7 +677,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notSeatAvailable'),
           buttons: [                   
             {
@@ -801,7 +741,7 @@ export default {
                                
         })
         .catch(e => {        
-            console.log(e);            
+            e;            
         })   
     },
 

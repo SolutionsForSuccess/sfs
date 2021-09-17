@@ -1,149 +1,17 @@
 <template>
-  <div id="order" >
-
-    
-    <ion-header>
-          <ion-toolbar>
-           
-            
-
-              <div style="display: flex;justify-content: center;align-items: center"> 
-                  <ion-button @click="menuactive='list'" :style="menuactive==='list'? 'opacity: 1;;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="foundation:list-bullet" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button>  
-                  <ion-button    @click="menuactive='grid'" :style="menuactive==='grid'? 'opacity: 1;border: outset;' : 'opacity: 0.65;border: none;' ">
-                    <span class="iconify" data-icon="clarity:grid-chart-solid" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </ion-button> 
-                  <div v-tooltip="$t('frontend.createNew.active')" :style="showActive? 'opacity: 1;border: outset;display: flex' : 'opacity: 0.65;border: outset;display: flex' "
-                    @click="showActive = !showActive , getActives()">
-                    <span class="iconify" data-icon="flat-color-icons:ok" data-inline="false"></span>
-                  </div> 
-                  <div style="border: outset; display: flex" @click="reverseOrders()">
-                    <span class="iconify" data-icon="fluent:chevron-up-down-20-filled" data-inline="false" style="width: 20px;height: 20px;margin: 5px;"></span>
-                  </div>                    
-              </div> 
-
-                      
-          </ion-toolbar>
-
-          <ion-searchbar  
-              @input="handleInput($event.target.value)" @ionClear="filterOrders = orders"
-                :placeholder="$t('frontend.home.search')">           
-          </ion-searchbar>
-          
-    </ion-header>
-
-      <ion-refresher 
-        style="position: relative"
-        slot="fixed"
-        @ionRefresh="doRefresh($event)">
-          <ion-refresher-content 
-            refreshing-spinner="crescent"
-          ></ion-refresher-content>
-      </ion-refresher>
-
-  
-      <ion-loading
-        v-if="spinner"
-        cssClass="my-custom-class"
-        :message="$t('frontend.tooltips.loadRestaurant')"
-      ></ion-loading>
-  
-    <div>  
-            <div>
-              <ion-chip style="font-size: 30px; float: right" outline color="primary" @click="viewOrder()" >
-                <ion-label><ion-icon name="add"></ion-icon></ion-label>
-            </ion-chip>
-            </div>
-
-        <div  v-if="menuactive==='list'">
-          <paginate
-            :key="key"  
-            name="languages"
-            :list="filterOrders"
-            :per="8"                     
-          >
-            <ion-item-sliding  v-for="order in paginated('languages')" v-bind:key="order._id">
-              <ion-item 
-             
-              @click="viewOrder(order)">
-               <ion-label class="menu-col-5 elipsis-menu">                   
-                    <h6>{{ order.Type }}</h6>                   
-                </ion-label> 
-                <ion-label class="menu-col-5 ">                   
-                   {{ getFormatedDate(order.Date) }}                                
-                </ion-label>
-                <ion-label class="menu-col-2 elipsis-menu"> 
-                  <span>{{$t('frontend.menu.menu')}} ({{order.Datas.length}})</span>                  
-                                          
-                </ion-label>
-
-               
-                            
-              </ion-item>
-              <ion-item-options side="end">                   
-                  <ion-item-option color="primary" @click="viewOrder(order)">
-                    <ion-icon slot="icon-only" name="list"></ion-icon>
-                  </ion-item-option> 
-                   <ion-item-option v-if="order.CanDelete" color="primary" @click="deleteOrder(order._id)">
-                    <span class="iconify" data-icon="fluent:delete-48-regular" data-inline="false"></span>
-                  </ion-item-option>                  
-                </ion-item-options >
-            </ion-item-sliding>
-         
-          </paginate>
-
-          <paginate-links for="languages" color="primary" 
-            :simple="{
-              next:'»' ,
-              prev: '« ' }"
-          ></paginate-links>
-        </div>
-
-        <div v-if="menuactive==='grid'">
-          <v-breakpoint>
-                    <div slot-scope="scope" > 
-
-                      <div style="display: flex;flex-wrap: wrap;flex-direction: row;align-items: flex-start;">    
-
-                        <ion-chip color="primary"
-                          @click="scrollToTop()"
-                        outline style="position: fixed; right: 0;top: 50%;padding: 0; z-index: 20;">
-                          <span class="iconify" data-icon="ant-design:caret-up-filled" data-inline="false" style="margin: 0"></span>
-                        </ion-chip>
-
-                        <div  v-for="order in filterOrders" v-bind:key="order._id" 
-                            style="text-align: right;"             
-                            :class="scope.isLarge || scope.isXlarge ? 'menu-col-3 card-categories' : scope.isMedium? 'menu-col-4 card-categories' : scope.isSmall || scope.noMatch ?'menu-col-12 card-categories': 'menu-col-3 card-categories'">
-                                
-                            <ion-card style="text-align: left;"   
-                            :color="order.State === true ? 'success' : 'warning'">
-                                <ion-card-header style="margin: 10px 5px 2px; padding: 10px;background:white;color: black;">
-                                  <ion-card-title  style="color: black;"> 
-                                          {{ order.Type }}                  
-                                  </ion-card-title>
-                                  
-                              
-                                
-                                    
-                                  </ion-card-header>                                  
-                                
-                              <div style="display: flex;justify-content:center;align-items: center;"> 
-                                 <span v-if="order.State === true">{{$t('frontend.createNew.active')}}</span>                  
-                                    <span v-if="order.State === false">{{$t('frontend.createNew.inactive')}}</span>
-                                    <div v-tooltip="$t('frontend.tooltips.editTicket')" @click="viewOrder(order)">
-                                      <span   class="iconify" data-icon="el:file-edit-alt" data-inline="false" style="width: 20px;height: 20px;"></span>
-                                    </div>
-                              </div>                
-                            </ion-card>
-                        </div>
-
-                      </div>
-                    </div>
-                  </v-breakpoint>   
-        </div>
-
-    </div>
+        <div id="user" class="page">
+    <listView     
+      :title="$t('frontend.createNew.restaurantType')"
+      :filter="filterOrders"
+      :elements="orders"
+      :add="true"
+      :edit="true"
+      :remove="true"
+      @handleInput="handleInput"
+      @handleAddClick="addOrder"   
+      @editElement="viewOrder"
+      @deleteElement="deleteOrder"   
+    ></listView>
   </div>
 </template>
 
@@ -151,7 +19,7 @@
 
 import { Api } from '../api/api.js';
 import { Utils } from '../utils/utils.js';
-import { VBreakpoint } from 'vue-breakpoint-component'
+import listView from "../components/ListView";
 
 export default {
 
@@ -161,7 +29,7 @@ export default {
   
   },
   components:{   
-    VBreakpoint: VBreakpoint,  
+        listView,
   },
   data () {
     return {
@@ -187,10 +55,19 @@ export default {
   }, 
   methods: {
 
-      async doRefresh(event) {
-    
-      await this.fetchOrders();      
-      event.target.complete();
+      async doRefresh() {    
+      await this.fetchOrders();     
+     
+    },
+
+    ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Type
+      if(count === 3) return null;
+         
+      if(count === 4) return this.getFormatedDate(option.Date);
+      if(count === 5)  
+        if(option.Service) return this.$t('frontend.menu.menu')+ ' ' + option.Datas.length
     },
   
     
@@ -241,15 +118,17 @@ export default {
       });
     },
 
-    viewOrder: function(restaurantType){
-        console.log('Open Restaurant type con ID '+ restaurantType);
+    viewOrder: function(id){
+        const restaurantType = this.orders.find( r=> r._id === id)
         return this.$router.push({ name: 'RestaurantType', params: {restaurantType: restaurantType, parent: this} })
+    },
+
+     addOrder: function(){
+        return this.$router.push({ name: 'RestaurantType', params: { parent: this} })
     },
 
     
     async deleteOrder(id){
-
-      console.log('delete restaurantype: ' + id)
       try {
         this.spinner = true;
         const response = await Api.deleteById('restauranttype', id);

@@ -1,120 +1,28 @@
 <template>
-  <div id="suscription" class="screen">
+    <div id="subscritop" class="page">
 
-    <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
-            </ion-buttons>
-            <ion-label style="padding: 20px 100px;">
-              <h1>{{$t('backoffice.titles.suscriptor')}}</h1>            
-            </ion-label>
 
-            <ion-label slot="end">
-              <router-link to="/suscriptor-form">
-                  <ion-chip style="font-size: 30px" outline color="primary" v-if="hasPermission('canCreateSuscriptor')">
-                      <ion-label><ion-icon name="add"></ion-icon></ion-label>
-                  </ion-chip>
-              </router-link>
-            </ion-label>
-
-          </ion-toolbar>
-
-          <ion-searchbar  
-                @input="handleInput($event.target.value)" @ionClear="filterSuscriptors = suscriptors"
-                :placeholder="$t('frontend.home.search')">       
-          </ion-searchbar>
-    </ion-header>
-
-     <div v-if="spinner">
-      <ion-progress-bar type="indeterminate"></ion-progress-bar>
-    </div>
-
-    <div>
-       <div v-if="screenWidth < 600">
-          <paginate
-          name="languages"
-          :list="filterSuscriptors"
-          :per="8"
-          >
-            <ion-list>
-              <ion-item-sliding v-for="suscriptor in paginated('languages')" v-bind:key="suscriptor._id">
-                <ion-item>
-                  <ion-label>
-                      <h2>{{ suscriptor.Name }}</h2>
-                      <h3>{{ suscriptor.Email }}</h3>
-                  </ion-label>
-                  <div v-if="hasPermission('canDesactivateSuscriptor')">
-                      <ion-checkbox  :checked="suscriptor.State" slot="end" @ionChange="desactivateSuscriptor(suscriptor)"></ion-checkbox>
-                      
-                  </div>
-                  <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                </ion-item>
-                <ion-item-options side="end">
-                  <ion-item-option v-if="hasPermission('canEditSuscriptor')" color="primary" @click="editSuscriptor(suscriptor._id)">
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-item-option>
-                 
-                  <ion-item-option v-if="isSupportUser" color="danger" @click="deleteSuscriptor(suscriptor._id)">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-item-option>
-                </ion-item-options>
-              </ion-item-sliding>
-          </ion-list>
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>  
-      </div>
-
-      <div v-if="screenWidth >= 600">
-        <paginate
-          name="languages"
-          :list="filterSuscriptors"
-          :per="8"
-          >
-            <ion-list>
-              <ion-item v-for="suscriptor in paginated('languages')" v-bind:key="suscriptor._id">
-                  <ion-item-group side="start">
-                      <div v-if="hasPermission('canDesactivateSuscriptor')">
-                        <ion-checkbox  :checked="suscriptor.State" slot="end" @ionChange="desactivateSuscriptor(suscriptor)"></ion-checkbox>
-                      </div>
-                  </ion-item-group>
-                  <ion-label style="margin-left: 15px">
-                      <h2>{{ suscriptor.Name }}</h2>
-                      <h3>{{ suscriptor.Email }}</h3>
-                  </ion-label>
-                <ion-item-group side="end">
-                  <ion-button v-if="hasPermission('canEditSuscriptor')" color="primary" @click="editSuscriptor(suscriptor._id)">
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
-                  </ion-button>
-                 
-                  <ion-button v-if="isSupportUser" color="danger" @click="deleteSuscriptor(suscriptor._id)">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
-                  </ion-button>
-                </ion-item-group>
-              </ion-item>
-          </ion-list>
-        </paginate>
-
-        <paginate-links for="languages" color="primary" 
-          :simple="{
-            next:'»' ,
-            prev: '« ' }"
-        ></paginate-links>  
-      </div>
-
-    </div>
-
+    <listView
+      :title="$t('backoffice.titles.suscriptor')"
+      :filter="filterSuscriptors"
+      :elements="suscriptors"
+      :hasImg="true"
+      :viewSelected="'Admin'"
+      :add="hasPermission('canCreateSuscriptor')"
+      :edit="hasPermission('canEditSuscriptor')"
+      :remove="isSupportUser"
+      @handleInput="handleInput"
+      @handleAddClick="addSuscriptor"   
+      @editElement="editSuscriptor"
+      @deleteElement="deleteSuscriptor"   
+    ></listView>
   </div>
 </template>
 
 <script>
 
 import { Api } from '../api/api.js';
+import listView from "../components/ListView";
 
 export default {
 
@@ -127,33 +35,49 @@ export default {
       this.screenWidth = screen.width
     }
   },
+  components: {
+    listView,
+  },
   data () {
     return {
       modelName: 'Subscriptor',
       suscriptors: [],
       filterSuscriptors: [],
       isSupportUser: false,
-
-      // file: null,
-      // fileName: '',
-
       paginate: ['languages'],
-
       spinner: false,
       screenWidth: 0,
+      keyList: 0,
     }
   }, 
   methods: {
-    // showLoading(){
-    //     return this.$ionic.loadingController
-    //     .create({
-    //       cssClass: 'my-custom-class',
-    //       message: this.$t('backoffice.titles.loading'),
-    //       duration: 1000,
-    //       backdropDismiss: true
-    //     })
-    //     .then(a => a.present())
-    // },
+
+  async doRefresh() {
+      this.spinner = true;
+      await Api.fetchAll(this.modelName).then(response => {
+        this.$store.state.backConfig.subscriptor = response.data;
+        this.fetchSuscriptors();   
+        this.spinner = false;
+         this.keyList ++;
+      })
+      .catch(e => {
+        e;
+        this.spinner = false;
+      });
+  },
+
+      ListViewData(option, count){
+      if(count === 1) return null;
+      if(count === 2) return option.Name;
+      if(count === 3)  { 
+        if(option.State) 
+          return 'Active'; 
+        else return 'No Active' }
+      
+      if(count === 4) return option.Email;
+      if(count === 5) return null;
+    },
+  
     ifErrorOccured(action){
 
       return this.$ionic.alertController.create({
@@ -254,6 +178,13 @@ export default {
         });
     },
 
+    
+    addSuscriptor: function(){
+        this.$router.push({
+          name: 'SuscriptorForm'
+        });
+    },
+
     async desactivateSuscriptor(suscriptor){
         this.spinner = true
         let State = suscriptor.State
@@ -273,7 +204,7 @@ export default {
             this.spinner = false
         })
         .catch(e => {
-            console.log(e)
+            e;
             this.spinner = false
             this.showToastMessage(this.$t('backoffice.list.messages.errorMessage'), 'danger')
             this.ifErrorOccured(this.desactivateSuscriptor)
@@ -308,7 +239,7 @@ export default {
                   return response;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.ifErrorOccured(mess => {
                       this.deleteSuscriptor(id)
                       this.spinner = false

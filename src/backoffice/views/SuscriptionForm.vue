@@ -21,34 +21,53 @@
     ></ion-loading>
 
     <div >
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-            <ion-input type="text" name="name" autocomplete="name"
-            @input="name = $event.target.value" 
-            v-bind:value="name">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
-            <ion-input type="text" name="phone" autocomplete="tlf"
-            @input="phone = $event.target.value" 
-            v-bind:value="phone">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
-          <ion-input type="email" name="email" autocomplete="email"
-          @input="email = $event.target.value" 
-          v-bind:value="email">
-          </ion-input>
-        </ion-item>
-        <ion-item>
-            <ion-label>{{$t('backoffice.form.titles.state')}}</ion-label>
-            <ion-checkbox slot="end" name="state" 
-                  @ionChange="state=$event.target.checked" 
-                  :checked="state">
-            </ion-checkbox>
-        </ion-item>
+        <ion-row>
+
+          <ion-col size="12" size-md="6">
+
+             <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+                <ion-input type="text" name="name" autocomplete="name"
+                @input="name = $event.target.value" 
+                v-bind:value="name">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">{{$t('backoffice.form.fields.phone')}}</ion-label>
+                <ion-input type="text" name="phone" autocomplete="phone"
+                @input="phone = $event.target.value" 
+                v-bind:value="phone">
+              </ion-input>
+            </ion-item>
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-item>
+              <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.email')}}</ion-label>
+              <ion-input type="email" name="email" autocomplete="email"
+              @input="email = $event.target.value" 
+              v-bind:value="email">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+                <ion-label>{{$t('backoffice.form.titles.state')}}</ion-label>
+                <ion-toggle slot="end" name="state" 
+                      @ionChange="state=$event.target.checked" 
+                      :checked="state">
+                </ion-toggle>
+            </ion-item>
+
+
+          </ion-col>
+
+        </ion-row> 
+
+
+       
+    
       <br/>
       <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSuscription()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
 
@@ -221,8 +240,7 @@ export default {
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log("Error");
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveSuscription);
                   })
@@ -243,7 +261,7 @@ export default {
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveUser)
                   })

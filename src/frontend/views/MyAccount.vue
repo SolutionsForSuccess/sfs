@@ -437,7 +437,7 @@ export default {
                 this.reservationToFilter = this.allReservations 
             })
             .catch(e => {
-                console.log(e);            
+                e;            
             })  
         },
 

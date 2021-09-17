@@ -183,18 +183,15 @@
             </ion-searchbar>
         </ion-toolbar>
 
-      <v-breakpoint>
-         <div slot-scope="scope">
-
+    
            <div v-if="dots" style="margin: 10px">              
                <ion-progress-bar  color="primary" type="indeterminate" reversed="true"></ion-progress-bar>
             </div>
 
-            <div v-if="!dots"> 
-              <div  v-for="category in filterCategories"
-               :key="category.Id" v-show="!category.ParentId"
-               
-               :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-3 card-categories'">
+            <ion-row v-if="!dots"> 
+              <ion-col  v-for="category in filterCategories"
+               :key="category.Id" v-show="!category.ParentId"               
+              size="12" size-md="6" size-lg="3">
                 <ion-card  >
 
                   <ion-item @click="productsByCategory(category._id, category.Name, category.Description)">
@@ -211,12 +208,11 @@
                   
                                   
                 </ion-card>
-              </div>
+              </ion-col>
             
-            </div>
+            </ion-row>
          
-        </div>
-      </v-breakpoint>
+       
 
         
         
@@ -253,7 +249,6 @@ import { Api } from '../../backoffice/api/api.js';
 import { EventBus } from '../event-bus';
  import Products from './Products'
  import { QrcodeStream } from 'vue-qrcode-reader'
- import { VBreakpoint } from 'vue-breakpoint-component'
  import Moment from 'moment'
  import moment from 'moment-timezone';
  import LibCodes from 'zipcodes'
@@ -399,7 +394,6 @@ export default {
   }, 
   components:{
     vueProduct: Products,
-    VBreakpoint: VBreakpoint,
     QrcodeStream: QrcodeStream
   },  
   methods: {
@@ -428,7 +422,7 @@ export default {
       })
       .catch(e => {
         this.dots = false
-        console.log(e)
+        e;
       });
      //   
 
@@ -467,7 +461,6 @@ export default {
 
     onInit (promise) {
       promise.then(() => {
-        console.log('Successfully initilized! Ready for scanning now!')
       })
        .catch (error => {
         if (error.name === 'NotAllowedError') {
@@ -863,7 +856,7 @@ export default {
       })
       .catch(e => {
         this.spinner = false
-        console.log(e)
+        e;
         return this.notValidQr();
       });
    },
@@ -872,7 +865,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -914,7 +907,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notValidQr'),
           buttons: [                   
             {
@@ -931,7 +924,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.notSeatAvailable'),
           buttons: [                   
             {
@@ -978,7 +971,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.zipCodeNotValid'),
         buttons: [                   
         {
@@ -1054,7 +1047,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.$t('frontend.home.notZoneToDeliver') , 
         buttons: [                   
         {

@@ -71,23 +71,14 @@ export default {
 
           let windowContent = '<!DOCTYPE html><html><head></head><body>'
           let index = 0
-          //console.log("List")
-          //console.log(qrList[0])
-          //console.log(qrList.length)
 
           for (let qr of qrList) {
-              //console.log("Entró")
               let dataUrl = qr.toDataURL()
               windowContent += '<div>' + titles[index].innerHTML + '</div>'
               windowContent += '<img src="' + dataUrl + '">';
               windowContent += '<div style="margin-top: 180px"></div>'
               index++
           }
-          // qrList.forEach(qr => {
-          //     console.log("Entró")
-          //     console.log(index)
-              
-          // });
           windowContent += '</body></html>';
 
           var winimp = window.open('', '');
@@ -99,7 +90,6 @@ export default {
           winimp.close();
     },
     getSeatName(seat){
-      //console.log(seat)
         
         let name = seat.split('-') 
         return name[1]

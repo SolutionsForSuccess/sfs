@@ -48,7 +48,6 @@ methods: {
 
     onInit (promise) {
       promise.then(() => {
-        console.log('Successfully initilized! Ready for scanning now!')
       })
        .catch (error => {
         if (error.name === 'NotAllowedError') {

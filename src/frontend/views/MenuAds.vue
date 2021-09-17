@@ -19,8 +19,7 @@
     
       
 
-        <v-breakpoint>
-          <div slot-scope="scope"  v-if="menuId !==''">
+ 
             <vue-marquee        
             style="height:400px" 
             :key="key">
@@ -30,9 +29,9 @@
                                 <h1  style="    font-weight: bolder;text-align: left">
                                   {{category.Name}}</h1>                                                                                                             
                         </ion-card-header>    
-                         <ion-card-content>
-                            <ion-item    v-for="(product, index) in productsByCategory(category._id)" :key="index" 
-                              :class="scope.isMedium || scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : 'menu-col-6 card-categories'"> 
+                         <ion-row>
+                            <ion-col   v-for="(product, index) in productsByCategory(category._id)" :key="index" 
+                              size="12" size-md="6"> 
                               <div style="display: flex;align-items: center;justify-content: space-between;width: 100%;">
                                   <div style="    display: flex; align-items: center;">
                                     <ion-thumbnail>
@@ -42,14 +41,12 @@
                                   </div>
                                   <h2 style="margin: 5px; font-weight: 500;">{{getPrice(product.SalePrice)}}</h2>                                
                                 </div>                                                                                                          
-                            </ion-item> 
-                         </ion-card-content>                   
+                            </ion-col> 
+                         </ion-row>                   
                     </ion-card> 
               </vue-marquee-slide>
             </vue-marquee>
 
-              </div>
-        </v-breakpoint>
 
           
       </div>
@@ -69,7 +66,6 @@ addIcons({
   "md-add": add.md,
   
 });
- import { VBreakpoint } from 'vue-breakpoint-component'
 import { Api } from '../../backoffice/api/api';
 
 
@@ -86,7 +82,6 @@ export default {
     this.products = this.$store.state.products|| [];
     this.currency = this.$store.state.restaurantActive.currency;
     
-    console.log('Init dsff' + this.menuId)
     if(this.menuId !=='')
       this.changeMenu();
   },  
@@ -101,21 +96,18 @@ export default {
     }
   }, 
   components:{
-    VBreakpoint: VBreakpoint,
      [Marquee.name]: Marquee,
     [Slide.name]: Slide
   }, 
   methods: {
     
     async changeMenu(){ 
-      console.log('changeMenu')    
       this.spinner = true;
 
       try {
         const response =  await Api.categoryByMenuId(this.menuId);
         if(response.status === 200){
            this.categoryMenuList = response.data
-           console.log(this.categoryMenuList);
            this.key ++;
         }
         this.spinner = false;
@@ -128,7 +120,6 @@ export default {
     productsByCategory(categoryId){ 
       
       const prod = this.products.filter(p => p.CategoryId === categoryId && p.Available === true);
-      console.log(JSON.parse(JSON.stringify(prod)));
       return prod;
     },
 

@@ -84,7 +84,6 @@
 // import Stepper from '../components/Stepper'
 import { add } from "ionicons/icons";
 import { addIcons } from "ionicons";
-// import { VBreakpoint } from 'vue-breakpoint-component'
 import { Api } from '../../backoffice/api/api.js';
 import moment from 'moment-timezone';
 
@@ -96,7 +95,6 @@ addIcons({
 export default {
     name: 'ReservationState', 
     components:{
-        // VBreakpoint: VBreakpoint
     },
      props:{          
         
@@ -132,7 +130,7 @@ export default {
         })
         .catch(e => {
             this.spinner1 = false;
-            console.log(e)
+            e;
         
         });
 
@@ -176,11 +174,10 @@ export default {
                        
               } catch (error) {
                   this.spinner1 = false;
-                  console.log(error);                  
+                  error;                  
               }                 
            }   
             else if(from==='Credit'){ 
-                 console.log(from, id);            
                 this.$router.push({
                 name: 'Credit-Form',
                 params: {creditId: id }

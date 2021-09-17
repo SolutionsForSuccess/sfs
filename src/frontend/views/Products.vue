@@ -33,10 +33,9 @@
         <div v-if="prod.length > 0">
           <!-- <ion-button expand="block" color="secondary" @click="done()">{{$t('frontend.product.back')}}</ion-button> -->
 
-          <v-breakpoint>
-            <div slot-scope="scope">
-              <span  > 
-                  <div  v-for="pr in filterProduct" :key="pr._id" :class="scope.isSmall || scope.noMatch ? ' menu-col-12 card-category' :  scope.isMedium ? 'menu-col-6 card-category': 'menu-col-3 card-category' ">
+            <ion-row>
+              
+                  <ion-col  v-for="pr in filterProduct" :key="pr._id" size="12" size-md="6" size-lg="3">
                     <ion-card style="padding:12px " >
                       <div >
 
@@ -90,12 +89,11 @@
                       
                   
                     </ion-card>
-                  </div>                
-              </span>
+                  </ion-col>                
+             
 
               
-            </div>
-          </v-breakpoint>
+            </ion-row>
 
        
 
@@ -123,7 +121,6 @@
 <script>
 
 import { EventBus } from '../event-bus';
-import { VBreakpoint } from 'vue-breakpoint-component'
 import ProductDetail from '../components/ProductDetail'
 import { Plugins } from '@capacitor/core';
 const { Share } = Plugins;
@@ -164,7 +161,6 @@ export default {
     }
   },    
    components:{
-    VBreakpoint: VBreakpoint, 
   },
   created: function(){    
 
@@ -337,7 +333,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.$t('frontend.home.cantNotValid'),
           buttons: [                   
           {
@@ -439,7 +435,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style >
 
  .menu-col-2{

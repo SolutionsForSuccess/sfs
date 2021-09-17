@@ -35,7 +35,7 @@ export default {
   methods: {
     submit: function() {
       if (this.form.robot) {
-        console.log('submit')
+        ('submit')
       }
     },
     onVerify: function (response) {

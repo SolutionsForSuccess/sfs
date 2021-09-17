@@ -1,8 +1,247 @@
 <template>
     <div id="ProductForm" class="screen">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link>
-    <ion-button expand="full" color="tertiary" @click="backToProductList()"><ion-icon name="arrow-round-back"></ion-icon>{{$t('backoffice.form.buttons.backToProductsList')}}</ion-button> -->
+    
+    <modal name="variants-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+    <ion-buttons slot="start" @click="hideVariant()">
+            <ion-back-button default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-header>
+        <ion-toolbar>
+        <ion-title>{{$t('backoffice.form.buttons.addChoice')}}</ion-title>          
+        </ion-toolbar>
+        
+    </ion-header>
+
+    <ion-card>  
+
+        <ion-row>
+
+            <ion-col size="12" size-md="6">                  
+                <ion-card style="width: 50%;"> 
+                    <label v-if="checkImage2()"> 
+                        <img   :src="vf_file">
+                        <input type="file" accept="image/png, image/jpeg" style="display:none"  @change="handleImage2" >
+                    </label>
+                    <label v-else>  {{ $t('backoffice.form.titles.imageText')}} 
+                        <input type="file" accept="image/png, image/jpeg" style="display: block"  @change="handleImage2" >
+                    </label>
+                </ion-card>
+
+                <ion-item>
+                    <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+                    <ion-input type="text" name="vf_name"
+                    @input="vf_name = $event.target.value" 
+                    v-bind:value="vf_name">
+                    </ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
+                    <ion-textarea name="vf_description" 
+                    @input="vf_description = $event.target.value" 
+                    v-bind:value="vf_description">
+                    </ion-textarea>
+                </ion-item>
+
+                
+            </ion-col>
+
+            <ion-col size="12" size-md="6">
+                    <ion-item>
+                    <ion-label position="floating">Size</ion-label>
+                    <ion-input type="text" name="vf_size"
+                    @input="vf_size = $event.target.value" 
+                    v-bind:value="vf_size">
+                    </ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.costPrice')}}</ion-label>
+                    <ion-input type="number" name="vf_costPrice"
+                    @input="vf_costPrice = $event.target.value" 
+                    v-bind:value="vf_costPrice">
+                    </ion-input>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label position="floating"><span style="color: red">*</span>Retail</ion-label>
+                    <ion-input type="number" name="vf_salePrice"
+                    @input="vf_salePrice = $event.target.value" 
+                    v-bind:value="vf_salePrice">
+                    </ion-input>
+                </ion-item>
+
+                 <ion-item>
+                    <ion-label position="floating">{{$t('backoffice.form.fields.salePrice')}}</ion-label>
+                    <ion-input type="number" name="vf_salePrice"
+                    @input="vf_salePriceSale = $event.target.value" 
+                    v-bind:value="vf_salePriceSale">
+                    </ion-input>
+                </ion-item>
+
+                
+                
+
+                <ion-item>
+                    <ion-label>{{$t('backoffice.form.fields.active')}}</ion-label>
+                    <ion-checkbox slot="end" name="vf_active" 
+                        @ionChange="vf_active = $event.target.checked"
+                        :checked="vf_active" >    
+                    </ion-checkbox>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        
+
+            <ion-button  @click="hideVariant()">{{$t('backoffice.list.messages.buttons.cancel')}}</ion-button>
+            <ion-button  :disabled="vf_name==='' ||  vf_salePrice <= 0 ? true : false" @click="save()">{{$t('backoffice.form.buttons.save')}}</ion-button>
+            
+        
+
+    </ion-card>
+
+            
+    </modal>
+
+    <modal name="side-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+    <ion-buttons slot="start" @click="hideSide()">
+            <ion-back-button default-href="home"></ion-back-button>
+    </ion-buttons>
+    <ion-header>
+        <ion-toolbar>
+        <ion-title>{{$t('backoffice.form.buttons.addChoice')}}</ion-title>          
+        </ion-toolbar>
+        
+    </ion-header>
+
+    <ion-card>             
+
+        <ion-item>
+            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.cantOfSides')}}</ion-label>
+            <ion-input type="number" name="aggregatesCant"
+            @input="aggregatesCant = $event.target.value" 
+            v-bind:value="aggregatesCant">
+            </ion-input>
+        </ion-item>
+
+            <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.categoryOfSides')}}</ion-label>
+                <ion-select  interface="popover"
+                @ionChange="aggregateCategoryId = changeAggregateCategory($event.target.value)" v-bind:value="aggregateCategoryId">
+                    <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
+                </ion-select>
+            </ion-item>
+
+            <div v-if="aggregateCategoryId != false">
+                <!-- <div> -->
+                    <h2>{{$t('backoffice.form.fields.availableProducts')}}</h2>
+                    <div>
+                        <ion-spinner v-if="spinner" name="lines" class="spinner"></ion-spinner>
+                    </div>
+
+                <ion-list class="content-list" style="margin: 0 15px;">
+                        
+                    <ion-item
+                        v-for="(product, index) in productByCategory"
+                        v-bind:key="index"                               
+                    >
+                        <ion-avatar >
+                            <img :src="product.ImageUrl"  />
+                        </ion-avatar>
+
+                        <ion-label> 
+                            <h2> <span style="padding: 0 10px">  {{ product.Name }} </span> {{ getFormateNumber(product.SalePrice) }}         </h2>    
+                            <h3 style="padding: 0 10px">  {{getCategoryNameById(product.CategoryId)}} </h3>
+                        </ion-label>
+
+                        <ion-button
+                            fill="clear"
+                            shape="round"
+                                color="secondary"
+                            class="list-gourp-btn"
+                            side="end"
+                            @click.stop="addProduct(product)"
+                            >
+                                <ion-icon  slot="icon-only"  icon="add"  class="more-grid" ></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                </ion-list>
+
+            </div>
+            
+            <ion-list class="content-list" v-if="aggregates.length > 0" style="margin: 0 15px;">
+                
+                <ion-item
+                    v-for="(product, index) in aggregates"
+                    v-bind:key="index"                               
+                >
+                    <ion-avatar >
+                        <img :src="product.ImageUrl"  />
+                    </ion-avatar>
+
+                    <ion-label> 
+                        <h2> <span style="padding: 0 10px">  {{ product.Name }} </span> {{ getFormateNumber(product.SalePrice) }}         </h2>    
+                        <h3 style="padding: 0 10px">  {{getCategoryNameById(product.CategoryId)}} </h3>
+                    </ion-label>
+
+                    <ion-button
+                        fill="clear"
+                        shape="round"
+                            color="secondary"
+                        class="list-gourp-btn"
+                        side="end"
+                        @click.stop="delProduct(product)"
+                        >
+                            <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                </ion-item>
+            </ion-list>
+
+            <ion-button  @click="hideSide()">{{$t('backoffice.list.messages.buttons.cancel')}}</ion-button>
+            <ion-button  @click="hideSide()">Ok</ion-button>
+
+    </ion-card>
+
+            
+    </modal>
+
+    <modal name="category-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideCategory()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+
+        <ion-header>
+            <ion-toolbar>
+            <ion-title>{{$t('backoffice.form.titles.categoryNewTitle')}}</ion-title>          
+            </ion-toolbar>        
+        </ion-header>
+
+        <ion-card>  
+            <Categ 
+            :externalProp="true" 
+            :categTypeProp="cType"
+            @reloadCategory="reloadCategory" />
+        </ion-card>
+    </modal>
+
+     <modal name="tax-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideTax()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+        <ion-header>
+            <ion-toolbar>
+            <ion-title>{{$t('backoffice.form.titles.taxNewTitle')}}</ion-title>          
+            </ion-toolbar>        
+        </ion-header>
+
+        <ion-card>  
+            <Tax 
+                :externalProp="true"
+                @reloadTax="reloadTax" />
+        </ion-card>
+    </modal>
+
 
     <ion-header>
           <ion-toolbar>
@@ -19,215 +258,368 @@
                 </ion-label>
 
             </ion-item>
-            <ion-segment v-if="cType == 'product'" scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-                <ion-segment-button v-if="cType == 'product'" value="general">
-                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.genaral')}}</span>
-                </ion-segment-button>
-                <ion-segment-button v-if="cType == 'product'" value="others">
-                    <!-- <span class="iconify" data-icon="dashicons:businessman" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.others')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="variants">
-                    <!-- <span class="iconify" data-icon="mdi:sitemap" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.variants')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="sides">
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.sides')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="ingredients">
-                    <!-- <span class="iconify" data-icon="ant-design:unordered-list-outlined" data-inline="false"></span> -->
-                    <span>{{$t('backoffice.form.titles.ingredients')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="category">
-                    <span>{{$t('backoffice.form.fields.category')}}</span>
-                </ion-segment-button>
-            </ion-segment>
 
-            <ion-segment v-if="cType == 'service'" scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-                <ion-segment-button v-if="cType == 'service'" value="general">
-                    <span>{{$t('backoffice.form.titles.genaral')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="category">
-                    <span>{{$t('backoffice.form.fields.category')}}</span>
-                </ion-segment-button>
-            </ion-segment>
+        
           </ion-toolbar>
     </ion-header>
     <br/>
 
     <!-- <ion-card> -->
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
-        <div v-if="general">
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-            <ion-input type="text" name="name"
-            @input="name = $event.target.value" 
-            v-bind:value="name">
-            </ion-input>
-            </ion-item>
+     <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    <div >  
 
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.shortDescription')}}</ion-label>
-            <ion-input type="text" name="shortDescription"
-            @input="shortDescription = $event.target.value" 
-            v-bind:value="shortDescription">
-            </ion-input>
-            </ion-item>
+        <div >
 
-            <ion-item>
-            <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
-            <ion-textarea rows="10" name="description" 
-            @input="description = $event.target.value" 
-            v-bind:value="description"></ion-textarea>
-            </ion-item>
+            <ion-row>
+                <ion-col size="12" size-md="6">
 
-            <ion-item v-if="cType == 'service'">
-              <ion-label>{{$t('backoffice.form.fields.showServicePrice')}}</ion-label>
-              <ion-checkbox slot="end" name="ShowServicePrice" 
-                @ionChange="showServicePrice = $event.target.checked"
-                :checked="showServicePrice"  >    
-              </ion-checkbox>
-            </ion-item>
-            
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.costPrice')}}</ion-label>
-            <ion-input type="number" name="costPrice"
-            @input="costPrice = $event.target.value" 
-            v-bind:value="costPrice">
-            </ion-input>
-            </ion-item>
+                    <ion-item>
+                        <ion-label ><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
+                      
+                    </ion-item>
 
-            <ion-item>
-            <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.salePrice')}}</ion-label>
-            <ion-input type="number" name="salePrice"
-            @input="salePrice = $event.target.value" 
-            v-bind:value="salePrice">
-            </ion-input>
-            </ion-item>
+                    <ion-card style="width: 50%;"> 
+                        <label v-if="checkImage()"> 
+                            <img   :src="file">
+                            <input type="file" accept="image/png, image/jpeg" style="display:none"  @change="handleImage" >
+                        </label>
+                        <label v-else>  {{ $t('backoffice.form.titles.imageText')}} 
+                            <input type="file" accept="image/png, image/jpeg" style="display:block"  @change="handleImage" >
+                        </label>
+                    </ion-card>
 
-            <ion-item v-if="specialPrice">
-                <ion-label>Special price: <span style="color: red">{{ SpecialPrice }}</span></ion-label>
-            </ion-item>
+                    <ion-item>
+                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
+                        <ion-input type="text" name="name"
+                        @input="name = $event.target.value" 
+                        v-bind:value="name">
+                        </ion-input>
+                    </ion-item>
 
-            <ion-item v-if="cType == 'service'">
-                <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.stimateTime')}}</ion-label>
-                <ion-input type="number" name="stimateTime"
-                @input="stimateTime = $event.target.value" 
-                v-bind:value="stimateTime">
-                </ion-input>
-            </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.shortDescription')}}</ion-label>
+                        <ion-input type="text" name="shortDescription"
+                        @input="shortDescription = $event.target.value" 
+                        v-bind:value="shortDescription">
+                        </ion-input>
+                    </ion-item>
 
-            <ion-item>
-              <ion-card v-if="checkImage()" >
-                  <ion-img :src="file"></ion-img>
-              </ion-card>
-              <ion-card v-else>
-                  {{ $t('backoffice.form.titles.imageText')}}
-              </ion-card>
-            </ion-item>
-            <ion-item>
-                <div>
-                    <ion-label>{{$t('backoffice.form.fields.image')}}</ion-label>
-                </div>
-                <input type="file" accept="image/png, image/jpeg" @change="handleImage" />
-            </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
+                        <ion-textarea name="description" 
+                        @input="description = $event.target.value" 
+                        v-bind:value="description"></ion-textarea>
+                    </ion-item>
 
-            <ion-list>
-                <ion-list-header>
-                    <ion-label>
-                        <span style="color: red">*</span><router-link to="/category">{{$t('backoffice.form.fields.category')}}</router-link>
-                    </ion-label>
-                    <ion-label>
-                        <ion-button class="" @click="segmentChanged('category')"><ion-icon name="add"></ion-icon> {{$t('frontend.order.add')}}</ion-button>
-                    </ion-label>
-                </ion-list-header>
+                    <ion-item v-if="cType == 'service'">
+                        <ion-label>{{$t('backoffice.form.fields.showServicePrice')}}</ion-label>
+                        <ion-checkbox slot="end" name="ShowServicePrice" 
+                            @ionChange="showServicePrice = $event.target.checked"
+                            :checked="showServicePrice"  >    
+                        </ion-checkbox>
+                    </ion-item>
 
-                <ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.costPrice')}}</ion-label>
+                        <ion-input type="number" name="costPrice"
+                        @input="costPrice = $event.target.value" 
+                        v-bind:value="costPrice">
+                        </ion-input>
+                    </ion-item>
+
+                    <ion-item>
+                        <ion-label position="floating"><span style="color: red">*</span>Retail</ion-label>
+                        <ion-input type="number" name="salePrice"
+                        @input="salePrice = $event.target.value" 
+                        v-bind:value="salePrice">
+                        </ion-input>
+                    </ion-item>
+
+                      <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.salePrice')}}</ion-label>
+                        <ion-input type="number" name="salePrice"
+                        @input="salePriceSale = $event.target.value" 
+                        v-bind:value="salePriceSale">
+                        </ion-input>
+                    </ion-item>
+
+                    <ion-item>
+                        <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
+                        <ion-toggle slot="end" name="available" 
+                            @ionChange="available = $event.target.checked"
+                            :checked="available"  >    
+                        </ion-toggle>
+                    </ion-item>
+
+                </ion-col>
+
+                <ion-col size="12" size-md="6">
+
+                
+                    <ion-item v-if="specialPrice">
+                        <ion-label>Special price: <span style="color: red">{{ specialPrice }}</span></ion-label>
+                    </ion-item>
+
+                    <ion-item v-if="cType == 'service'">
+                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.stimateTime')}}</ion-label>
+                        <ion-input type="number" name="stimateTime"
+                        @input="stimateTime = $event.target.value" 
+                        v-bind:value="stimateTime">
+                        </ion-input>
+                    </ion-item>
+
+                    <ion-list>
+                        <div style="display: flex;justify-content: space-between; align-items: center;">
+                            <ion-label>
+                                {{$t('backoffice.form.fields.tax')}}
+                            </ion-label>
+                                <ion-select   interface="popover"
+                            @ionChange="taxId = $event.target.value" v-bind:value="taxId">
+                                <ion-select-option :key="null" value="" >None</ion-select-option>
+                                <ion-select-option v-for="tax in taxes" v-bind:key="tax.Id" v-bind:value="tax._id" >{{tax.Name}}</ion-select-option>
+                            </ion-select>
+                                <ion-label>
+                                <ion-button
+                                    fill="clear" 
+                                    @click="showTax()"       
+                                    >
+                                    <ion-icon slot="icon-only" icon="add"></ion-icon>
+                                </ion-button> 
+                            </ion-label>
+                        </div>
+                    </ion-list>  
                     
-                    <ion-label>{{$t('backoffice.form.titles.selectACategory')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                    @ionChange="categoryId = $event.target.value" v-bind:value="categoryId">
-                        <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
-                    </ion-select>
-                </ion-item>
-            </ion-list>
+                    <ion-list>
+                        <div style="display: flex;justify-content: space-between; align-items: center;">
+                            <ion-label>
+                                <span style="color: red">*</span>{{$t('backoffice.form.fields.category')}}
+                            </ion-label>
+                            <div>
+                                <ion-select  interface="popover"
+                            @ionChange="categoryId = $event.target.value" v-bind:value="categoryId">
+                                <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
+                            </ion-select>
+                            </div>
+                            <ion-button
+                                fill="clear" 
+                                @click.stop="showCategory()"       
+                                >
+                                <ion-icon slot="icon-only" icon="add"></ion-icon>
+                            </ion-button>    
+                        </div>
+                    </ion-list>
 
-            <ion-list>
-                <ion-list-header>
-                    <ion-label>
-                        <router-link to="/tax">{{$t('backoffice.form.fields.tax')}}</router-link>
-                    </ion-label>
-                </ion-list-header>
+                    <div >  <!-- variants -->
+                        <div style="display: flex;justify-content: space-between; align-items: center;">
+                            <ion-label>{{$t('backoffice.form.titles.variants')}}</ion-label>
+                            <ion-label>
+                                <ion-button
+                                    fill="clear" 
+                                    @click="showVariant()"       
+                                    >
+                                    <ion-icon slot="icon-only" icon="add"></ion-icon>
+                                </ion-button> 
+                            </ion-label>
+                            
+                        </div>
 
-                <ion-item>
-                    <ion-label>{{$t('backoffice.form.titles.selectATax')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                    @ionChange="taxId = $event.target.value" v-bind:value="taxId">
-                        <ion-select-option :key="null" value="" >None</ion-select-option>
-                        <ion-select-option v-for="tax in taxes" v-bind:key="tax.Id" v-bind:value="tax._id" >{{tax.Name}}</ion-select-option>
-                    </ion-select>
-                </ion-item>
-            </ion-list>
+                        <ion-list class="content-list" v-if="variantList.length > 0" style="margin: 0 15px;">
+                            <ion-item
+                                v-for="(variant,index) in variantList"
+                                v-bind:key="index"                               
+                            >
+                                <ion-avatar >
+                                    <img :src="variant.ImageUrl"  />
+                                </ion-avatar>
 
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.available')}}</ion-label>
-              <ion-checkbox slot="end" name="available" 
-                @ionChange="available = $event.target.checked"
-                :checked="available"  >    
-              </ion-checkbox>
-            </ion-item>
+                                <ion-label> 
+                                    <span style="padding: 0 10px">  {{ variant.Name }} </span> {{ getFormateNumber(variant.SalePrice) }}             
+                                </ion-label>
 
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <div v-if="others">
-            <ion-item>
-                <ion-label position="floating">SKU</ion-label>
-                <ion-input type="text" name="sku"
-                @input="sku = $event.target.value" 
-                v-bind:value="sku">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('frontend.reservation.code')}}</ion-label>
-                <ion-input type="text" name="code"
-                @input="code = $event.target.value" 
-                v-bind:value="code">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.stockQuantity')}}</ion-label>
-                <ion-input type="number" name="stockQuantity"
-                @input="stockQuantity = $event.target.value" 
-                v-bind:value="stockQuantity">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.minReorderPoint')}}</ion-label>
-                <ion-input type="number" name="minReorderPoint"
-                @input="minReorderPoint = $event.target.value" 
-                v-bind:value="minReorderPoint">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.maxReorderPoint')}}</ion-label>
-                <ion-input type="number" name="maxReorderPoint"
-                @input="maxReorderPoint = $event.target.value" 
-                v-bind:value="maxReorderPoint">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.vendorName')}}</ion-label>
-                <ion-input type="text" name="vendorName"
-                @input="vendorName = $event.target.value" 
-                v-bind:value="vendorName">
-                </ion-input>
-            </ion-item>
-            <ion-item>
+                                <ion-button
+                                    fill="clear"
+                                    color="secondary"
+                                    shape="round"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                    @click.stop="editVariant(index, variant._id)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="create"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                        color="secondary"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                    @click.stop="deleteVariant(index)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                        </ion-list>                      
+                    </div>
+
+                    <div v-if="cType == 'product'">
+                        <div style="display: flex;justify-content: space-between; align-items: center;" >                         
+                            <ion-label>{{$t('backoffice.form.fields.haveSides')}} ( {{aggregatesCant}} {{$t('frontend.home.aggregateFree')}})</ion-label>                             
+                                <ion-label>
+                                <ion-button
+                                    fill="clear" 
+                                    @click="showSide()"       
+                                    >
+                                    <ion-icon slot="icon-only" icon="add"></ion-icon>
+                                </ion-button> 
+                            </ion-label>
+                        </div>
+
+                            <ion-list class="content-list" v-if="aggregates.length > 0" style="margin: 0 15px;">
+                            
+                            <ion-item
+                                v-for="(product, index) in aggregates"
+                                v-bind:key="index"                               
+                            >
+                                <ion-avatar >
+                                    <img :src="product.ImageUrl"  />
+                                </ion-avatar>
+
+                                <ion-label> 
+                                    <h2> <span style="padding: 0 10px">  {{ product.Name }} </span> {{ getFormateNumber(product.SalePrice) }}         </h2>    
+                                    <h3 style="padding: 0 10px">  {{getCategoryNameById(product.CategoryId)}} </h3>
+                                </ion-label>
+
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                        color="secondary"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                    @click.stop="delProduct(product)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                        </ion-list>
+
+                        
+
+                    </div>   
+
+                    <div v-if="cType == 'product'">
+
+                        <div style="display: flex;justify-content: space-between; align-items: center;" >                         
+                            <ion-label>{{$t('backoffice.form.titles.ingredients')}} </ion-label>  
+                            <ion-input type="text" name="textIngredient" placeholder="type Ingedient..."
+                                @input="textIngredient = $event.target.value" 
+                                v-bind:value="textIngredient">
+                            </ion-input>                            
+                                <ion-label>
+                            
+                                <ion-button
+                                    fill="clear" 
+                                    @click="addIngredient()"    
+                                    :disabled="textIngredient != ''? false : true"                                  
+                                    >
+                                    <ion-icon slot="icon-only" icon="add"></ion-icon>
+                                </ion-button> 
+                            </ion-label>
+                        </div>
+
+                        <ion-list class="content-list" v-if="ingredients.length > 0" style="margin: 0 15px;">
+                            
+                            <ion-item
+                                v-for="(ingredient, index) in ingredients"
+                                v-bind:key="index"                               
+                            >
+                                <ion-label> 
+                                    <h2> <span style="padding: 0 10px">  {{ ingredient.name }} </span>   </h2>    
+                                </ion-label>
+
+                                <ion-button
+                                    fill="clear"
+                                    shape="round"
+                                        color="secondary"
+                                    class="list-gourp-btn"
+                                    side="end"
+                                    @click.stop="removeIngredient(ingredient)"
+                                    >
+                                        <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                                </ion-button>
+                            </ion-item>
+                        </ion-list>
+
+                    </div>                 
+
+                
+
+                </ion-col>
+
+                <ion-button @click="segmentMore=!segmentMore">More Info</ion-button>
+
+               
+            </ion-row>
+
+             <ion-row  v-if="cType == 'product' && segmentMore" >
+
+                 <ion-col size="12" size-md="6">
+
+                       <ion-item>
+                            <ion-label position="floating">SKU</ion-label>
+                            <ion-input type="text" name="sku"
+                            @input="sku = $event.target.value" 
+                            v-bind:value="sku">
+                            </ion-input>
+                        </ion-item>
+
+                        <ion-item>
+                            <ion-label position="floating">{{$t('frontend.reservation.code')}}</ion-label>
+                            <ion-input type="text" name="code"
+                            @input="code = $event.target.value" 
+                            v-bind:value="code">
+                            </ion-input>
+                        </ion-item>
+
+                        <ion-item>
+                            <ion-label position="floating">{{$t('backoffice.form.fields.stockQuantity')}}</ion-label>
+                            <ion-input type="number" name="stockQuantity"
+                            @input="stockQuantity = $event.target.value" 
+                            v-bind:value="stockQuantity">
+                            </ion-input>
+                        </ion-item>
+
+                        <ion-item>
+                            <ion-label position="floating">{{$t('backoffice.form.fields.minReorderPoint')}}</ion-label>
+                            <ion-input type="number" name="minReorderPoint"
+                            @input="minReorderPoint = $event.target.value" 
+                            v-bind:value="minReorderPoint">
+                            </ion-input>
+                        </ion-item>
+
+                        <ion-item>
+                            <ion-label position="floating">{{$t('backoffice.form.fields.maxReorderPoint')}}</ion-label>
+                            <ion-input type="number" name="maxReorderPoint"
+                            @input="maxReorderPoint = $event.target.value" 
+                            v-bind:value="maxReorderPoint">
+                            </ion-input>
+                        </ion-item>
+
+                        <ion-item>
+                            <ion-label position="floating">{{$t('backoffice.form.fields.vendorName')}}</ion-label>
+                            <ion-input type="text" name="vendorName"
+                            @input="vendorName = $event.target.value" 
+                            v-bind:value="vendorName">
+                            </ion-input>
+                        </ion-item>
+
+                 </ion-col>
+
+                 <ion-col size="12" size-md="6">
+
+                            <ion-item>
                 <ion-label position="floating">{{$t('backoffice.form.fields.vendorCode')}}</ion-label>
                 <ion-input type="text" name="vendorCode"
                 @input="vendorCode = $event.target.value" 
@@ -262,254 +654,20 @@
                 v-bind:value="addSerialNumber">
                 </ion-input>
             </ion-item>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <div v-if="variants">
-            <div v-if="!addVariant">
-                <ion-item>
-                    <ion-button color="primary" @click="addVariant=true">+ {{$t('backoffice.form.buttons.addChoice')}}</ion-button>
-                </ion-item>
-            </div>
-            <div v-else style="padding-left: 10%">
-                    <ion-item><h2>{{$t('backoffice.form.buttons.addChoice')}}</h2></ion-item>
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.name')}}</ion-label>
-                        <ion-input type="text" name="vf_name"
-                        @input="vf_name = $event.target.value" 
-                        v-bind:value="vf_name">
-                        </ion-input>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating">{{$t('backoffice.form.fields.description')}}</ion-label>
-                        <ion-textarea name="vf_description" 
-                        @input="vf_description = $event.target.value" 
-                        v-bind:value="vf_description">
-                        </ion-textarea>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating">Size</ion-label>
-                        <ion-input type="text" name="vf_size"
-                        @input="vf_size = $event.target.value" 
-                        v-bind:value="vf_size">
-                        </ion-input>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.costPrice')}}</ion-label>
-                        <ion-input type="number" name="vf_costPrice"
-                        @input="vf_costPrice = $event.target.value" 
-                        v-bind:value="vf_costPrice">
-                        </ion-input>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.salePrice')}}</ion-label>
-                        <ion-input type="number" name="vf_salePrice"
-                        @input="vf_salePrice = $event.target.value" 
-                        v-bind:value="vf_salePrice">
-                        </ion-input>
-                    </ion-item>
-                    <ion-item>
-                        <ion-card v-if="checkImage2()" >
-                            <ion-img :src="vf_file"></ion-img>
-                        </ion-card>
-                        <ion-card v-else>
-                            {{ $t('backoffice.form.titles.imageText')}}
-                        </ion-card>
-                        <!-- <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
-                        <ion-input type="file" accept=".jpg,.png,.gif" name="vf_file"
-                        @change="handleImage">
-                        </ion-input> -->
-                    </ion-item>
-                    <ion-item>
-                        <div>
-                            <ion-label><span style="color: red">*</span>{{$t('backoffice.form.fields.image')}}</ion-label>
-                        </div>
-                    <input id="variantImg" type="file" accept="image/png, image/jpeg" @change="handleImage2" />
-                    </ion-item>
-                    <ion-item>
-                        <ion-label>{{$t('backoffice.form.fields.active')}}</ion-label>
-                        <ion-checkbox slot="end" name="vf_active" 
-                            @ionChange="vf_active = $event.target.checked"
-                            :checked="vf_active" >    
-                        </ion-checkbox>
-                    </ion-item>
-                    <ion-item>
-                        <ion-button color="primary" @click="save()">{{$t('backoffice.form.buttons.save')}}</ion-button>
-                        <ion-button color="danger" @click="clearForm()">{{$t('backoffice.list.messages.buttons.cancel')}}</ion-button>
-                    </ion-item>   
-            </div>
-            <div v-if="variantList.length > 0">
-                <ion-item><h2>{{$t('backoffice.form.titles.variants')}}</h2></ion-item>
+                 </ion-col>
 
-                <ion-list>
-                    <ion-item v-for="variant in variantList" v-bind:key="variantList.indexOf(variant)">
-                        <ion-label>
-                            <h3>{{variant.Name}}</h3>
-                            <h3>Cost price:{{variant.CostPrice}}</h3>
-                            <h3>Sale price{{variant.SalePrice}}</h3>
-                        </ion-label>
-                        <ion-label slot="end">
-                            <ion-button color="primary" @click="editVariant(variantList.indexOf(variant))"><ion-icon slot="icon-only" name="create"></ion-icon></ion-button>
-                            <ion-button color="danger" @click="deleteVariant(variantList.indexOf(variant))"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                        </ion-label>
-                    </ion-item>
-                </ion-list>
-            </div>
-            <!-- <ion-list v-if="cType == 'product'">
-                <ion-list-header>
-                    <ion-label>
-                        {{$t('backoffice.form.fields.variantGroup')}}
-                    </ion-label>
-                </ion-list-header>
+            </ion-row>
+            
 
-                <ion-item>
-                    <ion-label>{{$t('backoffice.form.titles.selectAVariantGroup')}}</ion-label>
-                    <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                    @ionChange="variantGroupId = $event.target.value" v-bind:value="variantGroupId">
-                        <ion-select-option v-for="variant in variantGroups" v-bind:key="variant.Id" v-bind:value="variant._id" >{{variant.Name}}</ion-select-option>
-                    </ion-select>
-                </ion-item>
-            </ion-list> -->
             <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
         </div>
 
-            <!-- <ion-item > -->
-                <!-- <ion-label>{{$t('backoffice.form.fields.qrCode')}}</ion-label> -->
-                <!-- <ion-card><qrcode-vue :value="qr" :size=330 level="H"></qrcode-vue></ion-card>
-            </ion-item> -->
-        <div v-if="sides">
-            <ion-item v-if="cType == 'product'">
-              <!-- Traducir -->
-              <ion-label>{{$t('backoffice.form.fields.haveSides')}}</ion-label> 
-              <ion-checkbox slot="end" name="addAgregates" 
-                @ionChange="addAgregates = $event.target.checked"
-                :checked="addAgregates"  >    
-              </ion-checkbox>
-            </ion-item>
 
-            <div class="aggregates" v-if="addAgregates && cType == 'product'">
+    
+    
 
-                  <ion-item>
-                      <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.cantOfSides')}}</ion-label>
-                      <ion-input type="number" name="aggregatesCant"
-                      @input="aggregatesCant = $event.target.value" 
-                      v-bind:value="aggregatesCant">
-                      </ion-input>
-                  </ion-item>
+      
 
-                  <ion-list>
-                      <ion-list-header>
-                          <ion-label>
-                            <!-- Traducir -->
-                              {{$t('backoffice.form.fields.categoryOfSides')}}
-                          </ion-label>
-                      </ion-list-header>
-
-                      <ion-item>
-                          <ion-label>{{$t('backoffice.form.titles.filterCategory')}}</ion-label>
-                          <ion-select  :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')"
-                          @ionChange="aggregateCategoryId = changeAggregateCategory($event.target.value)" v-bind:value="aggregateCategoryId">
-                              <ion-select-option v-for="category in categories" v-bind:key="category.Id" v-bind:value="category._id" >{{category.Name}}</ion-select-option>
-                          </ion-select>
-                      </ion-item>
-                  </ion-list>
-
-                  <div v-if="aggregateCategoryId != false">
-                    <!-- <div> -->
-                      <h2>{{$t('backoffice.form.fields.availableProducts')}}</h2>
-                      <div>
-                          <ion-spinner v-if="spinner" name="lines" class="spinner"></ion-spinner>
-                      </div>
-                      <ion-list>
-                            <ion-item-sliding v-for="product in productByCategory" v-bind:key="product._id">
-                                  <ion-item>
-                                      <ion-thumbnail slot="start">
-                                          <ion-img :src="product.ImageUrl"></ion-img>
-                                      </ion-thumbnail>
-                                      <ion-label class="ion-text-wrap">
-                                          <h2>{{ product.Name }}</h2>
-                                      </ion-label>
-                                      <ion-label slot="end">
-                                          <p>{{ getCategoryNameById(product.CategoryId) }}</p>
-                                      </ion-label>
-                                  </ion-item>
-                                  <ion-item-options side="end">
-                                      <ion-item-option color="primary" @click="addProduct(product)">
-                                          <ion-icon slot="icon-only" name="add"></ion-icon>
-                                      </ion-item-option>
-                                  </ion-item-options>
-                              </ion-item-sliding>
-                      </ion-list>
-                  </div>
-                  <div v-if="aggregates.length > 0">
-                      <h2>{{$t('backoffice.form.fields.selectedAggregates')}}</h2>
-                      <ion-list>
-                            <ion-item-sliding v-for="product in aggregates" v-bind:key="product._id">
-                                  <ion-item>
-                                      <ion-thumbnail slot="start">
-                                          <ion-img :src="product.ImageUrl"></ion-img>
-                                      </ion-thumbnail>
-                                      <ion-label class="ion-text-wrap">
-                                          <h2>{{ product.Name }}</h2>
-                                      </ion-label>
-                                      <ion-label slot="end">
-                                          <p>{{ getCategoryNameById(product.CategoryId) }}</p>
-                                      </ion-label>
-                                  </ion-item>
-                                  <ion-item-options side="end">
-                                      <ion-item-option color="danger" @click="delProduct(product)">
-                                          <ion-icon slot="icon-only" name="remove"></ion-icon>
-                                      </ion-item-option>
-                                  </ion-item-options>
-                              </ion-item-sliding>
-                      </ion-list>
-                  </div>
-            </div>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-
-        <div v-if="ingredientsB">
-            <ion-item v-if="cType == 'product'">
-                <!-- Traducir -->
-                <ion-label>{{$t('backoffice.form.fields.addIngredients')}}</ion-label>
-                <ion-checkbox slot="end" name="addIngredients" 
-                  @ionChange="addIngredients = $event.target.checked"
-                  :checked="addIngredients"  >    
-                </ion-checkbox>
-            </ion-item>
-
-            <div v-if="addIngredients && cType == 'product'">
-
-                  <div class="aggregates">
-                      <ion-item>
-                          <ion-label>{{$t('backoffice.form.fields.typeAnIngredient')}}:</ion-label>
-                          <ion-input type="text" name="textIngredient"
-                              @input="textIngredient = $event.target.value" 
-                              v-bind:value="textIngredient">
-                          </ion-input> 
-                          <ion-button color="secondary" @click="addIngredient()" v-if="textIngredient != ''"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                      </ion-item>
-                      <ion-list>
-                          <ion-item v-for="ingredient in ingredients" v-bind:key="ingredients.indexOf(ingredient)">
-                            <ion-label>{{ ingredient.name }}</ion-label>
-                            <ion-button color="danger" @click="removeIngredient(ingredients.indexOf(ingredient))"><ion-icon slot="icon-only" name="remove"></ion-icon></ion-button>
-                          </ion-item>
-                      </ion-list>
-                  </div>
-
-            </div>
-
-            <br/>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveProduct()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Create category -->
-        <div v-if="categoryTab">
-            <Categ :externalProp="true" :categTypeProp="cType" />
-        </div>
-
-            <!-- <div v-if="spinner">
-              <ion-spinner  name="lines" class="spinner"></ion-spinner>
-            </div> -->
-        <!-- </ion-card>  -->
     </div>
     </div>
 </template>
@@ -519,6 +677,7 @@
 import { Api } from '../api/api.js';
 // import QrcodeVue from 'qrcode.vue';
 import Categ from './CategoryForm.vue'
+import Tax from './TaxForm.vue'
 
 export default {
 
@@ -536,6 +695,7 @@ export default {
       barCode: "",
       costPrice: 0,
       salePrice: 0,
+      salePriceSale: 0,
       specialPrice: null,
       stimateTime: 0,
 
@@ -591,7 +751,7 @@ export default {
       spinner: false,
 
       //Segment
-      segmentValue: 'general',
+      segmentMore: false,
       general: true,
       others: false,
       variants: false,
@@ -610,6 +770,7 @@ export default {
       vf_size: '',
       vf_costPrice: 0,
       vf_salePrice: 0,
+      vf_salePriceSale: 0,
       vf_active: false,
       vf_file: null,
       vf_fileName: '',
@@ -618,7 +779,8 @@ export default {
       variantList: [],
 
       //Current list page
-      currentPageOrder: 1
+      currentPageOrder: 1,
+      currency: 'USD'
       
     }
   },
@@ -629,7 +791,7 @@ export default {
       this.init();
   },
   components:{
-      Categ
+      Categ, Tax
   },
   computed: {
         title() {
@@ -640,75 +802,25 @@ export default {
         }
   },
   methods: {
-    segmentChanged(value){            
-        console.log(value)
-        if(value === 'general'){
-            this.general = true
-            this.others = false
-            this.variants = false
-            this.sides = false
-            this.ingredientsB = false
-            this.categoryTab = false
 
-            this.fetchCategories()
-        }
-        if(value === 'others'){
-            this.general = false
-            this.others = true
-            this.variants = false
-            this.sides = false
-            this.ingredientsB = false
-            this.categoryTab = false
-        }  
-        if(value === 'variants'){
-            this.general = false
-            this.others = false
-            this.variants = true
-            this.sides = false
-            this.ingredientsB = false
-            this.categoryTab = false
-        }  
-        if(value === 'sides'){
-            this.general = false
-            this.others = false
-            this.variants = false
-            this.sides = true
-            this.ingredientsB = false
-            this.categoryTab = false         
-        }
-        if(value === 'ingredients'){
-            this.general = false
-            this.others = false
-            this.variants = false
-            this.sides = false
-            this.ingredientsB = true 
-            this.categoryTab = false             
-        }
-        if(value === 'category'){
-            this.general = false
-            this.others = false
-            this.variants = false
-            this.sides = false
-            this.ingredientsB = false 
-            this.categoryTab = true             
-        }
-        this.segmentValue = value;
-    },
+   
+
     clearForm(){
         this.addVariant = false
         this.vf_id = -1
-        this.vf_name = ''
-        this.vf_description = ''
-        this.vf_size = ''
-        this.vf_costPrice = 0
-        this.vf_salePrice = 0
-        this.stimateTime=0
-        this.vf_active = false
-        this.vf_file = null
-        this.vf_fileName = ''
-        document.getElementById('variantImg').value = ''
-        this.vf_qr = ''
+        if(this.vf_name) this.vf_name = ''
+        if(this.vf_description) this.vf_description = ''
+        if(this.vf_size) this.vf_size = ''
+        if(this.vf_costPrice) this.vf_costPrice = 0
+        if(this.vf_salePrice) this.vf_salePrice = 0
+        if(this.stimateTime) this.stimateTime=0
+        if(this.vf_active) this.vf_active = false
+        if(this.vf_file) this.vf_file = null
+        if(this.vf_fileName) this.vf_fileName = ''
+        // document.getElementById('variantImg').value = ''
+        if(this.vf_qr) this.vf_qr = ''
     },
+
     isValidVariantForm(){
         let errors = [];
         if (this.vf_name == "")
@@ -718,19 +830,11 @@ export default {
         if (this.vf_file == null)
         {
             errors.push(this.$t('backoffice.form.validate.image'));
-        }
-        if (isNaN(this.vf_costPrice))
-        {
-            errors.push(this.$t('backoffice.form.validate.costPriceNumber'));
-        }
+        }        
         if (isNaN(this.vf_salePrice))
         {
             errors.push(this.$t('backoffice.form.validate.salePriceNumber'));
-        }
-        if (this.vf_costPrice == 0)
-        {
-            errors.push(this.$t('backoffice.form.validate.costPriceGreater'));
-        }
+        }       
         if (this.vf_salePrice == 0)
         {
             errors.push(this.$t('backoffice.form.validate.salePriceGreater'));
@@ -752,6 +856,7 @@ export default {
             return true;
         }
     },
+
     save(){
         if (this.isValidVariantForm())
         {
@@ -771,28 +876,35 @@ export default {
 
             if (this.vf_id != -1) // Editing
             {
-                this.variantList[this.vf_id].Name = item.Name;
-                this.variantList[this.vf_id].Description = item.Description;
-                this.variantList[this.vf_id].CostPrice = item.CostPrice;
-                this.variantList[this.vf_id].SalePrice = item.SalePrice;
-                this.variantList[this.vf_id].Size = item.Size;
-                this.variantList[this.vf_id].Active = item.Active;
+                const index = this.variantList.findIndex(v => v._id == this.vf_id)
+                if(index !== -1){
+                    this.variantList[index].Name = item.Name;
+                    this.variantList[index].Description = item.Description;
+                    this.variantList[index].CostPrice = item.CostPrice;
+                    this.variantList[index].SalePrice = item.SalePrice;
+                    this.variantList[index].Size = item.Size;
+                    this.variantList[index].Active = item.Active;
 
-                if (item.ImageUrl){
-                    this.variantList[this.vf_id].ImageUrl = item.ImageUrl;
-                    this.variantList[this.vf_id].ImageName = item.ImageName;
-                }
-                this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessVariant'), "success");
+                    if (item.ImageUrl){
+                        this.variantList[index].ImageUrl = item.ImageUrl;
+                        this.variantList[index].ImageName = item.ImageName;
+                    }
+                    this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessVariant'), "success");
+
+                    }
+                
             }
             else{ // Create
                 this.variantList.push(item)
                 this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessVariant'), "success");
             }
 
-            this.clearForm()
+            this.clearForm();
+            this.hideVariant();
         }
         
     },
+
     deleteVariant(pos){
         return this.$ionic.alertController.create({
         title: this.$t('backoffice.list.messages.confirmDelete'),
@@ -817,23 +929,38 @@ export default {
       })
       .then(a => a.present());
     },
-    editVariant(pos){
-        this.addVariant = true
-        this.vf_id = pos
-        this.vf_name = this.variantList[pos].Name
-        this.vf_description = this.variantList[pos].Description
-        this.vf_size = this.variantList[pos].Size
-        this.vf_costPrice = this.variantList[pos].CostPrice
-        this.vf_salePrice = this.variantList[pos].SalePrice
-        this.vf_active = this.variantList[pos].Active
 
-        if (this.variantList[pos].ImageUrl){
-            this.vf_file = this.variantList[pos].ImageUrl
-            this.vf_fileName = this.variantList[pos].ImageName
+    editVariant(index, id){
+        this.addVariant = true
+        this.vf_id = id
+        this.vf_name = this.variantList[index].Name
+        this.vf_description = this.variantList[index].Description
+        this.vf_size = this.variantList[index].Size
+        this.vf_costPrice = this.variantList[index].CostPrice
+        this.vf_salePrice = this.variantList[index].SalePrice
+        this.vf_active = this.variantList[index].Active
+
+        if (this.variantList[index].ImageUrl){
+            this.vf_file = this.variantList[index].ImageUrl
+            this.vf_fileName = this.variantList[index].ImageName
         }
+        this.showVariant();
         
         this.vf_qr = ''
     },
+
+    reloadTax(newTaxId){
+        this.taxes =  this.$store.state.backConfig.tax;
+         this.taxId = newTaxId;
+         this.hideTax();
+    },
+
+    reloadCategory(newCatId){
+        this.fetchCategories();
+         this.categoryId = newCatId;
+         this.hideCategory();
+    },
+
     init(){
         this.currentPageOrder = this.$route.params.currentPageOrder;
         this.screenWidth = screen.width;
@@ -841,15 +968,15 @@ export default {
         this.sourceCategoryId = this.$route.params.categoryId;
         this.sourceMenuId = this.$route.params.menuId;
         this.cType = this.$route.params.type || 'product';
-        //console.log(this.cType);
+        this.currency = this.$store.state.backConfig.restaurant.Currency;
 
         this.fetchCategories();
-        this.fetchTaxes();
-        // this.fetchVariantGroups();
+        this.taxes =  this.$store.state.backConfig.tax;
         
         if (this.id){
             const data = this.$store.state.backConfig.product.find(p=> p._id === this.id)
-            this.name = data.Name;
+           if(data){
+                this.name = data.Name;
             this.sku = data.Sku;
             this.code = data.Code;
             this.description = data.Description;
@@ -874,11 +1001,13 @@ export default {
             this.barCode = data.BarCode;
             this.file = data.ImageUrl;
             this.available = data.Available;
+           
             if (data.VariantGroupId)
             {
                 this.variantGroupId = data.VariantGroupId;
                 const obrVariant = this.$store.state.backConfig.variantgroup.find(v => v._id === data.VariantGroupId)
-                this.variantList = obrVariant;
+                if(obrVariant)
+                    this.variantList = obrVariant.Variants;
             }
                 
             this.qr = data._id;
@@ -886,21 +1015,19 @@ export default {
                 this.showServicePrice = data.ShowServicePrice;
                 this.stimateTime = data.StimateTime;
             }
+
                 
             this.ingredients = data.Ingredients;                       
             if (this.ingredients.length > 0)
                 this.addIngredients = true;
-            this.aggregatesCant = data.AggregateCant;                      
+            this.aggregatesCant = data.AggregateCant || 0;                      
             this.fetchAggregatesObj(data.Aggregates)
             if(data.Aggregates.length > 0)
                 this.addAgregates = true                           
             this.epos = data.EposId;
+           }
         
         }
-                   
-           
-
-        //console.log(this.$route.params);
     },
 
     goToBack(){
@@ -924,6 +1051,7 @@ export default {
             })
         }
     },
+
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
           title: this.$t('backoffice.list.messages.connectionError'),
@@ -950,28 +1078,19 @@ export default {
         })
         .then(a => a.present());
     },
+
     isValidForm(){
         // let errors = [];
         if (this.name == "")
         {
             // errors.push(this.$t('backoffice.form.validate.name'));
             return false
-        }
-        if (isNaN(this.costPrice))
-        {
-            // errors.push(this.$t('backoffice.form.validate.costPriceNumber'));
-            return false
-        }
+        }       
         if (isNaN(this.salePrice))
         {
             // errors.push(this.$t('backoffice.form.validate.salePriceNumber'));
             return false
-        }
-        if (this.costPrice == 0)
-        {
-            // errors.push(this.$t('backoffice.form.validate.costPriceGreater'));
-            return false
-        }
+        }      
         if (this.salePrice == 0)
         {
             // errors.push(this.$t('backoffice.form.validate.salePriceGreater'));
@@ -1010,6 +1129,7 @@ export default {
         //     return true;
         // }
     },
+
     addIngredient(){
         if (this.textIngredient != "" && 
                 !this.ingredients.find(i => i.name == this.textIngredient))
@@ -1021,25 +1141,27 @@ export default {
           this.ShowMessage(this.$t('backoffice.form.validate.validate'), '', this.$t('backoffice.form.validate.ingredient'))
         }      
     },
+
     removeIngredient(index){
         this.ingredients.splice(index, 1);
     }, 
-    changeAggregateCategory(value){
+
+    async changeAggregateCategory(value){
         this.aggregateCategoryId = value
 
         this.spinner = true
-        Api.getProductsByCategory(this.aggregateCategoryId)
+        await Api.getProductsByCategory(this.aggregateCategoryId)
         .then(response => {
-            //console.log(response.data)
             this.productByCategory = response.data
             this.updateSelectedProduct()
             this.spinner = false
         })
         .catch(e => {
-            console.log(e)
+           e
             this.spinner = false
         })  
     },
+
     fetchAggregatesObj(aggregateIds){
        let productAggregates = this.$store.state.backConfig.product
         aggregateIds.forEach(aggId => {
@@ -1049,14 +1171,17 @@ export default {
             })
         })
     },
+
     updateSelectedProduct(){
         this.aggregates.forEach(aggregate => {
             this.productByCategory = this.productByCategory.filter(product => product._id != aggregate._id) 
         })
     },
+
     restoreProduct(product){
         this.productByCategory.push(product);
     },
+
     addProduct(product){
         let index = this.aggregates.indexOf(product);
         if (index == -1)
@@ -1065,11 +1190,13 @@ export default {
         }
         this.updateSelectedProduct();
     },
+
     delProduct(product){
         let index = this.aggregates.indexOf(product);
         this.aggregates.splice(index, 1);
         this.restoreProduct(product);
     },
+
     getCategoryNameById: function(id){
         var categ = '';
         this.categories.forEach(category => {
@@ -1079,6 +1206,7 @@ export default {
         });
         return categ;
     },
+
     ShowMessage(type, message, topic='') {
         return this.$ionic.alertController
           .create({
@@ -1090,6 +1218,7 @@ export default {
           })
         .then(a => a.present())
     },
+
     showToastMessage(message, tColor){
        return this.$ionic.toastController.create({
         color: tColor,
@@ -1099,6 +1228,7 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
+
     /****** Load image use base64 encode esto debería ir en un componente******/
     checkImage: function(){
       return this.file != null;
@@ -1109,12 +1239,12 @@ export default {
         this.fileName = selectedImage.name;
         this.createBase64Img(selectedImage);
     },
+
     createBase64Img: function(fileObject){
         const reader = new FileReader();
 
         reader.onload = (e) => {
             this.file = e.target.result;
-            //console.log(this.file);
         };
         reader.readAsDataURL(fileObject);
     },
@@ -1122,21 +1252,23 @@ export default {
     checkImage2: function(){
       return this.vf_file != null;
     },
+
     handleImage2: function(event)
     {
         const selectedImage = event.target.files[0];
         this.vf_fileName = selectedImage.name;
         this.createBase64Img2(selectedImage);
     },
+
     createBase64Img2: function(fileObject){
         const reader = new FileReader();
 
         reader.onload = (e) => {
             this.vf_file = e.target.result;
-            //console.log(this.vf_file);
         };
         reader.readAsDataURL(fileObject);
     },
+
     /*******          Fin           *******/
     fetchCategories: function(){
          
@@ -1146,9 +1278,6 @@ export default {
           else
               this.categories = this.categories.filter(cat => cat.Service == true)
 
-       },
-    fetchTaxes: function(){
-        this.taxes =  this.$store.state.backConfig.tax;
     },
    
     saveProduct: async function(){
@@ -1193,7 +1322,7 @@ export default {
             // if(this.variantGroupId){
             //     item["VariantGroupId"] = this.variantGroupId;
             // }
-            if (this.addAgregates)
+            if (this.aggregates.length > 0)
             {
                   item["AggregateCant"] = this.aggregatesCant;
 
@@ -1203,7 +1332,7 @@ export default {
                   });
                   item["Aggregates"] = aggregatesList;
             }
-            if (this.addIngredients)
+            if (this.ingredients.length > 0)
             {
                 item["Ingredients"] = this.ingredients;
             }
@@ -1238,6 +1367,9 @@ export default {
                       {
                           item["VariantGroupId"] = this.variantGroupId
                           this.putInProduct(item)
+                          const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === this.variantGroupId)
+                          if(index !== -1) this.$store.state.backConfig.variantgroup[index] = itemVG
+                          
                       }
                         
                   }
@@ -1246,6 +1378,9 @@ export default {
                       .then(response => {
                           item["VariantGroupId"] = response.data._id
                           this.putInProduct(item)
+                         this.$store.state.backConfig.variantgroup.push(response.data)
+                         
+                          
                       })
                   }
               }
@@ -1254,6 +1389,9 @@ export default {
                   if (this.variantGroupId){
                       item["VariantGroupId"] = null
                       Api.deleteById('VariantGroup', this.variantGroupId)
+                      const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === this.variantGroupId)
+                      if(index !== -1) this.$store.state.backConfig.variantgroup.splice(index, 1);
+                          
                   }
                   this.putInProduct(item)
               }
@@ -1279,16 +1417,16 @@ export default {
                       itemVG["_id"] = this.variantGroupId
                       Api.putIn('variantGroup', itemVG)
                       this.postInProduct(item)
+                      const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === this.variantGroupId)
+                          if(index !== -1) this.$store.state.backConfig.variantgroup[index] = itemVG
+                          
                   }
                   else{
                       Api.postIn('variantGroup', itemVG)
                       .then(response => {
-                          //console.log('AQUIII')
                           item["VariantGroupId"] = response.data._id
-                        //   console.log("ID")
-                        //   console.log(item.VariantGroupId)
-                          //console.log(response)
-                          this.postInProduct(item)
+                          this.postInProduct(item);                         
+                          this.$store.state.backConfig.variantgroup.push(response.data)                          
                       })
                   }
               }
@@ -1297,19 +1435,19 @@ export default {
                   if (this.variantGroupId){
                       item["VariantGroupId"] = null
                       Api.deleteById('variantGroup', this.variantGroupId)
+                      const index = this.$store.state.backConfig.variantgroup.findIndex(v => v._id === this.variantGroupId)
+                    if(index !== -1) this.$store.state.backConfig.variantgroup.splice(index ,1)
+                          
                   }
                   this.postInProduct(item)
               }
             }
         }   
     },
-    postInProduct(item){
-        Api.postIn(this.modelName, item)
-        .then(response => {
-            // this.spinner = false;
-        //   this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-        //          this.$t('backoffice.list.messages.messageCreateSuccessProduct'), 
-        //             this.$t('backoffice.list.messages.titleCreateProduct'));
+
+    async postInProduct(item){
+        await Api.postIn(this.modelName, item)
+        .then(response => {         
             this.$store.state.backConfig.product.push(response.data);
             this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessProduct'), "success");
             this.name = '';
@@ -1358,18 +1496,15 @@ export default {
         })
         .catch(e => {
             this.isBackdrop = false;
-            console.log(e);
+            e;
             this.spinner = false;
             this.ifErrorOccured(this.saveProduct);
         })
     },
+
     putInProduct(item){
         Api.putIn(this.modelName, item)
-        .then(response => {
-            // this.spinner = false;
-            // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-            //      this.$t('backoffice.list.messages.messageEditSuccessProduct'), 
-            //         this.$t('backoffice.list.messages.titleEditProduct'));
+        .then(response => {            
             const index = this.$store.state.backConfig.product.findIndex(p => p._id === item._id);
             if(index !== -1) this.$store.state.backConfig.product[index] = item;
             this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessProduct'), "success");
@@ -1420,11 +1555,12 @@ export default {
         })
         .catch(e => {
             this.isBackdrop = false;
-            console.log(e);
+            e;
             this.spinner = false;
             this.ifErrorOccured(this.saveProduct);
         })
     },
+
     backToProductList: function(){
         if (this.sourceCategoryId && this.sourceMenuId)
         {
@@ -1444,22 +1580,48 @@ export default {
               } 
             });
         }
-    }
-    /**************** Support Methods ****************/
-    //  editCategory: function(id, name, description){
-    //     this.isEditing = true;
-    //     this.editingId = id;
-    //     this.name = name;
-    //     this.description = description;
-    //     this.file = null;
-    //  },
-    //  clearCategory: function(){
-    //     this.isEditing = false;
-    //     this.editingId = null;
-    //     this.name = '';
-    //     this.description = '';
-    //     this.file = null;
-    //  },
+    },
+
+       
+    showVariant () {
+      this.$modal.show('variants-modal');
+        },
+    
+    hideVariant () {
+      this.$modal.hide('variants-modal');
+        },
+
+     showSide () {
+      this.$modal.show('side-modal');
+        },
+    
+    hideSide () {
+      this.$modal.hide('side-modal');
+        },
+
+    showCategory () {
+      this.$modal.show('category-modal');
+        },
+    
+    hideCategory () {
+      this.$modal.hide('category-modal');
+        },
+
+    showTax () {
+      this.$modal.show('tax-modal');
+        },
+    
+    hideTax () {
+      this.$modal.hide('tax-modal');
+        },
+
+        
+
+        
+    getFormateNumber: function(number){
+      return new Intl.NumberFormat('en', {style: "currency", currency: this.currency} ).format(number).toString()
+    },
+   
   },
 
 }

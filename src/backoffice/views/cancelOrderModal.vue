@@ -46,7 +46,6 @@ export default {
     button: { type: String, default: 'Close'},
     button2: { type: String, default: 'Cancel order'},
     order: { type: Object, default: null },
-    customer: { type: Object, default: null },
     parent: { type: Object, default: null },
   },
   data() {
@@ -60,16 +59,30 @@ export default {
       payUrl: '',
 
       tokens: [],
+      customerEmail: '',
+      customerPhone: '',
+      contactBy: 'Email',
 
       spinner: false,
     }
   },
   created: async function(){
     const restaurantID = this.parent.$store.state.user.RestaurantId
-    //console.log("--------------")
+    if(this.order.ClientId !== ''){
+      const customer = this.parent.$store.state.backConfig.allCustomer.find( c => c._id == this.order.ClientId)
+      if(customer){
+      this.customerEmail = customer.EmailAddress;
+      this.customerPhone = customer.Phone;
+      if(customer.MarketingConsent.Phone) this.contactBy = 'Phone'
+       }
+    } 
+     else {
+      if( this.order.CustomerEmail) this.customerEmail = this.order.CustomerEmail;
+      if( this.order.CustomerPhone) this.customerPhone = this.order.CustomerPhone;
+     }
+    
     await this.getTokens(restaurantID)
-    //console.log("------TOKENS--------")
-    //console.log(this.tokens)
+   
     Api.fetchById('Restaurant', restaurantID)
     .then(response => {
         this.apiLoginId = response.data.ApiLoginId
@@ -77,10 +90,12 @@ export default {
         this.payUrl = response.data.EndPointUrl
     })
     .catch(e => {
-       console.log(e)
+       e
     })
   },
+
   computed:{
+
       canRefund(){
         this.order.Payment.forEach(pay => {
             if (pay.paymentInfo.method == 'Device')
@@ -90,6 +105,7 @@ export default {
       },
   },
   methods:{
+
     ifErrorOccured(action){
       return this.parent.$ionic.alertController.create({
           title: this.parent.$t('backoffice.list.messages.connectionError'),
@@ -148,13 +164,11 @@ export default {
         if (this.isValidForm())
         {
             this.spinner = true
-            //Obtengo el restaurante
+          
             const restaurantID = this.parent.$store.state.user.RestaurantId
-            const restaurant = await Api.fetchById('restaurant', restaurantID)
-            //console.log(restaurantID)
-            //console.log(restaurant)
+            const restaurant = this.parent.$store.state.backConfig.restaurant;           
             
-            if (restaurant.data.PayMethod == 'AUTH')
+            if (restaurant.PayMethod == 'AUTH')
             {
                 const cardNumber = this.order.PaymentMethod[this.order.PaymentMethod.length - 4] + 
                                 this.order.PaymentMethod[this.order.PaymentMethod.length - 3] +
@@ -165,7 +179,6 @@ export default {
                                         expirationCardP[0][expirationCardP[0].length - 1] + 
                                           expirationCardP[1]
                 
-                //console.log(expirationCard)
 
                 const refundDatas = {
                     "amount": this.order.Total,
@@ -175,17 +188,16 @@ export default {
                 }
                 payAuthorizeNet.refund(refundDatas, this.payUrl, this.apiLoginId, this.transactionKey)
                 .then(() => {
-                    //console.log(response);
                     this.cancelOrder();
                 })
                 .catch(e => {
-                  console.log(e)
+                  e
                   this.ifErrorOccured(this.refundOrder)
                   this.spinner = false
                 })
             }
 
-            if (restaurant.data.PayMethod == 'SHIFT4')
+            if (restaurant.PayMethod == 'SHIFT4')
             {
                 if (this.cancellationType == 'no-refund')
                 {
@@ -201,7 +213,7 @@ export default {
                 }
             }
 
-            if (restaurant.data.PayMethod == 'PAYFABRIC')
+            if (restaurant.PayMethod == 'PAYFABRIC')
             {
                 //Payfabric Refund y Void
             }  
@@ -224,11 +236,9 @@ export default {
           this.pushToken(pay, restaurantID)
           
       });
-      //console.log(this.tokens)
     },
     async putRefund(pay, restaurantID, index){
 
-          //console.log("PAY STATE" + pay.state , index)
           if (pay.state == 1)
           { 
            
@@ -245,8 +255,6 @@ export default {
             const isDelivery = pay.paymentInfo.isDelivery || false;
 
             await payAuthorizeNet.refundOrder(datas, pay.paymentInfo.moto, isDelivery)
-            //console.log("REFUND")
-            //console.log(resRefund)
             const paymeD = await Api.getPaymentByInvoice(pay.paymentInfo.transId, restaurantID);
             if(paymeD){                              
                 const payUpd = paymeD.data[0];
@@ -259,19 +267,14 @@ export default {
     async setRefund(restaurantID){
 
         //Recorrer todos los pagos de la orden y hacer refund
-        //console.log("1 - R")
         if (this.order.Payment && this.order.Payment.length > 0)
         {
-            //console.log("2 - R")
-            //console.log(this.order.Payment.length)
             for (const pay of this.order.Payment) {
               await this.putRefund(pay, restaurantID, this.order.Payment.indexOf(pay))
             }
 
             // this.order.Payment.forEach(pay => {
 
-            //   console.log('PAY' + restaurantID);
-            //   console.log(pay);
 
             //    await this.putRefund(pay, restaurantID, this.order.Payment.indexOf(pay))
                 
@@ -315,8 +318,6 @@ export default {
 
                             const paymeD = await Api.getPaymentByInvoice(pay.paymentInfo.transId, restaurantID);
                             if(paymeD){
-                                //console.log('paymenD')
-                                //console.log(paymeD.data[0])
                                 const payUpd = paymeD.data[0];
                                 payUpd.Void = pay.paymentInfo.total;
                                 await Api.putIn('Allpayments', payUpd);
@@ -324,15 +325,13 @@ export default {
                             this.spinner = false
                         }
                         catch(e){
-                            console.log(e)
+                            e
                             this.spinner = false
                         }
                     }
 
                     else if(pay.paymentInfo.method === "Cash" || pay.paymentInfo.method === "Check"){
                       const paymeD = await Api.getPaymentByInvoice(pay.paymentInfo.transId, restaurantID);
-                        //console.log('paymeD in VOID')
-                        //console.log(paymeD)
                         if(paymeD){                              
                             const payUpd = paymeD.data[0];
                             payUpd.Void = pay.paymentInfo.total;
@@ -344,11 +343,7 @@ export default {
                     {
                         const isDelivery = pay.paymentInfo.isDelivery || false;
                         await payAuthorizeNet.void(pay.paymentInfo.transId, pay.paymentInfo.moto, restaurantID, pay.paymentInfo.method, isDelivery)
-                        //console.log("Response Void")
-                        //console.log(resVoid)
                         const paymeD = await Api.getPaymentByInvoice(pay.paymentInfo.transId, restaurantID);
-                        //console.log('paymeD in VOID')
-                        //console.log(paymeD)
                         if(paymeD){                              
                             const payUpd = paymeD.data[0];
                             payUpd.Void = pay.paymentInfo.total;
@@ -362,60 +357,47 @@ export default {
 
         this.cancelOrder('void')
     },
-    cancelOrder(action=''){
+
+    async cancelOrder(action=''){
           
           let Payment = this.order.Payment
           
           if (action === 'refund'){
-              Payment.forEach(pay => {
-                  pay["state"] = 2  
-              })
+              Payment.forEach( pay => {  pay["state"] = 2   })
           }
-          if (action === 'void'){
-              Payment.forEach(pay => {
-                  pay["state"] = 3  
-              })
-          }
+          if (action === 'void'){  Payment.forEach(pay => {  pay["state"] = 3    }) }
+
           let item = {
             "_id": this.order._id,
             "CancelNote": this.notes,
             "State": 6,
             "Payment": Payment,
           };
-
-          // console.log("ORDEN DESPUES DE CAMBIOS")
-          // console.log(item)
-          Api.putIn('order', item)
-            .then(() => {
+         
+          await Api.putIn('order', item)
+            .then(async() => {
+                const index = this.parent.$store.state.backConfig.order.findIndex( o => o._id === item._id)
+                if(index !== -1) this.parent.$store.state.backConfig.order[index] = item;
+                await this.parent.fetchOrders();
                 //Enviar email
                 if (this.customer)
                 {
-                    // if (this.customer.MarketingConsent.Email)
-                    //     this.sendEmail(this.customer.EmailAddress, this.parent.$t('backoffice.form.marketingMessages.canceled'));
-                    //Enviar sms
-                    // if (this.customer.MarketingConsent.Phone)
-                    //     this.sendSms(this.customer.Phone, this.parent.$t('backoffice.form.marketingMessages.canceled'));
+                    // if (this.contactBy === 'Email' && this.customerEmail !=== '')
+                    //     this.sendEmail(this.customerEmail, this.parent.$t('backoffice.form.marketingMessages.canceled'));
+                  
+                    // if (this.contactBy === 'Phone' && this.customerPhone !=== '')
+                    //     this.sendSms(this.customerPhone, this.parent.$t('backoffice.form.marketingMessages.canceled'));
                     this.showToastMessage(this.parent.$t('backoffice.list.messages.changeOrderStateCanceled'), "success");
-                    // this.ShowMessage(this.parent.$t('backoffice.list.messages.changeOrderStateMessage'),
-                    //     this.parent.$t('backoffice.list.messages.changeOrderStateCanceled'), 
-                    //         this.parent.$t('backoffice.list.messages.changeOrderStateMessage'));
+                   
                 }
-                // else{
-                //     this.sendEmail(this.order.CustomerEmail, this.parent.$t('backoffice.form.marketingMessages.canceled'));
-                // }
-                
-                //console.log("Mostrar orders details.")
-                // this.parent.$router.push({
-                //   name: 'OrderDetails', 
-                //   params: { orderId: this.order._id } 
-                // });
+               
                 this.spinner = false
                 this.dismissModal();
 
                 // return response;
             })
             .catch(e => {
-                console.log(e);
+                e;
                 // this.ShowMessage(this.parent.$t('backoffice.list.messages.changeOrderStateMessage'),
                 //         this.parent.$t('backoffice.list.messages.errorMessage'),
                 //             this.parent.$t('backoffice.list.messages.changeOrderStateMessage'));
@@ -433,7 +415,7 @@ export default {
                     return 1;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.showToastMessage('Ocurrió un error al enviar el email', "danger");
                 })
       },
@@ -447,7 +429,7 @@ export default {
                     return;
                 })
                 .catch(e => {
-                  console.log(e);
+                  e;
                   this.showToastMessage('Ocurrió un error al enviar el sms', "danger");
                 })
       },

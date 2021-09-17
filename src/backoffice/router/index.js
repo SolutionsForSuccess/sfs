@@ -32,7 +32,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/category-form/:categoryId?',
+    path: '/category-form/',
     name: 'CategoryForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/CategoryForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -58,7 +58,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/product-form/:productId?/:categoryId?/:menuId?/:type?',
+    path: '/product-form/',
     name: 'ProductForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/ProductForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -71,7 +71,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/productByCategory/:categoryId/:menuId?',
+    path: '/productByCategory/?',
     name: 'ProductByCategory',
     component: () => import(/* webpackChunkName: "about" */ '../views/ProductByCategory.vue'),
     beforeEnter: (to, from, next) =>{
@@ -97,7 +97,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/variantGroup-form/:variantGroupId?',
+    path: '/variantGroup-form/',
     name: 'VariantGroupForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/VariantGroupForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -123,7 +123,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/menu-form/:menuId?',
+    path: '/menu-form/',
     name: 'MenuForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/MenuForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -149,7 +149,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/customer-form/:customerId?',
+    path: '/customer-form/',
     name: 'CustomerForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/CustomerForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -175,7 +175,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/table-form/:tableId?',
+    path: '/table-form/',
     name: 'TableForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/TableForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -201,20 +201,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/cateringOrder',
-    name: 'CateringOrder',
-    component: () => import(/* webpackChunkName: "about" */ '../views/OrderCatering.vue'),
-    beforeEnter: (to, from, next) =>{
-      if (store.state.authenticated == false)
-      {
-        next("/");
-      } else {
-        next();
-      }
-    }
-  },
-  {
-    path: '/orderdetails/:orderId/:type?',
+    path: '/orderdetails/',
     name: 'OrderDetails',
     component: () => import(/* webpackChunkName: "about" */ '../views/OrderDetails.vue'),
     beforeEnter: (to, from, next) =>{
@@ -227,7 +214,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/cateringOrderForm/:orderId',
+    path: '/cateringOrderForm/',
     name: 'OrderCateringForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/OrderCateringForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -239,21 +226,9 @@ Vue.use(VueRouter)
       }
     }
   },
+  
   {
-    path: '/ticket',
-    name: 'Ticket',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Ticket.vue'),
-    beforeEnter: (to, from, next) =>{
-      if (store.state.authenticated == false)
-      {
-        next("/");
-      } else {
-        next();
-      }
-    }
-  },
-  {
-    path: '/ticket/:ticketId',
+    path: '/ticket/',
     name: 'TicketForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/TicketForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -279,7 +254,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/credit/:creditId?',
+    path: '/credit/',
     name: 'Credit-Form',
     component: () => import(/* webpackChunkName: "about" */ '../views/CustomerCreditForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -334,7 +309,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/tax-form/:taxId?',
+    path: '/tax-form/',
     name: 'TaxForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -366,7 +341,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/shipping-form/:shippingId?',
+    path: '/shipping-form/',
     name: 'ShippingForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -398,7 +373,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/otherCharge-form/:otherChargeId?',
+    path: '/otherCharge-form/',
     name: 'OtherChargeForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -464,7 +439,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/user-form/:userId?/:isSupport?',
+    path: '/user-form/',
     name: 'UserForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -496,7 +471,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/suscriptor-form/:suscriptorId?',
+    path: '/suscriptor-form/',
     name: 'SuscriptorForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -528,7 +503,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/role-form/:roleId?',
+    path: '/role-form/',
     name: 'RoleForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -552,7 +527,7 @@ Vue.use(VueRouter)
     component: () => import(/* webpackChunkName: "about" */ '../views/Login.vue')
   },
   {
-    path: '/controlPanel/:firstLogin?',
+    path: '/controlPanel/',
     name: 'ControlPanel',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -574,6 +549,22 @@ Vue.use(VueRouter)
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/ClockInClockOut.vue'),
+    beforeEnter: (to, from, next) =>{
+      if (store.state.authenticated == false)
+      {
+        next("/");
+      } else {
+        next();
+      }
+    }
+  },
+  {
+    path: '/houseaccount',
+    name: 'HouseAccount',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/HouseAccount.vue'),
     beforeEnter: (to, from, next) =>{
       if (store.state.authenticated == false)
       {
@@ -616,7 +607,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/support/:tab?',
+    path: '/support/',
     name: 'Support',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -632,7 +623,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/basicDataSettingsForm/:settingId?',
+    path: '/basicDataSettingsForm/',
     name: 'BasicSettingForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/BasicDataSettingsForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -645,7 +636,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/paymentSettingsForm/:settingId?',
+    path: '/paymentSettingsForm/',
     name: 'PaymentSettingsForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/PaymentSettingsForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -658,7 +649,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/KeySettingsForm/:settingId?',
+    path: '/KeySettingsForm/',
     name: 'KeySettingForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/KeySettingForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -671,7 +662,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/funDataSettingsForm/:settingId?',
+    path: '/funDataSettingsForm/',
     name: 'FunSettingForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/FunDataSettingForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -684,7 +675,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/ColourDataSettingsForm/:settingId?',
+    path: '/ColourDataSettingsForm/',
     name: 'ColourSettingForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/ColourDataSettingForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -713,7 +704,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/aboutDataSettingsForm/:aboutId?',
+    path: '/aboutDataSettingsForm/',
     name: 'AboutForm',
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutDataSettingsForm.vue'),
     beforeEnter: (to, from, next) =>{
@@ -742,7 +733,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/occupation-form/:occupationId?',
+    path: '/occupation-form/',
     name: 'OccupationForm',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -758,7 +749,7 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/localization/:order/:fun?',
+    path: '/localization/',
     name: 'Localization',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route

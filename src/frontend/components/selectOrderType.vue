@@ -379,7 +379,7 @@ methods: {
         return  this.$ionic.alertController
           .create({
               cssClass: 'my-custom-class',
-              header: 'Error',
+              header: '',
               message: e,
               buttons: [                   
               {
@@ -402,7 +402,7 @@ methods: {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.home.errorRequired'),
         buttons: [                   
         {
@@ -468,7 +468,7 @@ methods: {
         return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: e,
                 buttons: [                   
                 {
@@ -511,14 +511,14 @@ methods: {
         }                      
       })
       .catch(e => {
-        console.log(e);
+        e;
         this.email = '';
         this.password = '';
         this.spinner = false;
         return  this.$ionic.alertController
           .create({
               cssClass: 'my-custom-class',
-              header: 'Error',
+              header: '',
               message: this.i18n.t('frontend.menu.userNotFound'),
               buttons: [                   
               {
@@ -577,7 +577,6 @@ methods: {
             this.phone = nn[0].number.nationalNumber;
           }            
         }
-        console.log('Aquiiii')
         return  this.$ionic.modalController.dismiss();               
       }    
      
@@ -594,7 +593,7 @@ methods: {
      return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: mss,
                 buttons: [                   
                 {
@@ -672,7 +671,7 @@ methods: {
         return  this.$ionic.alertController
             .create({
                 cssClass: 'my-custom-class',
-                header: 'Error',
+                header: '',
                 message: e,
                 buttons: [                   
                 {
@@ -759,7 +758,7 @@ methods: {
       this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.menu.errPassNotCoinc') ,
           buttons: [ {text: this.i18n.t('frontend.home.acept'), handler: () => {  },},],
           })
@@ -803,7 +802,7 @@ methods: {
         return  this.$ionic.alertController
           .create({
               cssClass: 'my-custom-class',
-              header: 'Error',
+              header: '',
               message: e,
               buttons: [                   
               {
@@ -822,7 +821,7 @@ methods: {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.zipCodeNotValid ,
         buttons: [                   
         {
@@ -840,7 +839,7 @@ methods: {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.deliveryZone,
         buttons: [                   
         {
@@ -859,7 +858,7 @@ methods: {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.home.notValidEmail'),
         buttons: [                   
         {
@@ -878,7 +877,7 @@ methods: {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.menu.errEmailExist'),
         buttons: [                   
         {

@@ -26,19 +26,17 @@ export var OlaPay = {
          xhr.onreadystatechange=function()
          {
             if(xhr.status==200) {
-               console.log('Status 200'); 
+            //   ('Status 200'); 
          }}
         xhr.send(data);
          if (xhr.status != 200) {
-           console.log(`Error ${xhr.status}: ${xhr.statusText}`);
-         } else {
-            console.log('RESPONSE DE HttpCommunication')
-            console.log(xhr.response);
+         //  (`Error ${xhr.status}: ${xhr.statusText}`);
+         } else {      
             return xhr.response;
          }
        } catch(err) {
-         console.log("Request failed");
-         // console.log(err);
+      //  ("Request failed");
+         // err;
        }
   },
 
@@ -51,14 +49,12 @@ export var OlaPay = {
         const item = {}
         
        const response =  await axios.post(url, item, {headers: headers},{ httpsAgent: agent })
-        if(response){
-            console.log('Response de getDevice');
-            console.log(response);
+        if(response){          
             alert(response);
             return response;
         }
        } catch (error) {
-           console.log(error);           
+           error;           
        }
     }, 
 
@@ -84,8 +80,7 @@ export var OlaPay = {
          }  
          const response =  await axios.post(url , JSON.stringify(item), {headers: headers}, { httpsAgent: agent })
          if(response.status === 200 && response.data.saleResponse.error === '0'){
-            console.log('Response de authorizeEmv');
-            console.log(response);
+         
             const response1 = {
                'ref': response.data.saleResponse.ref
             }
@@ -93,7 +88,7 @@ export var OlaPay = {
          }
             
         } catch (error) {
-            console.log(error);
+            error;
             
         }
      }, 
@@ -107,8 +102,7 @@ export var OlaPay = {
          data.orderID = invoiceSequence.data;
       
          const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
-         console.log('Response de getDevice');
-         console.log(response.data.saleResponse);
+        
          if(response.status ===200 && response.data.saleResponse.error ==='0'){
             const response1 = {
                "total": response.data.saleResponse.totalAmount,
@@ -125,7 +119,7 @@ export var OlaPay = {
        
           
       } catch (error) {
-          console.log(error);
+          error;
           return false
           
       }
@@ -153,7 +147,7 @@ export var OlaPay = {
       return false
           
       } catch (error) {
-          console.log(error);
+          error;
           
       }
    },
@@ -164,12 +158,11 @@ export var OlaPay = {
        if(ssl) url = `https://${ip}:${port}/api/print`
        else url = `http://${ip}:${port}/api/print`      
     
-         const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent });
-         console.log('RESPONSE PRINT')
-         console.log(response)
+       await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent });
+      
           
       } catch (error) {
-          console.log(error);
+          error;
           
       }
    },
@@ -181,13 +174,11 @@ export var OlaPay = {
        else url = `http://${ip}:${port}/api/sale/search`
        
       const transToSearch = data.Search.trans_id;
-      console.log('IN SEARCH transToSearch:' + transToSearch);
     
       const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
       if(response.status === 200 && response.data.searchResponse.error === '0'){
          if(transToSearch === response.data.searchResponse.response[0].trans_id){
-            console.log('Response de STATUS');
-            console.log(response);
+          
             const response1 = {
                "total": response.data.searchResponse.response[0].amount,
                "transId":response.data.searchResponse.response[0].trans_id,           
@@ -202,7 +193,7 @@ export var OlaPay = {
       return false
           
       } catch (error) {
-          console.log(error);
+          error;
           
       }
    },
@@ -228,8 +219,7 @@ export var OlaPay = {
        }  
        const response =  await axios.post(url , JSON.stringify(item), {headers: headers}, { httpsAgent: agent })
       if(response.status === 200 && response.data.authorizeResponse.error === '0'){
-         console.log('Response de authorizeEmv');
-         console.log(response);
+      
          const response1 = {
             'ref': response.data.authorizeResponse.ref
          }
@@ -237,7 +227,7 @@ export var OlaPay = {
       }
           
       } catch (error) {
-          console.log(error);
+          error;
           
       }
    }, 
@@ -251,7 +241,6 @@ export var OlaPay = {
        data.orderID = invoiceSequence.data;
     
        const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
-       console.log('Response de Autjorize Manual');
        if(response.status ===200 && response.data.authorizeResponse.error ==='0'){
          const response1 = {
             "total": response.data.authorizeResponse.totalAmount,
@@ -268,7 +257,7 @@ export var OlaPay = {
       return false
         
     } catch (error) {
-        console.log(error);
+        error;
         
     }
  }, 
@@ -281,13 +270,11 @@ export var OlaPay = {
  
     const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
     if(response.status === 200 && response.data.captureResponse.error === '0'){
-      console.log('Response de CAPTURE');
       const response1 = response.data.captureResponse.transactionID
-      console.log(response1);
       return response1;
     }
    } catch (error) {
-       console.log(error);       
+       error;       
    }
 },
 
@@ -299,17 +286,15 @@ export var OlaPay = {
    
       const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
       if(response.status === 200 && response.data.returnResponse.error === '0'){
-         console.log('Response de RETURN');
          const response1 ={
             'transactionID': response.data.returnResponse.transactionID,
             'total': response.data.returnResponse.returnAmount,
          }
-         console.log(response1);
          return response1;
       }
             
       } catch (error) {
-         console.log(error);
+         error;
       }
          
    },
@@ -322,18 +307,16 @@ export var OlaPay = {
    
       const response =  await axios.post(url , JSON.stringify(data), {headers: headers}, { httpsAgent: agent })
       if(response.status === 200 && response.data.voidResponse.error === '0'){
-         console.log('Response de VOID');
          const response1 ={
             'transactionID': response.data.voidResponse.transactionID,
             'total': response.data.voidResponse.voidedAmount,
          }
-         console.log(response1);
          return response1;
       }
       return false;
          
       } catch (error) {
-         console.log(error);
+         error;
          
    }
 },

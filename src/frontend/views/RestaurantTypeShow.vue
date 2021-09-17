@@ -19,14 +19,12 @@
             </ion-select> 
           </ion-item>
 
-          <v-breakpoint>
-              <div slot-scope="scope" >
          
-                  <ion-card v-if="indexMenu !== -1" >
+                  <div v-if="indexMenu !== -1" >
                     <h3 style="    text-align: left;">{{$t('backoffice.options.manageCategories')}}</h3>                 
-                      <div style="display: flex;flex-direction: row;flex-wrap: wrap;">
-                              <div  v-for="(category, indexC) in restaurantType.Datas[indexMenu].Categories" :key="indexC"              
-                                :class="scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories' : 'menu-col-3 card-categories'">                  
+                      <ion-row >
+                              <ion-col  v-for="(category, indexC) in restaurantType.Datas[indexMenu].Categories" :key="indexC"              
+                                 size="12" size-md="6" size-lg="3">                  
                                 <ion-card                         
                                   color="primary"                          
                                   :style="categorySelected===indexC? 'opacity: 1;text-align: center;': 'opacity: 0.75;text-align: center;'"
@@ -37,17 +35,17 @@
                                   </ion-avatar>
                                   <h1 class="elipsy-center" v-tooltip="category.Name" style="margin: 5px;">{{category.Name}}</h1>                                                                                                               
                                 </ion-card>
-                              </div>
+                              </ion-col>
 
                                 
-                      </div>
+                      </ion-row>
 
-                      <ion-card  v-if="categorySelected !==''">
+                      <div  v-if="categorySelected !==''">
                         <h3 style="    text-align: left;">{{$t('backoffice.options.manageProducts')}}</h3>   
                                   <ion-label v-if="categorySelected !==''">{{restaurantType.Datas[indexMenu].Categories[categorySelected].Description}}</ion-label>
-                                  <div v-if="categorySelected !==''" style="display: flex;flex-direction: row;flex-wrap: wrap;">                
-                                    <div  v-for="(product, indexP) in restaurantType.Datas[indexMenu].Categories[categorySelected].Product" :key="indexP"              
-                                          :class="scope.isSmall || scope.noMatch? 'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories' : 'menu-col-3 card-categories'">                  
+                                  <ion-row v-if="categorySelected !==''" style="display: flex;flex-direction: row;flex-wrap: wrap;">                
+                                    <ion-col  v-for="(product, indexP) in restaurantType.Datas[indexMenu].Categories[categorySelected].Product" :key="indexP"              
+                                           size="12" size-md="6" size-lg="3">                  
                                           <ion-card  color="primary" style="    text-align: center;" >                                             
                                             <ion-avatar style="margin-inline: auto; margin-top: 25px;" >
                                               <img :src="product.ImageUrl">
@@ -55,26 +53,25 @@
                                             <h1 class="elipsy-center" v-tooltip="product.Name" style="margin: 5px;">{{product.Name}}</h1> 
                                             {{getFormatPrice(product.SalePrice) }}                                                                                                             
                                           </ion-card>
-                                        </div>
-                                  </div>        
-                      </ion-card>
-                  </ion-card>
+                                        </ion-col>
+                                  </ion-row>        
+                      </div>
+                  </div>
 
-              </div>
-          </v-breakpoint>
+           
       </div>
   </div>
 </template>
 
 <script>
-import { VBreakpoint } from 'vue-breakpoint-component'
+
 export default {
 
   name: 'restaurantType',
   created: function(){  
     },
   components:{   
-    VBreakpoint: VBreakpoint,  
+    
   },  
   props: {  
        restaurantType: {type: Object, default: () => {} },

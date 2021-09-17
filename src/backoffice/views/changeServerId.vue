@@ -89,7 +89,7 @@ export default {
             this.dismissModal()
         })
         .catch(e => {
-            console.log(e)
+            e;
             this.showToastMessage("An error occur change Server Id", "danger")
         })
     },

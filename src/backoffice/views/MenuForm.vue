@@ -1,9 +1,7 @@
 <template>
     <div id="menu" class="screen">
     <ion-backdrop v-if="isBackdrop"></ion-backdrop>
-    <!-- <router-link to="/controlPanel"><ion-button expand="full" color="tertiary"><ion-icon name="hammer"></ion-icon>{{$t('backoffice.list.buttons.goToControlPanel')}}</ion-button></router-link> -->
-    <!-- <router-link to="/menu"><ion-button expand="full" color="tertiary"><ion-icon name="arrow-round-back"></ion-icon>{{$t('backoffice.form.buttons.backToMenusList')}}</ion-button></router-link> -->
-
+  
     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
@@ -16,10 +14,31 @@
     </ion-header>
     <br/>
 
-    <div v-if="spinner">
-        <ion-spinner name="lines" class="spinner"></ion-spinner>
-    </div>
-    <div v-else>
+    <modal name="productCat-modal"  width="80%" height="auto" style="left: 0px;width: auto;height: auto; max-width: 500px !important;">
+        <ion-buttons slot="start" @click="hideProductCat()">
+                <ion-back-button default-href="home"></ion-back-button>
+        </ion-buttons>
+        <!-- <ion-header>
+            <ion-toolbar>
+            <ion-title>{{$t('backoffice.form.titles.taxNewTitle')}}</ion-title>          
+            </ion-toolbar>        
+        </ion-header> -->
+
+        <ion-card>  
+            <ProductByCategory 
+                :externalProp="true"
+                :categoryId="thisCategoryId"
+                :menuId="this.id"
+            />
+        </ion-card>
+    </modal>
+
+    <ion-loading
+        v-if="spinner"
+        cssClass="my-custom-class"
+        :message="$t('frontend.tooltips.loadRestaurant')"
+      ></ion-loading>
+    <div >
       <!-- <ion-card> -->
         <ion-item>
           <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.menuName')}}</ion-label>
@@ -29,178 +48,145 @@
           </ion-input>
         </ion-item>
 
-        <!-- <ion-item>
-          <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.date')}}</ion-label>
-          <ion-datetime name="date" 
-          @ionChange="date = $event.target.value" 
-          v-bind:value="date"
-          placeholder="Select Date">
-          </ion-datetime>
-        </ion-item> -->
+      
 
-        <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.isCatering')}}</ion-label>
-           <ion-checkbox slot="end" name="isCatering" 
-            @ionChange="isCatering = $event.target.checked"
-            :checked="isCatering"  >    
-          </ion-checkbox>
-        </ion-item>
+        <ion-row>
 
-        <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.active')}}</ion-label>
-           <ion-checkbox slot="end" name="active" 
-            @ionChange="active = $event.target.checked"
-            :checked="active"  >    
-          </ion-checkbox>
-        </ion-item>
+          <ion-col size="12" size-md="3">
+             <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.active')}}</ion-label>
+                <ion-toggle slot="end" name="active" 
+                  @ionChange="active = $event.target.checked"
+                  :checked="active"  >    
+                </ion-toggle>
+              </ion-item>
+          </ion-col>
 
-        <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.isService')}}</ion-label>
-           <ion-checkbox slot="end" name="isService" 
-            @ionChange="changeService($event.target.checked)"
-            :checked="isService"  >    
-          </ion-checkbox>
-        </ion-item>
-
-        <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.isReservationMenu')}}</ion-label>
-           <ion-checkbox slot="end" name="isReservationMenu" 
-            @ionChange="changeReservationMenu($event.target.checked)"
-            :checked="isReservationMenu" >  
-          </ion-checkbox>
-        </ion-item>
-
-        <!-- <ion-item v-for="entry in form" v-bind:key="entry.val">
-          <ion-label>{{entry.val}}</ion-label>
-          <ion-checkbox
-            slot="end"
-            @input="entry.checked = $event.target.value"
-            :value="entry.isChecked">
-          </ion-checkbox>
-        </ion-item> -->
-
-        <div v-if="screenWidth < 600">
-
+          <ion-col size="12" size-md="3">
             <ion-item>
-                <ion-label>
-                    <router-link to="/category">{{$t('backoffice.form.fields.availableCategories')}}</router-link>
-                </ion-label>
+              <ion-label>{{$t('backoffice.form.fields.isCatering')}}</ion-label>
+              <ion-toggle slot="end" name="isCatering" 
+                @ionChange="isCatering = $event.target.checked"
+                :checked="isCatering"  >    
+              </ion-toggle>
             </ion-item>
-            <ion-list>
-                <ion-item-sliding v-for="category in availableCategories" v-bind:key="category._id">
+          </ion-col>
+
+           <ion-col size="12" size-md="3">
+               <ion-item>
+                <ion-label>{{$t('backoffice.form.fields.isService')}}</ion-label>
+                <ion-toggle slot="end" name="isService" 
+                  @ionChange="changeService($event.target.checked)"
+                  :checked="isService"  >    
+                </ion-toggle>
+              </ion-item>
+           </ion-col>
+
+            <ion-col size="12" size-md="3">
                 <ion-item>
-                    <ion-thumbnail slot="start">
-                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
-                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                    </ion-thumbnail>
+                <ion-label>{{$t('backoffice.form.fields.isReservationMenu')}}</ion-label>
+                <ion-toggle slot="end" name="isReservationMenu" 
+                  @ionChange="changeReservationMenu($event.target.checked)"
+                  :checked="isReservationMenu" >  
+                </ion-toggle>
+              </ion-item>
+
+            </ion-col>
+
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" size-md="6">
+
+            <ion-list class="content-list" style="margin: 0 15px;">
+                  <ion-item>
                     <ion-label>
-                        <!-- <h2>{{ product.CategoryId }}</h2> -->
-                        <h2><div style="word-wrap: break-word">{{ category.Name }}</div></h2>
+                        <router-link to="/category">{{$t('backoffice.form.fields.availableCategories')}}</router-link>
                     </ion-label>
-                <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
                 </ion-item>
-                <ion-item-options side="end">
-                    <ion-item-option color="primary" >
-                    <ion-icon slot="icon-only" name="add" @click="addCategory(category._id)"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option v-if="hasPermission('canEditProduct')" color="success" >
-                    <ion-icon slot="icon-only" name="list" @click="productsByCategory(category._id)"></ion-icon>
-                    </ion-item-option>
-                </ion-item-options>
-                </ion-item-sliding>
-            </ion-list>
-
-        </div>
-
-        <div v-if="screenWidth >= 600">
-
-            <ion-item>
-                <ion-label>
-                    <router-link to="/category">{{$t('backoffice.form.fields.availableCategories')}}</router-link>
-                </ion-label>
-            </ion-item>
-            <ion-list>
-                <ion-item v-for="category in availableCategories" v-bind:key="category._id">
-
-                    <ion-thumbnail slot="start">
-                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                                
+                <ion-item
+                    v-for="(category, index) in  availableCategories"
+                    v-bind:key="index"                               
+                >
+                    <ion-avatar >
+                      <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
                         <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                    </ion-thumbnail>
-                    <ion-label>
-                        <!-- <h2>{{ product.CategoryId }}</h2> -->
-                        <h2><div style="word-wrap: break-word">{{ category.Name }}</div></h2>
-                    </ion-label>
-                    <ion-item-group side="end">
-                        <ion-button color="primary" @click="addCategory(category._id)">
-                            <ion-icon slot="icon-only" name="add"></ion-icon>
-                        </ion-button>
-                        <ion-button v-if="hasPermission('canEditProduct')" color="success" @click="productsByCategory(category._id)">
-                            <ion-icon slot="icon-only" name="list"></ion-icon>
-                        </ion-button>
-                    </ion-item-group>
-                </ion-item>
-            </ion-list>
+                    </ion-avatar>
 
-        </div>
-
-        <div v-if="screenWidth < 600">
-            <ion-item>
-                <ion-label>
-                    <span style="color: red">*</span>{{$t('backoffice.form.fields.selectedCategories')}}
-                </ion-label>
-            </ion-item>
-            <ion-list>
-                <ion-item-sliding v-for="category in selectedCategories" v-bind:key="category._id">
-                <ion-item>
-                    <ion-thumbnail slot="start">
-                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
-                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                    </ion-thumbnail>
-                    <ion-label>
-                        <!-- <h2>{{ product.CategoryId }}</h2> -->
-                        <h2><div style="word-wrap: break-word">{{ category.Name }}</div></h2>
+                    <ion-label> 
+                        <h2> <span style="padding: 0 10px">  {{ category.Name }} </span>    </h2>    
                     </ion-label>
-                <span slot="end" class="iconify" data-icon="mdi:backburger" data-inline="false"></span>
-                </ion-item>
-                <ion-item-options side="end">
-                    <ion-item-option color="danger" >
-                    <ion-icon slot="icon-only" name="trash" @click="deleteCategory(category._id)"></ion-icon>
-                    </ion-item-option>
-                    <ion-item-option color="success" >
-                    <ion-icon slot="icon-only" name="list" @click="productsByCategory(category._id)"></ion-icon>
-                    </ion-item-option>
-                </ion-item-options>
-                </ion-item-sliding>
-            </ion-list>
-        </div>
 
-        <div v-if="screenWidth >= 600">
-            <ion-item>
-                <ion-label>
-                    <span style="color: red">*</span>{{$t('backoffice.form.fields.selectedCategories')}}
-                </ion-label>
-            </ion-item>
-            <ion-list>
-                <ion-item v-for="category in selectedCategories" v-bind:key="category._id">
-                    <ion-thumbnail slot="start">
-                        <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
-                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
-                    </ion-thumbnail>
-                    <ion-label>
-                        <!-- <h2>{{ product.CategoryId }}</h2> -->
-                        <h2><div style="word-wrap: break-word">{{ category.Name }}</div></h2>
-                    </ion-label>
-                    <ion-item-group side="end">
-                        <ion-button color="danger" @click="deleteCategory(category._id)">
-                            <ion-icon slot="icon-only" name="trash"></ion-icon>
-                        </ion-button>
-                        <ion-button color="success" @click="productsByCategory(category._id)">
-                            <ion-icon slot="icon-only" name="list"></ion-icon>
-                        </ion-button>
-                    </ion-item-group>
+                    <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"
+                        @click.stop="addCategory(category._id)"
+                        >
+                            <ion-icon  slot="icon-only"  icon="add"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                    <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"
+                        @click.stop="productsByCategory(category._id)"
+                        >
+                            <ion-icon  slot="icon-only"  icon="list"  class="more-grid" ></ion-icon>
+                    </ion-button>
                 </ion-item>
             </ion-list>
-        </div>
+
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+
+            <ion-list class="content-list" style="margin: 0 15px;">
+                  <ion-item>
+                    <ion-label>
+                        <router-link to="/category">{{$t('backoffice.form.fields.selectedCategories')}}</router-link>
+                    </ion-label>
+                </ion-item>
+                                
+                <ion-item
+                    v-for="(category, index) in  selectedCategories"
+                    v-bind:key="index"                               
+                >
+                    <ion-avatar >
+                      <ion-img v-if="category.ImageUrl != ''" :src="category.ImageUrl"></ion-img>
+                        <ion-img v-else :src="require('../assets/category.png')"></ion-img>
+                    </ion-avatar>
+
+                    <ion-label> 
+                        <h2> <span style="padding: 0 10px">  {{ category.Name }} </span>    </h2>    
+                    </ion-label>
+
+                    <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"
+                        @click.stop="deleteCategory(category._id)"
+                        >
+                            <ion-icon  slot="icon-only"  icon="trash"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                    <ion-button
+                        fill="clear"
+                        shape="round"
+                        class="list-gourp-btn"
+                        side="end"
+                        @click.stop="productsByCategory(category._id)"
+                        >
+                            <ion-icon  slot="icon-only"  icon="list"  class="more-grid" ></ion-icon>
+                    </ion-button>
+                </ion-item>
+            </ion-list>
+
+          </ion-col>
+        </ion-row>
+
 
       <!-- </ion-card>  -->
         <br/>
@@ -211,6 +197,7 @@
 <script>
 
 import { Api } from '../api/api.js';
+import ProductByCategory from './ProductByCategory.vue'
 
 export default{
 
@@ -238,6 +225,7 @@ export default{
       spinner: false,
 
       screenWidth : 0,
+      thisCategoryId: '',
     }
   },
   created: function(){
@@ -249,7 +237,11 @@ export default{
             return this.id ? this.$t('backoffice.form.titles.menuEditTitle') :  this.$t('backoffice.form.titles.menuNewTitle');
         }
   },
+  components:{
+      ProductByCategory,
+  },
   methods:{
+
         changeService(val){
             this.isService = val;
          
@@ -265,6 +257,7 @@ export default{
 
             this.initialLoading = false;
         },
+
         changeReservationMenu(val){
               this.isReservationMenu = val;
 
@@ -280,6 +273,7 @@ export default{
 
               this.initialLoading = false;
         },
+
         ifErrorOccured(action){
           return this.$ionic.alertController.create({
               title: this.$t('backoffice.list.messages.connectionError'),
@@ -303,6 +297,7 @@ export default{
             })
             .then(a => a.present());
         },
+
         hasPermission(permission){
         
         let res = false;
@@ -325,6 +320,7 @@ export default{
         }
         return res;
         },
+
         isValidForm(){
         // let errors = [];
         if (this.name == "")
@@ -361,6 +357,7 @@ export default{
         //     return true;
         // }
         },
+
         ShowMessage: function(type, message, topic='') {
           return this.$ionic.alertController
             .create({
@@ -372,6 +369,7 @@ export default{
             })
           .then(a => a.present())
         },
+
         showToastMessage(message, tColor){
           return this.$ionic.toastController.create({
             color: tColor,
@@ -381,99 +379,50 @@ export default{
             showCloseButton: false
           }).then(a => a.present())
       },
+
       productsByCategory: function(id){
-          this.$router.push({
-            name: 'ProductByCategory', 
-            params: {
-                     "categoryId": id,
-                     "menuId": this.id,
-                    }
-          });
+        this.thisCategoryId = id;
+        this.showProductCat();
+          // this.$router.push({
+          //   name: 'ProductByCategory', 
+          //   params: {
+          //            "categoryId": id,
+          //            "menuId": this.id,
+          //           }
+          // });
       },
+
       fetchAllCategoriesByType: function(val){
-        this.$ionic.loadingController
-        .create({
-          cssClass: 'my-custom-class',
-          message: this.$t('backoffice.titles.loading'),
-          backdropDismiss: true
-        })
-        .then(loading => {
-            loading.present()
-            setTimeout(() => {  // Some AJAX call occurs
-              Api.fetchAll('Category')
-              .then(response => {    
-                  this.availableCategories = response.data;
-                  if (val)
-                    this.availableCategories = this.availableCategories.filter(categ => categ.Service == true);
-                  else
-                    this.availableCategories = this.availableCategories.filter(categ => !categ.Service || categ.Service == false);
-                  loading.dismiss();
-                })
-                .catch(e => {
-                  console.log(e);
-                  loading.dismiss();
-                })  
-            })
-        })
+        this.availableCategories =  this.$store.state.backConfig.category;
+        if (val)
+          this.availableCategories = this.availableCategories.filter(categ => categ.Service == true);
+        else
+          this.availableCategories = this.availableCategories.filter(categ => !categ.Service || categ.Service == false);
       },
+
       fetchAllCategories: function(){
+        this.categories = this.$store.state.backConfig.category;
+        this.id = this.$route.params.menuId;
+          if (this.id){
+             const data = this.$store.state.backConfig.menu.find(m => m._id === this.id)
+             if(data){
+              this.name = data.Name;
+              this.date = data.Date;
+              this.active = data.Active;
+              this.isCatering = data.IsCatering;
+              this.isService = data.IsService;
+              this.isReservationMenu = data.IsReservationMenu;
+              let categoriesIds = data.Categories;
+              this.selectedCategories = this.mapCategory(categoriesIds);
 
-      this.$ionic.loadingController
-      .create({
-        cssClass: 'my-custom-class',
-        message: this.$t('backoffice.titles.loading'),
-        backdropDismiss: true
-      })
-      .then(loading => {
-          loading.present()
-          setTimeout(() => {  // Some AJAX call occurs
-            Api.fetchAll('Category')
-            .then(response => {    
-                this.categories = response.data;
-                this.id = this.$route.params.menuId;
-                  if (this.id){
-                      // this.title = 'Edit menu';
-                      Api.fetchById(this.modelName, this.id)
-                          .then(responseMenu => {
-                            this.initData(responseMenu.data);
-                            loading.dismiss();
-                            return responseMenu;
-                          })
-                          .catch(e => {
-                            console.log(e);
-                            loading.dismiss();
-                            this.ifErrorOccured(this.fetchAllCategories);
-                          })   
-                  }
-                  else{
-                    this.initAvailableCategories();
-                    loading.dismiss();
-                  }
-              })
-              .catch(e => {
-                console.log(e);
-                loading.dismiss();
-              })  
-          })
-      })
+              this.initAvailableCategories();
+             }
+          }
+          else{
+            this.initAvailableCategories();
+          }
       },
-      initData: function(data){
-        // this.createSelectedProductList(data.Categories);
-        this.name = data.Name;
-        this.date = data.Date;
-        this.active = data.Active;
-        this.isCatering = data.IsCatering;
-        this.isService = data.IsService;
-        this.isReservationMenu = data.IsReservationMenu;
-        // this.$refs.active.checked = this.active;
-        let categoriesIds = data.Categories;
-
-        //console.log("Init selected categories")
-        this.selectedCategories = this.mapCategory(categoriesIds);
-        //console.log("End selected categories")
-
-        this.initAvailableCategories();
-      },
+   
       mapCategory: function(categoriesIds){
          let selCategories = [];
          
@@ -489,13 +438,6 @@ export default{
                 selCategories.push(selCategory);
 
          });
-
-        // console.log("SelectedCateg");
-        // console.log(selCategories);
-        //  console.log("TODAS LAS CATEGORIAS")
-        //  console.log(this.categories)
-        //  console.log("LAS CATEGORIAS SELECCIONADAS")
-        //  console.log(selCategories)
          return selCategories;
          
       },
@@ -507,10 +449,6 @@ export default{
               this.categories.forEach(category => {
                   let found = false;
                   this.selectedCategories.forEach(selectCateg => {
-                    //  console.log(category);
-                    //  console.log(selectCateg);
-                    // console.log("Selected category: "); console.log(selectCateg)
-                    // console.log("Category: "); console.log(category)
                      if (selectCateg != null && category != null){
                         if (selectCateg._id == category._id)
                             found = true;
@@ -525,35 +463,14 @@ export default{
                 this.availableCategories = this.availableCategories.filter(categ => categ.Service == true)
              else
                 this.availableCategories = this.availableCategories.filter(categ => !categ.Service || categ.Service == false)
-          //     this.categories.forEach(category => {
-          //     let found = false;
-          //     this.selectedCategories.forEach(categorySelected => {
-          //         if (category._id == categorySelected)
-          //         {
-          //            found = true;
-          //         }
-          //     });
-          //     if (found == false)
-          //         this.availableCategories.push(category);
-          //     });
           }
           else
           {
-
-                //               console.log('CATEGORIESSSS');
-                // console.log(this.categories);
               this.availableCategories = this.categories;
               this.availableCategories = this.availableCategories.filter(categ => !categ.Service || categ.Service == false)
-              // console.log("AVAILABLE CATEGORY");
-              // console.log(this.availableCategories);
-              // console.log("CATEGORIES");
-              // console.log(this.categories);
           } 
       },
-      // selActive(event){
-      //   if (event) event.preventDefault()
-      //     this.active = !this.active;
-      // },
+     
       clearData: function(){
           this.name = '';
           this.date = Date.now();
@@ -562,6 +479,7 @@ export default{
           this.selectedCategories = [];
           this.availableCategories = [];
       },
+
       addCategory: function(id){
           let categ = this.availableCategories.find(category => category._id == id);
           this.selectedCategories.push(categ);
@@ -569,6 +487,7 @@ export default{
           var categoryIndex = this.availableCategories.indexOf(categ); // get index
           this.availableCategories.splice(categoryIndex, 1);
       },
+
       deleteCategory: function(id){
           let categ = this.selectedCategories.find(category => category._id == id);
           this.availableCategories.push(categ);
@@ -576,56 +495,22 @@ export default{
           var categoryIndex = this.selectedCategories.indexOf(categ);
           this.selectedCategories.splice(categoryIndex, 1);
       },
-      //The category name must be unique.
-      // searchCategoryIdByName: function(name){
-      //    let categ =  this.categories.filter(categ => name == categ.Name);
-      //   //  console.log(categ[0]);
-      //    return categ[0]._id;
-      // },
-      // Create or edit a new menu
+    
     createCategoriesObject: function(){
 
         let sCategories = [];
-        // let productItem = null;
         this.selectedCategories.forEach(categorySelected => {
             if (categorySelected != null)
                 sCategories.push(categorySelected._id);
         });
          return sCategories;
       },
-    // updateActiveStateMenus: function(){
-    //     Api.fetchAll('Menu')
-    //       .then( response =>{
-    //           let menus = response.data;
-    //           menus.forEach( menu=> {
-    //             if (menu._id != this.id)
-    //             {
-    //                 let item = {
-    //                     "_id": menu._id,
-    //                     "Name": menu.Name,
-    //                     "Active": false,
-    //                     "Categories": menu.Categories,
-    //                     "Date": menu.Date,
-    //                 }
-    //                 Api.putIn('Menu', item)
-    //                     .catch(e => {
-    //                           console.log(e);
-    //                           this.ShowMessage('Error', 'Error', 'Fetch Menu');
-    //                     })
-    //             }
-    //           });
-    //       })
-    //       .catch(e => {
-    //           console.log(e);
-    //           this.ShowMessage('Error', 'Error', 'Fetch Menu');
-    //       }) 
-    //   },
-      saveMenu: function(){
+  
+      saveMenu: async function(){
 
         if (this.isValidForm())
         {
             this.isBackdrop = true;
-            //console.log(this.active);
             let categories = this.createCategoriesObject();
             let item = {
                 "Name": this.name,
@@ -636,23 +521,16 @@ export default{
                 "Categories": categories,
                 "Date": this.date,
             }
-            // if (this.active)
-            // {
-            //    this.updateActiveStateMenus();
-            // }
-            //If I am editing
+         
             if (this.id){
               item['_id'] = this.id;
               this.spinner = true;
-              Api.putIn(this.modelName, item)
+              await Api.putIn(this.modelName, item)
                   .then(response => {
-                        // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                        //      this.$t('backoffice.list.messages.messageEditSuccessMenu'), 
-                        //         this.$t('backoffice.list.messages.titleEditMenu'));
+                        const index = this.$store.state.backConfig.menu.findIndex( m => m._id === this.id);
+                        if(index !== -1)  this.$store.state.backConfig.menu[index] = item;
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessMenu'), "success");
                         this.clearData();
-                        const index = this.$store.state.backConfig.menu.findIndex(men => men._id === item._id)
-                        if(index !== -1) this.$store.state.backConfig.menu[index] = item;
                         this.spinner = false;
                         this.$router.push({
                           name: 'Menu', 
@@ -661,7 +539,7 @@ export default{
                   })
                   .catch(e => {
                         this.isBackdrop = false;
-                        console.log(e);
+                        e;
                         this.spinner = false;
                         this.ifErrorOccured(this.saveMenu);
                   })
@@ -671,13 +549,9 @@ export default{
               this.spinner = true;
               Api.postIn(this.modelName, item)
                   .then(response => {
-                      // this.ShowMessage(this.$t('backoffice.list.messages.infoDeleteSuccess'),
-                      //        this.$t('backoffice.list.messages.messageCreateSuccessMenu'), 
-                      //           this.$t('backoffice.list.messages.titleCreateMenu'));
+                      this.$store.state.backConfig.menu.push(response.data);
                       this.showToastMessage(this.$t('backoffice.list.messages.messageCreateSuccessMenu'), "success");
                       this.clearData();
-                      
-                      this.$store.state.backConfig.menu.push(response.data);
                       this.spinner = false;
                       this.$router.push({
                         name: 'Menu', 
@@ -686,7 +560,7 @@ export default{
                   })
                   .catch(e => {
                       this.isBackdrop = false;
-                      console.log(e);
+                      e;
                       this.spinner = false;
                       this.ifErrorOccured(this.saveMenu);
                   })
@@ -695,6 +569,14 @@ export default{
         }
         
       },
+
+      showProductCat () {
+      this.$modal.show('productCat-modal');
+        },
+    
+    hideProductCat () {
+      this.$modal.hide('productCat-modal');
+        },
   },
 
 }

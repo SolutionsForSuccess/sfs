@@ -26,7 +26,6 @@ export default{
     },
     methods: {
         changeLanguage(locale) {
-           // console.log('Segment changed', locale);
             this.currentLanguaje = locale
             i18n.locale = locale
         }

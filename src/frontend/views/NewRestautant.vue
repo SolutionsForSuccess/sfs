@@ -59,8 +59,7 @@
                 <ion-button @click="serviceBussines=true,restaurantBussines=false,businessType='Reservations'" :disabled="serviceBussines? true: false">{{$t('frontend.createNew.reservation')}}</ion-button>
             </div>
 
-            <v-breakpoint v-if="restaurantBussines || serviceBussines">
-                <div slot-scope="scope" :key="key">
+                <div  v-if="restaurantBussines || serviceBussines" :key="key">
 
                  
 
@@ -108,136 +107,133 @@
                                     </div>
                                 </div>
                                         
-                            </div>    
-
-                            
-
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
+                            </div>  
+                        </ion-card-content>
+                        <ion-row>
+                             <ion-col size="12" size-md="6" size-lg="4"   >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantName')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true  
+                                <ion-input type="text" required=true  autocomplete="organization"
                                     :value="restaurantName" @input="restaurantName = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true
+                                <ion-input type="text" required=true autocomplete="address-line1"
                                     :value="restaurantAddres" @input="restaurantAddres = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantZipcode')}} <strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true
+                                <ion-input type="text" required=true autocomplete="postal-code"
                                     :value="restaurantZipcode" @change="restaurantZipcode=ValidateZipcode($event.target.value, 'restaurant')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" readonly=true
+                                <ion-input type="text" readonly=true 
                                     :value="restaurantCity" 
                                 ></ion-input>
-                            </ion-item>
-                                <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                                <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
                                 <ion-input type="text" readonly=true
                                     :value="restaurantState" 
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true                                 
+                                <ion-input type="text" required=true   autocomplete="tel"                              
                                     :value="restaurantPhone" @input="restaurantPhone = $event.target.value"
                                     @change=" validatePhone($event.target.value, 'rest')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'"  >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4"  >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true                                 
+                                <ion-input type="text" required=true autocomplete="email"                                  
                                     :value="restaurantEmail" @input="restaurantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'rest')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantWeb')}}</ion-label>                                          
                                 <ion-input type="text" required=true                                 
                                     :value="restaurantWeb" @input="restaurantWeb = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.restaurantFax')}}</ion-label>                                          
                                 <ion-input type="text" required=true                                 
                                     :value="restaurantFax" @input="restaurantFax = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-
-                        </ion-card-content>
+                            </ion-col>
+                        </ion-row>
                     </ion-card>    
 
-                        <ion-card >
+                    <ion-card >
                             <ion-card-title style="text-align: left;padding: 15px;">
                             {{$t('frontend.createNew.dataMercahnt')}}
                         </ion-card-title>                            
                         
-                        <ion-card-content :key="merchantKey">
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                        <ion-row :key="merchantKey">
+                            <ion-col size="12" size-md="6" size-lg="4" >
                             <ion-label position="floating">{{$t('frontend.createNew.merchantName')}}<strong style="color: red">*</strong></ion-label>                                          
-                            <ion-input type="text" required=true                                 
+                            <ion-input type="text" required=true   autocomplete="name"                                  
                                 :value="merchantName" @input="merchantName = $event.target.value"
                             ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantLastName')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true                                 
+                                <ion-input type="text" required=true  autocomplete="family-name"                                  
                                     :value="merchantLastName" @input="merchantLastName = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantAddres')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true
+                                <ion-input type="text" required=true autocomplete="address-line1"
                                     :value="merchantAddres" @input="merchantAddres = $event.target.value"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'">
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4">
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantZipcode')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true
+                                <ion-input type="text" required=true autocomplete="postal-code"
                                     :value="merchantZipcode" @change="merchantZipcode=ValidateZipcode($event.target.value, 'merchant')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" readonly=true
-                                        :value="merchantCity" 
-                                    ></ion-input>
-                                </ion-item>
-                                <ion-item  :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
-                                    <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
-                                    <ion-input type="text" readonly=true
-                                        :value="merchantState" 
-                                    ></ion-input>
-                                </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
+                                <ion-label position="floating">{{$t('frontend.home.city')}} <strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" readonly=true 
+                                    :value="merchantCity" 
+                                ></ion-input>
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4">
+                                <ion-label position="floating">{{$t('frontend.home.state')}} <strong style="color: red">*</strong></ion-label>                                          
+                                <ion-input type="text" readonly=true
+                                    :value="merchantState" 
+                                ></ion-input>
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantPhone')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true                                 
+                                <ion-input type="text" required=true   autocomplete="tel"                              
                                     :value="merchantPhone" @input="merchantPhone = $event.target.value"
                                     @change=" validatePhone($event.target.value, 'merchant')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantEmail')}}<strong style="color: red">*</strong></ion-label>                                          
-                                <ion-input type="text" required=true                                 
+                                <ion-input type="text" required=true    autocomplete="email"                              
                                     :value="merchantEmail" @input="merchantEmail = $event.target.value"  @change="validateEmail($event.target.value, 'merchant')"
                                 ></ion-input>
-                            </ion-item>
-                            <ion-item    :class="scope.isSmall || scope.noMatch ?'menu-col-12 card-categories' : scope.isMedium? 'menu-col-6 card-categories': 'menu-col-4 card-categories'" >
+                            </ion-col>
+                            <ion-col size="12" size-md="6" size-lg="4" >
                                 <ion-label position="floating">{{$t('frontend.createNew.merchantClerk')}}<strong style="color: red">*</strong></ion-label>                                          
                                 <ion-input type="number" required=true                                 
                                     :value="merchantClerk" @input="merchantClerk = $event.target.value"  @change="validateClerk($event.target.value)"
                                 ></ion-input>
-                            </ion-item>
+                            </ion-col>
 
-                        </ion-card-content>
+                        </ion-row>
                     </ion-card> 
 
                 </div> 
-            </v-breakpoint>
         </div>
         <ion-input @ionChange="paymentRes=$event.target.value" id="newRestaurantPayment" ref="abc" style="display:none"></ion-input>
 
@@ -306,7 +302,6 @@ import { Api } from '../../backoffice/api/api.js';
 import md5 from "crypto-js/hmac-md5";
 import RestaurantTypeShow from './RestaurantTypeShow.vue'
 import TermAndConditions from './TermsAndCondition.vue'
-import { VBreakpoint } from 'vue-breakpoint-component'
 import Language from '../../backoffice/views/Locale.vue'
 import Moment from 'moment'
 
@@ -321,7 +316,6 @@ export default {
     }, 
     components:{
         RestaurantTypeShow,
-         VBreakpoint,
          TermAndConditions,
          Language
     },
@@ -391,9 +385,9 @@ export default {
     },  
     methods:{
         goInit(){
-            this.parent.newRestaurant = false; 
-            this.parent.showNew = false; 
-            this.parent.getAllRestaurant();  
+            this.$parent.newRestaurant = false; 
+            this.$parent.showNew = false; 
+            this.$parent.getAllRestaurant();  
             this.$router.push({name: 'AppVue' });
         },
         isValidForm(){
@@ -490,14 +484,14 @@ export default {
                 await Api.newRestaurant(res);
             this.spinner = false;
             this.openMs(this.$t('frontend.createNew.createdMessage'), 'success'); 
-            this.parent.newRestaurant = false; 
-            this.parent.createdRestaurantEmail = this.merchantEmail;
-            this.parent.newRestaurantKey ++;
-            this.parent.openEnd();
+            this.$parent.newRestaurant = false; 
+            this.$parent.createdRestaurantEmail = this.merchantEmail;
+            this.$parent.newRestaurantKey ++;
+            this.$parent.openEnd();
             return this.$router.push({name: 'AppVue' });
                
            } catch (error) {
-               console.log(error)
+               error;
                this.spinner = false;
                
            }

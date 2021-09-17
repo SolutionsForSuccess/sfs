@@ -53,9 +53,11 @@ export default {
         keyGoogle:  {type: Number, default: 0 } ,
     },   
     created: async function() {   
+      this.myGoogleData = this.googleData
     },
     data() {
-        return {           
+        return {
+        myGoogleData:{},           
         isReadyToPay: false,  
         currencyCode: 'USD',
         countryCode: 'US',      
@@ -108,27 +110,27 @@ export default {
     },
 
     onError: event => {
-      console.error('error', event.error);
+     ('error', event.error);
     },
 
     onReadyToPayChange: async function (event) {  
       
-      if(event.detail.isButtonVisible && event.detail.isReadyToPay  && event.detail.paymentMethodPresent && this.googleData.merchantId){
+      if(event.detail.isButtonVisible && event.detail.isReadyToPay  && event.detail.paymentMethodPresent && this.myGoogleData.merchantId){
           this.isReadyToPay = event.detail.isReadyToPay;
 
-          if(this.googleData.merchantId){
-            this.paymentRequest.merchantInfo.merchantId = this.googleData.merchantId;  
-            this.paymentRequest.allowedPaymentMethods[0].tokenizationSpecification.parameters.gateway = this.googleData.gateway;           
-            this.paymentRequest.allowedPaymentMethods[0].parameters.allowedAuthMethods = this.googleData.allowedAuthMethods;          
-            this.paymentRequest.allowedPaymentMethods[0].parameters.allowedCardNetworks =this.googleData.allowedCardNetworks;  
-            this.currencyCode =this.googleData.currencyCode;  
-            this.countryCode =this.googleData.countryCode;  
+          if(this.myGoogleData.merchantId){
+            this.paymentRequest.merchantInfo.merchantId = this.myGoogleData.merchantId;  
+            this.paymentRequest.allowedPaymentMethods[0].tokenizationSpecification.parameters.gateway = this.myGoogleData.gateway;           
+            this.paymentRequest.allowedPaymentMethods[0].parameters.allowedAuthMethods = this.myGoogleData.allowedAuthMethods;          
+            this.paymentRequest.allowedPaymentMethods[0].parameters.allowedCardNetworks =this.myGoogleData.allowedCardNetworks;  
+            this.currencyCode =this.myGoogleData.currencyCode;  
+            this.countryCode =this.myGoogleData.countryCode;  
             this.paymentRequest.transactionInfo = {
             totalPriceStatus: 'FINAL',
             totalPriceLabel: 'Total',
             totalPrice: this.Total,
-            currencyCode: this.googleData.currencyCode,
-            countryCode: this.googleData.countryCode,
+            currencyCode: this.myGoogleData.currencyCode,
+            countryCode: this.myGoogleData.countryCode,
             }
           }
       }
@@ -136,7 +138,7 @@ export default {
     },
 
     onPaymentDataAuthorized: async function (paymentData) {
-        console.log('payment authorized', paymentData);
+       paymentData
         return {
           transactionState: 'SUCCESS',
         };
@@ -152,12 +154,12 @@ export default {
       const res = await Api.walletInformation(basket, this.restaurantId, ipClient.data.ip); 
       if(res.status === 200 && res.statusText === "OK"){
         
-        this.googleData.merchantId = res.data.walletConfig.merchantID.toString();  
-        this.googleData.gateway = res.data.walletConfig.googlePay.gateway;           
-        this.googleData.allowedAuthMethods= res.data.walletConfig.googlePay.allowedAuthMethods;         
-        this.googleData.allowedCardNetworks= res.data.walletConfig.googlePay.allowedCardNetworks;  
-        this.googleData.currencyCode =res.data.walletConfig.currencyCode; 
-        this.googleData.countryCode =res.data.walletConfig.countryCode;      
+        this.myGoogleData.merchantId = res.data.walletConfig.merchantID.toString();  
+        this.myGoogleData.gateway = res.data.walletConfig.googlePay.gateway;           
+        this.myGoogleData.allowedAuthMethods= res.data.walletConfig.googlePay.allowedAuthMethods;         
+        this.myGoogleData.allowedCardNetworks= res.data.walletConfig.googlePay.allowedCardNetworks;  
+        this.myGoogleData.currencyCode =res.data.walletConfig.currencyCode; 
+        this.myGoogleData.countryCode =res.data.walletConfig.countryCode;      
         
       }      
       

@@ -374,7 +374,7 @@ export default {
       return  this.$ionic.alertController
       .create({
           cssClass: 'my-custom-class',
-          header: 'Error',
+          header: '',
           message: this.i18n.t('frontend.home.errorRequired'),
           buttons: [                   
           {
@@ -399,7 +399,7 @@ export default {
             return  this.$ionic.alertController
                 .create({
                     cssClass: 'my-custom-class',
-                    header: 'Error',
+                    header: '',
                     message: this.i18n.t('frontend.order.notValidCC'),
                     buttons: [                   
                     {
@@ -442,7 +442,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message: this.i18n.t('frontend.home.zipCodeNotValid') ,
         buttons: [                   
         {
@@ -474,7 +474,7 @@ export default {
     return  this.$ionic.alertController
     .create({
         cssClass: 'my-custom-class',
-        header: 'Error',
+        header: '',
         message:  this.i18n.t('frontend.home.notValidEmail') , 
         buttons: [                   
         {
@@ -664,8 +664,6 @@ export default {
 
     async responsePayFabric(response){
 
-      console.log('resonse in Payment SPLITED responsePayFabric')
-     
         let mss = this.i18n.t('frontend.payment.doingPayment');
         if(this.isTicket)
           mss = this.i18n.t('frontend.payment.authorizingPayment');
@@ -680,8 +678,6 @@ export default {
           loading.present()
           setTimeout( async() => {
               try {  
-                console.log('response responsePayFabric')             
-                console.log(response)             
                 await this.parent.makeSplitPayment(response);
                 this.dismissModal();						
                 loading.dismiss();

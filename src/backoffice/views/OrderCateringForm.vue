@@ -7,7 +7,7 @@
     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'CateringOrder'})"></ion-back-button>
+              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'Order'})"></ion-back-button>
             </ion-buttons>
             <ion-label style="padding: 20px 100px;">
               <h1>{{title}}</h1>            
@@ -427,13 +427,11 @@ export default {
   },
   mounted: function(){
     EventBus.$on('ProductsSelected', (productsSelected) => {
-      //console.log(productsSelected)
       productsSelected.forEach(prod => {
           this.products.push(prod) 
       })    
     });
     EventBus.$on('ServicesSelected', (servicesSelected) => {
-      //console.log(servicesSelected)
       servicesSelected.forEach(serv => {
           this.products.push(serv) 
       })  
@@ -470,7 +468,7 @@ export default {
             Api.fetchById('Restaurant', restaurantID).then(response => {
                 this.currency = response.data.Currency
             }).catch(e => {
-                console.log(e)
+                e
             })
         } 
     },
@@ -513,11 +511,8 @@ export default {
         partialSubtotal -= this.discountAmount
 
         this.subtotal = partialSubtotal.toString()
-        //console.log("SUBTOTAL")
-        //console.log(this.subtotal)
     },
     calcTotal(){
-        //console.log("HELLO")
         let partialTotal = 0
         
         this.calcSubtotal()
@@ -528,8 +523,6 @@ export default {
         partialTotal += parseFloat(this.shipping)
 
         this.total = partialTotal.toString()
-        //console.log("TOTAL")
-        //console.log(this.total)
     },
     pendingPay(){
         this.calcTotal()
@@ -549,8 +542,6 @@ export default {
                 setTimeout(() => {  // Some AJAX call occurs    
                     Api.fetchById(this.modelName, this.id)
                     .then(response => {
-                        //console.log("ORDER");
-                        //console.log(response.data);
                         this.order = response.data;
                         this.date = this.order.Date;
                         this.orderType = this.order.OrderType;
@@ -570,7 +561,7 @@ export default {
                         // return 
                     })
                     .catch(e => {
-                        console.log(e);
+                        e;
                         loading.dismiss();
                         this.ifErrorOccured(this._init)
                     })     
@@ -579,12 +570,10 @@ export default {
         }
     },
     delProduct(id){
-        // console.log(this.products.findIndex(prod => prod._id === id));
         this.products.splice(this.products.findIndex(prod => prod._id === id), 1);
         this.calcTotal();
     },
     delService(id){
-        // console.log(this.products.findIndex(prod => prod._id === id));
         this.products.splice(this.products.findIndex(serv => serv._id === id), 1);
         this.calcTotal();
     },
@@ -661,7 +650,7 @@ export default {
             return response;
         })
         .catch(e => {
-            console.log(e);
+            e;
             return e;
         })  
     },
@@ -695,8 +684,6 @@ export default {
         .then(a => a.present());
     },
     isValidForm(){
-        
-        //console.log("VALID FORM")
         this.deadLinePercentInc++
         if (this.products.length == 0)
         {
@@ -716,8 +703,6 @@ export default {
             if(s != 100) return false
             
         }
-
-        //console.log("TRUE EN ESTE PUNTO");
         return true;
 
     },
@@ -741,23 +726,12 @@ export default {
         showCloseButton: false
       }).then(a => a.present())
     },
-    // fetchProducts: function(){
-    //     Api.fetchAll('Product').then(response => {
-    //       // console.log(response.data)
-    //       this.products = response.data
-    //     })
-    //     .catch(e => {
-    //       console.log(e)
-    //     });
-    // },
-    //Create or edit a new product
+    
     cancel: function(){
         let item = {
             "_id": this.id,
             "State": 6,
         }
-        // console.log(item)
-        // return
         this.spinner = true;  
             Api.putIn(this.modelName, item)
             .then(response => {
@@ -782,7 +756,7 @@ export default {
             })
             .catch(e => {
                 this.isBackdrop = false;
-                console.log(e);
+                e;
                 this.spinner = false;
                 this.ifErrorOccured(this.approve);
             })
@@ -844,8 +818,6 @@ export default {
                 this.order.Note = this.note;
             }
 
-            // console.log(item);
-            // return;
             this.spinner = true;  
             Api.putIn(this.modelName, this.order)
             .then(response => {
@@ -866,7 +838,7 @@ export default {
             })
             .catch(e => {
                 this.isBackdrop = false;
-                console.log(e);
+                e;
                 this.spinner = false;
                 this.ifErrorOccured(this.approve);
             })
@@ -874,7 +846,6 @@ export default {
         }  
     },
     sendCancelEmail(email){
-          //console.log(email);
            let items = {
               "email": email,
               "mess": this.$t('backoffice.list.messages.cateringCancel'),
@@ -882,30 +853,23 @@ export default {
             };
             Api.sendEmail(items)
             .then(() => {
-                //console.log(items)
             })
             .catch(e => {
-                console.log(e);
+                e;
                 this.spinner = false;
             })
     },
     sendSms(phone, mess){
-        //console.log(phone);
-        //console.log(mess);
         let items = {
             "phone": phone,
             "mess": mess
         };
-        // let item = {
-        //   "phone": "+1 973-832-3170",
-        //   "mess": "message"
-        // };
+       
         Api.sendSms(items)
             .then(() => {
-                //console.log(items)
             })
             .catch(e => {
-                console.log(e);
+                e;
                 this.spinner = false;
             })
     },

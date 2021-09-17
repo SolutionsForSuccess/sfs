@@ -5,58 +5,37 @@
     <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel'})"></ion-back-button>
+              <ion-back-button default-href="/controlPanel" @click="$router.push({ name: 'ControlPanel', params: {viewSelected: 'Config'} })"></ion-back-button>
             </ion-buttons>
             <ion-label style="padding: 20px 100px;">
               <h1>{{title}}</h1>            
             </ion-label>
 
-            <ion-segment scrollable id="productSegment" @ionChange="segmentChanged($event.target.value)" :value="segmentValue" @input="value=segmentValue">
-               <ion-segment-button value="basic">
-                    <span>{{ $t('backoffice.options.manageBasicSettings') }}</span>
-                </ion-segment-button>                
-                <ion-segment-button value="about">
-                    <span>{{ $t('backoffice.options.manageAboutSettings') }}</span>
-                </ion-segment-button>
-                <ion-segment-button value="general">
-                    <span>{{$t('backoffice.form.titles.genaral')}}</span>
-                </ion-segment-button>
-                <!-- <ion-segment-button value="payments">
-                    <span>{{$t('backoffice.options.managePaymentSettings')}}</span>
-                </ion-segment-button> -->
-                <ion-segment-button v-if="viewCatering" value="catering">
-                    <span>{{$t('backoffice.form.fields.catering')}}</span>
-                </ion-segment-button>
-                <ion-segment-button v-if="viewReservation" value="reservation">
-                    <span>{{$t('backoffice.form.fields.reservation')}}</span>
-                </ion-segment-button>
-                <ion-segment-button v-if="viewLoyalty" value="loyalty">
-                    <span>{{$t('backoffice.form.fields.loyalty')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="tip">
-                    <span>{{$t('backoffice.form.titles.tip')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="zipCodes">
-                    <span>{{$t('backoffice.form.titles.zipCodes')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="ads">
-                    <span>Ads</span>
-                </ion-segment-button>
-                <ion-segment-button value="devices">
-                    <span>{{$t('backoffice.form.titles.devices')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="colors">
-                    <span>{{$t('backoffice.options.manageColourSettings')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="poskey">
-                    <span>{{$t('backoffice.options.manageKeySettings')}}</span>
-                </ion-segment-button>
-                <ion-segment-button value="backup">
-                    <span>Backup</span>
-                </ion-segment-button>
-            </ion-segment>
+            
           </ion-toolbar>
     </ion-header>
+
+    <ion-segment scrollable id="productSegment" @ionChange="segmentValue=$event.target.value" :value="segmentValue" >
+        
+        <ion-segment-button value="general">
+            <span>{{$t('backoffice.form.titles.genaral')}}</span>
+        </ion-segment-button>   
+
+        <ion-segment-button value="functionalities">
+            <span>{{$t('backoffice.options.manageFunSettings')}}</span>
+        </ion-segment-button>     
+
+        <ion-segment-button value="design">
+            <span>{{ $t('backoffice.options.manageDesign') }}</span>
+        </ion-segment-button>
+
+        <ion-segment-button value="more">
+            <span>{{$t('backoffice.options.manageMore')}}</span>
+        </ion-segment-button>
+
+        
+    </ion-segment>
+
     <br/>
 
      <ion-loading
@@ -64,291 +43,358 @@
         cssClass="my-custom-class"
         :message="$t('frontend.tooltips.loadRestaurant')"
     ></ion-loading>
-    <div >
+    <div :key="key">
       <!-- <ion-card> -->
-        <div v-if="basic">
+        <div v-if="segmentValue==='general'">
            <Basic/>
         </div>
-         <div v-if="about">
-            <About/>
-        </div>
-        <div v-if="general">
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.SelectPickHour')}}</ion-label>
-              <ion-checkbox slot="end" name="selectPickHour" 
-                    @ionChange="selectPickHour=$event.target.checked" 
-                    :checked="selectPickHour">
-              </ion-checkbox>
-            </ion-item>
-            <div v-if="selectPickHour">
+
+        <div v-if="segmentValue==='functionalities'">
+
+            
+            <ion-segment scrollable  @ionChange="functionalitySegment=$event.target.value" :value="functionalitySegment" >
+                <ion-segment-button value="general">
+                    <span>{{$t('backoffice.form.titles.genaral')}}</span>
+                </ion-segment-button>   
+
+                <ion-segment-button value="catering" v-if="viewCatering">
+                    <span>{{$t('backoffice.options.viewCateringOrders')}}</span>
+                </ion-segment-button>     
+
+                <ion-segment-button value="reservation" v-if="viewReservation">
+                    <span>{{ $t('backoffice.options.manageReservation') }}</span>
+                </ion-segment-button>
+            </ion-segment>
+
+            <div v-if="functionalitySegment==='general'">
                 <ion-item>
-                    <ion-label>{{$t('backoffice.form.fields.PickFrom')}}(HH:mm)</ion-label>
-                    <ion-datetime name="pickFrom" @ionChange="pickFrom = $event.target.value" 
-                                    v-bind:value="pickFrom"
-                                    :placeholder="$t('backoffice.form.titles.pickFromSelect')" display-format="HH:mm">
-                    </ion-datetime>
+                    <h1>General</h1>
                 </ion-item>
-                <ion-item>
-                    <ion-label>{{$t('backoffice.form.fields.PickTo')}}(HH:mm)</ion-label>
-                    <ion-datetime name="pickTo" @ionChange="pickTo = $event.target.value" 
-                                    v-bind:value="pickTo"
-                                    :placeholder="$t('backoffice.form.titles.pickToSelect')" display-format="HH:mm">
-                    </ion-datetime>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating">{{$t('backoffice.form.fields.MinTimeToCook')}}</ion-label>
-                    <ion-input type="number" name="minTimeToCook"
-                    @input="minTimeToCook = $event.target.value" 
-                    v-bind:value="minTimeToCook">
-                    </ion-input>
-                </ion-item>
+
+                <ion-row>
+                    <ion-col  size="12"   size-md="6" >
+                        <ion-list>
+                            
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.SelectPickHour')}}</ion-label>
+                                <ion-toggle slot="end" name="selectPickHour" 
+                                        @ionChange="selectPickHour=$event.target.checked" 
+                                        :checked="selectPickHour">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <div v-if="selectPickHour">
+                                <ion-item>
+                                    <ion-label>{{$t('backoffice.form.fields.PickFrom')}}(HH:mm)</ion-label>
+                                    <ion-datetime name="pickFrom" @ionChange="pickFrom = $event.target.value" 
+                                                    v-bind:value="pickFrom"
+                                                    :placeholder="$t('backoffice.form.titles.pickFromSelect')" display-format="HH:mm">
+                                    </ion-datetime>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label>{{$t('backoffice.form.fields.PickTo')}}(HH:mm)</ion-label>
+                                    <ion-datetime name="pickTo" @ionChange="pickTo = $event.target.value" 
+                                                    v-bind:value="pickTo"
+                                                    :placeholder="$t('backoffice.form.titles.pickToSelect')" display-format="HH:mm">
+                                    </ion-datetime>
+                                </ion-item>
+                                <ion-item>
+                                    <ion-label position="floating">{{$t('backoffice.form.fields.MinTimeToCook')}}</ion-label>
+                                    <ion-input type="number" name="minTimeToCook"
+                                    @input="minTimeToCook = $event.target.value" 
+                                    v-bind:value="minTimeToCook">
+                                    </ion-input>
+                                </ion-item>
+                            </div>
+
+                            <ion-item>
+                            <ion-label>{{$t('backoffice.form.fields.ShowCooker')}}</ion-label>
+                            <ion-toggle slot="end" name="showCooker" 
+                                    @ionChange="showCooker=$event.target.checked" 
+                                    :checked="showCooker">
+                            </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label >{{$t('backoffice.form.fields.showOtherRestaurant')}}</ion-label>
+                                <ion-toggle name="showOthersRestaurant" style="top: 12px;"
+                                @ionChange="showOthersRestaurant=$event.target.checked" 
+                                :checked ="showOthersRestaurant">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label >Has Delivery Payment </ion-label>
+                                <ion-toggle name="HasDeliveryPayment" style="top: 12px;" Key="other"
+                                    @ionChange="HasDeliveryPayment=$event.target.checked" 
+                                    :checked ="HasDeliveryPayment">
+                                </ion-toggle>
+                            
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.canViewGeoposition')}}</ion-label>
+                                <ion-toggle slot="end" name="canViewGeoposition" 
+                                        @ionChange="canViewGeoposition=$event.target.checked" 
+                                        :checked="canViewGeoposition">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.canViewRating')}}</ion-label>
+                                <ion-toggle slot="end" name="canViewRating" 
+                                        @ionChange="canViewRating=$event.target.checked" 
+                                        :checked="canViewRating">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.viewDelivery')}}</ion-label>
+                                <ion-toggle slot="end" name="viewDelivery" 
+                                        @ionChange="viewDelivery=$event.target.checked" 
+                                        :checked="viewDelivery">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.viewOnTable')}}</ion-label>
+                                <ion-toggle slot="end" name="viewOnTable" 
+                                        @ionChange="viewOnTable=$event.target.checked" 
+                                        :checked="viewOnTable">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.viewCurbside')}}</ion-label>
+                                <ion-toggle slot="end" name="viewCurbside" 
+                                        @ionChange="viewCurbside=$event.target.checked" 
+                                        :checked="viewCurbside">
+                                </ion-toggle>
+                            </ion-item>
+
+                    
+                        </ion-list>
+
+                    </ion-col>
+
+                    <ion-col  size="12"   size-md="6" >
+                        <ion-list>
+
+                            <ion-item>
+                                <ion-label position="floating">{{$t('backoffice.form.fields.tablePrefix')}}</ion-label>
+                                <ion-input type="text" name="tablePrefix"
+                                @input="tablePrefix = $event.target.value" 
+                                v-bind:value="tablePrefix">
+                                </ion-input>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label position="floating">{{$t('backoffice.form.fields.barPrefix')}}</ion-label>
+                                <ion-input type="text" name="barPrefix"
+                                @input="barPrefix = $event.target.value" 
+                                v-bind:value="barPrefix">
+                                </ion-input>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label position="floating">{{$t('backoffice.form.fields.roomPrefix')}}</ion-label>
+                                <ion-input type="text" name="roomPrefix"
+                                @input="roomPrefix = $event.target.value" 
+                                v-bind:value="roomPrefix">
+                                </ion-input>
+                            </ion-item>
+
+                            <ion-item>
+                                <h1>{{$t('backoffice.form.fields.tips')}}</h1>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.TipRequire')}}</ion-label>
+                                <ion-toggle slot="end" name="tipRequire" 
+                                        @ionChange="tipRequire=$event.target.checked" 
+                                        :checked="tipRequire">
+                                </ion-toggle>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label position="floating">{{$t('backoffice.form.fields.typeTip')}} (%)</ion-label>
+                                <ion-input id="newTip" type="number" @input="newTip = $event.target.value"></ion-input>
+                                <ion-button expand="full" color="primary" v-bind:value="newTip" @click="addTip(newTip)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                            </ion-item>
+
+                            <ion-item style="margin-left: 30px" v-for="tip in tips" v-bind:key="tip._id">
+                                <ion-label>{{tip}} %</ion-label>
+                                <ion-button expand="full" color="danger" @click="delTip(tip)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+
+                            <ion-item>
+                                <h1>{{$t('backoffice.form.fields.zipCodes')}}</h1>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label position="floating">{{$t('backoffice.form.fields.deliveryZone')}}</ion-label>
+                                <ion-textarea name="deliveryZone" 
+                                @input="deliveryZone = $event.target.value" 
+                                v-bind:value="deliveryZone">
+                                </ion-textarea>
+                            </ion-item>
+
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.typeZipCode')}}</ion-label>
+                                <ion-input type="number" @input="newCode = $event.target.value"></ion-input>
+                                <ion-button expand="full" color="primary" v-bind:value="newCode" @click="addCode(newCode, IsCatering, cateringPrice)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                            </ion-item>
+                            
+                            <ion-item style="margin-left: 30px" v-for="zipCode in zipCodes" v-bind:key="zipCode._id">
+                                <ion-label>{{zipCode.ZipCode}} - {{getCityAndState(zipCode.ZipCode)}}</ion-label>
+                                <ion-button expand="full" color="danger" @click="delCode(zipCode)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+            
+                        </ion-list>     
+
+                    </ion-col>
+                </ion-row>
             </div>
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.ShowCooker')}}</ion-label>
-              <ion-checkbox slot="end" name="showCooker" 
-                    @ionChange="showCooker=$event.target.checked" 
-                    :checked="showCooker">
-              </ion-checkbox>
-            </ion-item>
-            <ion-item>
-                <ion-label >{{$t('backoffice.form.fields.showOtherRestaurant')}}
-                <ion-toggle name="showOthersRestaurant" style="top: 12px;"
-                @ionChange="showOthersRestaurant=$event.target.checked" 
-                :checked ="showOthersRestaurant">
-                </ion-toggle></ion-label>
-            </ion-item>
-            <ion-item>
-                <ion-label >Has Delivery Payment
-                <ion-toggle name="HasDeliveryPayment" style="top: 12px;" Key="other"
-                    @ionChange="HasDeliveryPayment=$event.target.checked" 
-                    :checked ="HasDeliveryPayment">
-                </ion-toggle>
-                </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.canViewGeoposition')}}</ion-label>
-              <ion-checkbox slot="end" name="canViewGeoposition" 
-                    @ionChange="canViewGeoposition=$event.target.checked" 
-                    :checked="canViewGeoposition">
-              </ion-checkbox>
-            </ion-item>
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.canViewRating')}}</ion-label>
-              <ion-checkbox slot="end" name="canViewRating" 
-                    @ionChange="canViewRating=$event.target.checked" 
-                    :checked="canViewRating">
-              </ion-checkbox>
-            </ion-item>
 
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.viewDelivery')}}</ion-label>
-              <ion-checkbox slot="end" name="viewDelivery" 
-                    @ionChange="viewDelivery=$event.target.checked" 
-                    :checked="viewDelivery">
-              </ion-checkbox>
-            </ion-item>
+            <!--catering -->
+            <div v-if="functionalitySegment==='catering' && viewCatering"> 
 
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.viewOnTable')}}</ion-label>
-              <ion-checkbox slot="end" name="viewOnTable" 
-                    @ionChange="viewOnTable=$event.target.checked" 
-                    :checked="viewOnTable">
-              </ion-checkbox>
-            </ion-item>
+                    <ion-item>
+                        <h1>{{$t('backoffice.form.fields.catering')}}</h1>
+                    </ion-item>
 
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.viewCurbside')}}</ion-label>
-              <ion-checkbox slot="end" name="viewCurbside" 
-                    @ionChange="viewCurbside=$event.target.checked" 
-                    :checked="viewCurbside">
-              </ion-checkbox>
-            </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.minAmoutCatering')}}</ion-label>
+                        <ion-input type="number" name="minAmoutCatering"
+                            @input="minAmoutCatering = $event.target.value" 
+                            v-bind:value="minAmoutCatering">
+                        </ion-input>
+                    </ion-item>
 
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.tablePrefix')}}</ion-label>
-                <ion-input type="text" name="tablePrefix"
-                @input="tablePrefix = $event.target.value" 
-                v-bind:value="tablePrefix">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.barPrefix')}}</ion-label>
-                <ion-input type="text" name="barPrefix"
-                @input="barPrefix = $event.target.value" 
-                v-bind:value="barPrefix">
-                </ion-input>
-            </ion-item>
-            <ion-item>
-                <ion-label position="floating">{{$t('backoffice.form.fields.roomPrefix')}}</ion-label>
-                <ion-input type="text" name="roomPrefix"
-                @input="roomPrefix = $event.target.value" 
-                v-bind:value="roomPrefix">
-                </ion-input>
-            </ion-item>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <div v-if="payments">
-           <Payments/>
-        </div>
-        <div v-if="catering">
-        <!-- <ion-item>
-           <ion-label>{{$t('backoffice.form.fields.viewCatering')}}</ion-label>
-           <ion-checkbox slot="end" name="viewCatering" 
-                @ionChange="viewCatering=$event.target.checked"
-                :checked="viewCatering">
-          </ion-checkbox>
-        </ion-item> -->
-        <div v-if="viewCatering" style="margin-left: 30px">
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.minAmountCateringDelivery')}}</ion-label>
+                        <ion-input type="number" name="minAmountCateringDelivery"
+                            @input="minAmountCateringDelivery = $event.target.value" 
+                            v-bind:value="minAmountCateringDelivery">
+                        </ion-input>
+                    </ion-item>
 
-              <ion-item>
-                  <h1>{{$t('backoffice.form.fields.catering')}}</h1>
-              </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.marginDays')}}</ion-label>
+                        <ion-input type="number" name="cateringMarginDays"
+                            @input="cateringMarginDays = $event.target.value" 
+                            v-bind:value="cateringMarginDays">
+                        </ion-input>
+                    </ion-item>
 
-              <ion-item>
-                  <ion-label position="floating">{{$t('backoffice.form.fields.minAmoutCatering')}}</ion-label>
-                  <ion-input type="number" name="minAmoutCatering"
-                    @input="minAmoutCatering = $event.target.value" 
-                    v-bind:value="minAmoutCatering">
-                  </ion-input>
-              </ion-item>
+                    <ion-item>
+                        <ion-label>{{$t('backoffice.form.fields.partialPay')}}</ion-label>
+                        <ion-toggle slot="end" name="partialPay" 
+                                @ionChange="partialPay=$event.target.checked" 
+                                :checked="partialPay">
+                        </ion-toggle>
+                    </ion-item>
 
-              <ion-item>
-                  <ion-label position="floating">{{$t('backoffice.form.fields.minAmountCateringDelivery')}}</ion-label>
-                  <ion-input type="number" name="minAmountCateringDelivery"
-                    @input="minAmountCateringDelivery = $event.target.value" 
-                    v-bind:value="minAmountCateringDelivery">
-                  </ion-input>
-              </ion-item>
+                    <ion-item>
+                        <ion-label>{{$t('backoffice.form.fields.payForQuotation')}}</ion-label>
+                        <ion-toggle slot="end" name="payForQuotation" 
+                                @ionChange="payForQuotation=$event.target.checked" 
+                                :checked="payForQuotation">
+                        </ion-toggle>
+                    </ion-item>
 
-              <ion-item>
-                  <ion-label position="floating">{{$t('backoffice.form.fields.marginDays')}}</ion-label>
-                  <ion-input type="number" name="cateringMarginDays"
-                    @input="cateringMarginDays = $event.target.value" 
-                    v-bind:value="cateringMarginDays">
-                  </ion-input>
-              </ion-item>
+                    <ion-item v-if="payForQuotation">
+                        <ion-label position="floating">{{$t('backoffice.form.fields.percentPayForQuotation')}}</ion-label>
+                        <ion-input type="number" name="percentPayForQuotation"
+                            @input="percentPayForQuotation = $event.target.value" 
+                            v-bind:value="percentPayForQuotation">
+                        </ion-input>
+                    </ion-item>
 
-              <ion-item>
-                  <ion-label>{{$t('backoffice.form.fields.partialPay')}}</ion-label>
-                  <ion-checkbox slot="end" name="partialPay" 
-                        @ionChange="partialPay=$event.target.checked" 
-                        :checked="partialPay">
-                  </ion-checkbox>
-              </ion-item>
+                    <div style="margin-left: 30px">
+                        <ion-list>
+                            <ion-item>
+                                <h1>{{$t('backoffice.form.fields.cateringStates')}}</h1>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.typeState')}}</ion-label>
+                                <ion-input id='newState' type="text" @input="newState = $event.target.value"></ion-input>
+                                <ion-button expand="full" color="primary" v-bind:value="newState" @click="addState(newState)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                            </ion-item>
+                            <ion-item style="margin-left: 30px" v-for="state in states" v-bind:key="state._id">
+                                <ion-label>{{state}}</ion-label>
+                                <ion-button expand="full" color="danger" @click="delState(state)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+                        </ion-list>
+                    </div>
 
-              <ion-item>
-                  <ion-label>{{$t('backoffice.form.fields.payForQuotation')}}</ion-label>
-                  <ion-checkbox slot="end" name="payForQuotation" 
-                        @ionChange="payForQuotation=$event.target.checked" 
-                        :checked="payForQuotation">
-                  </ion-checkbox>
-              </ion-item>
+                    <div style="margin-left: 30px">
+                        <ion-list>
+                            <ion-item>
+                                <h1>{{$t('backoffice.form.fields.zipCodesExclude')}}</h1>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.typeZipCode')}}</ion-label>
+                                <ion-input id='newZipcodeExclude' type="number" @input="newZipcodeState = $event.target.value"></ion-input>
+                                <ion-button expand="full" color="primary" v-bind:value="newZipcodeState" @click="addZipcodeExclude(newZipcodeState)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                            </ion-item>
+                            <ion-item style="margin-left: 30px" v-for="zipcode in zipcodesExcludes" v-bind:key="zipcodesExcludes.indexOf(zipcode)">
+                                <ion-label>{{zipcode}} - {{getCityAndState(zipcode)}}</ion-label>
+                                <ion-button expand="full" color="danger" @click="delZipcodeExclude(zipcode)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+                        </ion-list>
+                    </div>
 
-              <ion-item v-if="payForQuotation">
-                  <ion-label position="floating">{{$t('backoffice.form.fields.percentPayForQuotation')}}</ion-label>
-                  <ion-input type="number" name="percentPayForQuotation"
-                    @input="percentPayForQuotation = $event.target.value" 
-                    v-bind:value="percentPayForQuotation">
-                  </ion-input>
-              </ion-item>
+                    <div style="margin-left: 30px">
+                        <ion-list>
+                            <ion-item>
+                                <h1>{{$t('backoffice.form.fields.cateringEvents')}}</h1>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label>{{$t('backoffice.form.fields.typeEventName')}}</ion-label>
+                                <ion-input id='newEvent' type="text" @input="newEvent = $event.target.value"></ion-input>
+                                <ion-button expand="full" color="primary" v-bind:value="newEvent" @click="addEvent(newEvent)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
+                            </ion-item>
+                            <ion-item style="margin-left: 30px" v-for="event in events" v-bind:key="events.indexOf(event)">
+                                <ion-label>{{event}}</ion-label>
+                                <ion-button expand="full" color="danger" @click="delEvent(event)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+                        </ion-list>
+                    </div>
 
-              <div style="margin-left: 30px">
-                  <ion-list>
-                      <ion-item>
-                          <h1>{{$t('backoffice.form.fields.cateringStates')}}</h1>
-                      </ion-item>
-                      <ion-item>
-                        <ion-label>{{$t('backoffice.form.fields.typeState')}}</ion-label>
-                        <ion-input id='newState' type="text" @input="newState = $event.target.value"></ion-input>
-                        <ion-button expand="full" color="primary" v-bind:value="newState" @click="addState(newState)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                      </ion-item>
-                      <ion-item style="margin-left: 30px" v-for="state in states" v-bind:key="state._id">
-                        <ion-label>{{state}}</ion-label>
-                        <ion-button expand="full" color="danger" @click="delState(state)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                      </ion-item>
-                  </ion-list>
-              </div>
+            </div>
 
-              <div style="margin-left: 30px">
-                  <ion-list>
-                      <ion-item>
-                          <h1>{{$t('backoffice.form.fields.zipCodesExclude')}}</h1>
-                      </ion-item>
-                      <ion-item>
-                        <ion-label>{{$t('backoffice.form.fields.typeZipCode')}}</ion-label>
-                        <ion-input id='newZipcodeExclude' type="number" @input="newZipcodeState = $event.target.value"></ion-input>
-                        <ion-button expand="full" color="primary" v-bind:value="newZipcodeState" @click="addZipcodeExclude(newZipcodeState)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                      </ion-item>
-                      <ion-item style="margin-left: 30px" v-for="zipcode in zipcodesExcludes" v-bind:key="zipcodesExcludes.indexOf(zipcode)">
-                        <ion-label>{{zipcode}} - {{getCityAndState(zipcode)}}</ion-label>
-                        <ion-button expand="full" color="danger" @click="delZipcodeExclude(zipcode)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                      </ion-item>
-                  </ion-list>
-              </div>
-
-              <div style="margin-left: 30px">
-                  <ion-list>
-                      <ion-item>
-                          <h1>{{$t('backoffice.form.fields.cateringEvents')}}</h1>
-                      </ion-item>
-                      <ion-item>
-                        <ion-label>{{$t('backoffice.form.fields.typeEventName')}}</ion-label>
-                        <ion-input id='newEvent' type="text" @input="newEvent = $event.target.value"></ion-input>
-                        <ion-button expand="full" color="primary" v-bind:value="newEvent" @click="addEvent(newEvent)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                      </ion-item>
-                      <ion-item style="margin-left: 30px" v-for="event in events" v-bind:key="events.indexOf(event)">
-                        <ion-label>{{event}}</ion-label>
-                        <ion-button expand="full" color="danger" @click="delEvent(event)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                      </ion-item>
-                  </ion-list>
-              </div>
-
-        </div>
-        <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Reservation -->
-        <div v-if="reservation">
-            <!-- <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.viewReservation')}}</ion-label>
-              <ion-checkbox slot="end" name="viewReservation" 
-                    @ionChange="viewReservation=$event.target.checked"
-                    :checked="viewReservation">
-              </ion-checkbox>
-            </ion-item> -->
-
-          
-
+            <!-- Reservation -->
+            <div v-if="functionalitySegment==='reservation' && viewReservation">
             
-            <ion-item v-if="$store.state.restaurantActive.RestaurantBussines">
-                <ion-label >{{$t('backoffice.form.fields.reservationByTable')}}
-                <ion-toggle name="reservationByTable" style="top: 12px;"
-                @ionChange="reservationByTable=$event.target.checked" 
-                :checked ="reservationByTable">
-                </ion-toggle></ion-label>
-            </ion-item>
-
-            <ion-item v-if="$store.state.restaurantActive.ServiceBussines">
-                <ion-label >{{$t('backoffice.form.fields.reservationByStaff')}}
-                <ion-toggle name="reservationByStaff" style="top: 12px;"
-                @ionChange="reservationByStaff=$event.target.checked" 
-                :checked ="reservationByStaff">
-                </ion-toggle></ion-label>
-            </ion-item>
-
-            
-
-            <ion-item>
-                <ion-label >{{$t('backoffice.form.fields.tablesChoose')}}
-                <ion-toggle name="tablesChoose" style="top: 12px;"
-                @ionChange="tablesChoose=$event.target.checked" 
-                :checked ="tablesChoose">
-                </ion-toggle></ion-label>
-            </ion-item>
-
-            <div v-if="viewReservation " style="margin-left: 30px">
                 <ion-item>
                     <h1>{{$t('backoffice.form.fields.reservation')}}</h1>
                 </ion-item>
+
+                <ion-item v-if="$store.state.restaurantActive.RestaurantBussines">
+                    <ion-label >{{$t('backoffice.form.fields.reservationByTable')}}</ion-label>
+                    <ion-toggle name="reservationByTable" style="top: 12px;"
+                    @ionChange="reservationByTable=$event.target.checked" 
+                    :checked ="reservationByTable">
+                    </ion-toggle>
+                </ion-item>
+
+                <ion-item v-if="$store.state.restaurantActive.ServiceBussines">
+                    <ion-label >{{$t('backoffice.form.fields.reservationByStaff')}}</ion-label>
+                    <ion-toggle name="reservationByStaff" style="top: 12px;"
+                    @ionChange="reservationByStaff=$event.target.checked" 
+                    :checked ="reservationByStaff">
+                    </ion-toggle>
+                </ion-item>
+
+                <ion-item>
+                    <ion-label >{{$t('backoffice.form.fields.tablesChoose')}}</ion-label>
+                    <ion-toggle name="tablesChoose" style="top: 12px;"
+                    @ionChange="tablesChoose=$event.target.checked" 
+                    :checked ="tablesChoose">
+                    </ion-toggle>
+                </ion-item>
+
                 <ion-item>
                     <ion-label position="floating">{{$t('backoffice.form.fields.minDayToReservation')}}</ion-label>
                     <ion-input type="number" name="minDayToReservation"
@@ -356,333 +402,333 @@
                     v-bind:value="minDayToReservation">
                     </ion-input>
                 </ion-item>
+
                 <ion-item>
                     <ion-label>{{$t('backoffice.form.fields.viewCustomerReservation')}}</ion-label>
-                    <ion-checkbox slot="end" name="viewCustomerReservation: " 
-                          @ionChange="viewCustomerReservation = $event.target.checked"
-                          :checked="viewCustomerReservation">
-                    </ion-checkbox>
+                    <ion-toggle slot="end" name="viewCustomerReservation: " 
+                        @ionChange="viewCustomerReservation = $event.target.checked"
+                        :checked="viewCustomerReservation">
+                    </ion-toggle>
                 </ion-item>
+
                 <ion-item>
                     <ion-label>{{$t('backoffice.form.fields.payForQuotation')}}</ion-label>
-                    <ion-checkbox slot="end" name="payForReservarionQuotation: " 
-                          @ionChange="payForReservarionQuotation=$event.target.checked" 
-                          :checked="payForReservarionQuotation">
-                    </ion-checkbox>
+                    <ion-toggle slot="end" name="payForReservarionQuotation: " 
+                        @ionChange="payForReservarionQuotation=$event.target.checked" 
+                        :checked="payForReservarionQuotation">
+                    </ion-toggle>
                 </ion-item>
 
                 <ion-item v-if="payForReservarionQuotation">
                     <ion-label position="floating"><span style="color: red">*</span>{{$t('backoffice.form.fields.percentPayForQuotation')}}</ion-label>
                     <ion-input type="number" name="amountPayForReservarionQuotation"
-                      @input="amountPayForReservarionQuotation = $event.target.value" 
-                      v-bind:value="amountPayForReservarionQuotation">
+                    @input="amountPayForReservarionQuotation = $event.target.value" 
+                    v-bind:value="amountPayForReservarionQuotation">
                     </ion-input>
                 </ion-item>
+
                 <ion-item>
                     <ion-label>{{$t('backoffice.form.fields.sameHourForAllDays')}}</ion-label>
-                    <ion-checkbox slot="end" name="sameHourForAllDays: " 
-                          @ionChange="sameHourForAllDays = $event.target.checked; activeMonday = true"
-                          :checked="sameHourForAllDays">
-                    </ion-checkbox>
+                    <ion-toggle slot="end" name="sameHourForAllDays: " 
+                        @ionChange="sameHourForAllDays = $event.target.checked; activeMonday = true"
+                        :checked="sameHourForAllDays">
+                    </ion-toggle>
                 </ion-item>
+                
                 <div style="display: inherit">
                     <ion-item>
-                          <ion-checkbox v-if="!sameHourForAllDays" style="border-bottom: 1px solid lightgray; margin:5px" name="activeMonday" 
+                        <ion-toggle v-if="!sameHourForAllDays" style="border-bottom: 1px solid lightgray; margin:5px" name="activeMonday" 
                                 @ionChange="activeMonday = $event.target.checked"
                                 :checked="activeMonday">
-                          </ion-checkbox>
-                          <ion-label v-if="!sameHourForAllDays">{{$t('backoffice.form.fields.monday')}}</ion-label>
-                          <ion-label v-else>{{$t('backoffice.form.fields.allDays')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="mondayOpenHour" @ionChange="mondayOpenHour = $event.target.value" 
-                                          v-bind:value="mondayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeMonday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="mondayCloseHour" @ionChange="mondayCloseHour = $event.target.value" 
-                                          v-bind:value="mondayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeMonday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label v-if="!sameHourForAllDays">{{$t('backoffice.form.fields.monday')}}</ion-label>
+                        <ion-label v-else>{{$t('backoffice.form.fields.allDays')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="mondayOpenHour" @ionChange="mondayOpenHour = $event.target.value" 
+                                        v-bind:value="mondayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeMonday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="mondayCloseHour" @ionChange="mondayCloseHour = $event.target.value" 
+                                        v-bind:value="mondayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeMonday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeTuesday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeTuesday" 
                                 @ionChange="activeTuesday = $event.target.checked"
                                 :checked="activeTuesday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.tuesday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="tuesdayOpenHour" @ionChange="tuesdayOpenHour = $event.target.value" 
-                                          v-bind:value="tuesdayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeTuesday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="tuesdayCloseHour" @ionChange="tuesdayCloseHour = $event.target.value" 
-                                          v-bind:value="tuesdayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeTuesday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.tuesday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="tuesdayOpenHour" @ionChange="tuesdayOpenHour = $event.target.value" 
+                                        v-bind:value="tuesdayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeTuesday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="tuesdayCloseHour" @ionChange="tuesdayCloseHour = $event.target.value" 
+                                        v-bind:value="tuesdayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeTuesday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeWednesday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeWednesday" 
                                 @ionChange="activeWednesday = $event.target.checked"
                                 :checked="activeWednesday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.wednesday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="wednesdayOpenHour" @ionChange="wednesdayOpenHour = $event.target.value" 
-                                          v-bind:value="wednesdayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeWednesday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="wednesdayCloseHour" @ionChange="wednesdayCloseHour = $event.target.value" 
-                                          v-bind:value="wednesdayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeWednesday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.wednesday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="wednesdayOpenHour" @ionChange="wednesdayOpenHour = $event.target.value" 
+                                        v-bind:value="wednesdayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeWednesday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="wednesdayCloseHour" @ionChange="wednesdayCloseHour = $event.target.value" 
+                                        v-bind:value="wednesdayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeWednesday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeThursday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeThursday" 
                                 @ionChange="activeThursday = $event.target.checked"
                                 :checked="activeThursday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.thursday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="thursdayOpenHour" @ionChange="thursdayOpenHour = $event.target.value" 
-                                          v-bind:value="thursdayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeThursday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="thursdayCloseHour" @ionChange="thursdayCloseHour = $event.target.value" 
-                                          v-bind:value="thursdayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeThursday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.thursday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="thursdayOpenHour" @ionChange="thursdayOpenHour = $event.target.value" 
+                                        v-bind:value="thursdayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeThursday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="thursdayCloseHour" @ionChange="thursdayCloseHour = $event.target.value" 
+                                        v-bind:value="thursdayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeThursday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeFriday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeFriday" 
                                 @ionChange="activeFriday = $event.target.checked"
                                 :checked="activeFriday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.friday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="fridayOpenHour" @ionChange="fridayOpenHour = $event.target.value" 
-                                          v-bind:value="fridayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a" :disabled="!activeFriday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="fridayCloseHour" @ionChange="fridayCloseHour = $event.target.value" 
-                                          v-bind:value="fridayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a" :disabled="!activeFriday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.friday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="fridayOpenHour" @ionChange="fridayOpenHour = $event.target.value" 
+                                        v-bind:value="fridayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a" :disabled="!activeFriday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="fridayCloseHour" @ionChange="fridayCloseHour = $event.target.value" 
+                                        v-bind:value="fridayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a" :disabled="!activeFriday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeSaturday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeSaturday" 
                                 @ionChange="activeSaturday = $event.target.checked"
                                 :checked="activeSaturday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.saturday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="saturdayOpenHour" @ionChange="saturdayOpenHour = $event.target.value" 
-                                          v-bind:value="saturdayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeSaturday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="saturdayCloseHour" @ionChange="saturdayCloseHour = $event.target.value" 
-                                          v-bind:value="saturdayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeSaturday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.saturday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="saturdayOpenHour" @ionChange="saturdayOpenHour = $event.target.value" 
+                                        v-bind:value="saturdayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeSaturday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="saturdayCloseHour" @ionChange="saturdayCloseHour = $event.target.value" 
+                                        v-bind:value="saturdayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeSaturday">
+                        </ion-datetime>
                     </ion-item>
                     <ion-item v-if="!sameHourForAllDays">
-                          <ion-checkbox style="border-bottom: 1px solid lightgray; margin:5px" name="activeSunday" 
+                        <ion-toggle style="border-bottom: 1px solid lightgray; margin:5px" name="activeSunday" 
                                 @ionChange="activeSunday = $event.target.checked"
                                 :checked="activeSunday">
-                          </ion-checkbox>
-                          <ion-label>{{$t('backoffice.form.fields.sunday')}}</ion-label>
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="sundayOpenHour" @ionChange="sundayOpenHour = $event.target.value" 
-                                          v-bind:value="sundayOpenHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeSunday">
-                          </ion-datetime>
-                          -
-                          <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="sundayCloseHour" @ionChange="sundayCloseHour = $event.target.value" 
-                                          v-bind:value="sundayCloseHour"
-                                          placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
-                                          :disabled="!activeSunday">
-                          </ion-datetime>
+                        </ion-toggle>
+                        <ion-label>{{$t('backoffice.form.fields.sunday')}}</ion-label>
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="sundayOpenHour" @ionChange="sundayOpenHour = $event.target.value" 
+                                        v-bind:value="sundayOpenHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeSunday">
+                        </ion-datetime>
+                        -
+                        <ion-datetime style="border-bottom: 1px solid lightgray; margin:5px" name="sundayCloseHour" @ionChange="sundayCloseHour = $event.target.value" 
+                                        v-bind:value="sundayCloseHour"
+                                        placeholder="Select" display-format="h:mm a" picker-format="h:mm a"
+                                        :disabled="!activeSunday">
+                        </ion-datetime>
                     </ion-item>
                 </div>
             </div>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Loyalty Program -->
-        <div v-if="loyalty">
-            <!-- <ion-item>
-                <ion-label>{{$t('backoffice.form.fields.viewLoyalty')}}</ion-label>
-                <ion-checkbox slot="end" name="viewLoyalty" 
-                        @ionChange="viewLoyalty=$event.target.checked"
-                        :checked="viewLoyalty">
-                </ion-checkbox>
-            </ion-item> -->
-            <div v-if="viewLoyalty">
-                <ion-item>
-                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyMinPointToBuy')}}</ion-label>
-                    <ion-input type="number" name="loyaltyMinPointToBuy"
-                        @input="loyaltyMinPointToBuy = $event.target.value" 
-                        v-bind:value="loyaltyMinPointToBuy">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyExpirationMonths')}}</ion-label>
-                    <ion-input type="number" name="loyaltyExpirationMonths"
-                        @input="loyaltyExpirationMonths = $event.target.value" 
-                        v-bind:value="loyaltyExpirationMonths">
-                    </ion-input>
-                </ion-item>
-                <ion-item>
-                    <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyPointMoney')}}</ion-label>
-                    <ion-input type="number" name="loyaltyPointMoney"
-                        @input="loyaltyPointMoney = $event.target.value" 
-                        v-bind:value="loyaltyPointMoney">
-                    </ion-input>
-                </ion-item>
-                <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+
+            <!-- Loyalty Program -->
+            <div v-if="0">
+                <!-- <ion-item>
+                    <ion-label>{{$t('backoffice.form.fields.viewLoyalty')}}</ion-label>
+                    <ion-checkbox slot="end" name="viewLoyalty" 
+                            @ionChange="viewLoyalty=$event.target.checked"
+                            :checked="viewLoyalty">
+                    </ion-checkbox>
+                </ion-item> -->
+                <div v-if="viewLoyalty">
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyMinPointToBuy')}}</ion-label>
+                        <ion-input type="number" name="loyaltyMinPointToBuy"
+                            @input="loyaltyMinPointToBuy = $event.target.value" 
+                            v-bind:value="loyaltyMinPointToBuy">
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyExpirationMonths')}}</ion-label>
+                        <ion-input type="number" name="loyaltyExpirationMonths"
+                            @input="loyaltyExpirationMonths = $event.target.value" 
+                            v-bind:value="loyaltyExpirationMonths">
+                        </ion-input>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label position="floating">{{$t('backoffice.form.fields.loyaltyPointMoney')}}</ion-label>
+                        <ion-input type="number" name="loyaltyPointMoney"
+                            @input="loyaltyPointMoney = $event.target.value" 
+                            v-bind:value="loyaltyPointMoney">
+                        </ion-input>
+                    </ion-item>
+                </div>
             </div>
+       
         </div>
-        <!-- Tip -->
-        <div v-if="tip">
-            <ion-item>
-              <ion-label>{{$t('backoffice.form.fields.TipRequire')}}</ion-label>
-              <ion-checkbox slot="end" name="tipRequire" 
-                    @ionChange="tipRequire=$event.target.checked" 
-                    :checked="tipRequire">
-              </ion-checkbox>
-            </ion-item>
 
-            <div style="margin-left: 30px">
-                <ion-list>
-                    <ion-item>
-                        <h1>{{$t('backoffice.form.fields.tips')}}</h1>
-                    </ion-item>
-                    <ion-item>
-                      <ion-label>{{$t('backoffice.form.fields.typeTip')}} (%)</ion-label>
-                      <ion-input id="newTip" type="number" @input="newTip = $event.target.value"></ion-input>
-                      <ion-button expand="full" color="primary" v-bind:value="newTip" @click="addTip(newTip)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                    </ion-item>
-                    <ion-item style="margin-left: 30px" v-for="tip in tips" v-bind:key="tip._id">
-                      <ion-label>{{tip}} %</ion-label>
-                      <ion-button expand="full" color="danger" @click="delTip(tip)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                    </ion-item>
-                </ion-list>
-            </div>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Zipcodes -->
-        <div v-if="zipCode">
-          <div style="margin-left: 30px">
-              <ion-list>
-                  <ion-item>
-                      <h1>{{$t('backoffice.form.fields.zipCodes')}}</h1>
-                  </ion-item>
-                  <ion-item>
-                    <ion-label>{{$t('backoffice.form.fields.typeZipCode')}}</ion-label>
-                    <ion-input type="number" @input="newCode = $event.target.value"></ion-input>
-                    <ion-button expand="full" color="primary" v-bind:value="newCode" @click="addCode(newCode, IsCatering, cateringPrice)"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                  </ion-item>
-                  <ion-item style="margin-left: 30px" v-for="zipCode in zipCodes" v-bind:key="zipCode._id">
-                    <ion-label>{{zipCode.ZipCode}} - {{getCityAndState(zipCode.ZipCode)}}</ion-label>
-                    <ion-button expand="full" color="danger" @click="delCode(zipCode)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                  </ion-item>
-                  <ion-item>
-                        <ion-label position="floating">{{$t('backoffice.form.fields.deliveryZone')}}</ion-label>
-                        <ion-textarea name="deliveryZone" 
-                        @input="deliveryZone = $event.target.value" 
-                        v-bind:value="deliveryZone">
-                        </ion-textarea>
-                    </ion-item>
-              </ion-list>
-              
-          </div>
-          <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
-        </div>
-        <!-- Ads -->
-        <div v-if="ads">
-            <ManageAds />
-        </div>
-        <!-- Devices -->
-        <div v-if="devices">
+         <div v-if="segmentValue==='design'">
+              <ion-segment scrollable  @ionChange="designSegment=$event.target.value" :value="designSegment" >
+                <ion-segment-button value="colors">
+                    <span>{{$t('backoffice.options.manageColourSettings')}}</span>
+                </ion-segment-button>   
 
-            <div style="margin-left: 30px">
-                <ion-list>
-                    <!-- <ion-item>
-                        <h1>{{$t('backoffice.form.fields.zipCodes')}}</h1>
-                    </ion-item> -->
-                    <ion-item>
-                        <!-- <ion-label>Device Name</ion-label> -->
-                        <ion-input style="border: 1px solid darkred; margin-left:5px; border-radius: 3px" placeholder="Device name" type="text" @input="newDevName = $event.target.value" :value="newDevName"></ion-input>
+                <ion-segment-button value="sliders">
+                    <span>{{$t('backoffice.options.manageAboutSettings')}}</span>
+                </ion-segment-button>     
 
-                        <!-- <ion-label>Device Company</ion-label> -->
-                        <ion-select style="border: 1px solid darkred; margin-left:5px; border-radius: 3px" interface="popover" icon="add"
-                            :ok-text="$t('backoffice.form.messages.buttons.ok')"
-                            :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" 
-                            :value="newDevCompany"
-                            placeholder="Seleccione una compañía"
-                            @ionChange="newDevCompany = $event.target.value">
-                                <ion-select-option key="pax" value="pax">PAX</ion-select-option>
-                                <ion-select-option key="teamsable" value="teamsable">Teamable</ion-select-option>
-                        </ion-select>
-
-                        <!-- <ion-label>IP Address</ion-label> -->
-                        <ion-input style="border: 1px solid darkred; margin-left:5px; border-radius: 3px" placeholder="Ip Address" type="text" @input="newDevIpAddress = $event.target.value" :value="newDevIpAddress"></ion-input>
-
-                        <!-- <ion-label>Port</ion-label> -->
-                        <ion-input style="border: 1px solid darkred; margin-left:5px; border-radius: 3px" placeholder="Port" type="number" @input="newDevPort = $event.target.value" :value="newDevPort"></ion-input>
-
-                        <ion-button expand="full" color="primary" :disabled="newDevName === '' || newDevCompany === '' || newDevIpAddress === '' || newDevPort === ''" @click="addDevice()"><ion-icon slot="icon-only" name="add"></ion-icon></ion-button>
-                    </ion-item>
-                    <ion-item style="margin-left: 30px" v-for="device in DeviceList" v-bind:key="DeviceList.indexOf(device)">
-                        <ion-label>{{device.Name}} - {{device.Company}} | {{device.Ip}}:{{device.Port}}</ion-label>
-                        <ion-button expand="full" color="danger" @click="delDevice(device)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
-                    </ion-item>
-                </ion-list>
-            </div>
-            <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button>
+                <ion-segment-button value="ads">
+                    <span>{{ $t('frontend.menu.ads') }}</span>
+                </ion-segment-button>
+            </ion-segment>
+            
+            <About v-if="designSegment==='sliders'"/>
+            <ManageAds v-if="designSegment==='ads'"/>
+            <Colores v-if="designSegment==='colors'"/>
         </div>
-        <div v-if="colors">
-           <Colores/>
-        </div>
-        <div v-if="poskey"> 
-            <PosKey/> 
-        </div>
-        <!-- Backups -->
-        <div v-if="backup">
-            <div style="margin-left: 30px">
-                <ion-list>
-                    <!-- <ion-item>
-                      <h1>{{$t('backoffice.form.titles.backups')}} Backups</h1>
-                    </ion-item> -->
-                    <ion-item>
-                        <ion-label>Make backup and download</ion-label>
-                        <ion-label slot="end"><ion-button color="primary" @click="doBackup()">Backup</ion-button></ion-label>
-                    </ion-item>
-                    <ion-item>
-                        <ion-label>Restore backup from Portal</ion-label>
-                        <ion-label slot="end"><ion-button color="danger" @click="doRestoreFromPortal()">Restore</ion-button></ion-label>
-                    </ion-item>
-                    <ion-item>
-                        <div>
-                            <ion-label>Restore backup from file</ion-label>
+
+        <div v-if="segmentValue==='more'">
+              <!-- Devices -->
+            <div v-if="1">
+               <ion-item>
+                    <h1>Devices</h1>
+                    <ion-button @click="showMoreDevice=!showMoreDevice"><ion-icon name="add"></ion-icon></ion-button>
+                </ion-item>
+                    <div>
+
+                        <div  v-if="showMoreDevice">
+                            <ion-row  >
+                                <ion-col size="6" >                      
+                                    <!-- <ion-label>Device Company</ion-label> -->
+                                    <ion-item>
+                                        <ion-label position="floating">Compañía<strong style="color: red">*</strong></ion-label> 
+                                    <ion-select  interface="popover" icon="add"                           
+                                        :value="newDevCompany"                           
+                                        @ionChange.stop="newDevCompany = $event.target.value">
+                                            <ion-select-option key="pax" value="pax">PAX</ion-select-option>
+                                            <ion-select-option key="teamsable" value="teamsable">Teamable</ion-select-option>
+                                    </ion-select>
+                                    </ion-item>
+                                    
+
+                                    <ion-item>
+                                        <ion-label position="floating">Device name<strong style="color: red">*</strong></ion-label> 
+                                        <ion-input   type="text" @input="newDevName = $event.target.value" :value="newDevName"></ion-input>
+                                    </ion-item>
+
+                                    <ion-item>
+                                        <ion-label >SSL</ion-label> 
+                                        <ion-toggle slot="end"   @ionChange="sslDev=$event.target.checked"   :checked="sslDev"  ></ion-toggle> 
+                                    </ion-item>
+                                
+                                </ion-col>
+
+                                <ion-col size="6">
+                                        
+                                    <ion-item>
+                                        <ion-label position="floating">Ip Address<strong style="color: red">*</strong></ion-label> 
+                                        <ion-input   type="text" @input="newDevIpAddress = $event.target.value"  :value="newDevIpAddress"></ion-input>
+                                    </ion-item>
+
+                                    <ion-item>
+                                        <ion-label position="floating">Port<strong style="color: red">*</strong></ion-label> 
+                                        <ion-input  type="number" @input="newDevPort = $event.target.value" placeholder="90001" :value="newDevPort"></ion-input>
+                                    </ion-item>
+
+                                
+                                </ion-col>
+
+                            </ion-row >
+                            <ion-button expand="full"  color="primary" :disabled="newDevName === '' || newDevCompany === '' || newDevIpAddress === '' || newDevPort === ''" @click="addDevice(),showMoreDevice=false">Add</ion-button>
+
                         </div>
-                        <input type="file" accept=".csv" @change="handleFile" />
-                        <ion-label slot="end"><ion-button color="danger" @click="doRestoreFromFile()">Restore</ion-button></ion-label>
-                    </ion-item>
-                </ion-list>
+
+                         <ion-col size="12" v-if="DeviceList.length > 0"> 
+                            <ion-item style="margin-left: 30px" v-for="device in DeviceList" v-bind:key="DeviceList.indexOf(device)">
+                                <ion-label>{{device.Name}} - {{device.Company}} | {{device.Ip}}:{{device.Port}}</ion-label>
+                                <ion-button expand="full" color="danger" @click="delDevice(device)"><ion-icon slot="icon-only" name="trash"></ion-icon></ion-button>
+                            </ion-item>
+                        </ion-col>
+                    
+                    </div>
             </div>
-            <!-- <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button> -->
+
+            <div v-if="0"> 
+                <PosKey/>
+            </div>
+
+            <hr>
+
+            <!-- Backups -->
+            <div v-if="1">
+               <ion-item>
+                    <h1>Backups</h1>
+                </ion-item>
+
+                    <ion-list>                     
+                        <ion-item>
+                            <ion-label>Make backup and download</ion-label>
+                            <ion-label slot="end"><ion-button color="primary" @click="doBackup()">Backup</ion-button></ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label>Restore backup from Portal</ion-label>
+                            <ion-label slot="end"><ion-button color="danger" @click="doRestoreFromPortal()">Restore</ion-button></ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <div>
+                                <ion-label>Restore backup from file</ion-label>
+                            </div>
+                            <input type="file" accept=".csv" @change="handleFile" />
+                            <ion-label slot="end"><ion-button color="danger" @click="doRestoreFromFile()">Restore</ion-button></ion-label>
+                        </ion-item>
+                    </ion-list>
+               
+            </div>
+            
         </div>
 
-      <!-- <br/>
-      <ion-button expand="full" color="primary" :disabled="!isValidForm()" @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}</ion-button> -->
+      
+        <ion-button 
+            v-if="!['general','design'].includes(segmentValue)"
+            expand="full" 
+            color="primary" 
+            :disabled="!isValidForm()" 
+            @click="saveSetting()">{{ $t('backoffice.form.buttons.save') }}
+        </ion-button>
+
     </div>
     </div>
 </template>
@@ -696,7 +742,6 @@ import Cripto from "crypto-js";
 import About from './AboutDataSetting.vue'
 import Basic from './BasicDataSettingsForm.vue'
 import Colores from './ColourDataSettingForm.vue'
-import Payments from './PaymentSettingsForm.vue'
 import PosKey from './KeySettingForm.vue'
 import ManageAds from './manageAds.vue'
 
@@ -714,6 +759,7 @@ export default {
       newEvent: '',
       IsCatering: false,
       cateringPrice: 0,
+      key: 0,
 
       id: null,
       selectPickHour: false,
@@ -809,7 +855,9 @@ export default {
       spinner: false,
 
       //Segment
-      segmentValue: 'basic',
+      segmentValue: 'general',
+      functionalitySegment:'general',
+      designSegment:'colors',
       about: false,
       basic:true,
       general: false,
@@ -833,17 +881,19 @@ export default {
       newDevCompany: 'shift4',
       newDevIpAddress: '127.0.0.1',
       newDevPort: '90001', 
+      sslDev: true, 
       DeviceList: [],
 
       //HasDeliveryPayment
-      HasDeliveryPayment: false
+      HasDeliveryPayment: false,
+      showMoreDevice: false,
     }
   },
   created: function(){
       this.init();
   },
   components:{
-      About, Basic, Colores, Payments, PosKey, ManageAds,
+      About, Basic, Colores,  PosKey, ManageAds,
   },
   computed: {
         title() {
@@ -851,252 +901,8 @@ export default {
         }
   },
   methods: {
-    segmentChanged(value){            
-        //console.log(value)
-        if(value === 'basic'){
-            this.basic = true;
-            this.about = false
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.colors = false;
-            this.payments = false;
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;
-        }
-        if(value === 'about'){
-            this.about = true;
-            this.basic = false;
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.colors = false;
-            this.payments = false;
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;
-        }
-        if(value === 'general'){
-            this.general = true
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.about = false;
-            this.basic = false;   
-            this.colors = false;
-            this.payments = false;  
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;     
-        }
-        if(value === 'payments'){
-            this.payments = true;
-            this.basic = false;
-            this.about = false
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.colors = false;
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;
-        }
-        if(value === 'colors'){
-            this.colors = true;
-            this.payments = false;
-            this.basic = false;
-            this.about = false
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;
-        }
-        if(value === 'catering'){
-            this.general = false
-            this.catering = true
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.about = false;
-            this.basic = false;
-            this.colors = false;
-            this.payments = false;
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = false;
-        }  
-        if(value === 'reservation'){
-            this.general = false
-            this.catering = false
-            this.reservation = true
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false  
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false; 
-            this.poskey = false; 
-            this.ads = false;
-            this.loyalty = false;    
-        }
-        if(value === 'loyalty'){
-            this.basic = false;
-            this.about = false
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.colors = false;
-            this.payments = false;
-            this.poskey = false;
-            this.ads = false;
-            this.loyalty = true;
-        }
-        if(value === 'tip'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = true
-            this.zipCode = false
-            this.devices = false
-            this.backup = false 
-             this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false; 
-            this.poskey = false;  
-            this.ads = false; 
-            this.loyalty = false;         
-        }
-        if(value === 'ads'){
-            this.about = false;
-            this.basic = false;
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false
-            this.colors = false;
-            this.payments = false;
-            this.poskey = false;
-            this.ads = true;
-            this.loyalty = false;
-        }
-        if(value === 'zipCodes'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = true
-            this.devices = false
-            this.backup = false   
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false;   
-            this.poskey = false;          
-            this.ads = false;
-            this.loyalty = false;
-        }
-        if(value === 'backup'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = true  
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false;  
-            this.poskey = false;    
-            this.ads = false; 
-            this.loyalty = false;             
-        }
-        if(value === 'devices'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = true
-            this.backup = false
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false; 
-            this.poskey = false;  
-            this.ads = false; 
-            this.loyalty = false;                  
-        }
-         if(value === 'poskey'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = false  
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false;   
-            this.poskey = true;  
-            this.ads = false;  
-            this.loyalty = false;             
-        }
-        if(value === 'backup'){
-            this.general = false
-            this.catering = false
-            this.reservation = false
-            this.tip = false
-            this.zipCode = false
-            this.devices = false
-            this.backup = true  
-            this.about = false;
-            this.basic = false;  
-            this.colors = false;
-            this.payments = false;   
-            this.poskey = false;   
-            this.ads = false;
-            this.loyalty = false;           
-        }
-        this.segmentValue = value;
-    },
+   
     init(){
-        console.log('Init')
         this.id = this.$route.params.settingId;
         this.reservationByTable = this.$store.state.backConfig.setting.ReservationByTable;
         this.reservationByStaff = this.$store.state.backConfig.setting.ReservationByStaff;
@@ -1153,10 +959,7 @@ export default {
             this.loyaltyMinPointToBuy = this.$store.state.backConfig.setting.LoyaltyMinPointToBuy
             this.loyaltyPointMoney = this.$store.state.backConfig.setting.LoyaltyPointMoney
         }
-
-        if (this.$route.params.tab == 'about')
-            this.segmentChanged('about')
-        
+        this.key ++;
     },
     
     setReservationDateAndTime(data){
@@ -1205,8 +1008,6 @@ export default {
             }
         });
         this.reservationDaysAndTime = data
-        //console.log("RESERVATION DAYS")
-        //console.log(data)
     },
     ifErrorOccured(action){
       return this.$ionic.alertController.create({
@@ -1277,7 +1078,6 @@ export default {
            this.zipCodes.push(value);
            this.newCode = 0;
         }
-        //console.log(this.zipCodes);
     },
     addState(state){
         var validZip = LibCodes.lookupByState(state);
@@ -1477,10 +1277,6 @@ export default {
                 },
             ]
         }
-        //console.log(this.mondayOpenHour)
-        //console.log(this.mondayCloseHour)
-        //console.log("The reservation")
-        //console.log(reservation)
         return reservation
     },
 
@@ -1488,10 +1284,10 @@ export default {
 
         if (this.isValidForm()){
 
-          this.isBackdrop = true;
+            this.isBackdrop = true;
+            let item = this.$store.state.backConfig.setting;
 
-            //console.log(this.pickFrom);
-            let item = {
+            item = {
               "SelectPickHour": this.selectPickHour,
               "MinTimeToCook": this.minTimeToCook,
               "PickFrom": this.pickFrom,
@@ -1555,15 +1351,13 @@ export default {
               await Api.putIn(this.modelName, item)
                   .then(response => {
                         this.$store.state.backConfig.setting = item;
+                        this.init();
                         this.showToastMessage(this.$t('backoffice.list.messages.messageEditSuccessSetting'), "success");
-                        this.spinner = false;
-                        // this.$router.push({
-                        //   name: 'ControlPanel', 
-                        // });
+                        this.spinner = false;                       
                         return response;
                   })
                   .catch(e => {
-                        console.log(e);
+                        e;
                         this.spinner = false
                         this.ifErrorOccured(this.saveSetting);
                   })
@@ -1590,14 +1384,13 @@ export default {
                 this.spinner = true
                 await Api.backUpToPortal()
                 .then(response => {
-                    //console.log(response.data)
                     if (response.data.msg != "")
                         location.href = response.data.msg;
                     this.spinner = false
                     this.showToastMessage('The backup was save successfully', 'success')
                 })
                 .catch(e => {
-                    console.log(e)
+                    e
                     this.spinner = false
                     this.showToastMessage('An error was occur', 'danger')
                 })                
@@ -1617,14 +1410,16 @@ export default {
             "Name": this.newDevName,
             "Company": this.newDevCompany,
             "Ip": this.newDevIpAddress,
-            "Port": this.newDevPort 
+            "Port": this.newDevPort ,
+            "SSL": this.sslDev
             }
             this.DeviceList.push(dev)
 
             this.newDevName = ''
             this.newDevCompany = 'shift4',
             this.newDevIpAddress = '127.0.0.1',
-            this.newDevPort = '90001'
+            this.newDevPort = '90001',
+            this.sslDev = true
         }
         else{
             this.showToastMessage('The device name already exist.', 'danger')
@@ -1638,13 +1433,8 @@ export default {
 
     handleFile: function(event)
     {
-        this.createFile(event.target.files[0])
-        // this.backupFile = event.target.files[0]
-        // console.log("Loading file... Loading...")
-        // console.log(this.backupFile)
-        // console.log(JSON.parse(this.backupFile))
-        // this.fileName = selectedImage.name;
-        // this.createBase64Img(selectedImage);
+                this.createFile(event.target.files[0])
+     
     },
 
     createFile: function(fileObject){
@@ -1689,18 +1479,15 @@ export default {
                                     const restaurantID = this.$store.state.user.RestaurantId
                                     if (restaurantID === decryptedData.restaurantId)
                                     {
-                                        //console.log(true)
                                         this.spinner = true
                                         const item = JSON.stringify(backObj)
-                                        //console.log("OBJECT:")
-                                        //console.log(item)
                                         await Api.restoreBackUpFromFile(item)
                                         .then(() => {
                                             this.spinner = false
                                             this.showToastMessage('The backup was save successfully', 'success')
                                         })
                                         .catch(e => {
-                                            console.log(e)
+                                            e
                                             this.spinner = false
                                             this.showToastMessage('An error was occur', 'danger')
                                         })
@@ -1720,7 +1507,7 @@ export default {
         }
         catch(e){
             this.showToastMessage("This is not a valid backupfile.", "danger")
-            console.log(e)
+            e
         }
         
     },
@@ -1748,7 +1535,7 @@ export default {
                     this.showToastMessage('The backup was save successfully', 'success')
                 })
                 .catch(e => {
-                    console.log(e)
+                    e
                     this.spinner = false
                     this.showToastMessage('An error was occur', 'danger')
                 })                
