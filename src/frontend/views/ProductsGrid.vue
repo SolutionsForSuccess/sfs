@@ -1,7 +1,7 @@
 <template>
     <div >  
 
-      <modal name="product-detail" width="80%" height="80%">       
+      <modal name="product-detail"  width="80%" height="80%">       
         <ProductDetail 
           :productId ="productDetailData.productId"
           :Name ="productDetailData.Name"
@@ -30,6 +30,7 @@
         </h6>                                     
            
           <ion-searchbar  
+                id="header-searchbar"
                 class="header-searchbar"
                 @ionClear="handleInput('')"
                 @input="$event.target.value? handleInput($event.target.value): handleInput('')"
@@ -64,7 +65,7 @@
                         </ion-card-title>
                           
                       </ion-card-header>
-                       <ion-card-content class="ion-padding-vertical" style="background: white;display: flex;justify-content: space-around;">
+                       <ion-card-content id="content221"  ref="div1" class="ion-padding-vertical" style="background: white;display: flex;justify-content: space-around;">
                           <ion-button                           
                              fill="clear"
                             shape="round"
@@ -78,7 +79,7 @@
                               class="more-grid" 
                              style="width: 25px;height: 25px;"                  
                             ></ion-icon>
-                            <ion-text style="font-size: 10px;">share</ion-text>
+                            <ion-text   style="font-size: 10px;">share</ion-text>
                            </div>
                           </ion-button>
 
@@ -303,7 +304,11 @@ export default {
     this.prod.forEach(p => {p.show = false})
     this.filterProduct = JSON.parse(JSON.stringify(this.prod))
    },
-  
+  mounted() {
+       setTimeout(function(){   document.getElementById('header-searchbar').scrollIntoView({
+        behavior: "smooth"
+      }); }, 500);
+  },
   methods: {
 
     handleInput(value){
@@ -458,7 +463,7 @@ export default {
           this.openToast();
           this.$parent.$parent.segmentValue = 'order';
       },
-     
+    
     removeFromCart: function(id){
       const index = this.cart.findIndex(pr => pr.ProductId === id);   
         if (index !== -1) {

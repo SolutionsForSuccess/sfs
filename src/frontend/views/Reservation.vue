@@ -105,12 +105,25 @@
                     </ion-item>
                  </ion-col>
 
+                  <ion-col size="12" size-md="6">
+                   <ion-item lines="none">
+                      <ion-label >{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong>
+                      </ion-label>
+                   </ion-item>
+                   <ion-item>
+                      <!-- <ion-label @click="openPopover(true, $event)"> date values goes here</ion-label>
+                      <ion-button @click="openPopover(true, $event)">Open Popover</ion-button> -->
+                      <v-date-picker v-model="date" />
+                   </ion-item>
+                  </ion-col> 
+
                  <ion-col size="12" size-md="6">
                    <ion-item >
                       <ion-label >{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong>
                       <ion-datetime :value="dateToDay" max="2030" style="display: inline-flex"  
                       @ionChange="dateToReserv=$event.target.value,validateHour(),GetAllSheetHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
-                    </ion-datetime></ion-label>
+                    </ion-datetime>
+                    </ion-label>
                   </ion-item>
                  </ion-col>
 
@@ -483,18 +496,48 @@
 <script>
 
 import { Api } from '../../backoffice/api/api.js';
- import Moment from 'moment'
+ import Moment from 'moment';
  import moment from 'moment-timezone';
   import { EventBus } from '../event-bus';
-   import { Commons } from '../commons'
-  import PaymentSplited from '../components/PaymentSplited'
+   import { Commons } from '../commons';
+  import PaymentSplited from '../components/PaymentSplited';
+  import { popoverController } from '@ionic/vue';
+  import VCalendar from './VCalendar.vue';
 
 export default {
     name: 'Reservation',
-     components: {   
-  },
+     components: { },
      data () {
       return {
+        selectedDate: null,
+      themeStyles: {
+        wrapper: {
+          border: '1',
+        },
+        header: {
+          color: '#fafafa',
+          backgroundColor: '#f142f4',
+          borderColor: '#404c59',
+          borderWidth: '1px 1px 0 1px',
+        },
+        headerVerticalDivider: {
+          borderLeft: '1px solid #404c59',
+        },
+        weekdays: {
+          color: '#ffffff',
+          backgroundColor: '#f142f4',
+          borderColor: '#ff0098',
+          borderWidth: '0 1px',
+          padding: '5px 0 10px 0',
+        },
+        weekdaysVerticalDivider: {
+          borderLeft: '1px solid #404c59',
+        },
+        weeks: {
+          border: '1px solid #dadada',
+        },
+      },
+        date: new Date(),
         firstSpinner: false,
         spinnerEmail: false,
          newReserv: true,
@@ -618,6 +661,24 @@ export default {
        }
       },
      methods: { 
+
+       async openPopover(ev) {
+          const popover = await popoverController.create({
+              component: VCalendar,
+              cssClass: 'my-custom-class',
+              event: ev,
+              translucent: true
+            })
+          await popover.present();
+
+          const { role } = await popover.onDidDismiss();
+          console.log('onDidDismiss resolved with role', role);
+        },
+
+
+      //  openPopover(){
+      //    console.log('clicked...');
+      //  },
        
 
 

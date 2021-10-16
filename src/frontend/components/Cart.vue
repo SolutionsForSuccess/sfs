@@ -577,8 +577,9 @@ methods: {
       store.commit("setOrder", this.order);
     },
 
-    changeTip(value){      
-      this.tip = (value *100 / this.finalSubTotal()).toFixed(2);      
+    changeTip(value){
+      value.substr(1,)      
+      this.tip = (value.substr(1,) *100 / this.finalSubTotal()).toFixed(2);   
       this.keyTip = -1;
     },
 

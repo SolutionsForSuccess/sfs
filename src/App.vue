@@ -274,7 +274,7 @@
               
               <ion-searchbar  
               @ionClear="handleInput('')"
-              @input="$event.target.value?handleInput($event.target.value):''"
+              @input="handleInput($event.target.value)"
               :placeholder="$t('frontend.home.search')">             
               </ion-searchbar>
             </ion-toolbar>
@@ -290,7 +290,11 @@
                 ></ion-refresher-content>
             </ion-refresher>
 
-            <div   
+            <div v-if="filterRestaurantSelect.length<1">
+              No resturent found
+            </div>
+            <div v-if="filterRestaurantSelect.length>0">
+              <div   
               v-for="res in filterRestaurantSelect"
               :key="res._id" 
               v-show="businessType==='All Businesses'? 1: businessType===res.BusinessType ? 1: 0"
@@ -331,6 +335,7 @@
                   </ion-label> 
                 </ion-item>  
               </ion-list>
+            </div>
             </div>
           </div> 
 
@@ -687,12 +692,15 @@ export default {
     handleInput(value){
       const query = value.toLowerCase();
       requestAnimationFrame(() => {       
-        let cat2 = this.allRestaurant.filter(p => p.Name.toLowerCase().indexOf(query) > -1
-                                    ||  p.Address.toLowerCase().indexOf(query) > -1)
-        if(cat2.length> 0)
-          this.filterRestaurantSelect = cat2
-        else
-          this.filterRestaurantSelect = this.allRestaurant;  
+        if(query == '') {
+          this.filterRestaurantSelect = this.allRestaurant; 
+        } else {
+          let cat2 = this.allRestaurant.filter(p => p.Name.toLowerCase().includes(query))
+          if(cat2.length> 0)
+            this.filterRestaurantSelect = cat2
+          else 
+            this.filterRestaurantSelect = [];
+        } 
       });
     },
     
