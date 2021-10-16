@@ -38,7 +38,6 @@
                   <ion-col  v-for="pr in filterProduct" :key="pr._id" size="12" size-md="6" size-lg="3">
                     <ion-card style="padding:12px " >
                       <div >
-
                       <ion-chip style="float:left; margin-bottom: -0.5px;" v-if="getSubcategory(pr.CategoryId) !=''">
                         <ion-avatar>
                           <img :src="getSubcategoryImg(pr.CategoryId)">
@@ -80,7 +79,7 @@
 
                             <ion-chip style="padding-right: 0;">                          
                                 <ion-input  type="number" min=1 :value="pr.count || 1" @input="pr.count = $event.target.value" style="text-align: center;max-width: 80px;" ></ion-input>              
-                                <!-- <ion-button size="small" color="primary" v-if="!pr.VariantGroupId"  shape="round" @click.stop="addToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)"> {{$t('frontend.order.add')}}</ion-button> -->
+                                <ion-button size="small" color="primary" v-if="!pr.VariantGroupId"  shape="round" @click.stop="addToCart(pr.ImageUrl, pr._id, pr.Name, pr.SalePrice, pr.count || 1 , pr.Note ||'', [], pr.AggregateCant)"> {{$t('frontend.order.add')}}</ion-button>
                                 <ion-button size="small" color="primary"  shape="round" @click.stop=" productDetail(pr)"> {{$t('frontend.order.add')}}</ion-button>
                                 <ion-button size="small" color="danger"  shape="round" @click.stop="removeFromCart(pr._id )">{{$t('frontend.order.remove')}}</ion-button>
                             </ion-chip>

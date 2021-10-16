@@ -203,10 +203,7 @@
                         <h1 style="text-overflow: ellipsis; overflow: hidden;display: -webkit-box; -webkit-line-clamp: 2;-webkit-box-orient: vertical;">{{category.Name}}</h1>
                         <!-- <p style=" white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"> {{category.Description}}</p> -->
                     </ion-label>  
-                  </ion-item>
-              
-                  
-                                  
+                  </ion-item>        
                 </ion-card>
               </ion-col>
             

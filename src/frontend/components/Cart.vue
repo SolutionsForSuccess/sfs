@@ -57,7 +57,7 @@
                       </div>
 
                       <div class="menu-col-4"> 
-                          <p style="width: 70%; float: left;    margin-top: 10px;">{{ getFormatPrice(car.Price * car.Cant) }}</p> 
+                          <p style="width: 70%; float: left; margin-top: 10px;">{{ getFormatPrice(car.Price * car.Cant) }}</p> 
                            <div v-if="hasSomeNote(car)" v-tooltip="$t('frontend.order.notes')" @click="showProductNote(car)" >
                               <span  class="iconify" data-icon="bi:info-circle-fill" data-inline="false" style="width: 20px;height: 20px;"></span>
                             </div> 
@@ -515,7 +515,7 @@ methods: {
 
         store.commit("setOrder", this.order);
         
-      },
+    },
 
     finalTotal1(){
          let percent = ( (this.finalSubTotal() * this.getSumatoryTax()) / 100) ;

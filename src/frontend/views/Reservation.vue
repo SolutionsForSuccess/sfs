@@ -113,25 +113,38 @@
                    <ion-item>
                       <!-- <ion-label @click="openPopover(true, $event)"> date values goes here</ion-label>
                       <ion-button @click="openPopover(true, $event)">Open Popover</ion-button> -->
-                      <v-date-picker v-model="date" />
+                      <v-date-picker style="padding-bottom:5px"
+                       v-model="dateToDay"
+                       @dayclick='dayClicked'
+                       :min-date="minDate"
+                       :max-date="maxDate"
+                       :show-day-popover=true
+                       is-double-paned
+                       show-caps />
                    </ion-item>
                   </ion-col> 
 
-                 <ion-col size="12" size-md="6">
+                 <!-- <ion-col size="12" size-md="6">
                    <ion-item >
-                      <ion-label >{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong>
+                      <ion-label>{{$t('frontend.reservation.reservationDate')}} <strong style="color: red">*</strong>
                       <ion-datetime :value="dateToDay" max="2030" style="display: inline-flex"  
-                      @ionChange="dateToReserv=$event.target.value,validateHour(),GetAllSheetHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
-                    </ion-datetime>
+                        @ionChange="dateToReserv=$event.target.value,validateHour(),GetAllSheetHour()" :min="dateToDay.format('YYYY-MM-DD')" >    
+                      </ion-datetime>
                     </ion-label>
                   </ion-item>
-                 </ion-col>
+                 </ion-col> -->
 
                  <ion-col  size="12" size-md="6">
+                    <ion-item lines="none">
+                      <ion-label >{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong></ion-label> 
+                      <!-- <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" 
+                      @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key" style="display: inline-flex"></ion-datetime> -->
+                    </ion-item>
                     <ion-item >
-                      <ion-label >{{$t('frontend.reservation.reservationHour')}} <strong style="color: red">*</strong>
-                      <ion-datetime :value="hourToReserv" display-format="h:mm A" picker-format="h:mm A" 
-                      @ionChange="hourToReserv=$event.target.value, validateHour()" :key="key" style="display: inline-flex"></ion-datetime>  </ion-label>         
+                      <v-date-picker
+                       @input="timeChanged"
+                       v-model="time"
+                       mode="time"/>
                     </ion-item>
                  </ion-col>
               
@@ -501,8 +514,9 @@ import { Api } from '../../backoffice/api/api.js';
   import { EventBus } from '../event-bus';
    import { Commons } from '../commons';
   import PaymentSplited from '../components/PaymentSplited';
-  import { popoverController } from '@ionic/vue';
-  import VCalendar from './VCalendar.vue';
+import { setTimeout } from 'timers';
+  // import { popoverController } from '@ionic/vue';
+  // import VCalendar from './VCalendar.vue';
 
 export default {
     name: 'Reservation',
@@ -538,6 +552,7 @@ export default {
         },
       },
         date: new Date(),
+        time: new Date(),
         firstSpinner: false,
         spinnerEmail: false,
          newReserv: true,
@@ -598,10 +613,12 @@ export default {
         staffSelected: '',
         staffObj: null,
         keyStaff: 0,
+        selectedDay: null,
+        maxDate: new Date().setFullYear(new Date().getFullYear()+10),
+        minDate: new Date()
       }
      },     
      created: async function(){
-
        
       this.firstSpinner = true;  
       if(this.$store.state.customer._id){
@@ -619,18 +636,15 @@ export default {
       this.allStaff = this.$store.state.allStaff;
 
       this.tablesChoose = this.configuration.tablesChoose;
-       this.dateToDay = moment().add('days', this.configuration.minDayToReservation);
-       this.dateToReserv = moment().add('days', this.configuration.minDayToReservation);
+      this.dateToDay = moment().add('days', this.configuration.minDayToReservation);
+      this.dateToReserv = moment().add('days', this.configuration.minDayToReservation);
 
-     
-       
-      for(var i=0; i< this.allReservations.length; i++){
+      for(var i=0; i< this.allReservations.length; i++) {
         this.allReservations[i].iState = this.allState[this.allReservations[i].State];
       }
 
       this.reservationToFilter = this.allReservations 
        
-
        if(this.$route.params.showAllReservation){
          this.segmentChanged('listReserv')
        } 
@@ -653,6 +667,9 @@ export default {
          await this.GetAllSheetHour();
         
         this.firstSpinner = false;
+        setTimeout(()=> {
+          this.minDate = this.dateToDay.format('YYYY-MM-DD')
+        }, 1000);
      },
     mounted: function(){
         if(this.$route.params.currentPageReservation > 1){
@@ -662,23 +679,19 @@ export default {
       },
      methods: { 
 
-       async openPopover(ev) {
-          const popover = await popoverController.create({
-              component: VCalendar,
-              cssClass: 'my-custom-class',
-              event: ev,
-              translucent: true
-            })
-          await popover.present();
+      dayClicked(day) {
+        this.dateToReserv = day.id;
+        this.validateHour();
+        this.GetAllSheetHour();
+        // console.log("selected date ", this.dateToReserv);
+      },
 
-          const { role } = await popover.onDidDismiss();
-          console.log('onDidDismiss resolved with role', role);
-        },
-
-
-      //  openPopover(){
-      //    console.log('clicked...');
-      //  },
+      timeChanged(datetime){
+        var time = datetime.toLocaleTimeString(navigator.language, { hour: 'numeric', minute:'numeric', hour12: true });
+        this.hourToReserv = time;
+        this.validateHour();
+        // console.log("time changed....", time);
+      },
        
 
 
@@ -1175,8 +1188,8 @@ export default {
         }
         else{
             
-          if(this.theName===''  || this.theEmail==='' || this.thePhone ==='' ||
-            this.dateToReserv === '' || this.hourToReserv=== '' || this.guest < 1 || this.serviceTime < 1){
+          if(this.theName ===''  || this.theEmail ==='' || this.thePhone ==='' ||
+            this.dateToReserv === '' || this.hourToReserv === '' || this.guest < 1 || this.serviceTime < 1){
               var mss1 = '';
               if(this.theName === '') mss1 += '<br><strong>' + this.$t('frontend.orderType.name')+'</strong>';
               if(this.theEmail === '') mss1 += '<br><strong>' + this.$t('frontend.orderType.email')+'</strong>';
@@ -1205,6 +1218,7 @@ export default {
         "Reason": this.reasonToReser,
         "State": 0
         }
+
 
         if(this.restaurantActive.RestaurantBussines){
            this.reservation.ServiceLocation = this.serviceLocation;
