@@ -204,7 +204,8 @@
           <ion-header>
             <ion-toolbar class="top-navbar" color="primary" :key="restaurantSelectedId">
 
-              <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button>
+              <!-- <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button> -->
+              <ion-icon @click="openStart" name="menu" class="menu-col-2" :style="getAuthenticated? 'opacity: 0;': 'opacity: 1;float: left;font-size: 30px;'" ></ion-icon> 
 
               <ion-title class="toolbar-title"
                v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''">

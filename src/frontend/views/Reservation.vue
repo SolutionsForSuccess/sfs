@@ -111,8 +111,6 @@
                       </ion-label>
                    </ion-item>
                    <ion-item>
-                      <!-- <ion-label @click="openPopover(true, $event)"> date values goes here</ion-label>
-                      <ion-button @click="openPopover(true, $event)">Open Popover</ion-button> -->
                       <v-date-picker style="padding-bottom:5px"
                        v-model="dateToDay"
                        @dayclick='dayClicked'
