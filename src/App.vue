@@ -202,13 +202,32 @@
 
         <div main id="my-content" >
           <ion-header>
-            <ion-toolbar color="primary" :key="restaurantSelectedId">
+            <ion-toolbar class="top-navbar" color="primary" :key="restaurantSelectedId">
+
+              <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button>
+
+              <ion-title class="toolbar-title"
+               v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''">
+               {{$store.state.restaurantActive.restaurantName}}
+              </ion-title>
+
+              <ion-buttons slot="end">
+                <ion-icon @click="openEnd" name="settings" class="" style="font-size: 30px;"></ion-icon>
+
+                <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')">
+                  <span class="iconify" data-icon="ph:user-circle" data-inline="false"></span>
+                </div>
+
+                <div :key="keyUserLogin+'L'" style="float: right;height: 40px; width: 46px; padding-top: 3px;" v-if="CustomerName" @click="showEditUser=!showEditUser">
+                  <span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span>
+                </div>
+              </ion-buttons>
+            </ion-toolbar>
+            <!-- <ion-toolbar color="primary" :key="restaurantSelectedId">
               <div  v-if="!newRestaurant" style="display:flex;justify-content: space-between;align-items: center;">          
                 <ion-icon @click="openStart" name="menu" class="menu-col-2" :style="getAuthenticated? 'opacity: 0;': 'opacity: 1;float: left;font-size: 30px;'" ></ion-icon> 
                 <ion-title v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''" class="menu-col-6" style="text-align: center;"
                 >{{$store.state.restaurantActive.restaurantName}}</ion-title>  
-
-                
                 <div v-if="userLoginRestaurant" > 
                   <div v-if="userLoginRestaurant.length > 0 && $store.state.user !== null" :key="userLoginRestaurantId"> 
                       <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
@@ -217,16 +236,15 @@
                       </ion-select>
                   </div>
                 </div>
-
-
-              
                 <div>
                   <ion-icon @click="openEnd" name="settings" class="" style="float: right;font-size: 30px;margin: 0px 25px 0 15px;"></ion-icon>
-                  <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')"><span class="iconify" data-icon="ph:user-circle" data-inline="false"></span></div>
+                  <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')">
+                    <span class="iconify" data-icon="ph:user-circle" data-inline="false"></span>
+                  </div>
                   <div :key="keyUserLogin+'L'" style="float: right;" v-if="CustomerName" @click="showEditUser=!showEditUser"><span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span></div>
                 </div>
               </div>  
-            </ion-toolbar>
+            </ion-toolbar> -->
           </ion-header>
             <ion-card v-if="showEditUser" style="position: absolute; right: 35px;margin:0 ">
                 <ion-chip  @click="restaurantSelected? goMyAccount() : logIng(email, '') , showEditUser=false" style="padding: 0;" v-tooltip="$t('frontend.menu.edit')">                  
@@ -274,7 +292,7 @@
               
               <ion-searchbar  
               @ionClear="handleInput('')"
-              @input="$event.target.value?handleInput($event.target.value):''"
+              @input="handleInput($event.target.value)"
               :placeholder="$t('frontend.home.search')">             
               </ion-searchbar>
             </ion-toolbar>
@@ -290,7 +308,11 @@
                 ></ion-refresher-content>
             </ion-refresher>
 
-            <div   
+            <div v-if="filterRestaurantSelect.length<1">
+              No resturent found
+            </div>
+            <div v-if="filterRestaurantSelect.length>0">
+              <div   
               v-for="res in filterRestaurantSelect"
               :key="res._id" 
               v-show="businessType==='All Businesses'? 1: businessType===res.BusinessType ? 1: 0"
@@ -331,6 +353,7 @@
                   </ion-label> 
                 </ion-item>  
               </ion-list>
+            </div>
             </div>
           </div> 
 
@@ -687,12 +710,15 @@ export default {
     handleInput(value){
       const query = value.toLowerCase();
       requestAnimationFrame(() => {       
-        let cat2 = this.allRestaurant.filter(p => p.Name.toLowerCase().indexOf(query) > -1
-                                    ||  p.Address.toLowerCase().indexOf(query) > -1)
-        if(cat2.length> 0)
-          this.filterRestaurantSelect = cat2
-        else
-          this.filterRestaurantSelect = this.allRestaurant;  
+        if(query == '') {
+          this.filterRestaurantSelect = this.allRestaurant; 
+        } else {
+          let cat2 = this.allRestaurant.filter(p => p.Name.toLowerCase().includes(query))
+          if(cat2.length> 0)
+            this.filterRestaurantSelect = cat2
+          else 
+            this.filterRestaurantSelect = [];
+        } 
       });
     },
     
