@@ -63,7 +63,7 @@
             </ion-card>          
         </modal>
 
-        <modal name="pickup-modal"  width="80%" height="auto"  style="left: 0px;width: auto;height: auto; max-width: 500px; ">
+        <modal name="pickup-modal" width="80%" height="auto"  style="left: 0px;width: auto;height: auto; max-width: 500px; ">
             <ion-buttons slot="start" @click="hidePickUp()">
                 <ion-back-button default-href="home"></ion-back-button>
             </ion-buttons>
@@ -80,9 +80,20 @@
             <ion-card>
                  <ion-item>
                     <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
-                    <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="minDay"  display-format="MM-DD-YYYY"   
-                    ></ion-datetime>
+                    <!-- <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="minDay"  display-format="MM-DD-YYYY"   
+                    ></ion-datetime> -->
                 </ion-item>
+                <ion-item>
+                      <v-date-picker style="padding-bottom:5px"
+                       v-model="dateToDay"
+                       @dayclick='dayChanged'
+                       :min-date="minDate"
+                       :max-date="maxDate"
+                       :show-day-popover=true
+                       is-double-paned
+                       show-caps />
+                   </ion-item>
+                   
                 <ion-item>
                     <ion-label position="floating">{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
                     <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key"
@@ -217,7 +228,7 @@
                             :value="dateToDay" ></ion-datetime>                                
                         </ion-item>
 
-                        <ion-item   >
+                        <ion-item>
                           <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
                           <ion-datetime display-format="h:mm A" picker-format="h:mm A" style="text-align: left;"
                             :value="thisMinHour" ></ion-datetime>                                
@@ -520,6 +531,14 @@ export default {
     
   }, 
    methods: {
+
+     dayChanged(day) {
+        this.dateToReserv = day.id;
+        // this.validateHour();
+        // this.GetAllSheetHour();
+        console.log("selected date ", this.day);
+        // this.dateToDay = selected day
+      },
 
     finalTotal(){
          let percent = ( (this.finalSubTotal() * this.getSumatoryTax()) / 100) ;

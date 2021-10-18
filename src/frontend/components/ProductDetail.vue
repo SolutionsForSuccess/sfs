@@ -227,7 +227,8 @@ export default {
 methods: {
 
     dismissQr(){
-       this.$modal.hide('product-detail');    
+      //  this.$modal.hide('product-detail');   
+      this.$ionic.modalController.dismiss(null); 
     },
 
     changeVariant(varId, variant){

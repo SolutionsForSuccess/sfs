@@ -45,13 +45,13 @@
                     size-md="4"
                     size-lg="3"
                     class="ion-align-items-center header-col"
-                    v-for="pr in filterProduct" 
+                    v-for="(pr, index) in filterProduct" 
                     v-bind:key="pr._id"                 
                   >
                     <ion-card  
                          color="primary"                       
                         style="margin:0"                 
-                        @click.stop="productDetail(pr)"
+                        @click.stop="productDetail(pr, index)"
                       >
                       <ion-card-header class="card-header">
 
@@ -148,9 +148,9 @@
 
              <ion-list class="content-list" v-else>
                 <ion-item
-                  v-for="pr in filterProduct"
+                  v-for="(pr, index) in filterProduct"
                   v-bind:key="pr._id"
-                 @click=" productDetail(pr)"
+                 @click="productDetail(pr, index)"
                 >
                   <ion-avatar slot="start" v-if="pr.ImageUrl">
                     <img :src="pr.ImageUrl" />
@@ -310,6 +310,65 @@ export default {
       }); }, 500);
   },
   methods: {
+
+    productDetail: function(pr, index){
+
+      var productVariant=[]
+      var Description='';
+      const indexInitial = this.products.findIndex( x => x._id === pr.ProductId)
+      if(indexInitial !==-1){
+        const prX = this.products[indexInitial];
+        if(prX.VariantGroupId !=''){
+          productVariant = this.variants.filter(v => v._id == prX.VariantGroupId)
+          Description = prX.Description
+        } 
+      }
+         
+      return this.$ionic.modalController
+      .create({
+        component: ProductDetail,
+        cssClass: 'my-custom-class',
+        componentProps: {
+          data: {
+            content: 'New Content',
+          },
+          propsData: {
+            productId: pr.ProductId,
+            Name: pr.Name,
+            SalePrice: parseFloat(pr.Price),
+            Description: Description,
+            ImageUrl: pr.ImageUrl,
+            ProductCant: parseInt(pr.Cant) || 1,
+            Note: pr.Note,
+            productVariant: productVariant,
+            aggregateCant: pr.AggregateCant || 0,
+            Aggregates: pr.Aggregates || [],
+            products: this.products,           
+            Ingredients: pr.Ingredients || [],           
+            orderFromCatering: pr.fromCatering,
+            isService: pr.isService,           
+            currency: this.currency,
+            forEdit: true,
+            indexForEdit: index,
+            VariantSelected: pr.VariantSelected,
+          },
+        },
+      })
+      .then(m => m.present())
+      },
+
+      updateOrderInStore(t){
+        this.order.Total = t.toFixed(2);
+        this.order.Taxe = this.getSumatoryTax();
+        this.order.AllTaxes = this.allTaxes;
+        this.order.Tip = this.tip;
+        this.order.SubTotal = this.finalSubTotal();
+        if(this.shipping !=0) this.order.Shipping = this.shipping;
+        if(this.discount > 0) this.order.Discount = this.discount;
+
+        store.commit("setOrder", this.order);
+        
+    },
 
     handleInput(value){
       
@@ -478,10 +537,10 @@ export default {
     },
 
 
-    async productDetail(pr){
-      this.productDetailData = this.getProdDetailDatas(pr);    
-      this.$modal.show('product-detail');
-    }, 
+    // async productDetail(pr){
+    //   this.productDetailData = this.getProdDetailDatas(pr);    
+    //   this.$modal.show('product-detail');
+    // }, 
 
     
     getProdDetailDatas(pr){
