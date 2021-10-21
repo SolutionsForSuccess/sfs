@@ -1051,7 +1051,7 @@ const messages = {
         notTimeToPick: "Pick-Up hours are between: ",
         cookTime: ". The estimated time for cooking is ",
         priceEstimated: "Estimated",
-        minuts: " minuts.",
+        minuts: " minutes.",
         selectOrderType: "Please choose your order type.",
         search: "Search",
         aggregateFree: "Included Free",

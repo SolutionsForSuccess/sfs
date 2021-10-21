@@ -681,14 +681,12 @@ export default {
         this.dateToReserv = day.id;
         this.validateHour();
         this.GetAllSheetHour();
-        // console.log("selected date ", this.dateToReserv);
       },
 
       timeChanged(datetime){
         var time = datetime.toLocaleTimeString(navigator.language, { hour: 'numeric', minute:'numeric', hour12: true });
         this.hourToReserv = time;
         this.validateHour();
-        // console.log("time changed....", time);
       },
        
 
