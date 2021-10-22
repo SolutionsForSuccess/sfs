@@ -202,6 +202,7 @@
 
         <div main id="my-content" >
           <ion-header>
+            <ion-toolbar style="height: 30px; margin-bottom: -1px;" class="top-navbar" color="primary" :key="restaurantSelectedId"></ion-toolbar>
             <ion-toolbar class="top-navbar" color="primary" :key="restaurantSelectedId">
 
               <!-- <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button> -->
@@ -450,7 +451,7 @@ export default {
  
   created: async function(){
 
-   
+    
 
     //Backoffice
     EventBus.$on('clockIn', async (value) => {      
@@ -554,7 +555,20 @@ export default {
       this.userLoginRestaurant = value;
       this.userLoginRestaurantId = this.$store.state.user.RestaurantId;
     });
-  
+
+      this.$router.beforeEach((to, from, next) => {
+      
+      if (to.name === 'App') {
+        // this.restaurantSelected = false;
+        // this.newRestaurant = false;
+        // this.spinner = false;
+        // this.restaurantSelectedId = '';
+        next(true);
+        this.$router.go(0);
+      } else {
+        next()
+      }
+    });
   }, 
   data () {
     return {
@@ -1017,7 +1031,7 @@ export default {
       }
       this.isBackLocked = false;
       this.idleTrackerBack.end();
-      
+
     },
   
     getAllRestaurant: async function(){
@@ -1084,7 +1098,7 @@ export default {
               } catch (error) {
                   error;
                   loading.dismiss();
-                
+
               }
 
                            
