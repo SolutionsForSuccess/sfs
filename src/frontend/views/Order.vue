@@ -78,26 +78,33 @@
             </ion-header>
 
             <ion-card>
-                 <ion-item>
-                    <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
+                 <ion-item lines="none">
+                    <ion-label>{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
                     <!-- <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="minDay"  display-format="MM-DD-YYYY"   
                     ></ion-datetime> -->
                 </ion-item>
                 <ion-item>
-                      <v-date-picker style="padding-bottom:5px"
-                       v-model="dateToDay"
-                       @dayclick='dayChanged'
-                       :min-date="minDate"
-                       :max-date="maxDate"
-                       :show-day-popover=true
-                       is-double-paned
-                       show-caps />
-                   </ion-item>
+                  <v-date-picker style="padding-bottom:5px"
+                    v-model="dateToDay"
+                    @dayclick='dayChanged'
+                    :min-date="minDay"
+                    :max-date="maxDate"
+                    :show-day-popover=true
+                    is-double-paned
+                    show-caps />
+                </ion-item>
                    
+                <ion-item lines="none">
+                    <ion-label>{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
+                    <!-- <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key"
+                    :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime> -->
+                </ion-item>
                 <ion-item>
-                    <ion-label position="floating">{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
-                    <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key"
-                    :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime>
+                  <v-date-picker
+                    @input="timeChanged"
+                    v-model="time"
+                    :key="key"
+                    mode="time"/>
                 </ion-item>
             
                 <ion-button  @click="hidePickUp()">{{ this.$t('frontend.home.cancel') }}</ion-button>
@@ -120,15 +127,34 @@
           </ion-header>
 
         <ion-card>
-           <ion-item>
-            <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
-            <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
-            ></ion-datetime>
+           <ion-item  lines="none">
+            <ion-label>{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
+            ></ion-datetime> -->
+          </ion-item>
+
+          <ion-item>
+            <v-date-picker style="padding-bottom:5px"
+              v-model="dateToDay"
+              @dayclick='dayChanged'
+              :min-date="new Date()"
+              :max-date="maxDate"
+              :show-day-popover=true
+              is-double-paned
+              show-caps />
+          </ion-item>
+          
+          <ion-item lines="none">
+            <ion-label>{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
+            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime> -->
           </ion-item>
           <ion-item>
-            <ion-label position="floating">{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
-            <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
-            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime>
+            <v-date-picker
+              @input="timeChanged"
+              v-model="time"
+              :key="key"
+              mode="time"/>
           </ion-item>
           <ion-item>
             <ion-label position="floating">{{this.$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong></ion-label>
@@ -188,15 +214,21 @@
                       <div :key="keyCurbside+1">
                         
                         <div v-if="order.OrderType==='PickUp' || isPick" @click="showPickUp()">
-                        <ion-item   >
-                          <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
-                          <ion-datetime :key="key1" style="text-align: left;" :min="minDay"
-                            :value="dateToDay" @ionChange="dateToDay=$event.target.value" ></ion-datetime>                                
+                        <ion-item  lines="none">
+                          <ion-label>{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
+                          <!-- <ion-datetime :key="key1" style="text-align: left;" :min="minDay"
+                            :value="dateToDay" @ionChange="dateToDay=$event.target.value" ></ion-datetime>                                 -->
                         </ion-item>
-                        <ion-item  >
-                          <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
-                          <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key1" style="text-align: left;"
-                            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value), thisMinHour !==''? savePickUp() : ''" ></ion-datetime>                                
+                        <ion-item>
+                          <ion-label>{{getDateString(dateToDay)}}</ion-label> 
+                        </ion-item>
+                        <ion-item  lines="none" >
+                          <ion-label>{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
+                          <!-- <ion-datetime display-format="h:mm A" picker-format="h:mm A" :key="key1" style="text-align: left;"
+                            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value), thisMinHour !==''? savePickUp() : ''" ></ion-datetime>                                 -->
+                        </ion-item>
+                        <ion-item>
+                          <ion-label>{{getTimeString(time)}}</ion-label> 
                         </ion-item>
                         </div>
                       
@@ -222,16 +254,24 @@
                       </ion-item> 
 
                       <div v-if="order.OrderType==='Curbside' || isCurbside" @click="showCurbside()">
-                        <ion-item   >
-                          <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
-                          <ion-datetime style="text-align: left;" 
-                            :value="dateToDay" ></ion-datetime>                                
+                        <ion-item lines="none" >
+                          <ion-label>{{$t('frontend.order.dateToPickEstimated') }}<strong style="color: red">*</strong> </ion-label> 
+                          <!-- <ion-datetime style="text-align: left;" 
+                            :value="dateToDay" ></ion-datetime>                                 -->
                         </ion-item>
 
                         <ion-item>
-                          <ion-label position="floating">{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
-                          <ion-datetime display-format="h:mm A" picker-format="h:mm A" style="text-align: left;"
-                            :value="thisMinHour" ></ion-datetime>                                
+                          <ion-label>{{getDateString(dateToDay)}}</ion-label> 
+                        </ion-item>
+
+                        <ion-item lines="none">
+                          <ion-label>{{$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong> </ion-label> 
+                          <!-- <ion-datetime display-format="h:mm A" picker-format="h:mm A" style="text-align: left;"
+                            :value="thisMinHour" ></ion-datetime>                                 -->
+                        </ion-item>
+
+                        <ion-item>
+                          <ion-label>{{getTimeString(time)}}</ion-label> 
                         </ion-item>
 
                         <ion-item   >
@@ -392,7 +432,7 @@ export default {
          this.$store.commit('setOrder', value);
          if(value) this.order = value; 
          this.getSplitPaymentDo(); });
-       
+
        if(this.order.HourToPick)
           this.thisMinHour = this.order.HourToPick
 
@@ -498,7 +538,9 @@ export default {
         vehicleModel: '',
         vehicleColor: '',
         isCatering: false,
-      
+        
+        maxDate: new Date().setFullYear(new Date().getFullYear()+10),
+        time: new Date()
     }
   }, 
   computed: {
@@ -533,12 +575,26 @@ export default {
    methods: {
 
      dayChanged(day) {
-        this.dateToReserv = day.id;
-        // this.validateHour();
-        // this.GetAllSheetHour();
-        console.log("selected date ", this.day);
-        // this.dateToDay = selected day
-      },
+      this.dateToReserv = day.id;
+    },
+
+    timeChanged(datetime){
+      var time = datetime.toLocaleTimeString(navigator.language, { hour: 'numeric', minute:'numeric', hour12: false });
+      this.hourToReserv = time;
+      this.thisMinHour = this.ValidateHour(time.toString());
+    },
+
+    getDateString(value) {
+      if (value) {
+        return moment(String(value)).format('MM-DD-YYYY')
+      }
+    },
+
+    getTimeString(value){
+      if (value) {
+        return moment(String(value)).format('hh:mm A')
+      }
+    },
 
     finalTotal(){
          let percent = ( (this.finalSubTotal() * this.getSumatoryTax()) / 100) ;
@@ -1717,21 +1773,36 @@ ValidateHour(value){
       let response = this.checkPickTime();
       if(!this.timeToPick )return this.alertNoTimeToPick(min1);
       if(response)  min1 = response;   
-     
 
       if(this.order.HourToPick){      
         const userHour = Moment(this.order.HourToPick ,'HH:mm');
         const rHour = Moment(response ,'HH:mm');        
         if(userHour > rHour && userHour < this.configuration.maxHour) 
+        {
           this.thisMinHour = this.order.HourToPick;
+          this.setDate(this.thisMinHour);
+        }
         else
-        this.thisMinHour = min1;  
+        {
+          this.thisMinHour = min1;
+          this.setDate(this.thisMinHour);
+        } 
       }  
       else
-        this.thisMinHour = min1;         
+      {
+        this.thisMinHour = min1;
+        this.setDate(this.thisMinHour);
+      }     
 
       this.$modal.show('pickup-modal');
 
+   },
+
+   setDate(thisMinHour){
+     var hours = this.thisMinHour.split(':')[0];
+     var minuts = this.thisMinHour.split(':')[1];
+     this.time.setHours(hours);
+     this.time.setMinutes(minuts);
    },
  
   hidePickUp () {
@@ -1788,12 +1859,21 @@ ValidateHour(value){
       const userHour = Moment(this.order.HourToPick ,'HH:mm');
       const rHour = Moment(response ,'HH:mm');
       if(userHour > rHour && userHour < this.configuration.maxHour) 
-        this.thisMinHour = this.order.HourToPick;
-      else
-      this.thisMinHour = min1;  
+        {
+          this.thisMinHour = this.order.HourToPick;
+          this.setDate(this.thisMinHour);
+        }
+        else
+        {
+          this.thisMinHour = min1;
+          this.setDate(this.thisMinHour);
+        } 
       }  
       else
-        this.thisMinHour = min1;         
+      {
+        this.thisMinHour = min1;
+        this.setDate(this.thisMinHour);
+      }         
 
       this.$modal.show('curbside-modal');
 

@@ -140,21 +140,43 @@
                     @input="numberOfGuess = $event.target.value"  
                     style=" float: left;text-align: left;"></ion-input>                               
                 </ion-item> 
-                
-                    <ion-item style="width: 100%;">
-                    <ion-label position="floating">  {{$t('frontend.order.eventDate')}} </ion-label> 
-                     <ion-datetime :value="eventDate"   @ionChange="eventDate=$event.target.value" ></ion-datetime>
+                <ion-item lines="none" style="width: 100%;">
+                    <ion-label>  {{$t('frontend.order.eventDate')}} </ion-label> 
+                     <!-- <ion-datetime :value="eventDate"   @ionChange="eventDate=$event.target.value" ></ion-datetime> -->
                 </ion-item> 
 
-                <ion-item style="width: 100%;">
-                    <ion-label position="floating">{{$t('frontend.order.eventStartHour')}} </ion-label> 
-                    <ion-datetime :value="eventTimeStart" @ionChange="eventTimeStart = $event.target.value"   display-format="h:mm A"  style=" float: left;text-align: left;"></ion-datetime>                               
+                <ion-item>
+                    <v-date-picker style="padding-bottom:5px"
+                    v-model="selectedDate"
+                    @dayclick='dayChanged'
+                    :show-day-popover=true
+                    is-double-paned
+                    show-caps />
                 </ion-item>
 
-                <ion-item style="width: 100%;">
-                    <ion-label position="floating"> {{$t('frontend.order.eventEndHour')}} </ion-label> 
-                    <ion-datetime :value="eventTimeEnd" @ionChange="eventTimeEnd = $event.target.value" display-format="h:mm A"   style=" float: left;text-align: left;"></ion-datetime>                               
+                <ion-item lines="none" style="width: 100%;">
+                    <ion-label>{{$t('frontend.order.eventStartHour')}} </ion-label> 
+                    <!-- <ion-datetime :value="eventTimeStart" @ionChange="eventTimeStart = $event.target.value"   display-format="h:mm A"  style=" float: left;text-align: left;"></ion-datetime>                                -->
+                </ion-item>
+                <ion-item>
+                  <v-date-picker
+                    @input="startTimeChanged"
+                    v-model="startTime"
+                    :key="key"
+                    mode="time"/>
+                </ion-item>
+
+                <ion-item lines="none" style="width: 100%;">
+                    <ion-label> {{$t('frontend.order.eventEndHour')}} </ion-label> 
+                    <!-- <ion-datetime :value="eventTimeEnd" @ionChange="eventTimeEnd = $event.target.value" display-format="h:mm A"   style=" float: left;text-align: left;"></ion-datetime>                                -->
                 </ion-item> 
+                <ion-item>
+                  <v-date-picker
+                    @input="endTimeChanged"
+                    v-model="endTime"
+                    :key="key"
+                    mode="time"/>
+                </ion-item>
 
                 <div style="    text-align: center;">
                 <ion-button fill="outline" @click="saveEventDetail()" >{{i18n.t('frontend.home.acept')}}</ion-button>
@@ -257,9 +279,26 @@ export default {
         eventTimeStart: '',
         eventTimeEnd: '',
         restaurantCustomers: [],
+        startTime: new Date(),
+        endTime: new Date(),
+        selectedDate: new Date(),
+        maxDate: new Date(`${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate() + 30}`)
     }
   },
   methods: {
+
+    dayChanged(day) {
+        this.eventDate = day.id;
+    },
+
+     endTimeChanged(datetime){
+        this.endTime = datetime;
+    },
+
+    startTimeChanged(datetime){
+        this.startTime = datetime;
+    },
+
       customerUpdated(){       
         this.clientId= store.state.guess._id || '';
         this.CustomerName= store.state.guess.Name || '';

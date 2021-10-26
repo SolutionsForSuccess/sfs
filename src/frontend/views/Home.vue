@@ -90,15 +90,32 @@
         </ion-header>
 
         <ion-card>
-           <ion-item>
-            <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
-            <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
-            ></ion-datetime>
+           <ion-item lines="none">
+            <ion-label>{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
+            ></ion-datetime> -->
           </ion-item>
           <ion-item>
-            <ion-label position="floating">{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
-            <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
-            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime>
+            <v-date-picker style="padding-bottom:5px"
+              v-model="dateToDay"
+              @dayclick='dayChanged'
+              :min-date="minDay"
+              :max-date="maxDate"
+              :show-day-popover=true
+              is-double-paned
+              show-caps />
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label>{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
+            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime> -->
+          </ion-item>
+          <ion-item>
+            <v-date-picker
+              @input="timeChanged"
+              v-model="time"
+              :key="key"
+              mode="time"/>
           </ion-item>
          
           <ion-button  @click="hidePickUp()">{{ this.$t('frontend.home.cancel') }}</ion-button>
@@ -122,15 +139,32 @@
         </ion-header>
 
         <ion-card>
-           <ion-item>
-            <ion-label position="floating">{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
-            <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
-            ></ion-datetime>
+           <ion-item lines="none">
+            <ion-label>{{$t('frontend.order.dateToPickEstimated')}} <strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime :value="dateToDay" max="2030"  @ionChange="dateToDay=$event.target.value" :min="dateToDay"     
+            ></ion-datetime> -->
           </ion-item>
           <ion-item>
-            <ion-label position="floating">{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
-            <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
-            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime>
+            <v-date-picker style="padding-bottom:5px"
+              v-model="dateToDay"
+              @dayclick='dayChanged'
+              :min-date="minDay"
+              :max-date="maxDate"
+              :show-day-popover=true
+              is-double-paned
+              show-caps />
+          </ion-item>
+          <ion-item lines="none">
+            <ion-label>{{this.$t('frontend.orderType.pickOut') }}<strong style="color: red">*</strong></ion-label>
+            <!-- <ion-datetime  display-format="h:mm A" picker-format="h:mm A" :key="key"
+            :value="thisMinHour" @ionChange="thisMinHour=ValidateHour($event.target.value)" ></ion-datetime> -->
+          </ion-item>
+          <ion-item>
+            <v-date-picker
+              @input="timeChanged"
+              v-model="time"
+              :key="key"
+              mode="time"/>
           </ion-item>
           <ion-item>
             <ion-label position="floating">{{this.$t('frontend.orderType.licencePlate') }}<strong style="color: red">*</strong></ion-label>
@@ -381,12 +415,8 @@ export default {
       configuration: {},
       restaurantActive: {},
       spinnerTicket: false,
-      
-      
-
-
-
-
+      maxDate: new Date().setFullYear(new Date().getFullYear()+10),
+      time: new Date(),
     }
   }, 
   components:{
@@ -394,6 +424,15 @@ export default {
     QrcodeStream: QrcodeStream
   },  
   methods: {
+
+    dayChanged(day) {
+      this.dateToDay = day.id;
+    },
+
+    timeChanged(datetime){
+      var time = datetime.toLocaleTimeString(navigator.language, { hour: 'numeric', minute:'numeric', hour12: false });
+      this.thisMinHour = this.ValidateHour(time.toString());
+    },
 
     handleInput(value){
       const query = value.toLowerCase();
