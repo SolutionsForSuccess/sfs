@@ -227,7 +227,7 @@
                     </strong>
                   </ion-label>
                 </div>
-
+                
                 <div v-if="tablesChoose" style="display: flex;justify-content: center;">
                                           
                     <ion-card v-for="(staff, index) in staffAvailable" :key="index"
@@ -681,14 +681,11 @@ export default {
         this.dateToReserv = day.id;
         this.validateHour();
         this.GetAllSheetHour();
-        // console.log("selected date ", this.dateToReserv);
       },
 
       timeChanged(datetime){
-        var time = datetime.toLocaleTimeString(navigator.language, { hour: 'numeric', minute:'numeric', hour12: true });
-        this.hourToReserv = time;
+        this.hourToReserv = datetime;
         this.validateHour();
-        // console.log("time changed....", time);
       },
        
 
@@ -817,6 +814,12 @@ export default {
             this.spinnerEmail = false;
       },
 
+      stringToMinutes(timeString){
+        var hours = timeString.split(":")[0];
+        var minutes = timeString.split(":")[1];
+        return hours*60 + minutes;
+      },
+
       async validateHour(){
         this.key ++;
         if(this.hourToReserv === '')
@@ -826,7 +829,7 @@ export default {
         var day =  Moment(this.dateToReserv).toISOString();
         hour = moment.tz(hour,  moment.tz.guess()).format('HH:mm') ;
         day =  moment.tz(day,  moment.tz.guess()).format('dddd') ;
-      
+
 
         const index = this.configuration.reservationDaysAndTime.findIndex(re=> re.Day === day);
 
@@ -834,10 +837,10 @@ export default {
           const openHour =  moment.tz(this.configuration.reservationDaysAndTime[index].OpenHour,  moment.tz.guess()).format('HH:mm') ; 
           const closeHour =  moment.tz(this.configuration.reservationDaysAndTime[index].CloseHour,  moment.tz.guess()).format('HH:mm') ; 
 
-      
-          if( hour < openHour || hour > closeHour){
-            this.hourToReserv = '';           
-            
+          if( this.stringToMinutes(hour) < this.stringToMinutes(openHour)
+           || this.stringToMinutes(hour) > this.stringToMinutes(closeHour)){
+            this.hourToReserv = '';       
+
             const mess = this.$t('frontend.reservation.errorHour')+ day + 
             this.$t('frontend.reservation.errorHour2') +
             this.getReservationHour(this.configuration.reservationDaysAndTime[index].OpenHour) + ' - '+ this.getReservationHour(this.configuration.reservationDaysAndTime[index].CloseHour);
@@ -1059,9 +1062,9 @@ export default {
           }
         }
         if(!isBussy){
-            table.CanReserve = true;
-            this.totalSeats += table.Seats.length;
-          }  
+          table.CanReserve = true;
+          this.totalSeats += table.Seats.length;
+        }  
          
       }
      this.filterTables = tableAvailables;   

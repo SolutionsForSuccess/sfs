@@ -62,6 +62,7 @@ import { navigate } from "ionicons/icons";
 import { recording } from "ionicons/icons";
 import { image } from "ionicons/icons";
 import { time } from "ionicons/icons";
+import device from "vue-device-detector";
 
 
 
@@ -154,6 +155,7 @@ addIcons({
 });
 
 Vue.use(Ionic);
+Vue.use(device);
 Vue.use(Vuex);
 Vue.use(VModal);
 Vue.use(Cors);

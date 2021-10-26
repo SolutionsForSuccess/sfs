@@ -878,9 +878,9 @@ Vue.use(VueRouter)
     component: () => import('../../frontend/views/HomeGrid.vue')
   },  
   {
-    path: '/',
-    name: 'AppVue',
-  
+    path: '',
+    name: 'App',
+    
   },
   {
     // path: '/home', 

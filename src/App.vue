@@ -202,6 +202,7 @@
 
         <div main id="my-content" >
           <ion-header>
+            <ion-toolbar v-if="isIos" style="height: 30px; margin-bottom: -1px;" class="top-navbar" color="primary" :key="restaurantSelectedId"></ion-toolbar>
             <ion-toolbar class="top-navbar" color="primary" :key="restaurantSelectedId">
 
               <!-- <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button> -->
@@ -216,10 +217,10 @@
                 <ion-icon @click="openEnd" name="settings" class="" style="font-size: 30px;"></ion-icon>
 
                 <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')">
-                  <span class="iconify" data-icon="ph:user-circle" data-inline="false"></span>
+                  <span class="iconify" data-icon="margin-top: 4px;ph:user-circle" data-inline="false"></span>
                 </div>
 
-                <div :key="keyUserLogin+'L'" style="float: right;height: 40px; width: 46px; padding-top: 3px;" v-if="CustomerName" @click="showEditUser=!showEditUser">
+                <div :key="keyUserLogin+'L'" style="margin-top: 4px;float: right;height: 40px; width: 46px; padding-top: 3px;" v-if="CustomerName" @click="showEditUser=!showEditUser">
                   <span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span>
                 </div>
               </ion-buttons>
@@ -450,7 +451,7 @@ export default {
  
   created: async function(){
 
-   
+    this.isIos = this.$device.ios;
 
     //Backoffice
     EventBus.$on('clockIn', async (value) => {      
@@ -554,12 +555,26 @@ export default {
       this.userLoginRestaurant = value;
       this.userLoginRestaurantId = this.$store.state.user.RestaurantId;
     });
-  
+
+      this.$router.beforeEach((to, from, next) => {
+        
+      if (to.name === 'App') {
+        // this.restaurantSelected = false;
+        // this.newRestaurant = false;
+        // this.spinner = false;
+        // this.restaurantSelectedId = '';
+        next(true);
+        this.$router.go(0);
+      } else {
+        next()
+      }
+    });
   }, 
   data () {
     return {
       //Submenus
 
+      isIos: false,
       session: '',
       deliveriesreservations: false,
       staffoccupationscustomers: false,
@@ -1017,7 +1032,7 @@ export default {
       }
       this.isBackLocked = false;
       this.idleTrackerBack.end();
-      
+
     },
   
     getAllRestaurant: async function(){
@@ -1079,12 +1094,13 @@ export default {
                 this.closeStart();               
                 await Commons.changeRestaurant(restaurantId);
                 loading.dismiss();
+                console.log("url: ", this.$store.state.restaurantActive.restaurantUrl, " --- key  ",  this.key)
                 this.$router.push({ name: 'AboutFront', params: {url: this.$store.state.restaurantActive.restaurantUrl, key: this.key}})
                 this.$forceUpdate();
               } catch (error) {
                   error;
                   loading.dismiss();
-                
+
               }
 
                            
