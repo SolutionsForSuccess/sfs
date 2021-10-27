@@ -205,25 +205,36 @@
             <ion-toolbar v-if="isIos" style="height: 30px; margin-bottom: -1px;" class="top-navbar" color="primary" :key="restaurantSelectedId"></ion-toolbar>
             <ion-toolbar class="top-navbar" color="primary" :key="restaurantSelectedId">
 
-              <!-- <ion-menu-button slot="start" style="font-size: 30px;"></ion-menu-button> -->
-              <ion-icon @click="openStart" name="menu" class="menu-col-2" :style="getAuthenticated? 'opacity: 0;': 'opacity: 1;float: left;font-size: 30px;'" ></ion-icon> 
+              <div v-if="!newRestaurant" style="display:flex;justify-content: space-between;align-items: center;"> 
+                <ion-icon @click="openStart" name="menu" class="menu-col-2" :style="getAuthenticated? 'opacity: 0;': 'opacity: 1;float: left;font-size: 30px;'" ></ion-icon> 
 
-              <ion-title class="toolbar-title"
-               v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''">
-               {{$store.state.restaurantActive.restaurantName}}
-              </ion-title>
+                <ion-title class="toolbar-title"
+                v-if="$store.state.restaurantActive.restaurantName && !getAuthenticated && restaurantSelectedId!==''">
+                {{$store.state.restaurantActive.restaurantName}}
+                </ion-title>
 
-              <ion-buttons slot="end">
-                <ion-icon @click="openEnd" name="settings" class="" style="font-size: 30px;"></ion-icon>
-
-                <div :key="keyUserLogin" style="float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')">
-                  <span class="iconify" data-icon="margin-top: 4px;ph:user-circle" data-inline="false"></span>
+                <div v-if="userLoginRestaurant" > 
+                  <div v-if="userLoginRestaurant.length > 0 && $store.state.user !== null" :key="userLoginRestaurantId"> 
+                      <ion-select interface="popover" :ok-text="$t('backoffice.form.messages.buttons.ok')" :cancel-text="$t('backoffice.form.messages.buttons.dismiss')" style="padding: 0"
+                      @ionChange="changeStaffRestaurant($event.target.value)" v-bind:value="userLoginRestaurantId">
+                          <ion-select-option v-for="restaurant in userLoginRestaurant" v-bind:key="restaurant._id" v-bind:value="restaurant._id" >{{restaurant.Name}}</ion-select-option>
+                      </ion-select>
+                  </div>
                 </div>
 
-                <div :key="keyUserLogin+'L'" style="margin-top: 4px;float: right;height: 40px; width: 46px; padding-top: 3px;" v-if="CustomerName" @click="showEditUser=!showEditUser">
-                  <span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span>
-                </div>
-              </ion-buttons>
+                <ion-buttons slot="end">
+                  <ion-icon @click="openEnd" name="settings" class="" style="font-size: 30px;"></ion-icon>
+
+                  <div :key="keyUserLogin" style="margin-top: 4px;float: right;" v-if="!CustomerName && !getAuthenticated" @click="logIng('','')">
+                    <span class="iconify" data-icon="ph:user-circle" data-inline="false"></span>
+                  </div>
+
+                  <div :key="keyUserLogin+'L'" style="margin-top: 4px;float: right;height: 40px; width: 46px; padding-top: 3px;" v-if="CustomerName" @click="showEditUser=!showEditUser">
+                    <span class="iconify" data-icon="ph:user-circle-fill" data-inline="false"></span>
+                  </div>
+                </ion-buttons>
+              </div>
+
             </ion-toolbar>
             <!-- <ion-toolbar color="primary" :key="restaurantSelectedId">
               <div  v-if="!newRestaurant" style="display:flex;justify-content: space-between;align-items: center;">          

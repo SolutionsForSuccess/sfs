@@ -958,6 +958,11 @@ Vue.use(VueRouter)
      name: 'ListCreditDetail',
      component: () => import(/* webpackChunkName: "about" */ '../../frontend/views/ListCreditDetail.vue')
    }, 
+   { 
+    path: '/:catchAll(.*)', 
+    component: () => import('../../App.vue'),
+    name: 'NotFound'
+  }
 
 ]
 
