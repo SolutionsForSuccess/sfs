@@ -295,8 +295,8 @@
       <div  v-if="restaurantSelectedId" >    
           <ion-col class="tool-row" >
            
-              <ion-tabs  style="    ;">
-                <ion-tab-bar color="light" style="    height: 40px;">
+              <ion-tabs  >
+                <ion-tab-bar color="light" style="height: 40px;">
                     <ion-tab-button @click="sideMenu=true,sideCart=false" :style="sideMenu? 'height: 40px;border-bottom-style: ridge;': 'height: 40px;border-bottom-style: none;'" >
                       {{$t('frontend.menu.menu')}}
                     </ion-tab-button>

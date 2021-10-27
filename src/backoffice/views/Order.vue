@@ -579,7 +579,9 @@ export default {
       return alert.present();
     },
 
-    // TODO hacer el scroll to top.
+    /**
+     * TODO hacer el scroll to top.
+     */ 
     scrollToTop() {
       document.querySelector('ion-card-content').scrollToTop(500);
     },

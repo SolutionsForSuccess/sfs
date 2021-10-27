@@ -1311,7 +1311,7 @@ export default {
                 data.total =  (parseFloat(data.total) - shipping).toFixed(2);
                 this.order.Payment= [{'total':  data.total, 'state': 0},{'total': shipping, 'state': 0}]
                 this.order.State = 0;     
-                const res = await Api.postIn('Order', this.order)
+                const res = await this.postOrder(this.order)
                 if(res.status === 200 && res.statusText === "OK"){
                   store.commit('setOrder', res.data)
                   this.order = res.data;   
@@ -1352,7 +1352,7 @@ export default {
    
       if(this.isPaymentComplete()){        
         this.order.State = 1;
-        const response = await Api.putIn('Order', this.order)      
+        const response =  await this.updateOrder(this.order)     
       
         if(response.status === 200 && response.statusText === "OK"){ 
           store.commit('setOrder', response.data)  
@@ -1389,7 +1389,7 @@ export default {
       }
       else{  
         try {
-           const response1 = await Api.putIn('Order', this.order)
+           const response1 =  await this.updateOrder(this.order)
            if(response1.status === 200 && response1.statusText === "OK"){
             store.commit('setOrder', response1.data)             
             this.arraySplit[this.indexForPay].state = 1;
@@ -1477,7 +1477,7 @@ export default {
       this.order.Payment = this.arraySplit;
       this.order.State = 0;
       try {
-        const response = await Api.postIn('Order', this.order)
+        const response = await this.postOrder(this.order)
         if(response.status === 200 && response.statusText === "OK"){
           this.readyButton = false
           store.commit('setOrder', response.data)
@@ -1599,7 +1599,7 @@ export default {
       try {  
 
         await payAuthorizeNet.cancelStatusQrOrder(data);       
-        this.paymentSuccessfull('cancelado correctamente') 
+        this.paymentSuccessfull('Successfully Canceled') 
         this.setOrderQrCode('') ;    
         this.spinner = false;      
         return this.dismissModal();
@@ -1793,10 +1793,36 @@ export default {
         }      
     },
 
+  /**
+   * Add or remove qr code to order
+   */
     async setOrderQrCode(qrCode){     
-       this.order.OrderQrCode = qrCode; 
-       store.commit('setOrder', this.order)  
+      this.order.OrderQrCode = qrCode; 
+      let response = null
+      if(this.order._id){
+        response = await this.updateOrder(this.order)
+      }
+      else{
+        this.order.State = 0; 
+        response = await this.postOrder(this.order)
+      }
+        
+      if(response.status === 200) store.commit('setOrder', this.order)  
     },
+
+    /**
+     * Update Order
+     */
+    async updateOrder(order){
+      return await Api.putIn('Order', order)
+    },
+
+    /**
+     * Save Order
+     */
+    async postOrder(order){
+      return await Api.postIn('Order', order)
+    }
 
 }, 
   
